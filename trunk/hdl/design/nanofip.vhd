@@ -1,5 +1,6 @@
 --===========================================================================
 --! @file nanofip.vhd
+--! @brief Top level design file of nanofip
 --===========================================================================
 --! Standard library
 library IEEE;
@@ -18,25 +19,37 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 -- unit name: nanofip (nanofip / nanofip)
 --
---! @brief Top level design file of nanofip.
---!
+--! @mainpage NanoFIP
+--! <HR>
+--! @section intro_sec Introduction
 --! The NanoFIP is an FPGA component implementing the WorldFIP protocol that
 --! can be used in field devices able to communicate at the three standard 
 --! speeds. The NanoFIP, that is developed as part of the WorldFIP insourcing
 --! project, is designed to be radiation tolerant by using different single 
---! event upset mitigation techniques such as triple module redundancy. 
+--! event upset mitigation techniques such as triple module redundancy. \n\n
+--! The NanoFIP design is to be implemented in an Actel ProASIC3 Flash family
+--! FPGA that is supposedly to not loose its configuration or have serious
+--! total dose effects or latchup problems. SEE still exists but should not 
+--! give any problems because of SEE mitigation techniques used in the NanoFIP 
+--! design. \n
+--! \n
 --! The device is used in conjunction with a FielDrive driver chip and FieldTR
 --! insulating transformer, both available from the company ALSTOM. 
 --!
---! Design based on NanoFIP functional specification v1.2 
+--! <HR>
+--! @section more_sec More information
+--! This design is based on the <em>NanoFIP functional specification v1.2</em> 
 --! http://www.ohwr.org/twiki/pub/OHR/CernFIP/WP3/cernfip_fspec1_2.pdf
 --!
---! More information at http://www.ohwr.org/twiki/bin/view/OHR/CernFIP/ \n
+--! Complete information about this project at 
+--! http://www.ohwr.org/twiki/bin/view/OHR/CernFIP/ \n\n
 --! 
---
+--! <HR>
+--! @image html nanofip_image_1s.gif "Block diagram of the NanoFIP design"
+--!
 --! @author Erik van der Bij (Erik.van.der.Bij@cern.ch)
 --
---! @date 30/06/2009
+--! @date 07/07/2009
 --
 --! @version v0.1
 --
@@ -53,18 +66,22 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! Author: Erik van der Bij
 -------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
---! 30/06/2009  v0.01  EB  First version \n
+--! 30/06/2009  v0.010  EB  First version \n
+--! 06/07/2009  v0.011  EB  Dummy blocks  \n
+--! 07/07/2009  v0.011  EB  Comments      \n
 --!
 -------------------------------------------------------------------------------
 --! @todo Create entity \n
 --
 -------------------------------------------------------------------------------
 
-
-
+--! @brief Top level design file of nanofip
 --============================================================================
---! Entity declaration for long entity name of my_entity
 --============================================================================
+--! Entity declaration for nanofip
+--============================================================================
+--============================================================================
+
 entity nanofip is
 
 port (
@@ -110,6 +127,7 @@ port (
       --! 110: reserved, do not use     \n
       --! 111: reserved, do not use     \n
       --! Actual size: +1 NanoFIP Status byte +1 MPS Status byte (last transmitted) 
+      --! Note: when SLONE=Vcc, p3_lgth_i should be set to 000.
    p3_lgth_i : in  std_logic_vector (2 downto 0); --! Produced variable data length
 
 
@@ -199,17 +217,131 @@ port (
    rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
    stb_i     : in  std_logic; --! Strobe
    ack_o     : out std_logic; --! Acknowledge
-   we_i      : in  std_logic --! Write enable
+   we_i      : in  std_logic  --! Write enable
 
 );
 
 end entity nanofip;
+--============================================================================
+-- end of entity declaration
+--============================================================================
 
+
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- COMPONENT DECLARATIONS
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--! Placeholder for Consumed RAM
+component consumed_ram
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for Produced RAM
+component produced_ram
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for Produced ROM
+component produced_rom
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for WorldFIP engine
+component wf_engine
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for Transmitter engine
+component tx_engine
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for WorldFIP transmitter/receiver
+component wf_tx_rx
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for User Data interface
+component data_if
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for Reset logic
+component reset_logic
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for Clock generator
+component clock_gen
+   port (); --! place holder for ports
+end component;
+
+--! Placeholder for Settings generator
+component settings
+   port (); --! place holder for ports
+end component;
+
+
+
+--============================================================================
+--============================================================================
+--! architecture declaration for nanofip
+--============================================================================
+--============================================================================
 
 --! Architecture contains only connectivity
 architecture struc of nanofip is
 begin
-end a1;
+
+--! Placeholder for Consumed RAM
+cmp_consumed_ram: consumed_ram
+   port map (); --! place holder for ports
+
+--! Placeholder for Produced RAM
+cmp_produced_ram: produced_ram
+   port map (); --! place holder for ports
+
+--! Placeholder for Produced ROM
+cmp_produced_rom: produced_rom
+   port map (); --! place holder for ports
+
+--! Placeholder for WorldFIP engine
+cmp_wf_engine: wf_engine
+   port map (); --! place holder for ports
+
+--! Placeholder for Transmitter engine
+cmp_tx_engine: tx_engine
+   port map (); --! place holder for ports
+
+--! Placeholder for WorldFIP transmitter/receiver
+cmp_wf_tx_rx: wf_tx_rx
+   port map (); --! place holder for ports
+
+--! Placeholder for User Data interface
+cmp_data_if: data_if
+   port map (); --! place holder for ports
+
+--! Placeholder for Reset logic
+cmp_reset_logic: reset_logic
+   port map (); --! place holder for ports
+
+--! Placeholder for Clock generator
+cmp_clock_gen: clock_gen
+   port map (); --! place holder for ports
+
+--! Placeholder for Settings generator
+cmp_settings: settings
+   port map (); --! place holder for ports
+
+end architecture struc;
+
+--============================================================================
+--============================================================================
+-- architecture end
+--============================================================================
+--============================================================================
 
 -------------------------------------------------------------------------------
 --                          E N D   O F   F I L E

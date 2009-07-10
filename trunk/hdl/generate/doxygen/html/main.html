@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-<title>nanofip: Main Page</title>
+<title>nanofip: NanoFIP</title>
 <link href="tabs.css" rel="stylesheet" type="text/css">
 <link href="doxygen.css" rel="stylesheet" type="text/css">
 </head><body>
@@ -16,10 +16,29 @@
   </div>
 </div>
 <div class="contents">
-<h1>nanofip Documentation</h1>
+<h1>NanoFIP</h1>
 <p>
-<h3 align="center">0 </h3></div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Mon Jul 6 13:50:13 2009 for nanofip by&nbsp;
+<h3 align="center">0.01 </h3><hr>
+ <h2><a class="anchor" name="intro_sec">
+Introduction</a></h2>
+The NanoFIP is an FPGA component implementing the WorldFIP protocol that can be used in field devices able to communicate at the three standard speeds. The NanoFIP, that is developed as part of the WorldFIP insourcing project, is designed to be radiation tolerant by using different single event upset mitigation techniques such as triple module redundancy. <br>
+<br>
+ The NanoFIP design is to be implemented in an Actel ProASIC3 Flash family FPGA that is supposedly to not loose its configuration or have serious total dose effects or latchup problems. SEE still exists but should not give any problems because of SEE mitigation techniques used in the NanoFIP design. <br>
+ <br>
+ The device is used in conjunction with a FielDrive driver chip and FieldTR insulating transformer, both available from the company ALSTOM.<p>
+<hr>
+ <h2><a class="anchor" name="more_sec">
+More information</a></h2>
+This design is based on the <em>NanoFIP functional specification v1.2</em> <a href="http://www.ohwr.org/twiki/pub/OHR/CernFIP/WP3/cernfip_fspec1_2.pdf">http://www.ohwr.org/twiki/pub/OHR/CernFIP/WP3/cernfip_fspec1_2.pdf</a><p>
+Complete information about this project at <a href="http://www.ohwr.org/twiki/bin/view/OHR/CernFIP/">http://www.ohwr.org/twiki/bin/view/OHR/CernFIP/</a> <br>
+<br>
+<p>
+<hr>
+ <div align="center">
+<img src="nanofip_image_1s.gif" alt="nanofip_image_1s.gif">
+<p><strong>Block diagram of the NanoFIP design</strong></p></div>
+ </div>
+<hr size="1"><address style="text-align: right;"><small>Generated on Fri Jul 10 10:46:26 2009 for nanofip by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>
