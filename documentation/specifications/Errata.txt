@@ -1,0 +1,29 @@
+
+Errata for NanoFIP FUNCTIONAL SPECIFICATION V1.2
+------------------------------------------------
+
+Erik van der Bij
+8/7/2009
+
+
+
+ERRATA
+------
+Table 5, MPS Status, Memory offset 10.
+   Shows value 0Ah, this should be 03h
+
+Table 6, Produced Variable MPS Status, Memory offset 11.
+   Shows value 0Ah, this should be 03h
+
+Table 6, Produced Variable MPS Status, Memory offset 10.
+   Shows value 0Ah, this should be 03h
+
+7.1 Pin assignment
+   M_ID[3:0] - Table: SID1 -> S_ID1
+   C_ID[3:0] - Table: SID1 -> S_ID1
+
+
+
+CLARIFICATIONS
+--------------
+P3_LGTH[2:0] should be set to 000 when using the stand-alone mode. (Chapter 7)
