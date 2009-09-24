@@ -1,3 +1,4 @@
+
 --===========================================================================
 --! @file nanofip.vhd
 --! @brief Top level design file of nanofip
@@ -8,6 +9,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
 
+use work.wf_package.all;
 
 -------------------------------------------------------------------------------
 --                                                                           --
@@ -213,6 +215,7 @@ port (
       --! Data out. Wishbone access only on bits 7-0. Bits 15-8 only used
       --! in stand-alone mode.
    dat_o     : out std_logic_vector (15 downto 0); --! Data out
+ --  dat_i     : in  std_logic_vector(15 downto 0);
    adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
    rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
    stb_i     : in  std_logic; --! Strobe
@@ -228,63 +231,6 @@ end entity nanofip;
 
 
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
--- COMPONENT DECLARATIONS
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
---! Placeholder for Consumed RAM
-component consumed_ram
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for Produced RAM
-component produced_ram
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for Produced ROM
-component produced_rom
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for WorldFIP engine
-component wf_engine
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for Transmitter engine
-component tx_engine
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for WorldFIP transmitter/receiver
-component wf_tx_rx
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for User Data interface
-component data_if
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for Reset logic
-component reset_logic
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for Clock generator
-component clock_gen
-   port (); --! place holder for ports
-end component;
-
---! Placeholder for Settings generator
-component settings
-   port (); --! place holder for ports
-end component;
-
-
-
 --============================================================================
 --============================================================================
 --! architecture declaration for nanofip
@@ -293,50 +239,151 @@ end component;
 
 --! Architecture contains only connectivity
 architecture struc of nanofip is
+signal s_append_status_from_control : std_logic;
+signal s_data_length_from_control :  std_logic_vector(6 downto 0);
+signal s_byte_to_tx : std_logic_vector(7 downto 0);
+signal s_rst : std_logic;
+signal s_start_send_p : std_logic;
+signal s_request_byte_from_tx_p : std_logic;
+signal s_byte_to_tx_ready_p : std_logic;
+signal s_last_byte_to_tx_p, s_last_byte_from_rx_p : std_logic;
+signal s_byte_from_rx_ready_p : std_logic;
+signal s_byte_from_rx : std_logic_vector(7 downto 0);
+signal s_cons_byte_we_from_control : std_logic;
+signal s_var_from_control : t_var;
+signal s_add_offset_from_control : std_logic_vector(6 downto 0);
+signal addr_from_wb : std_logic_vector(9 downto 0);
+signal s_crc_ok_from_rx : std_logic;
+signal fss_decoded_p_from_rx : std_logic;
+signal frame_ok_from_rx : std_logic;
+signal s_stat : std_logic_vector(7 downto 0);
+--signal 
 begin
+s_rst <= rst_i;
 
---! Placeholder for Consumed RAM
-cmp_consumed_ram: consumed_ram
-   port map (); --! place holder for ports
 
---! Placeholder for Produced RAM
-cmp_produced_ram: produced_ram
-   port map (); --! place holder for ports
+----! Placeholder for WorldFIP transmitter/receiver
 
---! Placeholder for Produced ROM
-cmp_produced_rom: produced_rom
-   port map (); --! place holder for ports
+uwf_tx_rx : wf_tx_rx 
 
---! Placeholder for WorldFIP engine
-cmp_wf_engine: wf_engine
-   port map (); --! place holder for ports
+port map(
+   uclk_i => uclk_i,
+   rst_i => s_rst,
 
---! Placeholder for Transmitter engine
-cmp_tx_engine: tx_engine
-   port map (); --! place holder for ports
+   start_send_p_i  => s_start_send_p,
+	request_byte_p_o  => s_request_byte_from_tx_p,
+	byte_ready_p_i  => s_byte_to_tx_ready_p,
+	byte_i  => s_byte_to_tx,
+	last_byte_p_i  => s_last_byte_to_tx_p,
 
---! Placeholder for WorldFIP transmitter/receiver
-cmp_wf_tx_rx: wf_tx_rx
-   port map (); --! place holder for ports
+--   clk_fixed_carrier_p_o : out std_logic;
+	d_o  => fx_txd_o,
+	d_e_o => fd_txena_o,
+	d_clk_o => fd_txck_o,
 
---! Placeholder for User Data interface
-cmp_data_if: data_if
-   port map (); --! place holder for ports
+	d_a_i  => fx_rxd_i,
+ 
+	rate_i  => rate_i,
+	
+	byte_ready_p_o  => s_byte_from_rx_ready_p,
+	byte_o  => s_byte_from_rx,
+	fss_decoded_p_o => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
 
---! Placeholder for Reset logic
-cmp_reset_logic: reset_logic
-   port map (); --! place holder for ports
+	last_byte_p_o  => s_last_byte_from_rx_p,
+	crc_ok_p_o  => s_crc_ok_from_rx 
 
---! Placeholder for Clock generator
-cmp_clock_gen: clock_gen
-   port map (); --! place holder for ports
+);
 
---! Placeholder for Settings generator
-cmp_settings: settings
-   port map (); --! place holder for ports
+uwf_engine_control : wf_engine_control 
+generic map( C_QUARTZ_PERIOD => 25.0)
 
+port map(
+   uclk_i    => uclk_i, --! User Clock
+   rst_i     => rst_i, 
+   -- Transmiter interface
+   start_send_p_o => s_start_send_p , 
+	request_byte_p_i => s_request_byte_from_tx_p, 
+	byte_ready_p_o => s_byte_to_tx_ready_p, 
+-- 	byte_o : out std_logic_vector(7 downto 0);
+	last_byte_p_o => s_last_byte_to_tx_p, 
+ 
+
+   -- Receiver interface
+	fss_decoded_p_i => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
+	byte_ready_p_i => s_byte_from_rx_ready_p,   -- The frame docoder ouputs a new byte on byte_i
+	byte_i => s_byte_from_rx,  -- Decoded byte
+	frame_ok_p_i => frame_ok_from_rx,   
+	
+	-- Worldfip bit rate
+	rate_i  => rate_i, 
+	
+   subs_i    => subs_i,  --! Subscriber number coding.
+   p3_lgth_i => p3_lgth_i, --! Produced variable data length
+
+   slone_i   => slone_i,  --! Stand-alone mode
+   nostat_i   => nostat_i, --! No NanoFIP status transmission
+
+-------------------------------------------------------------------------------
+--  USER INTERFACE, non WISHBONE
+-------------------------------------------------------------------------------
+   var1_rdy_o => var1_rdy_o,  --! Variable 1 ready
+
+   var2_rdy_o => var2_rdy_o, --! Variable 2 ready
+
+
+      --! Signals that the variable can safely be written (Produced variable 
+      --! 06xyh). In stand-alone mode, data is sampled on the first clock after
+      --! VAR_RDY is deasserted.
+   var3_rdy_o => var3_rdy_o, --! Variable 3 ready
+
+--   prod_byte_i : in std_logic_vector(7 downto 0);
+	var_o  => s_var_from_control,
+	append_status_o  => s_append_status_from_control,
+	add_offset_o => s_add_offset_from_control,
+	data_length_o => s_data_length_from_control,
+	cons_byte_we_p_o => s_cons_byte_we_from_control
+);
+
+
+uwf_consumed_vars : wf_consumed_vars 
+
+port map(
+   uclk_i => uclk_i, --! User Clock
+   rst_i  => rst_i, 
+   slone_i   => slone_i, --! Stand-alone mode
+   byte_ready_p_i  => s_cons_byte_we_from_control,
+	var_i  => s_var_from_control,
+	add_offset_i  => s_add_offset_from_control,
+	byte_i  => s_byte_from_rx,
+   dat_o   => open, --! 
+   adr_i    => addr_from_wb --! 
+
+);
+
+addr_from_wb <= (others => '0');
+
+uwf_produced_vars : wf_produced_vars
+
+port map(
+   uclk_i  => uclk_i,  --! User Clock
+   rst_i => rst_i,  
+   m_id_i  => m_id_i,   --! Model identification settings
+   c_id_i => c_id_i,   --! Constructor identification settings
+   slone_i  => slone_i,  --! Stand-alone mode
+   nostat_i => nostat_i,  --! No NanoFIP status transmission
+   stat_i => s_stat,  -- NanoFIP status 
+	var_i => s_var_from_control,  
+	append_status_i => s_append_status_from_control,  
+	add_offset_i => s_add_offset_from_control,  
+	data_length_i => s_data_length_from_control,  
+	byte_o => s_byte_to_tx,  
+   dat_i   => dat_i,   --! 
+   adr_i    => adr_i,   --! 
+   we_p_i => we_i  --! Write enable
+
+);
+s_stat <= (others => '0');
 end architecture struc;
-
 --============================================================================
 --============================================================================
 -- architecture end
