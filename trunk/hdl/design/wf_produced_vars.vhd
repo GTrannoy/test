@@ -164,36 +164,36 @@ add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
 process(s_mem_byte, var_i, add_offset_i, s_io_byte, data_length_i, append_status_i, stat_i, slone_i, c_id_i, m_id_i)
 begin
    s_byte <= (others => '0');
-	base_add <= (others => '0');
+   base_add <= (others => '0');
    for I in c_var_array'range loop
-	   if (c_var_array(I).response = produce) then
-      if c_var_array(I).var = var_i then
-		   base_add <= c_var_array(I).base_add;
-         if  c_var_array(I).var = c_st_var_identification then
-		      if unsigned(add_offset_i) = c_cons_byte_add then
-               s_byte(c_id_i'range) <= c_id_i;
-				exit;
-		      elsif unsigned(add_offset_i) = c_model_byte_add then
-               s_byte(m_id_i'range) <= m_id_i;
-				exit;
-				end if;
-			end if;
-		   if unsigned(add_offset_i) = c_pdu_byte_add then
-            s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
-         elsif unsigned(add_offset_i) = c_var_length_add then
-            s_byte(data_length_i'range) <= data_length_i;
-         elsif (unsigned(add_offset_i) = unsigned(data_length_i)) and append_status_i = '1' then
-            s_byte <= stat_i;
-         elsif unsigned(add_offset_i) <  c_var_array(I).array_length then
-            s_byte <= s_mem_byte;
-         elsif slone_i = '1' then
-            s_byte <= s_io_byte;
-         else
-            s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
+      if (c_var_array(I).response = produce) then
+         if c_var_array(I).var = var_i then
+            base_add <= c_var_array(I).base_add;
+            if c_var_array(I).var = c_st_var_identification then
+               if unsigned(add_offset_i) = c_cons_byte_add then
+                  s_byte(c_id_i'range) <= c_id_i;
+                  exit;
+               elsif unsigned(add_offset_i) = c_model_byte_add then
+                  s_byte(m_id_i'range) <= m_id_i;
+                  exit;
+               end if;
+            end if;
+            if unsigned(add_offset_i) = c_pdu_byte_add then
+               s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
+            elsif unsigned(add_offset_i) = c_var_length_add then
+               s_byte(data_length_i'range) <= data_length_i;
+            elsif (unsigned(add_offset_i) = unsigned(data_length_i)) and append_status_i = '1' then
+               s_byte <= stat_i;
+            elsif unsigned(add_offset_i) <  c_var_array(I).array_length then
+               s_byte <= s_mem_byte;
+            elsif slone_i = '1' then
+               s_byte <= s_io_byte;
+            else
+               s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
+            end if;
+            exit;
          end if;
-         exit;
-		end if;
-		end if;
+      end if;
    end loop;
 end process;
 

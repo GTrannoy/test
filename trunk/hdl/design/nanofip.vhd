@@ -271,26 +271,26 @@ port map(
    rst_i => s_rst,
 
    start_send_p_i  => s_start_send_p,
-	request_byte_p_o  => s_request_byte_from_tx_p,
-	byte_ready_p_i  => s_byte_to_tx_ready_p,
-	byte_i  => s_byte_to_tx,
-	last_byte_p_i  => s_last_byte_to_tx_p,
+   request_byte_p_o  => s_request_byte_from_tx_p,
+   byte_ready_p_i  => s_byte_to_tx_ready_p,
+   byte_i  => s_byte_to_tx,
+   last_byte_p_i  => s_last_byte_to_tx_p,
 
 --   clk_fixed_carrier_p_o : out std_logic;
-	d_o  => fx_txd_o,
-	d_e_o => fd_txena_o,
-	d_clk_o => fd_txck_o,
+   d_o  => fx_txd_o,
+   d_e_o => fd_txena_o,
+   d_clk_o => fd_txck_o,
 
-	d_a_i  => fx_rxd_i,
+   d_a_i  => fx_rxd_i,
  
-	rate_i  => rate_i,
+   rate_i  => rate_i,
 	
-	byte_ready_p_o  => s_byte_from_rx_ready_p,
-	byte_o  => s_byte_from_rx,
-	fss_decoded_p_o => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
+   byte_ready_p_o  => s_byte_from_rx_ready_p,
+   byte_o  => s_byte_from_rx,
+   fss_decoded_p_o => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
 
-	last_byte_p_o  => s_last_byte_from_rx_p,
-	crc_ok_p_o  => s_crc_ok_from_rx 
+   last_byte_p_o  => s_last_byte_from_rx_p,
+   crc_ok_p_o  => s_crc_ok_from_rx 
 
 );
 
@@ -302,20 +302,20 @@ port map(
    rst_i     => rst_i, 
    -- Transmiter interface
    start_send_p_o => s_start_send_p , 
-	request_byte_p_i => s_request_byte_from_tx_p, 
-	byte_ready_p_o => s_byte_to_tx_ready_p, 
+   request_byte_p_i => s_request_byte_from_tx_p, 
+   byte_ready_p_o => s_byte_to_tx_ready_p, 
 -- 	byte_o : out std_logic_vector(7 downto 0);
-	last_byte_p_o => s_last_byte_to_tx_p, 
+   last_byte_p_o => s_last_byte_to_tx_p, 
  
 
    -- Receiver interface
-	fss_decoded_p_i => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
-	byte_ready_p_i => s_byte_from_rx_ready_p,   -- The frame docoder ouputs a new byte on byte_i
-	byte_i => s_byte_from_rx,  -- Decoded byte
-	frame_ok_p_i => frame_ok_from_rx,   
+   fss_decoded_p_i => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
+   byte_ready_p_i => s_byte_from_rx_ready_p,   -- The frame docoder ouputs a new byte on byte_i
+   byte_i => s_byte_from_rx,  -- Decoded byte
+   frame_ok_p_i => frame_ok_from_rx,   
 	
 	-- Worldfip bit rate
-	rate_i  => rate_i, 
+   rate_i  => rate_i, 
 	
    subs_i    => subs_i,  --! Subscriber number coding.
    p3_lgth_i => p3_lgth_i, --! Produced variable data length
@@ -337,11 +337,11 @@ port map(
    var3_rdy_o => var3_rdy_o, --! Variable 3 ready
 
 --   prod_byte_i : in std_logic_vector(7 downto 0);
-	var_o  => s_var_from_control,
-	append_status_o  => s_append_status_from_control,
-	add_offset_o => s_add_offset_from_control,
-	data_length_o => s_data_length_from_control,
-	cons_byte_we_p_o => s_cons_byte_we_from_control
+   var_o  => s_var_from_control,
+   append_status_o  => s_append_status_from_control,
+   add_offset_o => s_add_offset_from_control,
+   data_length_o => s_data_length_from_control,
+   cons_byte_we_p_o => s_cons_byte_we_from_control
 );
 
 
@@ -352,9 +352,9 @@ port map(
    rst_i  => rst_i, 
    slone_i   => slone_i, --! Stand-alone mode
    byte_ready_p_i  => s_cons_byte_we_from_control,
-	var_i  => s_var_from_control,
-	add_offset_i  => s_add_offset_from_control,
-	byte_i  => s_byte_from_rx,
+   var_i  => s_var_from_control,
+   add_offset_i  => s_add_offset_from_control,
+   byte_i  => s_byte_from_rx,
    dat_o   => open, --! 
    adr_i    => addr_from_wb --! 
 
@@ -372,11 +372,11 @@ port map(
    slone_i  => slone_i,  --! Stand-alone mode
    nostat_i => nostat_i,  --! No NanoFIP status transmission
    stat_i => s_stat,  -- NanoFIP status 
-	var_i => s_var_from_control,  
-	append_status_i => s_append_status_from_control,  
-	add_offset_i => s_add_offset_from_control,  
-	data_length_i => s_data_length_from_control,  
-	byte_o => s_byte_to_tx,  
+   var_i => s_var_from_control,  
+   append_status_i => s_append_status_from_control,  
+   add_offset_i => s_add_offset_from_control,  
+   data_length_i => s_data_length_from_control,  
+   byte_o => s_byte_to_tx,  
    dat_i   => dat_i,   --! 
    adr_i    => adr_i,   --! 
    we_p_i => we_i  --! Write enable

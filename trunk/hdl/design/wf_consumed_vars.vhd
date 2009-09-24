@@ -134,27 +134,26 @@ add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
 
 process(var_i, add_offset_i, slone_i, byte_ready_p_i)
 begin
-	we_ram_p <= '0';
-	we_byte_p <= (others => '0');
+   we_ram_p <= '0';
+   we_byte_p <= (others => '0');
    base_add <= (others => '0');
-
    for I in c_var_array'range loop
-	   if (c_var_array(I).response = consume) then
-      if c_var_array(I).var = var_i then
-		   base_add <= c_var_array(I).base_add;
-         if slone_i = '0' then
-			   we_ram_p <= byte_ready_p_i;
-         elsif slone_i = '1' and I = c_var_var1_pos   then
-			   if unsigned(add_offset_i) = c_byte_0_add then
-	            we_byte_p(0) <= byte_ready_p_i ;					
-				end if;
-	         if unsigned(add_offset_i) = c_byte_1_add then
-	            we_byte_p(1) <= byte_ready_p_i ;		
-				end if;
-			end if;
-         exit;
-		  end if;
-        end if;		
+      if (c_var_array(I).response = consume) then
+         if c_var_array(I).var = var_i then
+            base_add <= c_var_array(I).base_add;
+            if slone_i = '0' then
+               we_ram_p <= byte_ready_p_i;
+            elsif slone_i = '1' and I = c_var_var1_pos   then
+               if unsigned(add_offset_i) = c_byte_0_add then
+                  we_byte_p(0) <= byte_ready_p_i ;					
+               end if;
+               if unsigned(add_offset_i) = c_byte_1_add then
+                  we_byte_p(1) <= byte_ready_p_i ;		
+               end if;
+            end if;
+            exit;
+         end if;
+      end if;		
    end loop;
 end process;
 
@@ -176,11 +175,11 @@ end process;
 process(s_dat, s_dat_ram, slone_i)
 begin
    dat_o <= (others => '0');
-      if slone_i = '1' then
-         dat_o <= s_dat;
-      else
-         dat_o(7 downto 0) <= s_dat_ram;
-      end if;
+   if slone_i = '1' then
+     dat_o <= s_dat;
+   else
+     dat_o(7 downto 0) <= s_dat_ram;
+   end if;
 end process;
 
 end architecture rtl;

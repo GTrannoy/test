@@ -156,9 +156,7 @@ port map(
    start_p_i => s_start_crc_p,
 	d_i  => s_d_filtered_d,
 	d_rdy_p_i  => s_write_bit_to_byte,
-
 	data_fcs_sel_n => '1',
-	
 	crc_o  => open,
 	crc_rdy_p_o => open,
 	crc_ok_p => s_crc_ok_p
@@ -184,67 +182,63 @@ case rx_st is
 
    --w_x states verify the unfiltered signal timing  
    when w_1 =>  -- I start detecting the first one, falling edge
-	            if d_fe_i = '1' then
-					   nx_rx_st <= w_2;
-               else
-					   nx_rx_st <= w_1;
-					end if;	
+                         if d_fe_i = '1' then
+                            nx_rx_st <= w_2;
+                         else
+                            nx_rx_st <= w_1;
+                         end if;	
    when w_2 =>  -- If there is a zero ,rising edge, then I jump to 3
-	            if s_re_edge_on_phase = '1' then
-					   nx_rx_st <= w_3;
-               elsif s_edge_not_on_phase = '1' then
-					   nx_rx_st <= w_1;
-					else 
-					   nx_rx_st <= w_2;
-					end if;	
+                         if s_re_edge_on_phase = '1' then
+                            nx_rx_st <= w_3;
+                         elsif s_edge_not_on_phase = '1' then
+                            nx_rx_st <= w_1;
+                         else 
+                            nx_rx_st <= w_2;
+                         end if;	
    when w_3 =>  -- I wait for a one (falling edge)
-	            if s_fe_edge_on_phase = '1' then
-					   nx_rx_st <= w_4;
-               elsif s_edge_not_on_phase = '1' then
-					   nx_rx_st <= w_1;
-					else 
-					   nx_rx_st <= w_3;
-					end if;	
-   when w_4 => -- If the preamble is still being sent I will detect a zero, re,  and jump to w3
+                         if s_fe_edge_on_phase = '1' then
+                            nx_rx_st <= w_4;
+                         elsif s_edge_not_on_phase = '1' then
+                            nx_rx_st <= w_1;
+                         else 
+                            nx_rx_st <= w_3;
+                         end if;	
+   when w_4 =>                          -- If the preamble is still being sent I will detect a zero, re,  and jump to w3
 					-- If the start delimeter is received I will detect a one (fe) 
 					-- Receiveing an edge not in phase means the header is going to be received next
 					-- Eventually a glitch could be confused with such an event, but the header decoding
 					-- and CRC should indicate that a bad frame has been decoded
-	            if s_re_edge_180_on_phase = '1' then
-					   nx_rx_st <= w_frame_start ;
-	            elsif s_re_edge_on_phase = '1' then
-					   nx_rx_st <= w_3;
-					elsif s_fe_edge_on_phase = '1' then
-					   nx_rx_st <= w_1;				
-               elsif s_edge_not_on_phase = '1' then  -- In c
-					   nx_rx_st <= w_1;
-					else 
-					   nx_rx_st <= w_4;
-					end if;
-					
-
-					
-					
+                         if s_re_edge_180_on_phase = '1' then
+                            nx_rx_st <= w_frame_start ;
+                         elsif s_re_edge_on_phase = '1' then
+                            nx_rx_st <= w_3;
+                         elsif s_fe_edge_on_phase = '1' then
+                            nx_rx_st <= w_1;				
+                         elsif s_edge_not_on_phase = '1' then  -- In c
+                            nx_rx_st <= w_1;
+                         else 
+                            nx_rx_st <= w_4;
+                         end if;				
 	-- w_header and w_byte use the filtered serial data
    when w_frame_start => 
-	            if s_last_frame_start_bit = '1' then
-					   nx_rx_st <= w_byte;
-					elsif s_bad_frame_start_bit = '1' then
-					   nx_rx_st <= w_1;
-					else
-					   nx_rx_st <= w_frame_start;			
-					end if;
-	when w_byte =>
-               if s_good_queue_detected_p = '1' then
-					   nx_rx_st <= w_1;
+                         if s_last_frame_start_bit = '1' then
+                            nx_rx_st <= w_byte;
+                         elsif s_bad_frame_start_bit = '1' then
+                            nx_rx_st <= w_1;
+                         else
+                            nx_rx_st <= w_frame_start;			
+                         end if;
+   when w_byte =>
+                         if s_good_queue_detected_p = '1' then
+                            nx_rx_st <= w_1;
 					-- Is there a code violation that does not correspond to the queue pattern?
-					elsif s_bad_queue_bit = '1' and s_code_violation = '1' then
-					   nx_rx_st <= w_1;				
-					else
-					   nx_rx_st <= w_byte;
-					end if;	
+                         elsif s_bad_queue_bit = '1' and s_code_violation = '1' then
+                            nx_rx_st <= w_1;				
+                         else
+                            nx_rx_st <= w_byte;
+                         end if;	
    when others => 
-					   nx_rx_st <= w_1;
+                         nx_rx_st <= w_1;
 end case;	
 end process;
 
@@ -253,10 +247,10 @@ begin
    load_phase_o <= '0';
    s_inc_pointer <= '0';
    s_load_pointer <= '0';
-	s_byte_ok <= '0';
-	s_write_bit_to_byte <= '0';
+   s_byte_ok <= '0';
+   s_write_bit_to_byte <= '0';
    s_start_pointer <= to_unsigned(0,s_start_pointer'length);
-	s_start_crc_p <= '0';
+   s_start_crc_p <= '0';
    fss_decoded_p_o <= '0';
 
 case rx_st is 
@@ -269,21 +263,21 @@ case rx_st is
    when w_4 => 
       load_phase_o <= edge_window_i;
       s_start_pointer <= to_unsigned(FRAME_START'left-1,s_start_pointer'length);
-	   s_load_pointer <=  s_re_edge_180_on_phase;
+      s_load_pointer <=  s_re_edge_180_on_phase;
    when w_frame_start =>
       load_phase_o <= edge_window_i;
-	   s_inc_pointer <= s_d_ready_p_i;
+      s_inc_pointer <= s_d_ready_p_i;
       s_start_pointer <= to_unsigned(QUEUE'left,s_start_pointer'length);
-	   s_load_pointer <=  s_pointer_is_zero and s_clk_bit_180_p_d;    
-		s_start_crc_p <= '1';
+      s_load_pointer <=  s_pointer_is_zero and s_clk_bit_180_p_d;    
+      s_start_crc_p <= '1';
       fss_decoded_p_o <= s_last_frame_start_bit;
-	when w_byte =>
+   when w_byte =>
       load_phase_o <= edge_window_i;
-	   s_inc_pointer <= s_d_ready_p_i;
-	   s_write_bit_to_byte <= s_clk_bit_180_p_d;
-		s_byte_ok <= s_pointer_is_zero and s_clk_bit_180_p_d and (not s_good_queue_detected_p) and (not s_code_violation);
+      s_inc_pointer <= s_d_ready_p_i;
+      s_write_bit_to_byte <= s_clk_bit_180_p_d;
+      s_byte_ok <= s_pointer_is_zero and s_clk_bit_180_p_d and (not s_good_queue_detected_p) and (not s_code_violation);
       s_start_pointer <= to_unsigned(QUEUE'left,s_start_pointer'length);
-	   s_load_pointer <=  s_pointer_is_zero and s_clk_bit_180_p_d;
+      s_load_pointer <=  s_pointer_is_zero and s_clk_bit_180_p_d;
    when others => 
 end case;	
 end process;
@@ -296,50 +290,45 @@ s_edge_not_on_phase <= (not edge_window_i)and (d_re_i or d_fe_i);
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		   if s_d_ready_p_i = '1' then
-		      s_d_filtered_d <= d_filtered_i;
-			end if;
-			s_clk_bit_180_p_d <= clk_bit_180_p_i;
+         if s_d_ready_p_i = '1' then
+            s_d_filtered_d <= d_filtered_i;
+         end if;
+         s_clk_bit_180_p_d <= clk_bit_180_p_i;
       end if;
 end process;
 
-
-
 s_code_violation <=  (not(s_d_filtered_d xor d_filtered_i)) and s_clk_bit_180_p_d;
---s_good_zero <=  (s_d_filtered_d and (not d_filtered_i)) and s_clk_bit_180_p_d;
 s_frame_start_bit <= FRAME_START(to_integer(pointer));
 s_queue_bit <= QUEUE(to_integer(resize(pointer,4)));
 s_good_header_bit <= (s_frame_start_bit xnor  d_filtered_i )and s_d_ready_p_i;
---s_good_queue_bit <= (s_queue_bit xnor  d_filtered_i) and s_d_ready_p_i;
 s_bad_frame_start_bit <= (s_frame_start_bit xor  d_filtered_i )and s_d_ready_p_i;
 s_bad_queue_bit <= (s_queue_bit xor  d_filtered_i) and s_d_ready_p_i;
 s_last_frame_start_bit <= s_pointer_is_zero and s_good_header_bit and s_clk_bit_180_p_d;
---s_last_queue_bit <= s_pointer_is_zero and s_good_queue_detected;
 s_good_queue_detected_p <= s_good_queue_detected and s_clk_bit_180_p_d and s_pointer_is_zero;
+
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		   if rst_i = '1' then
-		      s_good_queue_detected <= '1';
-			elsif s_clk_bit_180_p_d = '1' and s_pointer_is_zero = '1' then 
-		      s_good_queue_detected <= '1';
-			elsif  s_bad_queue_bit = '1' then
-		      s_good_queue_detected <= '0';
-			end if;
+         if rst_i = '1' then
+            s_good_queue_detected <= '1';
+         elsif s_clk_bit_180_p_d = '1' and s_pointer_is_zero = '1' then 
+            s_good_queue_detected <= '1';
+         elsif  s_bad_queue_bit = '1' then
+            s_good_queue_detected <= '0';
+         end if;
       end if;
 end process;
-
 
 s_pointer_is_zero <= '1' when pointer = 0 else '0';
 
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		   if s_load_pointer = '1' then
-		      pointer <= s_start_pointer;
-		   elsif s_inc_pointer = '1' then
-		      pointer <= pointer - 1;
-			end if;
+         if s_load_pointer = '1' then
+            pointer <= s_start_pointer;
+         elsif s_inc_pointer = '1' then
+            pointer <= pointer - 1;
+         end if;
       end if;
 end process;
 
@@ -347,36 +336,36 @@ end process;
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		   if s_write_bit_to_byte = '1' then
-		      s_byte <= s_byte(6 downto 0) & s_d_filtered_d;
-			end if;
+         if s_write_bit_to_byte = '1' then
+            s_byte <= s_byte(6 downto 0) & s_d_filtered_d;
+         end if;
       end if;
 end process;
 
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		if rst_i = '1' then
-   		s_crc_ok <= '0';		
-		elsif s_byte_ok = '1' then
-   		s_crc_ok <= '0';
-		elsif s_crc_ok_p = '1' then 
-   		s_crc_ok <= '1';
-		end if;
-		end if;
+         if rst_i = '1' then
+            s_crc_ok <= '0';		
+         elsif s_byte_ok = '1' then
+            s_crc_ok <= '0';
+         elsif s_crc_ok_p = '1' then 
+            s_crc_ok <= '1';
+         end if;
+      end if;
 end process;
 
 
 process(uclk_i)
    begin
-      if rising_edge(uclk_i) then
-		   if rst_i = '1' then
-            byte_ready_p_o <= '0';
-			else
-            byte_ready_p_o <= s_byte_ok and (not s_good_queue_detected_p);
-		   end if;
-		end if;
-end process;
+      if rising_edge(uclk_i) then 
+         if rst_i = '1' then
+            byte_ready_p_o <= '0'; 
+         else
+            byte_ready_p_o <= s_byte_ok and (not s_good_queue_detected_p); 
+         end if;
+      end if;
+end process; 
 
 byte_o <= s_byte; 
 last_byte_p_o <= s_good_queue_detected_p;
