@@ -1,6 +1,6 @@
 --===========================================================================
 --! @file wf_tx.vhd
---! @brief Serialises and deserialises the WorldFIP data
+--! @brief Serialises the WorldFIP data
 --===========================================================================
 --! Standard library
 library IEEE;
@@ -20,7 +20,7 @@ use work.wf_package.all;
 --
 -- unit name: wf_tx
 --
---! @brief Serialises and deserialises the WorldFIP data.
+--! @brief Serialises the WorldFIP data.
 --!
 --! Used in the NanoFIP design. \n
 --! This unit serializes the data.
@@ -148,7 +148,7 @@ begin
       if byte_ready_p_i = '1' then
          s_byte <= byte_i;
       end if;
-	end if;
+   end if;
 end process;
 
 
@@ -158,7 +158,7 @@ process(uclk_i)
       if rising_edge(uclk_i) then
          if rst_i = '1' then
             tx_st <= tx_idle;
-			else
+         else
             tx_st <= nx_tx_st;
          end if;
       end if;
@@ -173,32 +173,32 @@ nx_tx_st <= tx_idle;
    case tx_st is 
       when tx_idle =>  if start_send_p_i = '1' then
                           nx_tx_st <= tx_header;
-							  else
+                       else
                           nx_tx_st <= tx_idle;
                        end if;
       when tx_header =>   if s_pointer_is_zero = '1'  and  clk_fixed_carrier_p_d_i(2) = '1' then
                              nx_tx_st <= tx_byte;
-							     else
+                          else
                              nx_tx_st <= tx_header;
                           end if;
       when tx_byte =>   if last_byte_p_i = '1' then
                              nx_tx_st <= tx_last_byte;
-							     else
+                        else
                              nx_tx_st <= tx_byte;
                         end if;
       when tx_last_byte => if s_pointer_is_zero = '1' and  clk_fixed_carrier_p_d_i(1) = '1' then
                              nx_tx_st <= tx_crc_byte;
-							     else
+                           else
                              nx_tx_st <= tx_last_byte;
-                        end if;
+                           end if;
       when tx_crc_byte => if s_pointer_is_zero = '1' and  clk_fixed_carrier_p_d_i(1) = '1' then
                              nx_tx_st <= tx_queue;
-							     else
+                          else
                              nx_tx_st <= tx_crc_byte;
-                        end if;
-		when tx_queue =>  if s_pointer_is_zero = '1' and  clk_fixed_carrier_p_d_i(1) = '1' then
+                          end if;
+      when tx_queue =>  if s_pointer_is_zero = '1' and  clk_fixed_carrier_p_d_i(1) = '1' then
                              nx_tx_st <= tx_idle;
-							     else
+                        else
                              nx_tx_st <= tx_queue;
                         end if;		
       when others =>
@@ -220,56 +220,52 @@ begin
 	s_calc_crc <= '0';
    case tx_st is 
       when tx_idle =>            
-                         s_top_pointer <= to_unsigned(HEADER'length-1,s_pointer'length);
-	                      s_reset_pointer <= '1';
+                          s_top_pointer <= to_unsigned(HEADER'length-1,s_pointer'length);
+	                  s_reset_pointer <= '1';
       when tx_header =>
-	                      s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
-								 s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
-								 
-								 s_nx_data <= HEADER(to_integer(s_pointer));
-	                      s_nx_data_e <= '1';
-                         s_top_pointer <= to_unsigned(15,s_pointer'length);
-								 s_start_crc_p <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
+	                  s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
+			  s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);		 
+                          s_nx_data <= HEADER(to_integer(s_pointer));
+	                  s_nx_data_e <= '1';
+                          s_top_pointer <= to_unsigned(15,s_pointer'length);
+			  s_start_crc_p <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
       when tx_byte  => 
-								 request_byte_p_o <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(0);
-								 s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
-								 s_nx_data <= s_manchester_byte(to_integer(resize(s_pointer,4)));
-	                      s_nx_data_e <= '1';
-								 s_d_to_crc_rdy_p <= clk_fixed_carrier_p_d_i(2) and s_pointer(0);
-                         s_top_pointer <= to_unsigned(QUEUE'length-1,s_pointer'length);	
-	                      s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
-								 s_calc_crc <= '1';
+			  request_byte_p_o <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(0);
+                          s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
+                          s_nx_data <= s_manchester_byte(to_integer(resize(s_pointer,4)));
+                          s_nx_data_e <= '1';
+                          s_d_to_crc_rdy_p <= clk_fixed_carrier_p_d_i(2) and s_pointer(0);
+                          s_top_pointer <= to_unsigned(QUEUE'length-1,s_pointer'length);	
+                          s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
+                          s_calc_crc <= '1';
       when tx_last_byte => 
-								 request_byte_p_o <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(0);
-								 s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
-								 s_nx_data <= s_manchester_byte(to_integer(resize(s_pointer,4)));
-	                      s_nx_data_e <= '1';
-								 s_d_to_crc_rdy_p <= clk_fixed_carrier_p_d_i(2) and s_pointer(0);
-	                      s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
-                         s_top_pointer <= to_unsigned(QUEUE'length-1,s_pointer'length);
-								 s_calc_crc <= '1';
+                          request_byte_p_o <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(0);
+                          s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
+                          s_nx_data <= s_manchester_byte(to_integer(resize(s_pointer,4)));
+                          s_nx_data_e <= '1';
+                          s_d_to_crc_rdy_p <= clk_fixed_carrier_p_d_i(2) and s_pointer(0);
+                          s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
+                          s_top_pointer <= to_unsigned(QUEUE'length-1,s_pointer'length);
+                          s_calc_crc <= '1';
 
       when tx_crc_byte =>
                          -- I enable the crc shift register at the bit boundaries by 
                          -- inverting s_pointer(0)								 
- --                        s_d_to_crc_rdy_p <= clk_fixed_carrier_p_d_i(2) and (not s_pointer(0));
+						 
+                          s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
 								 
-								 s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
-								 
-								 s_nx_data <= s_manchester_crc(to_integer(resize(s_pointer,4)));
-
---								 s_nx_data <= (not s_crc(s_crc'left)) xor ( s_pointer(0)); -- s_crc(s_crc'left) is xored with s_pointer(0) to mimic
+                          s_nx_data <= s_manchester_crc(to_integer(resize(s_pointer,4)));
+--                        s_nx_data <= (not s_crc(s_crc'left)) xor ( s_pointer(0)); -- s_crc(s_crc'left) is xored with s_pointer(0) to mimic
 								                                                  -- a manchester encoder
-	                      s_nx_data_e <= '1';
-	                      s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
-                         s_top_pointer <= to_unsigned(s_manchester_crc'length-1,s_pointer'length);	
-								 
+                          s_nx_data_e <= '1';
+                          s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
+                          s_top_pointer <= to_unsigned(s_manchester_crc'length-1,s_pointer'length);							 
 		when tx_queue =>
-                         s_top_pointer <= to_unsigned(QUEUE'length-1,s_pointer'length);	
-	                      s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
-								 s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
-							    s_nx_data <= QUEUE(to_integer(resize(s_pointer,4)));							 
-	                      s_nx_data_e <= '1';								 
+                          s_top_pointer <= to_unsigned(QUEUE'length-1,s_pointer'length);	
+                          s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
+                          s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
+                          s_nx_data <= QUEUE(to_integer(resize(s_pointer,4)));							 
+                          s_nx_data_e <= '1';								 
       when others => 
    end case;
 end process;
@@ -277,7 +273,7 @@ end process;
 process(s_byte)
 begin
    for I in byte_i'range loop
-	   s_manchester_byte(I*2) <= not s_byte(I);
+      s_manchester_byte(I*2) <= not s_byte(I);
       s_manchester_byte(I*2+1) <=  s_byte(I);
    end loop;
 end process;
@@ -285,7 +281,7 @@ end process;
 process(s_crc)
 begin
    for I in s_crc'range loop
-	   s_manchester_crc(I*2) <= not s_crc(I);
+      s_manchester_crc(I*2) <= not s_crc(I);
       s_manchester_crc(I*2+1) <=  s_crc(I);
    end loop;
 end process;
@@ -293,21 +289,21 @@ end process;
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		  if  clk_fixed_carrier_p_d_i(0) = '1' then
+         if  clk_fixed_carrier_p_d_i(0) = '1' then
             d_o <= s_nx_data;
-		  end if;
-				d_e_o <= s_nx_data_e;
+         end if;
+         d_e_o <= s_nx_data_e;
       end if;
 end process;
 
 process(uclk_i)
    begin
       if rising_edge(uclk_i) then
-		   if s_reset_pointer = '1' then
-		      s_pointer <= s_top_pointer;
-		   elsif s_inc_pointer = '1' then
-		      s_pointer <= s_pointer - 1;
-			end if;
+         if s_reset_pointer = '1' then
+            s_pointer <= s_top_pointer;
+         elsif s_inc_pointer = '1' then
+            s_pointer <= s_pointer - 1;
+         end if;
       end if;
 end process;
 

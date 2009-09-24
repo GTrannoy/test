@@ -1,6 +1,6 @@
 --===========================================================================
 --! @file wf_rx_osc.vhd
---! @brief Deserialises the WorldFIP data
+--! @brief Recovers clock from the input serial line. 
 --===========================================================================
 --! Standard library
 library IEEE;
@@ -19,7 +19,8 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 -- unit name: wf_rx_osc
 --
---! @brief Numeric oscillator that generates a 1MHz pulse locked to a 
+--! @brief Numeric oscillator that generates a clock locked to the carrier 
+--!        encoded frequency. 
 --!
 --! Used in the NanoFIP design. \n
 --! This unit serializes the data.
@@ -110,7 +111,6 @@ end entity wf_rx_osc;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 architecture rtl of wf_rx_osc is
-
       --! Bit rate         \n
       --! 31.25 kbit => 62.5 KHz carrier \n
 constant c_period_31_25kbit : real := (C_QUARTZ_PERIOD*real(2**C_OSC_LENGTH))/32000.0;
@@ -118,16 +118,8 @@ constant c_period_31_25kbit : real := (C_QUARTZ_PERIOD*real(2**C_OSC_LENGTH))/32
 constant c_period_1_mbit : real := (C_QUARTZ_PERIOD*real(2**C_OSC_LENGTH))/1000.0;
       --! 2.5 Mbit/s  => 5MHz carrier \n
 constant c_period_2_5mbit : real := (C_QUARTZ_PERIOD*real(2**C_OSC_LENGTH))/400.0;
---
---constant c_period_31_25kbit_signed : signed(C_OSC_LENGTH -1 downto 0) := to_signed(integer(c_period_31_25kbit), C_OSC_LENGTH);
---      --! 1 Mbit/s     \n
---constant c_period_1_mbit_signed : signed(C_OSC_LENGTH -1 downto 0) := to_signed(integer(c_period_1_mbit), C_OSC_LENGTH);
---      --! 2.5 Mbit/s   \n
---constant c_period_2_5mbit_signed : signed(C_OSC_LENGTH -1 downto 0) := to_signed(integer(c_period_2_5mbit), C_OSC_LENGTH);
 
- type t_period is array (Natural range <>) of signed(C_OSC_LENGTH -1 downto 0);
-
-
+type t_period is array (Natural range <>) of signed(C_OSC_LENGTH -1 downto 0);
 constant C_PERIOD : t_period(3 downto 0) := (0 => to_signed(integer(c_period_31_25kbit), C_OSC_LENGTH),
                                  1 => to_signed(integer(c_period_1_mbit), C_OSC_LENGTH),
                                  2 => to_signed(integer(c_period_2_5mbit), C_OSC_LENGTH),
@@ -135,14 +127,11 @@ constant C_PERIOD : t_period(3 downto 0) := (0 => to_signed(integer(c_period_31_
 
 											
 signal s_tag, s_phase, s_free_c :  signed(C_OSC_LENGTH -1 downto 0);
-
-
 signal s_period : signed(C_OSC_LENGTH -1 downto 0);
 signal s_nx_clk_bit  : std_logic;
 signal s_nx_clk_bit_90  :  std_logic;
 signal s_nx_clk_bit_180  :  std_logic;
 signal s_nx_clk_bit_270  :  std_logic;
-
 signal s_clk_bit  :  std_logic;
 signal s_clk_bit_90  :  std_logic;
 signal s_clk_bit_180  :  std_logic;
