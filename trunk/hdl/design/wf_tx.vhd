@@ -239,7 +239,7 @@ begin
                           s_reset_pointer <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(2);
                           s_calc_crc <= '1';
       when tx_last_byte => 
-                          request_byte_p_o <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(0);
+ --                         request_byte_p_o <= s_pointer_is_zero and  clk_fixed_carrier_p_d_i(0);
                           s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
                           s_nx_data <= s_manchester_byte(to_integer(resize(s_pointer,4)));
                           s_nx_data_e <= '1';
@@ -254,7 +254,7 @@ begin
 						 
                           s_inc_pointer <=  clk_fixed_carrier_p_d_i(2);
 								 
-                          s_nx_data <= s_manchester_crc(to_integer(resize(s_pointer,4)));
+                          s_nx_data <= s_manchester_crc(to_integer(resize(s_pointer,5)));
 --                        s_nx_data <= (not s_crc(s_crc'left)) xor ( s_pointer(0)); -- s_crc(s_crc'left) is xored with s_pointer(0) to mimic
 								                                                  -- a manchester encoder
                           s_nx_data_e <= '1';
