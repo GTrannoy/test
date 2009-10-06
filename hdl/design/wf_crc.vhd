@@ -89,14 +89,16 @@ constant c_check_mask : std_logic_vector(c_poly_length - 1 downto 0) := "0001110
 
 signal s_q, s_q_nx  : std_logic_vector(c_poly_length - 1 downto 0);
 signal s_crc_rdy_p : std_logic;
+signal s_d : std_logic;
 begin
 
+s_d <= d_i;
 G: for I in 0 to c_poly'left generate
    G0: if I = 0 generate
-      s_q_nx(I) <= data_fcs_sel_n and (d_i xor s_q(s_q'left));
+      s_q_nx(I) <= data_fcs_sel_n and (( s_d) xor s_q(s_q'left));
    end generate;
    G1: if I > 0 generate
-      s_q_nx(I) <= s_q(I-1) xor (c_poly(I) and data_fcs_sel_n and (d_i xor s_q(s_q'left)));
+      s_q_nx(I) <= s_q(I-1) xor (c_poly(I) and data_fcs_sel_n and (s_d xor s_q(s_q'left)));
    end generate;
 end generate;
 
@@ -116,7 +118,7 @@ begin
    end if;
 end process;
 
-crc_o <= s_q;
+crc_o <= not s_q;
 crc_rdy_p_o <= s_crc_rdy_p;
 
 process(s_q, s_crc_rdy_p)

@@ -43,8 +43,8 @@ constant c_p3_var_length_table : t_integer_array(0 to 7) :=
 (0 => 2, 1 => 8, 2 => 16, 3 => 32, 4 => 64, 5 => 124, others => 0);  
 
 
-constant c_id_dat : std_logic_vector(7 downto 0) := "11000000";
-constant c_rp_dat : std_logic_vector(7 downto 0) := "01000000";
+constant c_id_dat : std_logic_vector(7 downto 0) := "00000011";
+constant c_rp_dat : std_logic_vector(7 downto 0) := "00000010";
 
 
 --constant c_var_presence : std_logic_vector(7 downto 0) := x"14";
