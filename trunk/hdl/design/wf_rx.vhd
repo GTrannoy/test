@@ -75,6 +75,8 @@ port (
 	byte_o : out std_logic_vector(7 downto 0);
 	last_byte_p_o : out std_logic;
 	fss_decoded_p_o : out std_logic;
+	code_violation_p_o : out std_logic;
+	crc_bad_p_o : out std_logic;
 	crc_ok_p_o : out std_logic;
 	d_re_i : in std_logic;
 	d_fe_i : in std_logic;
@@ -252,7 +254,7 @@ begin
    s_start_pointer <= to_unsigned(0,s_start_pointer'length);
    s_start_crc_p <= '0';
    fss_decoded_p_o <= '0';
-
+   code_violation_p_o <= '0';
 case rx_st is 
    when w_1 =>
       load_phase_o <= '1';
@@ -271,6 +273,8 @@ case rx_st is
       s_load_pointer <=  s_pointer_is_zero and s_clk_bit_180_p_d;    
       s_start_crc_p <= '1';
       fss_decoded_p_o <= s_last_frame_start_bit;
+      code_violation_p_o <= s_bad_queue_bit and s_code_violation;
+
    when w_byte =>
       load_phase_o <= edge_window_i;
       s_inc_pointer <= s_d_ready_p_i;
@@ -370,7 +374,7 @@ end process;
 byte_o <= s_byte; 
 last_byte_p_o <= s_good_queue_detected_p;
 crc_ok_p_o <= s_good_queue_detected_p and s_crc_ok;
-
+crc_bad_p_o <= s_good_queue_detected_p and (not s_crc_ok);
 
 end architecture rtl;
 -------------------------------------------------------------------------------

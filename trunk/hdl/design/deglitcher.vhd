@@ -1,6 +1,6 @@
 --===========================================================================
 --! @file deglitcher.vhd
---! @brief Deserialises the WorldFIP data
+--! @brief Glitch filter. 1 pulse adapted filter.
 --===========================================================================
 --! Standard library
 library IEEE;
@@ -19,10 +19,10 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 -- unit name: deglitcher
 --
---! @brief 1 microsecond pulse adapted filter
+--! @brief Glitch filter. 1 pulse adapted filter.
 --!
---! Used in the NanoFIP design. \n
---! This unit serializes the data.
+--! 
+--!
 --!
 --!
 --! @author	    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)

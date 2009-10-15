@@ -78,17 +78,22 @@ port (
 --	data_length_i : in std_logic_vector(6 downto 0);
 	byte_i : in std_logic_vector(7 downto 0);
 
+   var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
+   var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+
+   reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
+   reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
 -------------------------------------------------------------------------------
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
 
 --   dat_i     : in  std_logic_vector (15 downto 0); --! 
-
-   dat_o     : out std_logic_vector (15 downto 0); --! 
-   adr_i     : in  std_logic_vector ( 9 downto 0) --! 
---   stb_p_i     : in  std_logic; --! Strobe
---   ack_p_o     : out std_logic; --! Acknowledge
---   we_p_i      : in  std_logic  --! Write enable
+   wb_clk_i     : in std_logic;
+   wb_dat_o     : out std_logic_vector (15 downto 0); --! 
+   wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
+   wb_stb_p_i     : in  std_logic; --! Strobe
+   wb_ack_p_o     : out std_logic; --! Acknowledge
+   wb_we_p_i      : in  std_logic  --! Write enable
 
 );
 
@@ -114,21 +119,52 @@ signal s_dat_ram : std_logic_vector(7 downto 0);
 signal we_ram_p : std_logic;
 signal we_byte_p : std_logic_vector(1 downto 0);
 signal s_dat : std_logic_vector(15 downto 0);
+signal s_reset_var2_access_clkb, s_var2_access_clkb : std_logic;
+signal s_reset_var1_access_clkb, s_var1_access_clkb : std_logic;
+
 begin
 
- production_dpram : dpblockram 
- generic map(dl => 8, 		-- Length of the data word 
- 			 al => 7,			-- Size of the addr map (10 = 1024 words)
-			 nw => 2**7)    -- Number of words
-			 									-- 'nw' has to be coherent with 'al'
 
- port map(clk  => uclk_i,			-- Global Clock
- 	we  => we_ram_p, 				-- Write Enable
- 	aw  => add(6 downto 0),  -- Write Address 
- 	ar =>  adr_i(6 downto 0), -- Read Address
- 	di =>  byte_i, -- Data input
- 	dw  => open,  -- Data write, normaly open
- 	do => s_dat_ram); 	 -- Data output
+ consumtion_dpram:  dpblockram_clka_rd_clkb_wr
+ generic map(c_dl => 8, 		-- Length of the data word 
+ 			 c_al => 8)    -- Number of words
+			 									-- 'nw' has to be coherent with 'c_al'
+
+ port map(clka_i => wb_clk_i,			-- Global Clock
+       aa_i => wb_adr_i(7 downto 0),
+		 da_o => s_dat_ram,
+		 
+		 clkb_i => uclk_i,
+		 ab_i => add(7 downto 0),
+		 db_i => byte_i,
+		 web_i => we_ram_p);
+
+process(wb_clk_i)
+begin
+if rising_edge(wb_clk_i) then
+   if unsigned(wb_adr_i(9 downto 8)) = to_unsigned(0, 2) then
+      wb_ack_p_o <= wb_stb_p_i ;
+   else
+      wb_ack_p_o <= '0';
+   end if;
+   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(0, 2) then
+      s_var1_access_clkb <= wb_stb_p_i ;
+   elsif s_reset_var1_access_clkb = '1' then
+      s_var1_access_clkb <= '0' ;
+   end if;
+
+   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(1, 2) then
+      s_var2_access_clkb <= wb_stb_p_i ;
+   elsif s_reset_var2_access_clkb = '1' then
+      s_var2_access_clkb <= '0' ;
+   end if;
+	
+	s_reset_var1_access_clkb <= reset_var1_access_i;
+	s_reset_var2_access_clkb <= reset_var2_access_i;
+end if;
+end process;
+  var1_access_wb_clk_o <= s_var1_access_clkb;
+  var2_access_wb_clk_o <= s_var2_access_clkb;
 
 add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
 
@@ -174,11 +210,11 @@ begin
 end process;
 process(s_dat, s_dat_ram, slone_i)
 begin
-   dat_o <= (others => '0');
+   wb_dat_o <= (others => '0');
    if slone_i = '1' then
-     dat_o <= s_dat;
+     wb_dat_o <= s_dat;
    else
-     dat_o(7 downto 0) <= s_dat_ram;
+     wb_dat_o(7 downto 0) <= s_dat_ram;
    end if;
 end process;
 

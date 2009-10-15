@@ -257,12 +257,25 @@ signal s_crc_ok_from_rx : std_logic;
 signal fss_decoded_p_from_rx : std_logic;
 signal frame_ok_from_rx : std_logic;
 signal s_stat : std_logic_vector(7 downto 0);
---signal 
+signal  s_ack_produced, s_ack_consumed, s_ack_o: std_logic;
+signal s_stat_sent_p, s_sending_stat: std_logic;
+signal s_mps_sent_p, s_sending_mps: std_logic;
+signal s_code_violation_p : std_logic;
+signal s_crc_bad_p : std_logic;
+signal s_var1_rdy : std_logic;
+signal s_var2_rdy : std_logic;
+signal s_var3_rdy : std_logic;
+signal s_var1_access_wb_clk  : std_logic;
+signal s_var2_access_wb_clk  : std_logic;
+signal s_var3_access_wb_clk : std_logic;
+signal s_reset_var1_access : std_logic;
+signal s_reset_var2_access : std_logic;
+signal s_reset_var3_access : std_logic;
+--signal s_stat : std_logic_vector(7 downto 0);
+signal s_mps : std_logic_vector(7 downto 0);
+
 begin
 s_rst <= rst_i;
-
-
-----! Placeholder for WorldFIP transmitter/receiver
 
 uwf_tx_rx : wf_tx_rx 
 
@@ -290,6 +303,9 @@ port map(
    fss_decoded_p_o => fss_decoded_p_from_rx,   -- The frame decoder has detected the start of a frame
 
    last_byte_p_o  => s_last_byte_from_rx_p,
+	code_violation_p_o  => s_code_violation_p,
+	crc_bad_p_o  => s_crc_bad_p,
+
    crc_ok_p_o  => s_crc_ok_from_rx 
 
 );
@@ -355,12 +371,22 @@ port map(
    var_i  => s_var_from_control,
    add_offset_i  => s_add_offset_from_control,
    byte_i  => s_byte_from_rx,
-   dat_o   => open, --! 
-   adr_i    => addr_from_wb --! 
+
+   var1_access_wb_clk_o => s_var1_access_wb_clk,
+   var2_access_wb_clk_o => s_var2_access_wb_clk,
+
+   reset_var1_access_i => s_reset_var1_access,
+   reset_var2_access_i => s_reset_var2_access,
+	
+   wb_clk_i => wclk_i,   
+   wb_dat_o => dat_o,   
+   wb_adr_i => adr_i,   
+   wb_stb_p_i => stb_i,   
+   wb_ack_p_o => s_ack_consumed,   
+   wb_we_p_i => we_i
 
 );
 
-addr_from_wb <= (others => '0');
 
 uwf_produced_vars : wf_produced_vars
 
@@ -371,18 +397,65 @@ port map(
    c_id_i => c_id_i,   --! Constructor identification settings
    slone_i  => slone_i,  --! Stand-alone mode
    nostat_i => nostat_i,  --! No NanoFIP status transmission
-   stat_i => s_stat,  -- NanoFIP status 
+
+   sending_stat_o => s_sending_stat, --! The status register is being adressed
+   sending_mps_o => s_sending_mps, --! The status register is being adressed
+
+   stat_i => s_stat,  -- NanoFIP status
+	mps_i => s_mps,
+	
+   var3_access_wb_clk_o => s_var3_access_wb_clk,
+   reset_var3_access_i => s_reset_var3_access,
+	
    var_i => s_var_from_control,  
    append_status_i => s_append_status_from_control,  
    add_offset_i => s_add_offset_from_control,  
    data_length_i => s_data_length_from_control,  
-   byte_o => s_byte_to_tx,  
-   dat_i   => dat_i,   --! 
-   adr_i    => adr_i,   --! 
-   we_p_i => we_i  --! Write enable
-
+   byte_o => s_byte_to_tx,
+-------------------------------------------------------------------------------
+--!  USER INTERFACE. Data and address lines synchronized with uclk_i
+-------------------------------------------------------------------------------
+   wb_dat_i => dat_i,   
+   wb_clk_i => wclk_i,   
+   wb_adr_i => adr_i,   
+   wb_stb_p_i => stb_i,   
+   wb_ack_p_o => s_ack_produced,   
+   wb_we_p_i => we_i   
 );
-s_stat <= (others => '0');
+
+ustatus_gen : status_gen 
+port map(
+   uclk_i => uclk_i,
+   rst_i => rst_i,
+
+   fd_wdgn_i => fd_wdgn_i,
+   fd_txer_i => fd_txer_i,
+
+	code_violation_p_i => s_code_violation_p,
+	crc_bad_p_i => s_crc_bad_p,
+
+   var1_rdy_i => s_var1_rdy,
+   var2_rdy_i => s_var2_rdy,
+   var3_rdy_i => s_var3_rdy,
+
+   var1_access_a_i => s_var1_access_wb_clk,
+   var2_access_a_i => s_var2_access_wb_clk,
+   var3_access_a_i => s_var3_access_wb_clk,
+
+   reset_var1_access_o => s_reset_var1_access,
+   reset_var2_access_o => s_reset_var2_access,
+   reset_var3_access_o => s_reset_var3_access,
+	
+   stat_sent_p_i => s_stat_sent_p,
+   mps_sent_p_i => s_mps_sent_p,
+	 
+   stat_o => s_stat,
+   mps_o => s_mps
+);
+
+s_ack_o <= s_ack_produced or s_ack_consumed;
+s_stat_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; --! The status register is being adressed
+s_mps_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; --! The status register is being adressed
 end architecture struc;
 --============================================================================
 --============================================================================

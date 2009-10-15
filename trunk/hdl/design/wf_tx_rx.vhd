@@ -89,6 +89,8 @@ port (
 	byte_o : out std_logic_vector(7 downto 0);
 	last_byte_p_o : out std_logic;
 	fss_decoded_p_o : out std_logic;
+	code_violation_p_o : out std_logic;
+	crc_bad_p_o : out std_logic;
 	crc_ok_p_o : out std_logic
 
 );
