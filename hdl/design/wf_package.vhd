@@ -139,6 +139,20 @@ constant c_var_array : t_var_array(0 to 5):=
 										byte_array => (0 => x"40", others => x"ff")));
 
 
+--Status bit position
+
+constant c_u_cacer_pos : integer := 2; --! Consumed variable access error
+constant c_u_pacer_pos : integer := 3; --! Produced variable access error
+constant c_r_bner_pos : integer := 4; --! Received bit number error. Replaced by code violation.
+constant c_r_fcser_pos : integer := 5; --! Received FCS access error
+constant c_t_txer_pos : integer := 6; --! Transmit error (FIELDDRIVE)
+constant c_t_wder_pos : integer := 7; --! Watchdog error (FIELDDRIVE)
+
+constant c_refreshment_pos : integer := 0; --! MPS refreshment bit 
+constant c_significance_pos : integer := 2; --! MPS significance bit
+
+
+
 function calc_data_length(var : t_var; 
    p3_length : std_logic_vector(2 downto 0);
 	nostat : std_logic;
@@ -223,6 +237,8 @@ port (
 	byte_o : out std_logic_vector(7 downto 0);
 	last_byte_p_o : out std_logic;
 	fss_decoded_p_o : out std_logic;
+	code_violation_p_o : out std_logic;
+	crc_bad_p_o : out std_logic;
 	crc_ok_p_o : out std_logic;
 	
 	d_re_i : in std_logic;
@@ -263,20 +279,20 @@ end component wf_tx;
 
 
 
- component dpblockram 
- generic (dl : integer := 42; 		-- Length of the data word 
- 			 al : integer := 10;			-- Size of the addr map (10 = 1024 words)
-			 nw : integer := 1024);    -- Number of words
-			 									-- 'nw' has to be coherent with 'al'
+ component dpblockram_clka_rd_clkb_wr
+ generic (c_dl : integer := 42; 		-- Length of the data word 
+ 			 c_al : integer := 10);    -- Number of words
+			 									-- 'nw' has to be coherent with 'c_al'
 
- port (clk  : in std_logic; 			-- Global Clock
- 	we   : in std_logic; 				-- Write Enable
- 	aw    : in std_logic_vector(al - 1 downto 0); -- Write Address 
- 	ar : in std_logic_vector(al - 1 downto 0); 	 -- Read Address
- 	di   : in std_logic_vector(dl - 1 downto 0);  -- Data input
- 	dw  : out std_logic_vector(dl - 1 downto 0);  -- Data write, normaly open
- 	do  : out std_logic_vector(dl - 1 downto 0)); 	 -- Data output
- end component dpblockram; 
+ port (clka_i  : in std_logic; 			-- Global Clock
+       aa_i : in std_logic_vector(c_al - 1 downto 0);
+		 da_o : out std_logic_vector(c_dl -1 downto 0);
+		 
+		 clkb_i : in std_logic;
+		 ab_i : in std_logic_vector(c_al - 1 downto 0);
+		 db_i : in std_logic_vector(c_dl - 1 downto 0);
+		 web_i : in std_logic);
+ end component dpblockram_clka_rd_clkb_wr; 
  
 component wf_engine_control 
 generic( C_QUARTZ_PERIOD : real := 25.0);
@@ -380,27 +396,32 @@ port (
 --	data_length_i : in std_logic_vector(6 downto 0);
 	byte_i : in std_logic_vector(7 downto 0);
 
+   var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
+   var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+
+   reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
+   reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
 -------------------------------------------------------------------------------
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
 
 --   dat_i     : in  std_logic_vector (15 downto 0); --! 
-
-   dat_o     : out std_logic_vector (15 downto 0); --! 
-   adr_i     : in  std_logic_vector ( 9 downto 0) --! 
---   stb_p_i     : in  std_logic; --! Strobe
---   ack_p_o     : out std_logic; --! Acknowledge
---   we_p_i      : in  std_logic  --! Write enable
+   wb_clk_i     : in std_logic;
+   wb_dat_o     : out std_logic_vector (15 downto 0); --! 
+   wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
+   wb_stb_p_i     : in  std_logic; --! Strobe
+   wb_ack_p_o     : out std_logic; --! Acknowledge
+   wb_we_p_i      : in  std_logic  --! Write enable
 
 );
 
 end component wf_consumed_vars;
 
+
 component wf_produced_vars is
 port (
    uclk_i    : in std_logic; --! User Clock
    rst_i     : in std_logic;
-
       --! Identification selection (see M_ID, C_ID)
 --   s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
 
@@ -431,8 +452,15 @@ port (
       --! the produced data.
    nostat_i  : in  std_logic; --! No NanoFIP status transmission
 
-   stat_i : in std_logic_vector(7 downto 0); -- NanoFIP status 
-	
+   stat_i : in std_logic_vector(7 downto 0); --! NanoFIP status 
+	mps_i : in std_logic_vector(7 downto 0);
+   sending_stat_o : out std_logic; --! The status register is being adressed
+   sending_mps_o : out std_logic; --! The status register is being adressed
+
+   var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+
+   reset_var3_access_i: in std_logic; --! Reset Variable 1 access flag
+
 --   prod_byte_i : in std_logic_vector(7 downto 0);
 	var_i : in t_var;
 	append_status_i : in std_logic;
@@ -444,15 +472,15 @@ port (
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
 
-   dat_i     : in  std_logic_vector (15 downto 0); --! 
-
---   dat_o     : out std_logic_vector (15 downto 0); --! 
-   adr_i     : in  std_logic_vector ( 9 downto 0); --! 
---   stb_p_i     : in  std_logic; --! Strobe
---   ack_p_o     : out std_logic; --! Acknowledge
-   we_p_i      : in  std_logic  --! Write enable
-
+   wb_dat_i     : in  std_logic_vector (15 downto 0); --! 
+   wb_clk_i     : in std_logic;
+   wb_dat_o     : out std_logic_vector (15 downto 0); --! 
+   wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
+   wb_stb_p_i     : in  std_logic; --! Strobe
+   wb_ack_p_o     : out std_logic; --! Acknowledge
+   wb_we_p_i      : in  std_logic  --! Write enable
 );
+
 
 end component wf_produced_vars;
 
@@ -481,11 +509,71 @@ port (
 	byte_o : out std_logic_vector(7 downto 0);
 	last_byte_p_o : out std_logic;
 	fss_decoded_p_o : out std_logic;
+	code_violation_p_o : out std_logic;
+	crc_bad_p_o : out std_logic;
 	crc_ok_p_o : out std_logic
 
 );
 
 end component wf_tx_rx;
+
+component status_gen 
+
+port (
+   uclk_i    : in std_logic; --! User Clock
+   rst_i     : in std_logic;
+
+
+-------------------------------------------------------------------------------
+-- Connections to wf_tx_rx (WorldFIP received data)
+-------------------------------------------------------------------------------
+   fd_wdgn_i : in  std_logic; --! Watchdog on transmitter
+   fd_txer_i : in  std_logic; --! Transmitter error
+
+	code_violation_p_i : in std_logic;
+	crc_bad_p_i : in std_logic;
+-------------------------------------------------------------------------------
+--  Connections to wf_engine
+------------------------------------------------------------------------------- 
+      --! Signals new data is received and can safely be read (Consumed 
+      --! variable 05xyh). In stand-alone mode one may sample the data on the 
+      --! first clock edge VAR1_RDY is high.
+   var1_rdy_i: in std_logic; --! Variable 1 ready
+
+      --! Signals new data is received and can safely be read (Consumed 
+      --! broadcast variable 04xyh). In stand-alone mode one may sample the 
+      --! data on the first clock edge VAR1_RDY is high.
+   var2_rdy_i: in std_logic; --! Variable 2 ready
+
+
+      --! Signals that the variable can safely be written (Produced variable 
+      --! 06xyh). In stand-alone mode, data is sampled on the first clock after
+      --! VAR_RDY is deasserted.
+   var3_rdy_i: in std_logic; --! Variable 3 ready
+
+   var1_access_a_i: in std_logic; --! Variable 1 access
+   var2_access_a_i: in std_logic; --! Variable 2 access
+   var3_access_a_i: in std_logic; --! Variable 3 access
+
+   reset_var1_access_o : out std_logic; --! Reset Variable 1 access flag
+   reset_var2_access_o : out std_logic; --! Reset Variable 2 access flag
+   reset_var3_access_o : out std_logic; --! Reset Variable 2 access flag
+
+
+   stat_sent_p_i : in std_logic;
+   mps_sent_p_i : in std_logic; 
+	
+   stat_o : out std_logic_vector(7 downto 0); 
+   mps_o : out std_logic_vector(7 downto 0)
+	
+-------------------------------------------------------------------------------
+--  Connections to data_if
+-------------------------------------------------------------------------------
+
+
+);
+
+end component status_gen;
 
 component nanofip
 

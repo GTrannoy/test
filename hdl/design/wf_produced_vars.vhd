@@ -95,8 +95,15 @@ port (
       --! the produced data.
    nostat_i  : in  std_logic; --! No NanoFIP status transmission
 
-   stat_i : in std_logic_vector(7 downto 0); -- NanoFIP status 
-	
+   stat_i : in std_logic_vector(7 downto 0); --! NanoFIP status 
+	mps_i : in std_logic_vector(7 downto 0);
+   sending_stat_o : out std_logic; --! The status register is being adressed
+   sending_mps_o : out std_logic; --! The status register is being adressed
+
+   var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+
+   reset_var3_access_i: in std_logic; --! Reset Variable 1 access flag
+
 --   prod_byte_i : in std_logic_vector(7 downto 0);
 	var_i : in t_var;
 	append_status_i : in std_logic;
@@ -108,13 +115,15 @@ port (
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
 
-   dat_i     : in  std_logic_vector (15 downto 0); --! 
+   wb_dat_i     : in  std_logic_vector (15 downto 0); --! 
+   wb_clk_i     : in std_logic;
+   wb_dat_o     : out std_logic_vector (15 downto 0); --! 
+   wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
+   wb_stb_p_i     : in  std_logic; --! Strobe
+   wb_ack_p_o     : out std_logic; --! Acknowledge
+   wb_we_p_i      : in  std_logic  --! Write enable
 
---   dat_o     : out std_logic_vector (15 downto 0); --! 
-   adr_i     : in  std_logic_vector ( 9 downto 0); --! 
---   stb_p_i     : in  std_logic; --! Strobe
---   ack_p_o     : out std_logic; --! Acknowledge
-   we_p_i      : in  std_logic  --! Write enable
+
 
 );
 
@@ -139,22 +148,62 @@ signal s_byte: std_logic_vector(7 downto 0);
 signal s_mem_byte : std_logic_vector(7 downto 0);
 signal s_io_byte : std_logic_vector(7 downto 0);
 signal base_add, add: std_logic_vector(9 downto 0);
+signal s_wb_we : std_logic;
+signal s_reset_var3_access_clkb, s_var3_access_clkb : std_logic;
 
 begin
 
- production_dpram : dpblockram 
- generic map(dl => 8, 		-- Length of the data word 
- 			 al => 7,			-- Size of the addr map (10 = 1024 words)
-			 nw => 2**7)    -- Number of words
-			 									-- 'nw' has to be coherent with 'al'
 
- port map(clk  => uclk_i,			-- Global Clock
- 	we  => we_p_i, 				-- Write Enable
- 	aw  => adr_i(6 downto 0),  -- Write Address 
- 	ar => add(6 downto 0), -- Read Address
- 	di =>  dat_i(7 downto 0), -- Data input
- 	dw  => open,  -- Data write, normaly open
- 	do => s_mem_byte); 	 -- Data output
+
+ production_dpram:  dpblockram_clka_rd_clkb_wr
+ generic map(c_dl => 8, 		-- Length of the data word 
+ 			 c_al => 7)    -- Number of words
+			 									-- 'nw' has to be coherent with 'c_al'
+
+ port map(clka_i => uclk_i,			-- Global Clock
+       aa_i => add(6 downto 0),
+		 da_o => s_mem_byte,
+		 
+		 clkb_i => wb_clk_i,
+		 ab_i => wb_adr_i(6 downto 0),
+		 db_i => wb_dat_i(7 downto 0),
+		 web_i => wb_we_p_i);
+
+s_wb_we <=  wb_stb_p_i and wb_we_p_i;
+
+process(wb_clk_i)
+begin
+if rising_edge(wb_clk_i) then
+   if wb_adr_i(9 downto 7) = "010" then
+      wb_ack_p_o <= s_wb_we and  wb_stb_p_i;
+   else
+      wb_ack_p_o <= '0';
+   end if;
+
+   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(2, 2) then
+      s_var3_access_clkb <= s_wb_we and  wb_stb_p_i;
+   elsif s_reset_var3_access_clkb = '1' then
+      s_var3_access_clkb <= '0' ;
+   end if;
+	s_reset_var3_access_clkb <= reset_var3_access_i;
+
+end if;
+end process;
+var3_access_wb_clk_o <= s_var3_access_clkb;
+
+-- production_dpram : dpblockram 
+-- generic map(dl => 8, 		-- Length of the data word 
+-- 			 al => 7,			-- Size of the addr map (10 = 1024 words)
+--			 nw => 2**7)    -- Number of words
+--			 									-- 'nw' has to be coherent with 'al'
+--
+-- port map(clk  => uclk_i,			-- Global Clock
+-- 	we  => we_p_i, 				-- Write Enable
+-- 	aw  => adr_i(6 downto 0),  -- Write Address 
+-- 	ar => add(6 downto 0), -- Read Address
+-- 	di =>  dat_i(7 downto 0), -- Data input
+-- 	dw  => open,  -- Data write, normaly open
+-- 	do => s_mem_byte); 	 -- Data output
 
 -- For the moment there is only one variable produced, but I think it is nice to have
 -- defined an offset for every variable in case we produce more variables in the future
@@ -165,6 +214,8 @@ process(s_mem_byte, var_i, add_offset_i, s_io_byte, data_length_i, append_status
 begin
    s_byte <= (others => '0');
    base_add <= (others => '0');
+	sending_stat_o <= '0';
+   sending_mps_o <= '0';
    for I in c_var_array'range loop
       if (c_var_array(I).response = produce) then
          if c_var_array(I).var = var_i then
@@ -182,8 +233,12 @@ begin
                s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
             elsif unsigned(add_offset_i) = c_var_length_add then
                s_byte(data_length_i'range) <= data_length_i;
-            elsif (unsigned(add_offset_i) = unsigned(data_length_i)) and append_status_i = '1' then
+            elsif (unsigned(add_offset_i) = (unsigned(data_length_i) - 1)) and append_status_i = '1' then
                s_byte <= stat_i;
+               sending_stat_o <= '1';
+				elsif (unsigned(add_offset_i) = unsigned(data_length_i)) then
+               s_byte <= mps_i;
+               sending_mps_o <= '1';
             elsif unsigned(add_offset_i) <  c_var_array(I).array_length then
                s_byte <= s_mem_byte;
             elsif slone_i = '1' then
@@ -197,7 +252,7 @@ begin
    end loop;
 end process;
 
-s_io_byte <= dat_i(15 downto 8) when add_offset_i(0) = '1' else dat_i(7 downto 0);
+s_io_byte <= wb_dat_i(15 downto 8) when add_offset_i(0) = '1' else wb_dat_i(7 downto 0);
 byte_o <= s_byte;
 end architecture rtl;
 -------------------------------------------------------------------------------
