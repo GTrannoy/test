@@ -275,7 +275,17 @@ signal s_reset_var3_access : std_logic;
 signal s_mps : std_logic_vector(7 downto 0);
 
 begin
-s_rst <= rst_i;
+
+ureset_logic : reset_logic 
+port map(
+   uclk_i => uclk_i,
+   rstin_i => rst_i,
+   rston_o => rston_o,
+
+	var_i => s_var_from_control, 
+   rst_o => s_rst  
+);
+
 
 uwf_tx_rx : wf_tx_rx 
 

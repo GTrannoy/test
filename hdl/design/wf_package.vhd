@@ -575,6 +575,26 @@ port (
 
 end component status_gen;
 
+component reset_logic 
+generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
+
+port (
+   uclk_i    : in std_logic; --! User Clock
+
+   rstin_i   : in  std_logic; --! Initialisation control, active low
+
+      --! Reset output, active low. Active when the reset variable is received 
+      --! and the second byte contains the station address.
+   rston_o   : out std_logic; --! Reset output, active low
+
+	var_i : in t_var;  --! Received variable
+   rst_o     : out std_logic --! Reset ouput active high
+
+
+);
+
+end component reset_logic;
+
 component nanofip
 
 port (
@@ -716,6 +736,7 @@ port (
 );
 
 end component nanofip;
+
 
 end wf_package;
 
