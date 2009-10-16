@@ -7,6 +7,7 @@ library IEEE;
 --! Standard packages
 use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
+use work.wf_package.all;
 
 
 -------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! Entity declaration for reset_logic
 --============================================================================
 entity reset_logic is
+generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
 
 port (
    uclk_i    : in std_logic; --! User Clock
@@ -68,8 +70,8 @@ port (
       --! and the second byte contains the station address.
    rston_o   : out std_logic; --! Reset output, active low
 
-	var_i : in t_var;
-   rst_o     : out std_logic; --! Reset ouput active high
+	var_i : in t_var;  --! Received variable
+   rst_o     : out std_logic --! Reset ouput active high
 
 
 );
@@ -82,22 +84,33 @@ end entity reset_logic;
 -------------------------------------------------------------------------------
 architecture rtl of reset_logic is
 signal s_rstin_d : std_logic_vector(1 downto 0);
+signal s_rst_c : unsigned(4 downto 0);
+signal s_reload_rst_c : std_logic;
 begin
 
+process(s_rstin_d,var_i)
+begin
+if (var_i = c_var_array(c_var_reset_pos).var) then 
+ s_reload_rst_c <= '1';
+else
+ s_reload_rst_c <= s_rstin_d(s_rstin_d'left);
+end if;
+end process;
 
 process(uclk_i)
 begin
    if rising_edge(uclk_i) then
       s_rstin_d <= s_rstin_d(0) & (not rstin_i);
-      if var_i = c_var_array(c_var_reset_pos).c_st_var_reset then 
-         rst_o <= '1';
-      else
-         rst_o <= s_rstin_d(1);
+      if (s_reload_rst_c = '1') then 
+         s_rst_c <=  to_unsigned(0, s_rst_c'length);
+      elsif  s_rst_c(s_rst_c'left) = '0' then
+         s_rst_c <=  s_rst_c + 1;
       end if;
+      rst_o <= s_rst_c(s_rst_c'left);
+		rston_o <= not s_rst_c(s_rst_c'left);
    end if;
 end process;
 
-rston_o <= not rst_o;
 
 end architecture rtl;
 -------------------------------------------------------------------------------
