@@ -107,7 +107,7 @@ begin
          s_rst_c <=  s_rst_c + 1;
       end if;
       rst_o <= s_rst_c(s_rst_c'left);
-		rston_o <= not s_rst_c(s_rst_c'left);
+      rston_o <= not s_rst_c(s_rst_c'left);
    end if;
 end process;
 
