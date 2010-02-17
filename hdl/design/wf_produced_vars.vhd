@@ -46,7 +46,9 @@ use work.wf_package.all;
 --! 11/09/2009  v0.01  EB  First version \n
 --!
 -------------------------------------------------------------------------------
---! @todo 
+--! @todo I have removed var3_access_wb_clk_o and reset_var3_access_i because in the funtional
+--!       specifications var3_access comes from an external pin. I leave the commented code in
+--!       the spec is revised
 --!
 -------------------------------------------------------------------------------
 
@@ -102,14 +104,16 @@ entity wf_produced_vars is
     sending_stat_o : out std_logic; --! The status register is being adressed
     sending_mps_o : out std_logic; --! The status register is being adressed
     
-    var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+ --   var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
 
-    reset_var3_access_i: in std_logic; --! Reset Variable 1 access flag
+ --   reset_var3_access_i: in std_logic; --! Reset Variable 1 access flag
 
 --   prod_byte_i : in std_logic_vector(7 downto 0);
     var_i : in t_var;
     append_status_i : in std_logic;
-    add_offset_i : in std_logic_vector(6 downto 0);
+    add_offset_i : in std_logic_vector(6 downto 0);  --! Pointer to message
+                                                     --bytes, including rp_dat,
+                                                     --and substation ID.
     data_length_i : in std_logic_vector(6 downto 0);
     byte_o : out std_logic_vector(7 downto 0);
 
@@ -151,7 +155,8 @@ architecture rtl of wf_produced_vars is
   signal s_io_byte : std_logic_vector(7 downto 0);
   signal base_add, add: std_logic_vector(9 downto 0);
   signal s_wb_we : std_logic;
-  signal s_reset_var3_access_clkb, s_var3_access_clkb : std_logic;
+--  signal s_reset_var3_access_clkb, s_var3_access_clkb : std_logic;
+  signal s_add_to_ram : std_logic_vector(6 downto 0);  --! Pointer to RAM contents
 
 begin
 
@@ -163,17 +168,19 @@ begin
     -- 'nw' has to be coherent with 'c_al'
 
     port map(clka_i => uclk_i,			-- Global Clock
-             aa_i => add(6 downto 0),
+             aa_i => s_add_to_ram,
              da_o => s_mem_byte,
              
              clkb_i => wb_clk_i,
              ab_i => wb_adr_i(6 downto 0),
              db_i => wb_dat_i(7 downto 0),
              web_i => wb_we_p_i);
-
+s_add_to_ram <= std_logic_vector(unsigned(add(6 downto 0)) - 2);
   s_wb_we <=  wb_stb_p_i and wb_we_p_i;
 
-  process(wb_clk_i)
+
+  --! P_wb_interface generates wb_ack and var3_access signal
+  P_wb_interface:process(wb_clk_i)
   begin
     if rising_edge(wb_clk_i) then
       if wb_adr_i(9 downto 7) = "010" then
@@ -182,16 +189,16 @@ begin
         wb_ack_p_o <= '0';
       end if;
 
-      if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(2, 2) then
-        s_var3_access_clkb <= s_wb_we and  wb_stb_p_i;
-      elsif s_reset_var3_access_clkb = '1' then
-        s_var3_access_clkb <= '0' ;
-      end if;
-      s_reset_var3_access_clkb <= reset_var3_access_i;
+--      if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(2, 2) then
+--        s_var3_access_clkb <= s_wb_we and  wb_stb_p_i;
+--      elsif s_reset_var3_access_clkb = '1' then
+--        s_var3_access_clkb <= '0' ;
+--      end if;
+ --     s_reset_var3_access_clkb <= reset_var3_access_i;
 
     end if;
   end process;
-  var3_access_wb_clk_o <= s_var3_access_clkb;
+--  var3_access_wb_clk_o <= s_var3_access_clkb;
 
 -- For the moment there is only one variable produced, but I think it is nice to have
 -- defined an offset for every variable in case we produce more variables in the future
@@ -241,7 +248,7 @@ begin
             exit;
           end if;
          
-
+          --! Normally the only variable left is var3. 
           if unsigned(add_offset_i) = c_pdu_byte_add then  --! Send PDU byte 
             s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
           elsif unsigned(add_offset_i) = c_var_length_add then
