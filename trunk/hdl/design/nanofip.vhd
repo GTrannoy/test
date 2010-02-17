@@ -266,12 +266,12 @@ architecture struc of nanofip is
   signal s_var1_rdy : std_logic;
   signal s_var2_rdy : std_logic;
   signal s_var3_rdy : std_logic;
-  signal s_var1_access_wb_clk  : std_logic;
-  signal s_var2_access_wb_clk  : std_logic;
-  signal s_var3_access_wb_clk : std_logic;
-  signal s_reset_var1_access : std_logic;
-  signal s_reset_var2_access : std_logic;
-  signal s_reset_var3_access : std_logic;
+--  signal s_var1_access_wb_clk  : std_logic;
+--  signal s_var2_access_wb_clk  : std_logic;
+--  signal s_var3_access_wb_clk : std_logic;
+--  signal s_reset_var1_access : std_logic;
+--  signal s_reset_var2_access : std_logic;
+--  signal s_reset_var3_access : std_logic;
 --signal s_stat : std_logic_vector(7 downto 0);
   signal s_mps : std_logic_vector(7 downto 0);
 
@@ -383,11 +383,11 @@ begin
       add_offset_i  => s_add_offset_from_control,
       byte_i  => s_byte_from_rx,
 
-      var1_access_wb_clk_o => s_var1_access_wb_clk,
-      var2_access_wb_clk_o => s_var2_access_wb_clk,
+ --     var1_access_wb_clk_o => s_var1_access_wb_clk,
+ --     var2_access_wb_clk_o => s_var2_access_wb_clk,
 
-      reset_var1_access_i => s_reset_var1_access,
-      reset_var2_access_i => s_reset_var2_access,
+ --     reset_var1_access_i => s_reset_var1_access,
+ --     reset_var2_access_i => s_reset_var2_access,
 
       wb_clk_i => wclk_i,   
       wb_dat_o => dat_o,   
@@ -415,8 +415,8 @@ begin
       stat_i => s_stat,  -- NanoFIP status
       mps_i => s_mps,
       
-      var3_access_wb_clk_o => s_var3_access_wb_clk,
-      reset_var3_access_i => s_reset_var3_access,
+  --    var3_access_wb_clk_o => s_var3_access_wb_clk,
+  --    reset_var3_access_i => s_reset_var3_access,
       
       var_i => s_var_from_control,  
       append_status_i => s_append_status_from_control,  
@@ -449,13 +449,13 @@ begin
       var2_rdy_i => s_var2_rdy,
       var3_rdy_i => s_var3_rdy,
 
-      var1_access_a_i => s_var1_access_wb_clk,
-      var2_access_a_i => s_var2_access_wb_clk,
-      var3_access_a_i => s_var3_access_wb_clk,
+      var1_access_a_i => var1_acc_i,
+      var2_access_a_i => var2_acc_i,
+      var3_access_a_i => var3_acc_i,
 
-      reset_var1_access_o => s_reset_var1_access,
-      reset_var2_access_o => s_reset_var2_access,
-      reset_var3_access_o => s_reset_var3_access,
+ --     reset_var1_access_o => s_reset_var1_access,
+ --     reset_var2_access_o => s_reset_var2_access,
+ --     reset_var3_access_o => s_reset_var3_access,
 
       stat_sent_p_i => s_stat_sent_p,
       mps_sent_p_i => s_mps_sent_p,

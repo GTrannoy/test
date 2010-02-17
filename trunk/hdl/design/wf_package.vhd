@@ -31,11 +31,11 @@ package wf_package is
 
 
   constant c_timeouts_table : t_timeouts_table(0 to 3) := -- Time in ns
-     (c_31k25_rate_pos => (response => integer(640000.0/C_QUARTZ_PERIOD), silence => integer(5160000.0/C_QUARTZ_PERIOD)),
-      c_1M_rate_pos => (response => integer(10000.0/C_QUARTZ_PERIOD), silence => integer(150000.0/C_QUARTZ_PERIOD)),
-      c_2M5_rate_pos => (response => integer(16000.0/C_QUARTZ_PERIOD), silence => integer(100000.0/C_QUARTZ_PERIOD)),
-      c_11_rate_pos => (response => integer(640000.0/C_QUARTZ_PERIOD), silence => integer(5160000.0/C_QUARTZ_PERIOD))
-      );
+                                                          (c_31k25_rate_pos => (response => integer(640000.0/C_QUARTZ_PERIOD), silence => integer(5160000.0/C_QUARTZ_PERIOD)),
+                                                           c_1M_rate_pos => (response => integer(10000.0/C_QUARTZ_PERIOD), silence => integer(150000.0/C_QUARTZ_PERIOD)),
+                                                           c_2M5_rate_pos => (response => integer(16000.0/C_QUARTZ_PERIOD), silence => integer(100000.0/C_QUARTZ_PERIOD)),
+                                                           c_11_rate_pos => (response => integer(640000.0/C_QUARTZ_PERIOD), silence => integer(5160000.0/C_QUARTZ_PERIOD))
+                                                           );
 
   type t_integer_array is array (natural range <>) of integer;
 
@@ -76,8 +76,8 @@ package wf_package is
 --
   type t_var_array is array (natural range <>) of t_var_record;
   
-  constant c_var_length_add : integer := 2;
-  constant c_pdu_byte_add : integer := 1;
+  constant c_var_length_add : integer := 3;
+  constant c_pdu_byte_add : integer := 2;
 
   constant c_cons_byte_add : integer := 6;
   constant c_model_byte_add : integer := 7;
@@ -396,11 +396,11 @@ package wf_package is
 --	data_length_i : in std_logic_vector(6 downto 0);
       byte_i : in std_logic_vector(7 downto 0);
 
-      var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
-      var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+--      var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
+--      var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
 
-      reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
-      reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
+--      reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
+--      reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
 -------------------------------------------------------------------------------
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
@@ -459,9 +459,9 @@ package wf_package is
       sending_stat_o : out std_logic; --! The status register is being adressed
       sending_mps_o : out std_logic; --! The status register is being adressed
 
-      var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+--      var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
 
-      reset_var3_access_i: in std_logic; --! Reset Variable 1 access flag
+--      reset_var3_access_i: in std_logic; --! Reset Variable 1 access flag
 
 --   prod_byte_i : in std_logic_vector(7 downto 0);
       var_i : in t_var;
@@ -497,7 +497,6 @@ package wf_package is
       byte_ready_p_i : in std_logic;
       byte_i : in std_logic_vector(7 downto 0);
       last_byte_p_i : in std_logic;
-
 --   clk_fixed_carrier_p_o : out std_logic;
       d_o : out std_logic;
       d_e_o : out std_logic;
@@ -524,8 +523,6 @@ package wf_package is
     port (
       uclk_i    : in std_logic; --! User Clock
       rst_i     : in std_logic;
-
-
 -------------------------------------------------------------------------------
 -- Connections to wf_tx_rx (WorldFIP received data)
 -------------------------------------------------------------------------------
@@ -557,9 +554,9 @@ package wf_package is
       var2_access_a_i: in std_logic; --! Variable 2 access
       var3_access_a_i: in std_logic; --! Variable 3 access
 
-      reset_var1_access_o : out std_logic; --! Reset Variable 1 access flag
-      reset_var2_access_o : out std_logic; --! Reset Variable 2 access flag
-      reset_var3_access_o : out std_logic; --! Reset Variable 2 access flag
+ --     reset_var1_access_o : out std_logic; --! Reset Variable 1 access flag
+ --     reset_var2_access_o : out std_logic; --! Reset Variable 2 access flag
+ --     reset_var3_access_o : out std_logic; --! Reset Variable 2 access flag
 
 
       stat_sent_p_i : in std_logic;
@@ -571,173 +568,171 @@ package wf_package is
 -------------------------------------------------------------------------------
 --  Connections to data_if
 -------------------------------------------------------------------------------
-
-
       );
 
   end component status_gen;
   
-    component reset_logic 
-      generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
+  component reset_logic 
+    generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
 
-      port (
-        uclk_i    : in std_logic; --! User Clock
+    port (
+      uclk_i    : in std_logic; --! User Clock
 
-        rstin_i   : in  std_logic; --! Initialisation control, active low
+      rstin_i   : in  std_logic; --! Initialisation control, active low
 
-        --! Reset output, active low. Active when the reset variable is received 
-        --! and the second byte contains the station address.
-        rston_o   : out std_logic; --! Reset output, active low
+      --! Reset output, active low. Active when the reset variable is received 
+      --! and the second byte contains the station address.
+      rston_o   : out std_logic; --! Reset output, active low
 
-	var_i : in t_var;  --! Received variable
-        rst_o     : out std_logic --! Reset ouput active high
+      var_i : in t_var;  --! Received variable
+      rst_o     : out std_logic --! Reset ouput active high
 
 
-        );
+      );
 
-    end component reset_logic;
+  end component reset_logic;
 
-      component nanofip
+  component nanofip
 
-        port (
+    port (
 -------------------------------------------------------------------------------
 -- WorldFIP settings
 -------------------------------------------------------------------------------
-          --! Bit rate         \n
-          --! 00: 31.25 kbit/s \n
-          --! 01: 1 Mbit/s     \n
-          --! 10: 2.5 Mbit/s   \n
-          --! 11: reserved, do not use
-          rate_i    : in  std_logic_vector (1 downto 0); --! Bit rate
+      --! Bit rate         \n
+      --! 00: 31.25 kbit/s \n
+      --! 01: 1 Mbit/s     \n
+      --! 10: 2.5 Mbit/s   \n
+      --! 11: reserved, do not use
+      rate_i    : in  std_logic_vector (1 downto 0); --! Bit rate
 
-          --! Subscriber number coding. Station address.
-          subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
+      --! Subscriber number coding. Station address.
+      subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
 
-          --! Identification selection (see M_ID, C_ID)
-          s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
+      --! Identification selection (see M_ID, C_ID)
+      s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
 
-          --! Identification variable settings. 
-          --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
-          --! obtain different values for the Model data (i=0,1,2,3).\n
-          --! M_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
-          --! Model [2*i]            0    1    0    1                \n
-          --! Model [2*i+1]          0    0    1    1
-          m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
+      --! Identification variable settings. 
+      --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
+      --! obtain different values for the Model data (i=0,1,2,3).\n
+      --! M_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
+      --! Model [2*i]            0    1    0    1                \n
+      --! Model [2*i+1]          0    0    1    1
+      m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
 
-          --! Constructor identification settings.
-          --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
-          --! obtain different values for the Model data (i=0,1,2,3).\n
-          --! C_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
-          --! Constructor[2*i]       0    1    0    1                \n
-          --! Constructor[2*i+1]     0    0    1    1
-          c_id_i    : in  std_logic_vector (3 downto 0); --! Constructor identification settings
+      --! Constructor identification settings.
+      --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
+      --! obtain different values for the Model data (i=0,1,2,3).\n
+      --! C_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
+      --! Constructor[2*i]       0    1    0    1                \n
+      --! Constructor[2*i+1]     0    0    1    1
+      c_id_i    : in  std_logic_vector (3 downto 0); --! Constructor identification settings
 
-          --! Produced variable data length \n
-          --! 000: 2 Bytes                  \n
-          --! 001: 8 Bytes                  \n
-          --! 010: 16 Bytes                 \n
-          --! 011: 32 Bytes                 \n
-          --! 100: 64 Bytes                 \n
-          --! 101: 124 Bytes                \n
-          --! 110: reserved, do not use     \n
-          --! 111: reserved, do not use     \n
-          --! Actual size: +1 NanoFIP Status byte +1 MPS Status byte (last transmitted) 
-          --! Note: when SLONE=Vcc, p3_lgth_i should be set to 000.
-          p3_lgth_i : in  std_logic_vector (2 downto 0); --! Produced variable data length
+      --! Produced variable data length \n
+      --! 000: 2 Bytes                  \n
+      --! 001: 8 Bytes                  \n
+      --! 010: 16 Bytes                 \n
+      --! 011: 32 Bytes                 \n
+      --! 100: 64 Bytes                 \n
+      --! 101: 124 Bytes                \n
+      --! 110: reserved, do not use     \n
+      --! 111: reserved, do not use     \n
+      --! Actual size: +1 NanoFIP Status byte +1 MPS Status byte (last transmitted) 
+      --! Note: when SLONE=Vcc, p3_lgth_i should be set to 000.
+      p3_lgth_i : in  std_logic_vector (2 downto 0); --! Produced variable data length
 
 
 -------------------------------------------------------------------------------
 --  FIELDRIVE connections
 -------------------------------------------------------------------------------
-          fd_rstn_o : out std_logic; --! Initialisation control, active low
-          fd_wdgn_i : in  std_logic; --! Watchdog on transmitter
-          fd_txer_i : in  std_logic; --! Transmitter error
-          fd_txena_o: out std_logic; --! Transmitter enable
-          fd_txck_o : out std_logic; --! Line driver half bit clock
-          fx_txd_o  : out std_logic; --! Transmitter data
-          fx_rxa_i  : in  std_logic; --! Reception activity detection
-          fx_rxd_i  : in  std_logic; --! Receiver data
+      fd_rstn_o : out std_logic; --! Initialisation control, active low
+      fd_wdgn_i : in  std_logic; --! Watchdog on transmitter
+      fd_txer_i : in  std_logic; --! Transmitter error
+      fd_txena_o: out std_logic; --! Transmitter enable
+      fd_txck_o : out std_logic; --! Line driver half bit clock
+      fx_txd_o  : out std_logic; --! Transmitter data
+      fx_rxa_i  : in  std_logic; --! Reception activity detection
+      fx_rxd_i  : in  std_logic; --! Receiver data
 
 
 -------------------------------------------------------------------------------
 --  USER INTERFACE, General signals
 -------------------------------------------------------------------------------
-          uclk_i    : in  std_logic; --! 40 MHz clock
+      uclk_i    : in  std_logic; --! 40 MHz clock
 
-          --! Stand-alone mode
-          --! If connected to Vcc, disables sending of NanoFIP status together with 
-          --! the produced data.
-          slone_i   : in  std_logic; --! Stand-alone mode
+      --! Stand-alone mode
+      --! If connected to Vcc, disables sending of NanoFIP status together with 
+      --! the produced data.
+      slone_i   : in  std_logic; --! Stand-alone mode
 
-          --! No NanoFIP status transmission
-          --! If connected to Vcc, disables sending of NanoFIP status together with 
-          --! the produced data.
-          nostat_i  : in  std_logic; --! No NanoFIP status transmission
+      --! No NanoFIP status transmission
+      --! If connected to Vcc, disables sending of NanoFIP status together with 
+      --! the produced data.
+      nostat_i  : in  std_logic; --! No NanoFIP status transmission
 
-          rstin_i   : in  std_logic; --! Initialisation control, active low
+      rstin_i   : in  std_logic; --! Initialisation control, active low
 
-          --! Reset output, active low. Active when the reset variable is received 
-          --! and the second byte contains the station address.
-          rston_o   : out std_logic; --! Reset output, active low
+      --! Reset output, active low. Active when the reset variable is received 
+      --! and the second byte contains the station address.
+      rston_o   : out std_logic; --! Reset output, active low
 
 
 -------------------------------------------------------------------------------
 --  USER INTERFACE, non WISHBONE
 -------------------------------------------------------------------------------
 
-          --! Signals new data is received and can safely be read (Consumed 
-          --! variable 05xyh). In stand-alone mode one may sample the data on the 
-          --! first clock edge VAR1_RDY is high.
-          var1_rdy_o: out std_logic; --! Variable 1 ready
+      --! Signals new data is received and can safely be read (Consumed 
+      --! variable 05xyh). In stand-alone mode one may sample the data on the 
+      --! first clock edge VAR1_RDY is high.
+      var1_rdy_o: out std_logic; --! Variable 1 ready
 
-          --! Signals that the user logic is accessing variable 1. Only used to 
-          --! generate a status that verifies that VAR1_RDY was high when 
-          --! accessing. May be grounded.
-          var1_acc_i: in  std_logic; --! Variable 1 access
+      --! Signals that the user logic is accessing variable 1. Only used to 
+      --! generate a status that verifies that VAR1_RDY was high when 
+      --! accessing. May be grounded.
+      var1_acc_i: in  std_logic; --! Variable 1 access
 
-          --! Signals new data is received and can safely be read (Consumed 
-          --! broadcast variable 04xyh). In stand-alone mode one may sample the 
-          --! data on the first clock edge VAR1_RDY is high.
-          var2_rdy_o: out std_logic; --! Variable 2 ready
+      --! Signals new data is received and can safely be read (Consumed 
+      --! broadcast variable 04xyh). In stand-alone mode one may sample the 
+      --! data on the first clock edge VAR1_RDY is high.
+      var2_rdy_o: out std_logic; --! Variable 2 ready
 
-          --! Signals that the user logic is accessing variable 2. Only used to 
-          --! generate a status that verifies that VAR2_RDY was high when 
-          --! accessing. May be grounded.
-          var2_acc_i: in  std_logic; --! Variable 2 access
+      --! Signals that the user logic is accessing variable 2. Only used to 
+      --! generate a status that verifies that VAR2_RDY was high when 
+      --! accessing. May be grounded.
+      var2_acc_i: in  std_logic; --! Variable 2 access
 
-          --! Signals that the variable can safely be written (Produced variable 
-          --! 06xyh). In stand-alone mode, data is sampled on the first clock after
-          --! VAR_RDY is deasserted.
-          var3_rdy_o: out std_logic; --! Variable 3 ready
+      --! Signals that the variable can safely be written (Produced variable 
+      --! 06xyh). In stand-alone mode, data is sampled on the first clock after
+      --! VAR_RDY is deasserted.
+      var3_rdy_o: out std_logic; --! Variable 3 ready
 
-          --! Signals that the user logic is accessing variable 3. Only used to 
-          --! generate a status that verifies that VAR3_RDY was high when 
-          --! accessing. May be grounded.
-          var3_acc_i: in  std_logic; --! Variable 3 access
+      --! Signals that the user logic is accessing variable 3. Only used to 
+      --! generate a status that verifies that VAR3_RDY was high when 
+      --! accessing. May be grounded.
+      var3_acc_i: in  std_logic; --! Variable 3 access
 
 
 -------------------------------------------------------------------------------
 --  USER INTERFACE, WISHBONE SLAVE
 -------------------------------------------------------------------------------
-          wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+      wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
 
-          --! Data in. Wishbone access only on bits 7-0. Bits 15-8 only used
-          --! in stand-alone mode.
-          dat_i     : in  std_logic_vector (15 downto 0); --! Data in
+      --! Data in. Wishbone access only on bits 7-0. Bits 15-8 only used
+      --! in stand-alone mode.
+      dat_i     : in  std_logic_vector (15 downto 0); --! Data in
 
-          --! Data out. Wishbone access only on bits 7-0. Bits 15-8 only used
-          --! in stand-alone mode.
-          dat_o     : out std_logic_vector (15 downto 0); --! Data out
-          --  dat_i     : in  std_logic_vector(15 downto 0);
-          adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
-          rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
-          stb_i     : in  std_logic; --! Strobe
-          ack_o     : out std_logic; --! Acknowledge
-          we_i      : in  std_logic  --! Write enable
+      --! Data out. Wishbone access only on bits 7-0. Bits 15-8 only used
+      --! in stand-alone mode.
+      dat_o     : out std_logic_vector (15 downto 0); --! Data out
+      --  dat_i     : in  std_logic_vector(15 downto 0);
+      adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
+      rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
+      stb_i     : in  std_logic; --! Strobe
+      ack_o     : out std_logic; --! Acknowledge
+      we_i      : in  std_logic  --! Write enable
 
-          );
+      );
 
-      end component nanofip;
+  end component nanofip;
   
 
 end wf_package;

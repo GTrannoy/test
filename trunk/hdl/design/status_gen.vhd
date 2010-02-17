@@ -98,9 +98,9 @@ port (
    var2_access_a_i: in std_logic; --! Variable 2 access
    var3_access_a_i: in std_logic; --! Variable 3 access
 
-   reset_var1_access_o : out std_logic; --! Reset Variable 1 access flag
-   reset_var2_access_o : out std_logic; --! Reset Variable 2 access flag
-   reset_var3_access_o : out std_logic; --! Reset Variable 2 access flag
+--   reset_var1_access_o : out std_logic; --! Reset Variable 1 access flag
+--   reset_var2_access_o : out std_logic; --! Reset Variable 2 access flag
+--   reset_var3_access_o : out std_logic; --! Reset Variable 2 access flag
 
 
    stat_sent_p_i : in std_logic;
@@ -126,7 +126,24 @@ end entity status_gen;
 architecture rtl of status_gen is
 signal s_stat : std_logic_vector(7 downto 0);
 signal s_refreshment : std_logic;
+signal s_var1_access:  std_logic_vector(1 downto 0); --! Variable 1 access
+signal s_var2_access:  std_logic_vector(1 downto 0); --! Variable 2 access
+signal s_var3_access:  std_logic_vector(1 downto 0); --! Variable 3 access
+
 begin
+
+
+process(uclk_i) 
+begin
+if rising_edge(uclk_i) then
+s_var1_access(0) <= var1_access_a_i;
+s_var2_access(0) <= var2_access_a_i;
+s_var3_access(0) <= var3_access_a_i;
+s_var1_access(1) <= s_var1_access(0);
+s_var2_access(1) <= s_var2_access(0);
+s_var3_access(1) <= s_var3_access(0);
+end if;
+end process;
 
 process(uclk_i) 
 begin
@@ -134,10 +151,10 @@ if rising_edge(uclk_i) then
    if rst_i = '1' or stat_sent_p_i = '1' then
       s_stat <= (others => '0');
 	else
-		if (var1_rdy_i = '0' and var1_access_a_i = '1') or (var2_rdy_i = '0' and var2_access_a_i = '1') then
+		if (var1_rdy_i = '0' and s_var1_access(1) = '1') or (var2_rdy_i = '0' and s_var2_access(1) = '1') then
 			s_stat(c_u_cacer_pos) <= '1';
 		end if;
-		if ((var3_rdy_i = '0') and (var3_access_a_i = '1')) then
+		if ((var3_rdy_i = '0') and (s_var3_access(1) = '1')) then
 			s_stat(c_u_pacer_pos) <= '1';
 		end if;
 		if code_violation_p_i = '1' then
@@ -160,9 +177,9 @@ if rising_edge(uclk_i) then
 			s_refreshment <= '1';
 		end if;
    end if;
-   reset_var1_access_o <= var1_access_a_i;
-   reset_var2_access_o  <= var2_access_a_i;
-   reset_var3_access_o  <= var3_access_a_i;
+--   reset_var1_access_o <= var1_access_a_i;
+--   reset_var2_access_o  <= var2_access_a_i;
+--   reset_var3_access_o  <= var3_access_a_i;
 		
 	end if;
 end process;

@@ -78,11 +78,12 @@ port (
 --	data_length_i : in std_logic_vector(6 downto 0);
 	byte_i : in std_logic_vector(7 downto 0);
 
-   var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
-   var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+--   var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
+--   var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
 
-   reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
-   reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
+--   reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
+--   reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
+
 -------------------------------------------------------------------------------
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
@@ -119,8 +120,8 @@ signal s_dat_ram : std_logic_vector(7 downto 0);
 signal we_ram_p : std_logic;
 signal we_byte_p : std_logic_vector(1 downto 0);
 signal s_dat : std_logic_vector(15 downto 0);
-signal s_reset_var2_access_clkb, s_var2_access_clkb : std_logic;
-signal s_reset_var1_access_clkb, s_var1_access_clkb : std_logic;
+--signal s_reset_var2_access_clkb, s_var2_access_clkb : std_logic;
+--signal s_reset_var1_access_clkb, s_var1_access_clkb : std_logic;
 
 begin
 
@@ -147,24 +148,29 @@ if rising_edge(wb_clk_i) then
    else
       wb_ack_p_o <= '0';
    end if;
-   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(0, 2) then
-      s_var1_access_clkb <= wb_stb_p_i ;
-   elsif s_reset_var1_access_clkb = '1' then
-      s_var1_access_clkb <= '0' ;
-   end if;
 
-   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(1, 2) then
-      s_var2_access_clkb <= wb_stb_p_i ;
-   elsif s_reset_var2_access_clkb = '1' then
-      s_var2_access_clkb <= '0' ;
-   end if;
+-- The access flags can be generated inside the wishbone interface
+-- I comment these lines because they do not follow the funtional spec,
+-- but I think it is a more accurate way of signaling a race condition
+
+--   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(0, 2) then
+--     s_var1_access_clkb <= wb_stb_p_i ;
+--   elsif s_reset_var1_access_clkb = '1' then
+--      s_var1_access_clkb <= '0' ;
+--   end if;
+
+--   if unsigned(wb_adr_i(9 downto 7)) = to_unsigned(1, 2) then
+--      s_var2_access_clkb <= wb_stb_p_i ;
+--   elsif s_reset_var2_access_clkb = '1' then
+--      s_var2_access_clkb <= '0' ;
+--   end if;
 	
-	s_reset_var1_access_clkb <= reset_var1_access_i;
-	s_reset_var2_access_clkb <= reset_var2_access_i;
+--	s_reset_var1_access_clkb <= reset_var1_access_i;
+--	s_reset_var2_access_clkb <= reset_var2_access_i;
 end if;
 end process;
-  var1_access_wb_clk_o <= s_var1_access_clkb;
-  var2_access_wb_clk_o <= s_var2_access_clkb;
+--  var1_access_wb_clk_o <= s_var1_access_clkb;
+--  var2_access_wb_clk_o <= s_var2_access_clkb;
 
 add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
 
