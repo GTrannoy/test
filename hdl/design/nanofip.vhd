@@ -202,7 +202,7 @@ entity nanofip is
     --! accessing. May be grounded.
     var3_acc_i: in  std_logic; --! Variable 3 access
 
-
+ --   dummy_o : out std_logic;
 -------------------------------------------------------------------------------
 --  USER INTERFACE, WISHBONE SLAVE
 -------------------------------------------------------------------------------
@@ -224,6 +224,9 @@ entity nanofip is
 
     );
 
+--    attribute syn_insert_buffer : string;
+--attribute syn_insert_buffer of wclk_i : signal is "GL25";
+
 end entity nanofip;
 --============================================================================
 -- end of entity declaration
@@ -239,6 +242,13 @@ end entity nanofip;
 
 --! Architecture contains only connectivity
 architecture struc of nanofip is
+
+  component CLKBUF
+     port (PAD : in std_logic;
+           Y : out std_logic);
+           end component;
+
+
   signal s_append_status_from_control : std_logic;
   signal s_data_length_from_control :  std_logic_vector(6 downto 0);
   signal s_byte_to_tx : std_logic_vector(7 downto 0);
@@ -274,13 +284,16 @@ architecture struc of nanofip is
 --  signal s_reset_var3_access : std_logic;
 --signal s_stat : std_logic_vector(7 downto 0);
   signal s_mps : std_logic_vector(7 downto 0);
-
+  signal s_wb_d : std_logic_vector(15 downto 0);
+  signal s_long_dummy_reg : std_logic_vector(1000 downto 0);
+--  signal s_wclk : std_logic;
 begin
+
 
   ureset_logic : reset_logic 
     port map(
       uclk_i => uclk_i,
-      rstin_i => rst_i,
+      rstin_i => rstin_i,
       rston_o => rston_o,
 
       var_i => s_var_from_control, 
@@ -326,7 +339,7 @@ begin
 
     port map(
       uclk_i    => uclk_i, --! User Clock
-      rst_i     => rst_i, 
+      rst_i     => s_rst, 
       -- Transmiter interface
       start_send_p_o => s_start_send_p , 
       request_byte_p_i => s_request_byte_from_tx_p, 
@@ -376,7 +389,7 @@ begin
 
     port map(
       uclk_i => uclk_i, --! User Clock
-      rst_i  => rst_i, 
+      rst_i  => s_rst, 
       slone_i   => slone_i, --! Stand-alone mode
       byte_ready_p_i  => s_cons_byte_we_from_control,
       var_i  => s_var_from_control,
@@ -403,7 +416,7 @@ begin
 
     port map(
       uclk_i  => uclk_i,  --! User Clock
-      rst_i => rst_i,  
+      rst_i => s_rst,  
       m_id_i  => m_id_i,   --! Model identification settings
       c_id_i => c_id_i,   --! Constructor identification settings
       slone_i  => slone_i,  --! Stand-alone mode
@@ -426,7 +439,7 @@ begin
 -------------------------------------------------------------------------------
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
-      wb_dat_i => dat_i,   
+      wb_dat_i => s_wb_d,   
       wb_clk_i => wclk_i,   
       wb_adr_i => adr_i,   
       wb_stb_p_i => stb_i,   
@@ -434,13 +447,17 @@ begin
       wb_we_p_i => we_i   
       );
 
+
+  ack_o <= s_ack_produced or s_ack_consumed; 
+
   ustatus_gen : status_gen 
     port map(
       uclk_i => uclk_i,
-      rst_i => rst_i,
+      rst_i => s_rst,
 
       fd_wdgn_i => fd_wdgn_i,
       fd_txer_i => fd_txer_i,
+
 
       code_violation_p_i => s_code_violation_p,
       crc_bad_p_i => s_crc_bad_p,
@@ -467,6 +484,35 @@ begin
   s_ack_o <= s_ack_produced or s_ack_consumed;
   s_stat_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; --! The status register is being adressed
   s_mps_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; --! The status register is being adressed
+
+
+  fd_rstn_o <= '1';
+  s_id_o <= "0" & fx_rxa_i; -- I connect fx_rxa_i to s_id_o just to test the pinout
+  
+  
+
+
+
+--UCLKBUF : CLKBUF 
+--            port map(
+--            PAD => wclk_i, 
+--            Y => s_wclk);
+
+process(wclk_i)
+begin
+ if rising_edge(wclk_i) then
+      if s_rst = '1' then
+         s_wb_d <= (others => '0');
+         s_long_dummy_reg <= (others => '0');
+      else
+         s_wb_d <= dat_i;
+         s_long_dummy_reg  <= s_long_dummy_reg(s_long_dummy_reg'left - 1 downto 0) & fx_rxa_i;
+      end if;
+   end if;
+end process;
+
+--dummy_o <= s_long_dummy_reg(s_long_dummy_reg'left);
+
 end architecture struc;
 --============================================================================
 --============================================================================

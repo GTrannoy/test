@@ -207,7 +207,7 @@ s_add_to_ram <= std_logic_vector(unsigned(add(6 downto 0)) - 2);
 
   process(s_mem_byte, subs_i,  var_i, add_offset_i, s_io_byte, data_length_i, append_status_i, stat_i, slone_i, c_id_i, m_id_i)
   begin
-    s_byte <= (others => '0');
+    s_byte <= s_mem_byte;
     base_add <= (others => '0');
     sending_stat_o <= '0';
     sending_mps_o <= '0';
@@ -266,6 +266,7 @@ s_add_to_ram <= std_logic_vector(unsigned(add(6 downto 0)) - 2);
           else
             s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));
           end if;
+--            s_byte <= s_mem_byte;
           exit;
         end if;
       end if;
