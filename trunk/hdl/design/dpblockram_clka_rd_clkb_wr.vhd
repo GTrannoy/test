@@ -66,7 +66,7 @@ end dpblockram_clka_rd_clkb_wr;
 architecture syn of dpblockram_clka_rd_clkb_wr is 
   
   type t_ram is array (2**c_al - 1 downto 0) of std_logic_vector (c_dl - 1 downto 0); 
-  signal s_ram : t_ram := (others => (others => '0')); 
+  shared variable s_ram : t_ram := (others => (others => '0')); 
 --attribute syn_ramstyle of RAM : signal is "select_ram"; 
 --attribute syn_ramstyle of RAM : signal is "area "; 
 begin 
@@ -75,7 +75,7 @@ begin
   begin
     if (clkb_i'event and clkb_i = '1') then
       if (web_i = '1') then
-        s_ram(to_integer(unsigned(ab_i))) <= db_i; 
+        s_ram(to_integer(unsigned(ab_i))) := db_i; 
       end if;
     end if;
   end process;
@@ -88,5 +88,4 @@ begin
   end process;
 
 end syn;
-
 
