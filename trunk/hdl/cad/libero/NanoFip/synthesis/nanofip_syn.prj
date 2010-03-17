@@ -1,0 +1,63 @@
+#add_file options
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_package.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/reset_logic.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_crc.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_tx.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_rx.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_rx_osc.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/deglitcher.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_tx_rx.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_engine_control.vhd"
+add_file -vhdl "E:/ohr/cern-fip/trunk/hdl/design/DualClkRAM.vhd"
+add_file -vhdl "E:/ohr/cern-fip/trunk/hdl/design/dpblockram_clka_rd_clkb_wr_syn.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_consumed_vars.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_produced_vars.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/status_gen.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/nanofip.vhd"
+set_option -top_module work.nanofip
+
+#device options
+set_option -technology ProASIC3
+set_option -part A3P400
+
+
+
+#project files
+
+#implementation: "synthesis"
+impl -add synthesis -type fpga
+
+set_option -package FBGA144
+set_option -speed_grade -2
+#compilation/mapping options
+set_option -use_fsm_explorer 0
+# sequential_optimization_options
+set_option -symbolic_fsm_compiler 1
+
+# Compiler Options
+set_option -compiler_compatible 0
+set_option -resource_sharing 1
+
+# mapper_options
+set_option -frequency 100.000000
+set_option -write_verilog 0
+set_option -write_vhdl 0
+
+# Actel 500K
+set_option -run_prop_extract 1
+set_option -maxfan 24
+set_option -maxfan_hard 0
+set_option -retiming 1
+set_option -report_path 0
+set_option -opcond COMWC
+set_option -update_models_cp 0
+set_option -preserve_registers 0
+# Actel 500K
+set_option -globalthreshold 50
+
+#automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+
+#set result format/file last
+impl -active "synthesis"
+project -result_file "E:/ohr/cern-fip/trunk/hdl/cad/libero/NanoFip/synthesis/nanofip.edn"
