@@ -1,15 +1,15 @@
 KEY LIBERO "8.6"
 KEY CAPTURE "8.6.1.3"
-KEY DEFAULT_IMPORT_LOC "E:\ohr\CernFIP\trunk\hdl\design"
-KEY DEFAULT_OPEN_LOC ""
+KEY DEFAULT_IMPORT_LOC "E:\ohr\cern-FIP\trunk\hdl\design"
+KEY DEFAULT_OPEN_LOC "E:\fpga\Sources\ErrorLog"
 KEY HDLTechnology "VHDL"
 KEY VendorTechnology_Family "ProASIC3"
 KEY VendorTechnology_Die "IS6X4M1"
 KEY VendorTechnology_Package "fg144"
-KEY ProjectLocation "E:\ohr\CernFIP\trunk\hdl\cad\libero\NanoFip"
+KEY ProjectLocation "E:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip"
 KEY SimulationType "VHDL"
 KEY Vendor "Actel"
-KEY ActiveRoot "nanofip_tx_rx_tb_vhd::work"
+KEY ActiveRoot "nanofip::work::wf_package"
 LIST REVISIONS
 VALUE="Impl1",NUM=1
 CURREV=1
@@ -24,180 +24,360 @@ TOOL_CONSTRAINT_TYPE="ideDESIGNER"
 END_USE_CONSTRAINT
 USE_FOR_ANY_TOOL="FALSE"
 ENDFILE
+VALUE "<project>\designer\impl1\nanofip.adb,adb"
+STATE="ood"
+TIME="1268415154"
+SIZE="3092992"
+ENDFILE
 VALUE "<project>\simulation\run.do,do"
 STATE="utd"
 TIME="1266402535"
 SIZE="1932"
 ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf,actgen_cxf"
+STATE="utd"
+TIME="1268648062"
+SIZE="3995"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.gen,gen"
+STATE="utd"
+TIME="1268648061"
+SIZE="812"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.log,log"
+STATE="utd"
+TIME="1268648062"
+SIZE="3108"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.vhd,hdl"
+STATE="utd"
+TIME="1268648062"
+SIZE="15557"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C0.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C1.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C2.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C3.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C4.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C5.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C6.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C7.mem,sim"
+STATE="utd"
+TIME="1268648062"
+SIZE="5632"
+PARENT="<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.cxf,actgen_cxf"
+STATE="utd"
+TIME="1268644995"
+SIZE="3334"
+ENDFILE
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.gen,gen"
+STATE="utd"
+TIME="1268644993"
+SIZE="805"
+PARENT="<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.log,log"
+STATE="utd"
+TIME="1268644995"
+SIZE="3098"
+PARENT="<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.vhd,hdl"
+STATE="utd"
+TIME="1268644995"
+SIZE="3491"
+PARENT="<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam_R0C0.mem,sim"
+STATE="utd"
+TIME="1268644995"
+SIZE="77"
+PARENT="<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.cxf,actgen_cxf"
+STATE="utd"
+TIME="1268664596"
+SIZE="3334"
+ENDFILE
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.gen,gen"
+STATE="utd"
+TIME="1268664594"
+SIZE="809"
+PARENT="<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.log,log"
+STATE="utd"
+TIME="1268664595"
+SIZE="3102"
+PARENT="<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.vhd,hdl"
+STATE="utd"
+TIME="1268664595"
+SIZE="3479"
+PARENT="<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM_R0C0.mem,sim"
+STATE="utd"
+TIME="1268664596"
+SIZE="5632"
+PARENT="<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.cxf"
+ENDFILE
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf,actgen_cxf"
+STATE="utd"
+TIME="1268660885"
+SIZE="3334"
+ENDFILE
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.gen,gen"
+STATE="utd"
+TIME="1268660885"
+SIZE="810"
+PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.log,log"
+STATE="utd"
+TIME="1268660885"
+SIZE="3102"
+PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.vhd,hdl"
+STATE="utd"
+TIME="1268660885"
+SIZE="3481"
+PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam_R0C0.mem,sim"
+STATE="utd"
+TIME="1268660885"
+SIZE="5632"
+PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
+ENDFILE
 VALUE "<project>\synthesis\nanofip.edn,syn_edn"
-STATE="ood"
-TIME="1266401585"
-SIZE="765737"
+STATE="utd"
+TIME="1268667586"
+SIZE="1265975"
 ENDFILE
 VALUE "<project>\synthesis\nanofip_sdc.sdc,syn_sdc"
-STATE="ood"
-TIME="1266401585"
-SIZE="379"
+STATE="utd"
+TIME="1268667586"
+SIZE="448"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\clk_gen.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\clk_gen.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="3446"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\consumed_ram.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\consumed_ram.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="4257"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\data_if.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\data_if.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="4139"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\deglitcher.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\deglitcher.vhd,hdl"
 STATE="utd"
 TIME="1255355084"
 SIZE="2873"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\dpblockram.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\dpblockram.vhd,hdl"
 STATE="utd"
 TIME="1245931879"
 SIZE="2902"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\dpblockram_clka_rd_clkb_wr.vhd,hdl"
+VALUE "E:\ohr\cern-fip\trunk\hdl\design\dpblockram_clka_rd_clkb_wr_syn.vhd,hdl"
 STATE="utd"
-TIME="1266510719"
-SIZE="2890"
+TIME="1268666129"
+SIZE="3147"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\nanofip.vhd,hdl"
+VALUE "E:\ohr\cern-fip\trunk\hdl\design\DualClkRAM.vhd,hdl"
 STATE="utd"
-TIME="1266598222"
-SIZE="20283"
+TIME="1268666552"
+SIZE="3465"
+IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\produced_ram.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
+STATE="utd"
+TIME="1268405673"
+SIZE="20566"
+ENDFILE
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\produced_ram.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="4253"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\produced_rom.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\produced_rom.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="4364"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\reset_logic.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\reset_logic.vhd,hdl"
 STATE="utd"
-TIME="1255940277"
-SIZE="3885"
+TIME="1268401268"
+SIZE="4108"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\settings.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\settings.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="14342"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\status_gen.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\status_gen.vhd,hdl"
 STATE="utd"
-TIME="1266401443"
-SIZE="6767"
+TIME="1268401274"
+SIZE="7021"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\tx_engine.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\tx_engine.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="3818"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_consumed_vars.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_consumed_vars.vhd,hdl"
 STATE="utd"
-TIME="1266401446"
-SIZE="7484"
+TIME="1268666401"
+SIZE="7707"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_crc.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_crc.vhd,hdl"
 STATE="utd"
 TIME="1254845945"
 SIZE="4340"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_engine.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_engine.vhd,hdl"
 STATE="utd"
 TIME="1247213195"
 SIZE="3673"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_engine_control.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_engine_control.vhd,hdl"
 STATE="utd"
-TIME="1255968293"
-SIZE="16332"
+TIME="1268401258"
+SIZE="17615"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_package.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_package.vhd,hdl"
 STATE="utd"
-TIME="1266401441"
-SIZE="30651"
+TIME="1268389562"
+SIZE="30652"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_produced_vars.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_produced_vars.vhd,hdl"
 STATE="utd"
-TIME="1266583419"
-SIZE="11197"
+TIME="1268666384"
+SIZE="11226"
+ENDFILE
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_rx.vhd,hdl"
+STATE="utd"
+TIME="1268400375"
+SIZE="13751"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_rx.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_rx_osc.vhd,hdl"
 STATE="utd"
-TIME="1255358495"
-SIZE="13353"
+TIME="1268334049"
+SIZE="8556"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_rx_osc.vhd,hdl"
-STATE="utd"
-TIME="1255940608"
-SIZE="8314"
-IS_READONLY="TRUE"
-ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_rx_osc_tb.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_rx_osc_tb.vhd,hdl"
 STATE="utd"
 TIME="1250259349"
 SIZE="3371"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_rx_tb.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_rx_tb.vhd,hdl"
 STATE="utd"
 TIME="1250260972"
 SIZE="2911"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_tx.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_tx.vhd,hdl"
 STATE="utd"
 TIME="1255966109"
 SIZE="10687"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\design\wf_tx_rx.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_tx_rx.vhd,hdl"
 STATE="utd"
 TIME="1255941155"
 SIZE="6900"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\test_bench\nanofip_tb.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\test_bench\nanofip_tb.vhd,hdl"
 STATE="utd"
 TIME="1255949978"
 SIZE="5112"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\test_bench\wf_nanofip_tx_rx_tb.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\test_bench\wf_nanofip_tx_rx_tb.vhd,hdl"
 STATE="utd"
 TIME="1255952490"
 SIZE="6606"
 IS_READONLY="TRUE"
 ENDFILE
-VALUE "E:\ohr\CernFIP\trunk\hdl\test_bench\wf_sim_package.vhd,hdl"
+VALUE "E:\ohr\cern-FIP\trunk\hdl\test_bench\wf_sim_package.vhd,hdl"
 STATE="utd"
 TIME="1255950566"
 SIZE="10195"
@@ -207,18 +387,80 @@ ENDLIST
 LIST UsedFile
 ENDLIST
 LIST NewModulesInfo
+LIST "A12D8DualClkRam::work"
+FILE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.vhd,hdl"
+LIST Other_Association
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C0.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C1.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C2.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C3.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C4.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C5.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C6.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C7.mem,sim"
+ENDLIST
+ENDLIST
+LIST "A8D8DualClkRam::work"
+FILE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam.vhd,hdl"
+LIST Other_Association
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam_R0C0.mem,sim"
+ENDLIST
+ENDLIST
+LIST "A9D8DualClkRAM::work"
+FILE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM.vhd,hdl"
+LIST Other_Association
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM_R0C0.mem,sim"
+ENDLIST
+ENDLIST
+LIST "A9D9DualClkRam::work"
+FILE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.vhd,hdl"
+LIST Other_Association
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam_R0C0.mem,sim"
+ENDLIST
+ENDLIST
 LIST "nanofip::work::wf_package"
-FILE "E:\ohr\CernFIP\trunk\hdl\design\nanofip.vhd,hdl"
+FILE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
 LIST Other_Association
 VALUE "<project>\constraint\NanoFipIOS.pdc,pdc"
 VALUE "<project>\constraint\NanoFip.pdc,pdc"
 VALUE "<project>\constraint\NanoFip2.pdc,pdc"
+ENDLIST
+LIST ProjectState5.1
+LIST Impl1
+LiberoState=Post_Synthesis
+ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
+LIST FlowOptions
+UsePhySynth=FALSE
+UseSynth=TRUE
+ENDLIST
+Used_File_List
+ENDUsed_File_List
+ENDLIST
 ENDLIST
 ENDLIST
 ENDLIST
 LIST AssociatedStimulus
 ENDLIST
 LIST Other_Association
+LIST A9D9DualClkRam
+VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam_R0C0.mem,sim"
+ENDLIST
+LIST A9D8DualClkRAM
+VALUE "<project>\smartgen\A9D8DualClkRAM\A9D8DualClkRAM_R0C0.mem,sim"
+ENDLIST
+LIST A8D8DualClkRam
+VALUE "<project>\smartgen\A8D8DualClkRam\A8D8DualClkRam_R0C0.mem,sim"
+ENDLIST
+LIST A12D8DualClkRam
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C0.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C1.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C2.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C3.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C4.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C5.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C6.mem,sim"
+VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam_R0C7.mem,sim"
+ENDLIST
 LIST nanofip
 VALUE "<project>\constraint\NanoFipIOS.pdc,pdc"
 VALUE "<project>\constraint\NanoFip.pdc,pdc"
@@ -291,6 +533,18 @@ BATCH=0
 EndProfile
 ENDLIST
 LIST ProjectState5.1
+LIST "nanofip::work::wf_package"
+LIST Impl1
+LiberoState=Post_Synthesis
+ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
+LIST FlowOptions
+UsePhySynth=FALSE
+UseSynth=TRUE
+ENDLIST
+Used_File_List
+ENDUsed_File_List
+ENDLIST
+ENDLIST
 ENDLIST
 LIST ExcludePackageForSimulation
 ENDLIST
