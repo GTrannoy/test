@@ -124,6 +124,8 @@ end entity status_gen;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 architecture rtl of status_gen is
+--attribute syn_radhardlevel : string;
+--attribute syn_radhardlevel of rtl: architecture is "tmr";
 signal s_stat : std_logic_vector(7 downto 0);
 signal s_refreshment : std_logic;
 signal s_var1_access:  std_logic_vector(1 downto 0); --! Variable 1 access
