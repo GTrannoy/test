@@ -176,7 +176,7 @@ process(uclk_i)
       end if;
 end process;
 
-process(rx_st,d_fe_i, s_good_queue_detected_p, s_bad_queue_bit, s_bad_frame_start_bit, d_re_i, s_bad_frame_start_bit, s_fe_edge_on_phase, s_re_edge_on_phase, s_re_edge_180_on_phase, s_edge_not_on_phase,  s_last_frame_start_bit,  s_code_violation)
+process(rx_st,d_fe_i, s_good_queue_detected_p, s_bad_queue_bit, s_bad_frame_start_bit,  s_bad_frame_start_bit, s_fe_edge_on_phase, s_re_edge_on_phase, s_re_edge_180_on_phase, s_edge_not_on_phase,  s_last_frame_start_bit,  s_code_violation)
 begin
 nx_rx_st <= w_1;
 case rx_st is 
@@ -244,7 +244,7 @@ case rx_st is
 end case;	
 end process;
 
-process(rx_st, s_last_frame_start_bit, s_good_queue_detected_p, d_re_i, s_pointer_is_zero, s_re_edge_180_on_phase,  edge_window_i, s_d_ready_p_i, s_clk_bit_180_p_d, s_code_violation)
+process(rx_st, s_last_frame_start_bit, s_good_queue_detected_p, s_bad_queue_bit,  s_bad_queue_bit,  s_pointer_is_zero, s_re_edge_180_on_phase,  edge_window_i, s_d_ready_p_i, s_clk_bit_180_p_d, s_code_violation)
 begin
    load_phase_o <= '0';
    s_inc_pointer <= '0';

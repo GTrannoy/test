@@ -11,6 +11,8 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 use work.wf_package.all;
 
+library synplify;
+
 -------------------------------------------------------------------------------
 --                                                                           --
 --                                   nanofip                                 --
@@ -242,7 +244,8 @@ end entity nanofip;
 
 --! Architecture contains only connectivity
 architecture struc of nanofip is
-
+attribute syn_radhardlevel : string;
+attribute syn_radhardlevel of struc: architecture is "tmr";
   component CLKBUF
      port (PAD : in std_logic;
            Y : out std_logic);
@@ -366,15 +369,15 @@ begin
 -------------------------------------------------------------------------------
 --  USER INTERFACE, non WISHBONE
 -------------------------------------------------------------------------------
-      var1_rdy_o => var1_rdy_o,  --! Variable 1 ready
+      var1_rdy_o => s_var1_rdy,  --! Variable 1 ready
 
-      var2_rdy_o => var2_rdy_o, --! Variable 2 ready
+      var2_rdy_o => s_var2_rdy, --! Variable 2 ready
 
 
       --! Signals that the variable can safely be written (Produced variable 
       --! 06xyh). In stand-alone mode, data is sampled on the first clock after
       --! VAR_RDY is deasserted.
-      var3_rdy_o => var3_rdy_o, --! Variable 3 ready
+      var3_rdy_o => s_var3_rdy, --! Variable 3 ready
 
 --   prod_byte_i : in std_logic_vector(7 downto 0);
       var_o  => s_var_from_control,
@@ -384,6 +387,9 @@ begin
       cons_byte_we_p_o => s_cons_byte_we_from_control
       );
 
+      var1_rdy_o <= s_var1_rdy;  --! Variable 1 ready
+      var2_rdy_o <= s_var2_rdy; --! Variable 2 ready
+      var3_rdy_o <= s_var3_rdy; --! Variable 3 ready
 
   uwf_consumed_vars : wf_consumed_vars 
 

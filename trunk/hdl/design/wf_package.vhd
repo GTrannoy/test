@@ -79,8 +79,8 @@ package wf_package is
   constant c_var_length_add : integer := 3;
   constant c_pdu_byte_add : integer := 2;
 
-  constant c_cons_byte_add : integer := 6;
-  constant c_model_byte_add : integer := 7;
+  constant c_cons_byte_add : integer := 7;
+  constant c_model_byte_add : integer := 8;
 
   constant c_var_presence_pos : integer := 0;
   constant c_var_identification_pos : integer := 1;
@@ -116,7 +116,7 @@ package wf_package is
                                   response => produce,
                                   base_add => "0000000000",
                                   array_length => 3,  
-                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 3 => x"40", others => x"ff")),
+                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"40", others => x"ff")),
      c_var_var1_pos           => (var => c_st_var_1,
                                   hexvalue => x"05", 
                                   response => consume,
@@ -127,7 +127,7 @@ package wf_package is
      c_var_var2_pos           => (var => c_st_var_2,
                                   hexvalue => x"04", 
                                   response => consume,
-                                  base_add => "0100000000",
+                                  base_add => "0010000000",
                                   array_length => 2,  
                                   byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"40", others => x"ff")),
 
@@ -757,7 +757,8 @@ package body wf_package is
         v_data_length := to_unsigned(9,v_data_length'length);
       when c_st_var_1 => 
       when c_st_var_2 =>
-      when c_st_var_3 =>  
+      when c_st_var_3 => 
+
         if nostat = '1' then
           v_data_length := to_unsigned(3,v_data_length'length);
         else

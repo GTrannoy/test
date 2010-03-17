@@ -156,7 +156,7 @@ architecture rtl of wf_produced_vars is
   signal base_add, add: std_logic_vector(9 downto 0);
   signal s_wb_we : std_logic;
 --  signal s_reset_var3_access_clkb, s_var3_access_clkb : std_logic;
-  signal s_add_to_ram : std_logic_vector(6 downto 0);  --! Pointer to RAM contents
+  signal s_add_to_ram : std_logic_vector(8 downto 0);  --! Pointer to RAM contents
 
 begin
 
@@ -164,7 +164,7 @@ begin
 
   production_dpram:  dpblockram_clka_rd_clkb_wr
     generic map(c_dl => 8, 		-- Length of the data word 
-                c_al => 7)    -- Number of words
+                c_al => 9)    -- Number of words
     -- 'nw' has to be coherent with 'c_al'
 
     port map(clka_i => uclk_i,			-- Global Clock
@@ -172,10 +172,11 @@ begin
              da_o => s_mem_byte,
              
              clkb_i => wb_clk_i,
-             ab_i => wb_adr_i(6 downto 0),
+             ab_i => wb_adr_i(8 downto 0),
              db_i => wb_dat_i(7 downto 0),
              web_i => wb_we_p_i);
-s_add_to_ram <= std_logic_vector(unsigned(add(6 downto 0)) - 2);
+             
+s_add_to_ram <= std_logic_vector(unsigned(add(s_add_to_ram'range)) - 2);
   s_wb_we <=  wb_stb_p_i and wb_we_p_i;
 
 
@@ -205,7 +206,7 @@ s_add_to_ram <= std_logic_vector(unsigned(add(6 downto 0)) - 2);
 
   add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
 
-  process(s_mem_byte, subs_i,  var_i, add_offset_i, s_io_byte, data_length_i, append_status_i, stat_i, slone_i, c_id_i, m_id_i)
+  process(s_mem_byte, subs_i, mps_i, var_i, add_offset_i, s_io_byte, data_length_i, append_status_i, stat_i, slone_i, c_id_i, m_id_i)
   begin
     s_byte <= s_mem_byte;
     base_add <= (others => '0');

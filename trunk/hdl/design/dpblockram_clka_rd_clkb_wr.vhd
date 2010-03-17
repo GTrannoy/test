@@ -63,10 +63,15 @@ end dpblockram_clka_rd_clkb_wr;
 
 --library synplify;
 --use synplify.attributes.all;
-architecture syn of dpblockram_clka_rd_clkb_wr is 
+architecture beh of dpblockram_clka_rd_clkb_wr is 
+ 
+ 
   
   type t_ram is array (2**c_al - 1 downto 0) of std_logic_vector (c_dl - 1 downto 0); 
   shared variable s_ram : t_ram := (others => (others => '0')); 
+  
+ --attribute syn_ramstyle : string;
+--attribute syn_ramstyle of s_ram : variable is "block_ram";
 --attribute syn_ramstyle of RAM : signal is "select_ram"; 
 --attribute syn_ramstyle of RAM : signal is "area "; 
 begin 
@@ -88,4 +93,3 @@ begin
   end process;
 
 end syn;
-

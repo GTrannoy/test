@@ -128,15 +128,15 @@ begin
 
  consumtion_dpram:  dpblockram_clka_rd_clkb_wr
  generic map(c_dl => 8, 		-- Length of the data word 
- 			 c_al => 8)    -- Number of words
+ 			 c_al => 9)    -- Number of words
 			 									-- 'nw' has to be coherent with 'c_al'
 
  port map(clka_i => wb_clk_i,			-- Global Clock
-       aa_i => wb_adr_i(7 downto 0),
+       aa_i => wb_adr_i(8 downto 0),
 		 da_o => s_dat_ram,
 		 
 		 clkb_i => uclk_i,
-		 ab_i => add(7 downto 0),
+		 ab_i => add(8 downto 0),
 		 db_i => byte_i,
 		 web_i => we_ram_p);
 

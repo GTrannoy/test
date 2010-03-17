@@ -156,6 +156,8 @@ end entity wf_engine_control;
 -------------------------------------------------------------------------------
 architecture rtl of wf_engine_control is
 
+--attribute syn_radhardlevel : string;
+--attribute syn_radhardlevel of rtl: architecture is "tmr";
 
 
   type control_st_t  is (cont_idle, cont_w_id_dat_control, cont_w_id_dat_subs, cont_w_id_dat_var, cont_w_id_dat_frame_ok, 
@@ -173,7 +175,7 @@ architecture rtl of wf_engine_control is
   signal s_reset_id_data : std_logic;
   signal s_watchdog_is_zero : std_logic;
   signal s_broadcast : std_logic;
-  signal s_byte_c : unsigned(6 downto 0);
+  signal s_byte_c : unsigned(7 downto 0);
   signal s_inc_bytes_c, s_reset_bytes_c : std_logic;
   signal s_prodcons : std_logic_vector(1 downto 0);
   signal nx_last_byte_p : std_logic;
@@ -246,7 +248,7 @@ begin
         if (frame_ok_p_i = '1') and (s_prodcons = "10") then
           nx_control_st <= cont_w_prod_watchdog;
         elsif (frame_ok_p_i = '1') and (s_prodcons = "01") then
-          nx_control_st <= cont_w_cons_watchdog;
+          nx_control_st <= cont_cons_var;
         elsif (frame_ok_p_i = '1') then
           nx_control_st <= cont_idle;
         elsif fss_decoded_p_i = '1' then
@@ -261,12 +263,22 @@ begin
         else
           nx_control_st <= cont_w_prod_watchdog;
         end if;
+
+--      when cont_w_cons_watchdog =>
+--        if s_watchdog_is_zero = '1' then
+--          nx_control_st <= cont_cons_var;
+--        else
+--          nx_control_st <= cont_w_cons_watchdog;
+--        end if;
+
+
       when cont_cons_var =>
         if frame_ok_p_i = '1' or s_watchdog_is_zero = '1' then
           nx_control_st <= cont_idle;
         else
           nx_control_st <= cont_cons_var;
         end if;
+
       when cont_prod_var =>
         if nx_last_byte_p = '1' then
           nx_control_st <= cont_idle;
@@ -278,7 +290,7 @@ begin
   end process;
 
 
-  process(control_st, frame_ok_p_i,  s_prodcons, s_start_send_p_d,  s_response_time, s_silence_time, request_byte_p_i,  s_watchdog_is_zero, byte_ready_p_i, data_length_match)
+  process(control_st, frame_ok_p_i, s_byte_c,  s_prodcons, s_start_send_p_d,  s_response_time, s_silence_time, request_byte_p_i,  s_watchdog_is_zero, byte_ready_p_i, data_length_match)
   begin
     s_reset_watchdog_c <= '1';
     s_inc_bytes_c <= '0';
@@ -291,6 +303,7 @@ begin
     nx_last_byte_p <= '0';
     s_reset_id_data <= '0';
     nx_byte_ready_p <= '0';
+    add_offset_o <= (others => '0');
     case control_st is
       when cont_w_id_dat_var => 
         s_load_temp_var <= byte_ready_p_i;
@@ -309,9 +322,17 @@ begin
         
       when cont_cons_var =>
         s_reset_watchdog_c <= '0';
+        s_reset_bytes_c <= '0';
         s_inc_bytes_c <= byte_ready_p_i;
-        cons_byte_we_p_o <= byte_ready_p_i;
+
+        if unsigned(s_byte_c) > 1 then 
+            cons_byte_we_p_o <= byte_ready_p_i;
+        else
+            cons_byte_we_p_o <= '0';
+        end if;
+
         s_reset_id_data <= frame_ok_p_i or s_watchdog_is_zero;
+        add_offset_o <= std_logic_vector(resize(s_byte_c - 2,add_offset_o'length));
       when cont_prod_var =>
         s_reset_watchdog_c <= '0';	
         nx_last_byte_p <=  data_length_match and request_byte_p_i;
@@ -319,6 +340,7 @@ begin
         s_inc_bytes_c <= request_byte_p_i;
         s_reset_bytes_c <= '0';
         s_reset_id_data <= data_length_match and request_byte_p_i;
+        add_offset_o <= std_logic_vector(resize(s_byte_c, add_offset_o'length));
       when others =>   
     end case;                         
   end process;
@@ -402,9 +424,9 @@ begin
     data_length <= to_unsigned(0,data_length'length);
     case var is
       when c_st_var_presence =>
-        data_length <= to_unsigned(5,data_length'length);
+        data_length <= to_unsigned(c_var_array(c_var_presence_pos).array_length-1,data_length'length);-- to_unsigned(5,data_length'length);
       when c_st_var_identification => 
-        data_length <= to_unsigned(8,data_length'length);
+         data_length <= to_unsigned(c_var_array(c_var_identification_pos).array_length-1,data_length'length);
       when c_st_var_1 => 
       when c_st_var_2 =>
       when c_st_var_3 =>  
@@ -442,7 +464,7 @@ begin
     end if;
   end process;
 
-  add_offset_o <= std_logic_vector(s_byte_c);
+
   data_length_match <= '1' when s_byte_c = data_length else '0'; 
   
   process(uclk_i)

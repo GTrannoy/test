@@ -83,6 +83,9 @@ end entity reset_logic;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 architecture rtl of reset_logic is
+--attribute syn_radhardlevel : string;
+--attribute syn_radhardlevel of rtl: architecture is "tmr";
+
 signal s_rstin_d : std_logic_vector(1 downto 0);
 signal s_rst_c : unsigned(4 downto 0);
 signal s_reload_rst_c : std_logic;
@@ -93,7 +96,7 @@ begin
 if (var_i = c_var_array(c_var_reset_pos).var) then 
  s_reload_rst_c <= '1';
 else
- s_reload_rst_c <= s_rstin_d(s_rstin_d'left);
+ s_reload_rst_c <=   s_rstin_d(s_rstin_d'left);
 end if;
 end process;
 
@@ -106,8 +109,8 @@ begin
       elsif  s_rst_c(s_rst_c'left) = '0' then
          s_rst_c <=  s_rst_c + 1;
       end if;
-      rst_o <= s_rst_c(s_rst_c'left);
-      rston_o <= not s_rst_c(s_rst_c'left);
+      rst_o <=  not s_rst_c(s_rst_c'left);
+      rston_o <=  s_rst_c(s_rst_c'left);
    end if;
 end process;
 

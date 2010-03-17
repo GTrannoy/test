@@ -47,8 +47,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! 
 --!
 --! <b>Modified by:</b>\n
---! Author: Erik van der Bij
---!         Pablo Alvarez Sanchez
+--! Author:         Pablo Alvarez Sanchez
 -------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
 --! 07/08/2009  v0.02  PAAS Entity Ports added, start of architecture content
@@ -127,7 +126,7 @@ architecture rtl of wf_rx_osc is
 
   
   signal s_tag, s_phase, s_free_c :  signed(C_OSC_LENGTH -1 downto 0);
-  signal s_period : signed(C_OSC_LENGTH -1 downto 0);
+  signal s_period, s_period_by_4 : signed(C_OSC_LENGTH -1 downto 0);
   signal s_nx_clk_bit  : std_logic;
   signal s_nx_clk_bit_90  :  std_logic;
   signal s_nx_clk_bit_180  :  std_logic;
@@ -138,6 +137,7 @@ architecture rtl of wf_rx_osc is
   signal s_clk_bit_270  :  std_logic;
   signal s_clk_fixed_carrier, s_nx_clk_fixed_carrier, s_clk_fixed_carrier_p :  std_logic;
   signal s_clk_fixed_carrier_p_d : std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+
 begin
 
   s_period <= C_PERIOD(to_integer(unsigned(rate_i)));
@@ -185,8 +185,11 @@ begin
 
   s_phase <= s_tag - s_free_c;
   phase_o <= std_logic_vector(s_phase);
-
+  
+  s_period_by_4 <= resize(4*s_period,s_period_by_4'length);
   process( s_phase, s_period, s_free_c)
+  variable v_mid_point, v_quad_point : signed(s_phase'range);
+
   begin
     edge_window_o <= '0';
     edge_180_window_o <= '1';
@@ -195,7 +198,8 @@ begin
     s_nx_clk_bit_180 <= '0';
     s_nx_clk_bit_270 <= '0'; 
     s_nx_clk_fixed_carrier <= '0';
-
+    v_mid_point := to_signed(2**(s_phase'length-1), s_phase'length);
+    v_quad_point := to_signed(2**(C_OSC_LENGTH-2), s_phase'length);
     if (signed(s_free_c(s_free_c'left -1 downto 0)) < 0) then
       s_nx_clk_fixed_carrier<= '1';
     else
@@ -203,13 +207,13 @@ begin
     end if;	
 
 
-    if (s_phase < (4*s_period)) and (s_phase > (-4*s_period)) then
+    if (s_phase < s_period_by_4) and (s_phase > (-s_period_by_4)) then
       edge_window_o <= '1';
     else
       edge_window_o <= '0';
     end if;
     
-    if ((s_phase - 2**(s_phase'length-1)) < (4*s_period)) and ((s_phase - 2**(s_phase'length-1)) > (-4*s_period)) then
+    if ((s_phase - v_mid_point) < (s_period_by_4)) and ((s_phase - v_mid_point) > (-s_period_by_4)) then
       edge_180_window_o <= '1';
     else
       edge_180_window_o <= '0';
@@ -225,7 +229,7 @@ begin
     end if;	
 
 
-    if ((s_phase - (2**(C_OSC_LENGTH-2))) < 0) then
+    if ((s_phase - v_quad_point) < 0) then
       s_nx_clk_bit_90 <= '0';
       s_nx_clk_bit_270 <= '1';
     else
