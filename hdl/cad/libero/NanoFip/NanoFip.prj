@@ -197,12 +197,12 @@ PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
 ENDFILE
 VALUE "<project>\synthesis\nanofip.edn,syn_edn"
 STATE="utd"
-TIME="1268820781"
-SIZE="1344220"
+TIME="1269528225"
+SIZE="1265777"
 ENDFILE
 VALUE "<project>\synthesis\nanofip_sdc.sdc,syn_sdc"
 STATE="utd"
-TIME="1268820781"
+TIME="1269528225"
 SIZE="448"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\clk_gen.vhd,hdl"
@@ -554,8 +554,4 @@ ENDLIST
 LIST UserCustomizedFileList
 ENDLIST
 LIST OpenedFileList
-DESIGNFLOW:
-CE:E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc;nanofip::work::wf_package
-FILE:E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl
-ACTIVE_VIEW:1
 ENDLIST

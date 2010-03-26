@@ -454,7 +454,7 @@ begin
       );
 
 
-  ack_o <= s_ack_produced or s_ack_consumed; 
+  ack_o <= (s_ack_produced or s_ack_consumed) and stb_i;  
 
   ustatus_gen : status_gen 
     port map(
