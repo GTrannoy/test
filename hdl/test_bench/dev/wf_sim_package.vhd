@@ -45,6 +45,24 @@ package wf_sim_package is
     meslength :  integer;
   end record;
 
+  type  t_wb_master_to_slave is record
+
+    --! Data in. Wishbone access only on bits 7-0. Bits 15-8 only used
+    --!  stand-alone mode.
+    dat_i     :   std_logic_vector (15 downto 0); --! Data in
+
+    adr_i     :   std_logic_vector ( 9 downto 0); --! Address
+    rst_i     :   std_logic; --! Wishbone reset. Does not reset other internal logic.
+    stb_i     :   std_logic; --! Strobe
+    we_i      :   std_logic  --! Write enable
+   end record;
+
+
+  type  t_wb_slave_to_master is record
+    dat_o     :  std_logic_vector (15 downto 0); --! Data out
+    ack_o     :  std_logic; --! Acknowledge
+   end record;
+
   procedure init(
     signal tx_rx_i : out t_tx_rx_i);
 
@@ -154,6 +172,9 @@ package body wf_sim_package is
     tx_rx_i.start_send_p <= vFirst;
     tx_rx_i.byte_ready_p <= '1';
     tx_rx_i.byte <= C_MES_ARRAY.data(I);
+
+    report "Sent :"&integer'image(conv_integer(C_MES_ARRAY.data(I)))&"at add"&integer'image(I); 
+
     tx_rx_i.last_byte <= '1';
 
     wait until rising_edge(clk_i);
@@ -249,11 +270,18 @@ package body wf_sim_package is
       vMes_array.meslength := var_length;
       vMes_array.data(0) := c_rp_dat;
       vMes_array.data(1) := substation;
-      vMes_array.data(2) := c_var_array(var_pos).byte_array(0);
-      vMes_array.data(3) := c_var_array(var_pos).byte_array(1);
-      for I in 2 to var_length loop
+
+      vMes_array.data(2) := c_var_array(var_pos).byte_array(2);
+      if c_var_array(var_pos).response = consume then 
+        vMes_array.data(3) :=std_logic_vector(to_unsigned(var_length - 2,8));
+      else
+        vMes_array.data(3) := c_var_array(var_pos).byte_array(3);
+      end if;
+        report "Var length:"&integer'image(var_length); 
+      for I in 4 to var_length loop
         uniform(seed1 => u1,seed2 => u2,x => vRand);
         vMes_array.data(I) := std_logic_vector(to_unsigned(integer(vRand*256.0), 8));
+
       end loop;
     end if;
     mes_array <= vMes_array;
@@ -302,7 +330,10 @@ package body wf_sim_package is
   begin
 
 
-    v_var_length :=  to_integer(unsigned(calc_data_length(c_var_array(var_pos).var, nanofip_config.p3_lgth, nanofip_config.nostat, nanofip_config.slone)));
+    v_var_length := 15;-- to_integer(unsigned(calc_data_length(c_var_array(var_pos).var, nanofip_config.p3_lgth, nanofip_config.nostat, nanofip_config.slone)));
+ 
+         report "Var length:"&integer'image(v_var_length);
+
     gen_array(substation => substation, do_id_dat => true, do_rp_dat => false, 
               var_pos => var_pos, var_length => 0, mes_array => mes_array);
 
@@ -317,6 +348,169 @@ package body wf_sim_package is
                request_byte_p => request_byte_p);
 
   end;
+
+
+procedure init_wb(
+    signal wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+    signal wb_i : in t_wb_in
+) is
+  begin
+    wb_i.dat_i <= (others => 'X'); 
+    wb_i.adr_i <= (others => 'X'); 
+    wb_i.stb_i <= '0'; 
+    wb_i.we_i <= '0';
+    wb_i.rst_i <= '0'; 
+    wait until rising_edge(wclk_i);
+    wb_i.rst_i <= '1';
+    wait until rising_edge(wclk_i);
+    wb_i.rst_i <= '0'; 
+  end;
+
+
+    procedure write_wb(
+
+    signal wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+    signal wb_m_to_s_o : out t_wb_in;
+    signal wb_s_to_m_i : in t_wb_out; 
+    constant data_i : in integer;
+    constant add_i :  integer
+) is
+
+  begin
+
+    wb_m_to_s_o.dat_i <= (others => 'X'); 
+    wb_m_to_s_o.adr_i <= (others => 'X'); 
+    wb_m_to_s_o.stb_i <= '0'; 
+    wb_m_to_s_o.we_i <= '0';
+    wb_m_to_s_o.rst_i <= '0';
+
+    wait until rising_edge(wclk_i);
+    while wb_s_to_m_i.ack_o /= '0' then
+      wait until rising_edge(wclk_i);
+    end if;
+    wb_m_to_s_o.dat_i <= std_logic_vector(to_unsigned(data_i,wb_m_to_s_o.dat_i'length)); 
+    wb_m_to_s_o.adr_i <= std_logic_vector(to_unsigned(add_i,wb_m_to_s_o.dat_i'length)); 
+    wb_m_to_s_o.we_i <= '1';
+    wb_m_to_s_o.stb_i <= '1'; 
+
+    wait until rising_edge(wclk_i);
+    wb_m_to_s_o.rst_i <= '0';
+    wb_m_to_s_o.dat_i <= (others => 'X'); 
+    wb_m_to_s_o.adr_i <= (others => 'X'); 
+    wb_m_to_s_o.stb_i <= '0'; 
+    wb_m_to_s_o.we_i <= '0';
+
+  end;
+
+    procedure read_wb(
+    signal wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+    signal wb_m_to_s_o : out t_wb_in;
+    signal wb_s_to_m_i : in t_wb_out; 
+    signal data_o : out std_logic_vector(7 downto 0);
+    constant add_i :  integer
+) is
+  variable v_data : std_logic_vector; 
+  begin
+
+    wb_i.dat_i <= (others => 'X'); 
+    wb_i.adr_i <= (others => 'X'); 
+    wb_i.stb_i <= '0'; 
+    wb_i.we_i <= '0';
+    wb_i.rst_i <= '0';
+
+    wait until rising_edge(wclk_i);
+    while wb_o.ack_o /= '0' then
+       wait until rising_edge(wclk_i);
+    end if;
+
+    wb_i.dat_i <= std_logic_vector(to_unsigned(data_i,wb_i.dat_i'length)); 
+    wb_i.adr_i <= std_logic_vector(to_unsigned(add_i,wb_i.dat_i'length)); 
+    wb_m_to_s_o.we_i <= '0';
+    wb_m_to_s_o.stb_i <= '1';
+
+    while wb_o.ack_o = '0' then
+     vData := wb_s_to_m_i.data;
+     wait until rising_edge(wclk_i);
+    end if;
+
+    data_o <= wb_s_to_m_i.data;
+
+    wb_i.rst_i <= '0';
+    wb_i.dat_i <= (others => 'X'); 
+    wb_i.adr_i <= (others => 'X'); 
+    wb_i.stb_i <= '0'; 
+    wb_i.we_i <= '0';
+
+  end;
+
+    procedure write_wb_rand_var(
+
+    signal wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+    signal wb_m_to_s_o : out t_wb_in;
+    signal wb_s_to_m_i : in t_wb_out;
+    signal var_rdy : in std_logic;
+    signal var_acc : out std_logic;
+    signal mes_array : out t_mes_array;
+    constant var_pos : integer
+
+) is
+variable v_add : integer;
+variable 
+begin
+
+   uniform(seed1 => u1,seed2 => u2,x => vRand);
+
+
+    for I in 0 to vMes_array.meslength loop
+      vMes_array.data(I) := std_logic_vector(to_unsigned(integer(vRand*256.0), 8));
+    end loop;
+
+    var_acc <= '0';
+
+    v_add := to_integer(c_var_array(var_pos).base_add); 
+    wait until var_rdy = '1' then
+    var_acc <= '1';
+    for I in mes_array.data'range  loop
+       uniform(seed1 => u1,seed2 => u2,x => vRand);
+      vMes_array.data(I) := std_logic_vector(to_unsigned(integer(vRand*256.0), 8));
+
+       write_wb(wclk_i => wclk_i, wb_m_to_s_o => wb_m_to_s_o, 
+          wb_s_to_m_i => wb_s_to_m_i, data_i => mes_array.data(I), add_i => v_add);
+       v_add := v_add + 1;
+    assert var_rdy = '0' report "Var_rdy went to 0 while producing varible!!! Var name:"&&t_var'image(c_var_array(var_pos).var) severity warning; 
+    end loop;
+    var_acc <= '0';
+end; 
+
+
+    procedure read_wb_var(
+
+    signal wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+    signal wb_m_to_s_o : out t_wb_in;
+    signal wb_s_to_m_i : in t_wb_out;
+    signal var_rdy : in std_logic;
+    signal var_acc : out std_logic;
+    signal mes_array : inout t_mes_array;
+    constant var_pos : integer
+
+) is
+variabl v_add : integer;
+begin
+    var_acc <= '0';
+
+    v_add := to_integer(c_var_array(var_pos).base_add); 
+    wait until var_rdy = '1' then
+    var_acc <= '1';
+    for I in mes_array.data'range  loop
+       read_wb(wclk_i => wclk_i, wb_m_to_s_o => wb_m_to_s_o, 
+          wb_s_to_m_i => wb_s_to_m_i, data_i => mes_array.data(I), add_i => v_add);
+       v_add := v_add + 1;
+    assert var_rdy = '0' report "Var_rdy went to 0 while producing varible!!! Var name:"&&t_var'image(c_var_array(var_pos).var) severity warning; 
+    end loop;
+    var_acc <= '0';
+end; 
+
+
 
   
 end wf_sim_package;

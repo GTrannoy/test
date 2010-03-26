@@ -450,7 +450,7 @@ begin
       wb_adr_i => adr_i,   
       wb_stb_p_i => stb_i,   
       wb_ack_p_o => s_ack_produced,   
-      wb_we_p_i => we_i   
+      wb_we_p_i => we_i
       );
 
 
@@ -507,7 +507,7 @@ begin
 process(wclk_i)
 begin
  if rising_edge(wclk_i) then
-      if s_rst = '1' then
+      if rst_i = '1' then
          s_wb_d <= (others => '0');
          s_long_dummy_reg <= (others => '0');
       else
