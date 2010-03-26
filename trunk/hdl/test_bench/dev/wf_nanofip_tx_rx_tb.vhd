@@ -85,7 +85,7 @@ ARCHITECTURE behavior OF nanofip_tx_rx_tb_vhd IS
   SIGNAL subs_i :  std_logic_vector(7 downto 0) := (others=>'0');
   SIGNAL m_id_i :  std_logic_vector(3 downto 0) := (others=>'0');
   SIGNAL c_id_i :  std_logic_vector(3 downto 0) := (others=>'0');
-  SIGNAL p3_lgth_i :  std_logic_vector(2 downto 0) := (others=>'0');
+  SIGNAL p3_lgth_i :  std_logic_vector(2 downto 0) := "010";
   SIGNAL dat_i :  std_logic_vector(15 downto 0) := (others=>'0');
   SIGNAL adr_i :  std_logic_vector(9 downto 0) := (others=>'0');
 
@@ -195,7 +195,7 @@ BEGIN
   d_1_to_2_glitchy <= d_1_to_2 xor s_glitch;
   
   rst_i <= '0', '1' after 110 ns, '0' after 1600 ns;
-
+  rstin_i <= '1', '0' after 110 ns, '1' after 2600 ns;
 --s_mes_period <= 1 ms;
 
 
@@ -205,11 +205,25 @@ BEGIN
     -- Wait 100 ns for global reset to finish
     wait until falling_edge(rst_i);
     wait for 1 us;
+
     for I in c_var_array'range loop
+      if c_var_array(I).response = consume then
+      prod_var(clk_i  => uclk_i, substation => nanofip_config.subs, tx_rx_i => tx1_rx_i, request_byte_p => request1_byte_p, 
+              nanofip_config => nanofip_config, var_pos => I, mes_array => mes_array );
+      wait for 100 us;
+      end if;
+    end loop;
+
+    for I in c_var_array'range loop
+      if c_var_array(I).response = produce then
       req_var(clk_i  => uclk_i, substation => nanofip_config.subs, tx_rx_i => tx1_rx_i, request_byte_p => request1_byte_p, 
               nanofip_config => nanofip_config, var_pos => I, mes_array => mes_array );
       wait for 100 us;
+      end if;
     end loop;
+
+
+
     wait;
   END PROCESS;
 

@@ -47,11 +47,12 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 -------------------------------------------------------------------------------
 
 entity dpblockram_clka_rd_clkb_wr is
-  generic (c_dl : integer := 42; 		-- Length of the data word 
-           c_al : integer := 10);    -- Number of words
-                                       -- 'nw' has to be coherent with 'c_al'
+  generic (c_dl : integer := 8; 		-- Length of the data word 
+           c_al : integer := 9);        -- Number of words
+                                        -- 'nw' has to be coherent with 'c_al'
 
-  port (clka_i  : in std_logic; 			-- Global Clock
+  port (
+        clka_i  : in std_logic; 			-- Global Clock
         aa_i : in std_logic_vector(c_al - 1 downto 0);
         da_o : out std_logic_vector(c_dl -1 downto 0);
         
@@ -63,33 +64,37 @@ end dpblockram_clka_rd_clkb_wr;
 
 --library synplify;
 --use synplify.attributes.all;
-architecture beh of dpblockram_clka_rd_clkb_wr is 
- 
- 
-  
-  type t_ram is array (2**c_al - 1 downto 0) of std_logic_vector (c_dl - 1 downto 0); 
-  shared variable s_ram : t_ram := (others => (others => '0')); 
-  
- --attribute syn_ramstyle : string;
---attribute syn_ramstyle of s_ram : variable is "block_ram";
---attribute syn_ramstyle of RAM : signal is "select_ram"; 
---attribute syn_ramstyle of RAM : signal is "area "; 
+architecture syn of dpblockram_clka_rd_clkb_wr is 
+
+component DualClkRam is 
+    port( DINA : in std_logic_vector(7 downto 0); DOUTA : out 
+        std_logic_vector(7 downto 0); DINB : in std_logic_vector(
+        7 downto 0); DOUTB : out std_logic_vector(7 downto 0); 
+        ADDRA : in std_logic_vector(8 downto 0); ADDRB : in 
+        std_logic_vector(8 downto 0);RWA, RWB, BLKA, BLKB, CLKA, 
+        CLKB, RESET : in std_logic) ;
+end component DualClkRam;
+
+signal s_zeros_da : std_logic_vector(7 downto 0);
+signal zero : std_logic;
 begin 
 
-  process (clkb_i)
-  begin
-    if (clkb_i'event and clkb_i = '1') then
-      if (web_i = '1') then
-        s_ram(to_integer(unsigned(ab_i))) := db_i; 
-      end if;
-    end if;
-  end process;
+s_zeros_da <= (others => '0');
+zero <= '0';
+UDualClkRam : DualClkRam  
+    port map ( DINA => s_zeros_da,
+     DOUTA => da_o,
+     DINB => db_i,
+     DOUTB  => open,
+     ADDRA  => aa_i,
+     ADDRB  => ab_i, 
+     RWA  => zero, 
+     RWB  => web_i, 
+     BLKA  => zero, 
+     BLKB  => zero, 
+     CLKA  => clka_i, 
+     CLKB  => clkb_i, 
+     RESET  => zero) ;
 
-  process (clka_i)
-  begin
-    if (clka_i'event and clka_i = '1') then
-      da_o <= s_ram(to_integer(unsigned(aa_i))); 
-    end if;
-  end process;
 
-end beh;
+end syn;

@@ -15,15 +15,6 @@ VALUE="Impl1",NUM=1
 CURREV=1
 ENDLIST
 LIST FileManager
-VALUE "<project>\constraint\NanoFip.pdc,pdc"
-STATE="utd"
-TIME="1266598473"
-SIZE="15008"
-BEGIN_USE_CONSTRAINT
-TOOL_CONSTRAINT_TYPE="ideDESIGNER"
-END_USE_CONSTRAINT
-USE_FOR_ANY_TOOL="FALSE"
-ENDFILE
 VALUE "<project>\designer\impl1\nanofip.adb,adb"
 STATE="ood"
 TIME="1268415154"
@@ -206,12 +197,12 @@ PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
 ENDFILE
 VALUE "<project>\synthesis\nanofip.edn,syn_edn"
 STATE="utd"
-TIME="1268667586"
-SIZE="1265975"
+TIME="1268820781"
+SIZE="1344220"
 ENDFILE
 VALUE "<project>\synthesis\nanofip_sdc.sdc,syn_sdc"
 STATE="utd"
-TIME="1268667586"
+TIME="1268820781"
 SIZE="448"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\clk_gen.vhd,hdl"
@@ -256,10 +247,16 @@ TIME="1268666552"
 SIZE="3465"
 IS_READONLY="TRUE"
 ENDFILE
+VALUE "E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc,pdc"
+STATE="utd"
+TIME="1266598473"
+SIZE="15008"
+IS_READONLY="TRUE"
+ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
 STATE="utd"
-TIME="1268405673"
-SIZE="20566"
+TIME="1269528199"
+SIZE="20563"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\produced_ram.vhd,hdl"
 STATE="utd"
@@ -557,4 +554,8 @@ ENDLIST
 LIST UserCustomizedFileList
 ENDLIST
 LIST OpenedFileList
+DESIGNFLOW:
+CE:E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc;nanofip::work::wf_package
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl
+ACTIVE_VIEW:1
 ENDLIST
