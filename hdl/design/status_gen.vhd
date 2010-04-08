@@ -45,7 +45,7 @@ use work.wf_package.all;
 --! 
 --!
 --! <b>Modified by:</b>\n
---! Author: Erik van der Bij
+--! Author: Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
 -------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
 --! 07/07/2009  v0.01  EB  First version \n

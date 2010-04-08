@@ -35,7 +35,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! <reference two>
 --!
 --! <b>Modified by:</b>\n
---! Author: <name>
+--! Author: Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
 -------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
 --! 24\01\2009 paas header included\n
@@ -77,10 +77,14 @@ end component DualClkRam;
 
 signal s_zeros_da : std_logic_vector(7 downto 0);
 signal zero : std_logic;
+signal one : std_logic;
+signal s_rw : std_logic;
 begin 
 
 s_zeros_da <= (others => '0');
 zero <= '0';
+one <= '1';
+s_rw <= not web_i;
 UDualClkRam : DualClkRam  
     port map ( DINA => s_zeros_da,
      DOUTA => da_o,
@@ -88,13 +92,13 @@ UDualClkRam : DualClkRam
      DOUTB  => open,
      ADDRA  => aa_i,
      ADDRB  => ab_i, 
-     RWA  => zero, 
-     RWB  => web_i, 
+     RWA  => one, 
+     RWB  => s_rw, 
      BLKA  => zero, 
      BLKB  => zero, 
      CLKA  => clka_i, 
      CLKB  => clkb_i, 
-     RESET  => zero) ;
+     RESET  => one) ;
 
 
 end syn;

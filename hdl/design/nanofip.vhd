@@ -1,4 +1,3 @@
-
 --===========================================================================
 --! @file nanofip.vhd
 --! @brief Top level design file of nanofip
@@ -10,8 +9,9 @@ use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 use work.wf_package.all;
-
-library synplify;
+--syn_translate on
+--library synplify;
+--syn_translate off
 
 -------------------------------------------------------------------------------
 --                                                                           --
@@ -51,7 +51,7 @@ library synplify;
 --! <HR>
 --! @image html nanofip_image_1s.gif "Block diagram of the NanoFIP design"
 --!
---! @author Erik van der Bij (Erik.van.der.Bij@cern.ch)
+--! @author Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
 --
 --! @date 07/07/2009
 --
@@ -222,6 +222,7 @@ entity nanofip is
     rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
     stb_i     : in  std_logic; --! Strobe
     ack_o     : out std_logic; --! Acknowledge
+    cyc_i     : in std_logic;
     we_i      : in  std_logic  --! Write enable
 
     );
@@ -244,8 +245,10 @@ end entity nanofip;
 
 --! Architecture contains only connectivity
 architecture struc of nanofip is
-attribute syn_radhardlevel : string;
-attribute syn_radhardlevel of struc: architecture is "tmr";
+--syn_translate on
+--attribute syn_radhardlevel : string;
+--attribute syn_radhardlevel of struc: architecture is "tmr";
+--syn_translate off 
   component CLKBUF
      port (PAD : in std_logic;
            Y : out std_logic);
@@ -287,9 +290,11 @@ attribute syn_radhardlevel of struc: architecture is "tmr";
 --  signal s_reset_var3_access : std_logic;
 --signal s_stat : std_logic_vector(7 downto 0);
   signal s_mps : std_logic_vector(7 downto 0);
-  signal s_wb_d : std_logic_vector(15 downto 0);
-  signal s_long_dummy_reg : std_logic_vector(1000 downto 0);
---  signal s_wclk : std_logic;
+  signal s_wb_d_d : std_logic_vector(15 downto 0);
+  signal s_m_id_dec_o, s_c_id_dec_o : std_logic_vector(7 downto 0);
+  signal s_stb_d, s_we_d : std_logic;
+  signal s_adr_d : std_logic_vector ( 9 downto 0); --! Address
+
 begin
 
 
@@ -410,10 +415,10 @@ begin
 
       wb_clk_i => wclk_i,   
       wb_dat_o => dat_o,   
-      wb_adr_i => adr_i,   
-      wb_stb_p_i => stb_i,   
+      wb_adr_i => s_adr_d,   
+      wb_stb_p_i => s_stb_d,   
       wb_ack_p_o => s_ack_consumed,   
-      wb_we_p_i => we_i
+      wb_we_p_i => s_we_d
 
       );
 
@@ -423,8 +428,8 @@ begin
     port map(
       uclk_i  => uclk_i,  --! User Clock
       rst_i => s_rst,  
-      m_id_i  => m_id_i,   --! Model identification settings
-      c_id_i => c_id_i,   --! Constructor identification settings
+      m_id_dec_i  => s_m_id_dec_o,   --! Model identification settings
+      c_id_dec_i => s_c_id_dec_o,   --! Constructor identification settings
       slone_i  => slone_i,  --! Stand-alone mode
       nostat_i => nostat_i,  --! No NanoFIP status transmission
       subs_i => subs_i, 
@@ -445,12 +450,12 @@ begin
 -------------------------------------------------------------------------------
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
-      wb_dat_i => s_wb_d,   
+      wb_dat_i => s_wb_d_d,   
       wb_clk_i => wclk_i,   
-      wb_adr_i => adr_i,   
-      wb_stb_p_i => stb_i,   
+      wb_adr_i => s_adr_d,   
+      wb_stb_p_i => s_stb_d,   
       wb_ack_p_o => s_ack_produced,   
-      wb_we_p_i => we_i
+      wb_we_p_i => s_we_d
       );
 
 
@@ -492,32 +497,43 @@ begin
   s_mps_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; --! The status register is being adressed
 
 
-  fd_rstn_o <= '1';
-  s_id_o <= "0" & fx_rxa_i; -- I connect fx_rxa_i to s_id_o just to test the pinout
-  
+  fd_rstn_o <= cyc_i and fx_rxa_i;
+ -- s_id_o <= "0" & fx_rxa_i; -- I connect fx_rxa_i to s_id_o just to test the pinout
   
 
-
+Uwf_dec_m_ids : wf_dec_m_ids 
+  port map(
+    uclk_i        => uclk_i,
+    rst_i         => s_rst,
+    s_id_o        => s_id_o,
+    m_id_dec_o    => s_m_id_dec_o,
+    c_id_dec_o    => s_c_id_dec_o,
+    m_id_i        => m_id_i,
+    c_id_i        => c_id_i
+    );
 
 --UCLKBUF : CLKBUF 
 --            port map(
 --            PAD => wclk_i, 
 --            Y => s_wclk);
 
+
 process(wclk_i)
 begin
  if rising_edge(wclk_i) then
       if rst_i = '1' then
-         s_wb_d <= (others => '0');
-         s_long_dummy_reg <= (others => '0');
+         s_wb_d_d <= (others => '0');
+         s_stb_d <= '0';
+         s_we_d <= '0';
+         s_adr_d <= (others => '0');
       else
-         s_wb_d <= dat_i;
-         s_long_dummy_reg  <= s_long_dummy_reg(s_long_dummy_reg'left - 1 downto 0) & fx_rxa_i;
+         s_wb_d_d <= dat_i;
+         s_stb_d <= stb_i;
+         s_we_d <= we_i;
+         s_adr_d <= adr_i;
       end if;
    end if;
 end process;
-
---dummy_o <= s_long_dummy_reg(s_long_dummy_reg'left);
 
 end architecture struc;
 --============================================================================

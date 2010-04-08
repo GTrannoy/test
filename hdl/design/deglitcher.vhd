@@ -46,8 +46,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! 
 --!
 --! <b>Modified by:</b>\n
---! Author: Erik van der Bij
---!         Pablo Alvarez Sanchez
+--! Author:      Pablo Alvarez Sanchez
 -------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
 --! 07/08/2009  v0.02  PAAS Entity Ports added, start of architecture content
