@@ -37,6 +37,7 @@ package wf_package is
                                                            c_11_rate_pos => (response => integer(640000.0/C_QUARTZ_PERIOD), silence => integer(5160000.0/C_QUARTZ_PERIOD))
                                                            );
 
+
   type t_integer_array is array (natural range <>) of integer;
 
   constant c_p3_var_length_table : t_integer_array(0 to 7) := 
@@ -431,7 +432,7 @@ package wf_package is
       --! M_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
       --! Model [2*i]            0    1    0    1                \n
       --! Model [2*i+1]          0    0    1    1
-      m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
+      m_id_dec_i    : in  std_logic_vector (7 downto 0); --! Model identification settings
 
       --! Constructor identification settings.
       --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
@@ -439,7 +440,7 @@ package wf_package is
       --! C_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
       --! Constructor[2*i]       0    1    0    1                \n
       --! Constructor[2*i+1]     0    0    1    1
-      c_id_i    : in  std_logic_vector (3 downto 0); --! Constructor identification settings
+      c_id_dec_i    : in  std_logic_vector (7 downto 0); --! Constructor identification settings
 
       subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
 
@@ -728,12 +729,39 @@ package wf_package is
       rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
       stb_i     : in  std_logic; --! Strobe
       ack_o     : out std_logic; --! Acknowledge
-      we_i      : in  std_logic  --! Write enable
+      we_i      : in  std_logic;  --! Write enable;
+      cyc_i     : in std_logic
 
       );
 
   end component nanofip;
-  
+
+
+component wf_dec_m_ids 
+
+  port (
+    uclk_i    : in std_logic; --! User Clock
+    rst_i     : in std_logic;
+
+    s_id_o : out std_logic_vector(1 downto 0);
+    --! Identification variable settings. 
+    m_id_dec_o    : out  std_logic_vector (7 downto 0); --! Model identification settings
+
+    --! Constructor identification settings.
+    c_id_dec_o    : out  std_logic_vector (7 downto 0); --! Constructor identification settings
+
+    
+    --! Identification variable settings. 
+    m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
+
+    --! Constructor identification settings.
+    c_id_i    : in  std_logic_vector (3 downto 0) --! Constructor identification settings
+
+
+    );
+
+end component wf_dec_m_ids;
+
 
 end wf_package;
 

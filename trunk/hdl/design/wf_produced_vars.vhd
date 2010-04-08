@@ -66,25 +66,11 @@ entity wf_produced_vars is
     
 
     
-
-    --! Identification selection (see M_ID, C_ID)
---   s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
-
     --! Identification variable settings. 
-    --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
-    --! obtain different values for the Model data (i=0,1,2,3).\n
-    --! M_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
-    --! Model [2*i]            0    1    0    1                \n
-    --! Model [2*i+1]          0    0    1    1
-    m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
+    m_id_dec_i    : in  std_logic_vector (7 downto 0); --! Model identification settings
 
     --! Constructor identification settings.
-    --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
-    --! obtain different values for the Model data (i=0,1,2,3).\n
-    --! C_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
-    --! Constructor[2*i]       0    1    0    1                \n
-    --! Constructor[2*i+1]     0    0    1    1
-    c_id_i    : in  std_logic_vector (3 downto 0); --! Constructor identification settings
+    c_id_dec_i    : in  std_logic_vector (7 downto 0); --! Constructor identification settings
 
     subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
 
@@ -206,7 +192,7 @@ s_add_to_ram <= std_logic_vector(unsigned(add(s_add_to_ram'range)) - 2);
 
   add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
 
-  process(s_mem_byte, subs_i, mps_i, var_i, add_offset_i, s_io_byte, data_length_i, append_status_i, stat_i, slone_i, c_id_i, m_id_i)
+  process(s_mem_byte, subs_i, mps_i, var_i, add_offset_i, s_io_byte, data_length_i, append_status_i, stat_i, slone_i, c_id_dec_i, m_id_dec_i)
   begin
     s_byte <= s_mem_byte;
     base_add <= (others => '0');
@@ -233,10 +219,10 @@ s_add_to_ram <= std_logic_vector(unsigned(add(s_add_to_ram'range)) - 2);
           --! identification or presence
           if c_var_array(I).var = c_st_var_identification then
             if unsigned(add_offset_i) = c_cons_byte_add then
-              s_byte(c_id_i'range) <= c_id_i;
+              s_byte(c_id_dec_i'range) <= c_id_dec_i;
               exit;
             elsif unsigned(add_offset_i) = c_model_byte_add then
-              s_byte(m_id_i'range) <= m_id_i;
+              s_byte(m_id_dec_i'range) <= m_id_dec_i;
               exit;
             else
              s_byte <= c_var_array(I).byte_array(to_integer(unsigned(add_offset_i(3 downto 0))));

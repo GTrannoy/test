@@ -101,7 +101,11 @@ ARCHITECTURE behavior OF nanofip_tx_rx_tb_vhd IS
   SIGNAL var3_rdy_o :  std_logic;
   SIGNAL dat_o :  std_logic_vector(15 downto 0);
   SIGNAL ack_o :  std_logic;
-    signal nanofip_config : t_nanofip_config;
+  signal rd_data_o : std_logic_vector(7 downto 0);
+  signal s_wb_m_to_s_o : t_wb_master_to_slave;
+  signal s_wb_s_to_m_i : t_wb_slave_to_master;
+  signal nanofip_config : t_nanofip_config;
+  signal cyc_i : std_logic;
 BEGIN
 
   -- Instantiate the Unit Under Test (UUT)
@@ -157,7 +161,8 @@ BEGIN
     rst_i => rst_i,
     stb_i => stb_i,
     ack_o => ack_o,
-    we_i => we_i
+    we_i => we_i,
+    cyc_i => cyc_i
     );
   
   nanofip_config.rate  <= std_logic_vector(to_unsigned(c_2M5_rate_pos,2));
@@ -169,12 +174,33 @@ BEGIN
   nanofip_config.nostat    <= '1';
   
 
+
+   dat_i <=  s_wb_m_to_s_o.dat_i;
+   adr_i <=  s_wb_m_to_s_o.adr_i;
+  -- rst_i <=  s_wb_m_to_s_o.rst_i;
+   stb_i <=  s_wb_m_to_s_o.stb_i;
+   we_i <=  s_wb_m_to_s_o.we_i;
+
+    s_wb_s_to_m_i.dat_o <= dat_o; 
+    s_wb_s_to_m_i.ack_o <= ack_o;
+
+
+
   process
   begin
     uclk_i <= '0';
     wait for 13 ns;
     uclk_i <= '1';
     wait for 12 ns;
+  end process;
+
+
+  process
+  begin
+    wclk_i <= '0';
+    wait for 20 ns;
+    wclk_i <= '1';
+    wait for 20 ns;
   end process;
 
   process
@@ -236,5 +262,25 @@ BEGIN
       get_array(clk_i => uclk_i, C_MES_ARRAY => mes_array, dec_array => dec_array, tx_rx_o=> tx2_rx_o);
     end loop;
   END PROCESS;
+
+
+  
+  readwbp : PROCESS
+  BEGIN
+
+    -- Wait 100 ns for global reset to finish
+
+    init_wb(wclk_i => wclk_i, wb_i => s_wb_m_to_s_o); 
+    wait for 1 us;
+    while true loop
+
+     read_wb(wclk_i => wclk_i, wb_m_to_s_o => s_wb_m_to_s_o, wb_s_to_m_i => s_wb_s_to_m_i, data_o   => rd_data_o, add_i   => 4);
+     
+     write_wb(wclk_i => wclk_i, wb_m_to_s_o => s_wb_m_to_s_o, wb_s_to_m_i => s_wb_s_to_m_i, data_i   => 8, add_i   => 10);
+
+    end loop;
+    
+  END PROCESS;
+
 
 END;

@@ -1,4 +1,51 @@
--- Version: 8.6 SP1 8.6.1.3
+-------------------------------------------------------------------------------
+--! @file DualClkRAM.vhd
+-------------------------------------------------------------------------------
+--! Standard library
+library IEEE;
+--! Standard packages
+use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
+use IEEE.NUMERIC_STD.all;    --! conversion functions
+
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+-- --
+-- CERN, BE  --
+-- --
+-------------------------------------------------------------------------------
+--
+-- unit name: dpblockram.vhd
+--
+--! @brief The DualClkRAM instantiates a template for a true dual port ram clocked on both ports by different clocks. The architecture RAM4K9 instantiates the same Proasic3 component. 
+--! 
+--! 
+--! @author <Pablo Alvarez(pablo.alvarez.sanchez@cern.ch)>
+--
+--! @date 24\01\2009
+--
+--! @version 1
+--
+--! @details
+--!
+--! <b>Dependencies:</b>\n
+--! 
+--!
+--! <b>References:</b>\n
+--! <reference one> \n
+--! <reference two>
+--!
+--! <b>Modified by:</b>\n
+--! Author: Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
+-------------------------------------------------------------------------------
+--! \n\n<b>Last changes:</b>\n
+--! 24\01\2009 paas header included\n
+--! <extended description>
+-------------------------------------------------------------------------------
+--! @todo Adapt vhdl sintax to ohr standard\n
+--! <another thing to do> \n
+--
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -15,7 +62,7 @@ entity DualClkRAM is
 end DualClkRAM;
 
 
-architecture DEF_ARCH of  DualClkRAM is
+architecture RAM4K9 of  DualClkRAM is
 
     component RAM4K9
     generic (MEMORYFILE:string := "");
@@ -75,4 +122,4 @@ architecture DEF_ARCH of  DualClkRAM is
         DOUTB(6), DOUTB5 => DOUTB(5), DOUTB4 => DOUTB(4), 
         DOUTB3 => DOUTB(3), DOUTB2 => DOUTB(2), DOUTB1 => 
         DOUTB(1), DOUTB0 => DOUTB(0));
-end DEF_ARCH;
+end RAM4K9;
