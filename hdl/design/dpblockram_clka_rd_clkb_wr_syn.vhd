@@ -79,15 +79,20 @@ signal s_zeros_da : std_logic_vector(7 downto 0);
 signal zero : std_logic;
 signal one : std_logic;
 signal s_rw : std_logic;
+type t_da_o_array is array (natural range <>) of std_logic_vector(7 downto 0);
+signal da_o_array : t_da_o_array(0 to 2);
+
 begin 
 
 s_zeros_da <= (others => '0');
 zero <= '0';
 one <= '1';
 s_rw <= not web_i;
+
+G: for I in 0 to 2 generate 
 UDualClkRam : DualClkRam  
     port map ( DINA => s_zeros_da,
-     DOUTA => da_o,
+     DOUTA => da_o_array(I),
      DINB => db_i,
      DOUTB  => open,
      ADDRA  => aa_i,
@@ -99,6 +104,13 @@ UDualClkRam : DualClkRam
      CLKA  => clka_i, 
      CLKB  => clkb_i, 
      RESET  => one) ;
+end generate;
+
+
+process(da_o_array)
+   begin
+         da_o <= (da_o_array(0) and da_o_array(1)) or (da_o_array(1) and da_o_array(2)) or (da_o_array(2) and da_o_array(0));
+end process;
 
 
 end syn;

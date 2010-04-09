@@ -246,8 +246,8 @@ end entity nanofip;
 --! Architecture contains only connectivity
 architecture struc of nanofip is
 --syn_translate on
---attribute syn_radhardlevel : string;
---attribute syn_radhardlevel of struc: architecture is "tmr";
+attribute syn_radhardlevel : string;
+attribute syn_radhardlevel of struc: architecture is "tmr";
 --syn_translate off 
   component CLKBUF
      port (PAD : in std_logic;
