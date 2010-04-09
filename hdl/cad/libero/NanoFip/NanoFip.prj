@@ -4,8 +4,8 @@ KEY DEFAULT_IMPORT_LOC "E:\ohr\cern-fip\trunk\hdl\test_bench\dev"
 KEY DEFAULT_OPEN_LOC "E:\fpga\Sources\ErrorLog"
 KEY HDLTechnology "VHDL"
 KEY VendorTechnology_Family "ProASIC3"
-KEY VendorTechnology_Die "IS6X4M1"
-KEY VendorTechnology_Package "fg144"
+KEY VendorTechnology_Die "IS4X4M1"
+KEY VendorTechnology_Package "pq208"
 KEY ProjectLocation "E:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip"
 KEY SimulationType "VHDL"
 KEY Vendor "Actel"
@@ -15,6 +15,24 @@ VALUE="Impl1",NUM=1
 CURREV=1
 ENDLIST
 LIST FileManager
+VALUE "<project>\constraint\NanoFipPQ.pdc,pdc"
+STATE="utd"
+TIME="1270823827"
+SIZE="347"
+BEGIN_USE_CONSTRAINT
+TOOL_CONSTRAINT_TYPE="ideDESIGNER"
+END_USE_CONSTRAINT
+USE_FOR_ANY_TOOL="FALSE"
+ENDFILE
+VALUE "<project>\constraint\NanoFipPQFP.pdc,pdc"
+STATE="utd"
+TIME="1270827644"
+SIZE="14930"
+BEGIN_USE_CONSTRAINT
+TOOL_CONSTRAINT_TYPE="ideDESIGNER"
+END_USE_CONSTRAINT
+USE_FOR_ANY_TOOL="FALSE"
+ENDFILE
 VALUE "<project>\designer\impl1\nanofip.adb,adb"
 STATE="ood"
 TIME="1268418754"
@@ -22,8 +40,8 @@ SIZE="3092992"
 ENDFILE
 VALUE "<project>\simulation\run.do,do"
 STATE="utd"
-TIME="1266406135"
-SIZE="1932"
+TIME="1270745211"
+SIZE="2128"
 ENDFILE
 VALUE "<project>\smartgen\A12D8DualClkRam\A12D8DualClkRam.cxf,actgen_cxf"
 STATE="utd"
@@ -196,13 +214,13 @@ SIZE="5632"
 PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
 ENDFILE
 VALUE "<project>\synthesis\nanofip.edn,syn_edn"
-STATE="ood"
-TIME="1270136932"
-SIZE="1055237"
+STATE="utd"
+TIME="1270812728"
+SIZE="1131673"
 ENDFILE
 VALUE "<project>\synthesis\nanofip_sdc.sdc,syn_sdc"
-STATE="ood"
-TIME="1270136932"
+STATE="utd"
+TIME="1270812728"
 SIZE="448"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\clk_gen.vhd,hdl"
@@ -237,9 +255,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\dpblockram_clka_rd_clkb_wr_syn.vhd,hdl"
 STATE="utd"
-TIME="1270121650"
-SIZE="3194"
-IS_READONLY="TRUE"
+TIME="1270746541"
+SIZE="3275"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\DualClkRAM.vhd,hdl"
 STATE="utd"
@@ -249,14 +266,14 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc,pdc"
 STATE="utd"
-TIME="1270735615"
+TIME="1270737557"
 SIZE="15167"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
 STATE="utd"
-TIME="1270136840"
-SIZE="20245"
+TIME="1270742224"
+SIZE="20532"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\produced_ram.vhd,hdl"
 STATE="utd"
@@ -324,7 +341,7 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_package.vhd,hdl"
 STATE="utd"
-TIME="1270736866"
+TIME="1270743391"
 SIZE="32233"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\wf_produced_vars.vhd,hdl"
@@ -370,12 +387,12 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\test_bench\dev\wf_nanofip_tx_rx_tb.vhd,hdl"
 STATE="utd"
-TIME="1270737553"
-SIZE="7955"
+TIME="1270737623"
+SIZE="8085"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\test_bench\dev\wf_sim_package.vhd,hdl"
 STATE="utd"
-TIME="1270737327"
+TIME="1270737675"
 SIZE="17246"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\test_bench\nanofip_tb.vhd,hdl"
@@ -425,6 +442,20 @@ LIST Other_Association
 VALUE "<project>\constraint\NanoFipIOS.pdc,pdc"
 VALUE "<project>\constraint\NanoFip.pdc,pdc"
 VALUE "<project>\constraint\NanoFip2.pdc,pdc"
+VALUE "<project>\constraint\NanoFipPQFP.pdc,pdc"
+VALUE "<project>\constraint\NanoFipPQ.pdc,pdc"
+ENDLIST
+LIST ProjectState5.1
+LIST Impl1
+LiberoState=Post_Synthesis
+ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
+LIST FlowOptions
+UsePhySynth=FALSE
+UseSynth=TRUE
+ENDLIST
+Used_File_List
+ENDUsed_File_List
+ENDLIST
 ENDLIST
 ENDLIST
 ENDLIST
@@ -435,6 +466,8 @@ LIST nanofip
 VALUE "<project>\constraint\NanoFipIOS.pdc,pdc"
 VALUE "<project>\constraint\NanoFip.pdc,pdc"
 VALUE "<project>\constraint\NanoFip2.pdc,pdc"
+VALUE "<project>\constraint\NanoFipPQFP.pdc,pdc"
+VALUE "<project>\constraint\NanoFipPQ.pdc,pdc"
 ENDLIST
 LIST A9D9DualClkRam
 VALUE "<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam_R0C0.mem,sim"
@@ -522,6 +555,18 @@ BATCH=0
 EndProfile
 ENDLIST
 LIST ProjectState5.1
+LIST "nanofip::work::wf_package"
+LIST Impl1
+LiberoState=Post_Synthesis
+ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
+LIST FlowOptions
+UsePhySynth=FALSE
+UseSynth=TRUE
+ENDLIST
+Used_File_List
+ENDUsed_File_List
+ENDLIST
+ENDLIST
 ENDLIST
 LIST ExcludePackageForSimulation
 ENDLIST
@@ -534,11 +579,4 @@ ENDLIST
 LIST UserCustomizedFileList
 ENDLIST
 LIST OpenedFileList
-DESIGNFLOW:
-FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_package.vhd,hdl
-FILE:E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl
-CE:E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc;nanofip::work::wf_package
-FILE:E:\ohr\cern-fip\trunk\hdl\test_bench\dev\wf_sim_package.vhd,hdl
-FILE:E:\ohr\cern-fip\trunk\hdl\test_bench\dev\wf_nanofip_tx_rx_tb.vhd,hdl
-ACTIVE_VIEW:5
 ENDLIST

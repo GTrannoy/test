@@ -1,25 +1,25 @@
 #add_file options
 add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_package.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/reset_logic.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_crc.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_tx.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_rx.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_rx_osc.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/deglitcher.vhd"
+add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_tx_rx.vhd"
 add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_engine_control.vhd"
 add_file -vhdl "E:/ohr/cern-fip/trunk/hdl/design/DualClkRAM.vhd"
 add_file -vhdl "E:/ohr/cern-fip/trunk/hdl/design/dpblockram_clka_rd_clkb_wr_syn.vhd"
 add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_consumed_vars.vhd"
 add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_produced_vars.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_rx_osc.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/deglitcher.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_crc.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_rx.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_tx.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/wf_tx_rx.vhd"
 add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/status_gen.vhd"
-add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/reset_logic.vhd"
 add_file -vhdl "E:/ohr/cern-fip/trunk/hdl/design/wf_dec_m_ids.vhd"
 add_file -vhdl "E:/ohr/cern-FIP/trunk/hdl/design/nanofip.vhd"
 set_option -top_module work.nanofip
 
 #device options
 set_option -technology ProASIC3
-set_option -part A3P400
+set_option -part A3P250
 
 
 
@@ -29,9 +29,7 @@ set_option -part A3P400
 impl -add synthesis -type fpga
 
 set_option -package FBGA144
-set_option -speed_grade -2
 #compilation/mapping options
-set_option -use_fsm_explorer 0
 # sequential_optimization_options
 set_option -symbolic_fsm_compiler 1
 
