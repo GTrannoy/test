@@ -26,8 +26,8 @@ USE_FOR_ANY_TOOL="FALSE"
 ENDFILE
 VALUE "<project>\constraint\NanoFipPQFP.pdc,pdc"
 STATE="utd"
-TIME="1270827644"
-SIZE="14930"
+TIME="1270828650"
+SIZE="15167"
 BEGIN_USE_CONSTRAINT
 TOOL_CONSTRAINT_TYPE="ideDESIGNER"
 END_USE_CONSTRAINT
@@ -215,12 +215,12 @@ PARENT="<project>\smartgen\A9D9DualClkRam\A9D9DualClkRam.cxf"
 ENDFILE
 VALUE "<project>\synthesis\nanofip.edn,syn_edn"
 STATE="utd"
-TIME="1270812728"
-SIZE="1131673"
+TIME="1270833438"
+SIZE="1459728"
 ENDFILE
 VALUE "<project>\synthesis\nanofip_sdc.sdc,syn_sdc"
 STATE="utd"
-TIME="1270812728"
+TIME="1270833438"
 SIZE="448"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\clk_gen.vhd,hdl"
@@ -255,8 +255,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\dpblockram_clka_rd_clkb_wr_syn.vhd,hdl"
 STATE="utd"
-TIME="1270746541"
-SIZE="3275"
+TIME="1270832495"
+SIZE="3632"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\DualClkRAM.vhd,hdl"
 STATE="utd"
@@ -266,14 +266,14 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc,pdc"
 STATE="utd"
-TIME="1270737557"
+TIME="1270837858"
 SIZE="15167"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
 STATE="utd"
-TIME="1270742224"
-SIZE="20532"
+TIME="1270832757"
+SIZE="20528"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\produced_ram.vhd,hdl"
 STATE="utd"
