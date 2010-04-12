@@ -266,8 +266,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc,pdc"
 STATE="utd"
-TIME="1270837858"
-SIZE="15167"
+TIME="1271089716"
+SIZE="15168"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
@@ -579,4 +579,15 @@ ENDLIST
 LIST UserCustomizedFileList
 ENDLIST
 LIST OpenedFileList
+DESIGNFLOW:
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\status_gen.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl
+FILE:E:\ohr\cern-fip\trunk\hdl\design\dpblockram_clka_rd_clkb_wr_syn.vhd,hdl
+CE:E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc;nanofip::work::wf_package
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_consumed_vars.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_produced_vars.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_engine_control.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_tx_rx.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\deglitcher.vhd,hdl
+ACTIVE_VIEW:0
 ENDLIST

@@ -3,7 +3,7 @@
 
 # Version: 8.6 SP1 8.6.1.3
 # Family: ProASIC3 , Die: A3P250 , Package: 208 PQFP
-# Date generated: Mon Apr 12 17:47:46 2010 
+# Date generated: Mon Apr 12 18:28:36 2010 
 
 
 # 
@@ -16,7 +16,7 @@
 # 
 
 set_io ack_o           \
-    -pinname 85        \
+    -pinname 77        \
     -fixed yes         \
     -DIRECTION Output
 
@@ -112,97 +112,97 @@ set_io cyc_i          \
 
 
 set_io {dat_i[0]}     \
-    -pinname 23       \
+    -pinname 205      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[1]}     \
-    -pinname 24       \
+    -pinname 204      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[2]}     \
-    -pinname 26       \
+    -pinname 203      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[3]}     \
-    -pinname 28       \
+    -pinname 202      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[4]}     \
-    -pinname 30       \
+    -pinname 201      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[5]}     \
-    -pinname 31       \
+    -pinname 199      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[6]}     \
-    -pinname 32       \
+    -pinname 198      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[7]}     \
-    -pinname 33       \
+    -pinname 197      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[8]}     \
-    -pinname 34       \
+    -pinname 196      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[9]}     \
-    -pinname 35       \
+    -pinname 194      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[10]}    \
-    -pinname 37       \
+    -pinname 193      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[11]}    \
-    -pinname 38       \
+    -pinname 192      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[12]}    \
-    -pinname 39       \
+    -pinname 191      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[13]}    \
-    -pinname 42       \
+    -pinname 190      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[14]}    \
-    -pinname 43       \
+    -pinname 189      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {dat_i[15]}    \
-    -pinname 44       \
+    -pinname 188      \
     -fixed yes        \
     -DIRECTION Input
 
@@ -382,19 +382,19 @@ set_io nostat_i       \
 
 
 set_io {p3_lgth_i[0]}  \
-    -pinname 76        \
+    -pinname 167       \
     -fixed yes         \
     -DIRECTION Input
 
 
 set_io {p3_lgth_i[1]}  \
-    -pinname 77        \
+    -pinname 166       \
     -fixed yes         \
     -DIRECTION Input
 
 
 set_io {p3_lgth_i[2]}  \
-    -pinname 78        \
+    -pinname 168       \
     -fixed yes         \
     -DIRECTION Input
 
@@ -448,55 +448,55 @@ set_io slone_i        \
 
 
 set_io stb_i          \
-    -pinname 2        \
+    -pinname 76       \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[0]}    \
-    -pinname 197      \
+    -pinname 149      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[1]}    \
-    -pinname 198      \
+    -pinname 150      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[2]}    \
-    -pinname 199      \
+    -pinname 151      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[3]}    \
-    -pinname 201      \
+    -pinname 152      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[4]}    \
-    -pinname 202      \
+    -pinname 153      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[5]}    \
-    -pinname 203      \
+    -pinname 158      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[6]}    \
-    -pinname 204      \
+    -pinname 159      \
     -fixed yes        \
     -DIRECTION Input
 
 
 set_io {subs_i[7]}    \
-    -pinname 205      \
+    -pinname 160      \
     -fixed yes        \
     -DIRECTION Input
 
@@ -544,7 +544,7 @@ set_io var3_rdy_o      \
 
 
 set_io wclk_i         \
-    -pinname 22       \
+    -pinname 28       \
     -fixed yes        \
     -DIRECTION Input
 
