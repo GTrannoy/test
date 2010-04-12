@@ -1,1 +1,7 @@
-var2_acc_i, var1_acc_i, var3_acc_i Are not need. They can be better generated inside the wishbone interface, giving a more realistic diagnostic.  Pablo 17/02/2010
+
+Suggestions
+-----------
+
+var2_acc_i, var1_acc_i, var3_acc_i Are not needed. They can be better generated inside the wishbone interface, giving a more realistic diagnostic.  Pablo 17/02/2010
+
+Currently no way to verify what firmware is used in the NanoFIP. Is it possible to put this in the status data or so? (Pablo, 12/4/10)
