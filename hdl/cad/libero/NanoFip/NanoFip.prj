@@ -34,7 +34,7 @@ END_USE_CONSTRAINT
 USE_FOR_ANY_TOOL="FALSE"
 ENDFILE
 VALUE "<project>\designer\impl1\nanofip.adb,adb"
-STATE="ood"
+STATE="utd"
 TIME="1268418754"
 SIZE="3092992"
 ENDFILE
@@ -266,8 +266,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc,pdc"
 STATE="utd"
-TIME="1271089716"
-SIZE="15168"
+TIME="1271239052"
+SIZE="15187"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl"
@@ -447,8 +447,9 @@ VALUE "<project>\constraint\NanoFipPQ.pdc,pdc"
 ENDLIST
 LIST ProjectState5.1
 LIST Impl1
-LiberoState=Post_Synthesis
+LiberoState=Post_Layout
 ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
+ideDESIGNER(<project>\designer\impl1\nanofip.adb,adb)=StateSuccess
 LIST FlowOptions
 UsePhySynth=FALSE
 UseSynth=TRUE
@@ -557,8 +558,9 @@ ENDLIST
 LIST ProjectState5.1
 LIST "nanofip::work::wf_package"
 LIST Impl1
-LiberoState=Post_Synthesis
+LiberoState=Post_Layout
 ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
+ideDESIGNER(<project>\designer\impl1\nanofip.adb,adb)=StateSuccess
 LIST FlowOptions
 UsePhySynth=FALSE
 UseSynth=TRUE
@@ -579,4 +581,15 @@ ENDLIST
 LIST UserCustomizedFileList
 ENDLIST
 LIST OpenedFileList
+DESIGNFLOW:
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\status_gen.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\nanofip.vhd,hdl
+FILE:E:\ohr\cern-fip\trunk\hdl\design\dpblockram_clka_rd_clkb_wr_syn.vhd,hdl
+CE:E:\ohr\cern-fip\trunk\hdl\design\NanoFip.pdc;nanofip::work::wf_package
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_consumed_vars.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_produced_vars.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_engine_control.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\wf_tx_rx.vhd,hdl
+FILE:E:\ohr\cern-FIP\trunk\hdl\design\deglitcher.vhd,hdl
+ACTIVE_VIEW:4
 ENDLIST
