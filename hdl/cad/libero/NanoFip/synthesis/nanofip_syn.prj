@@ -19,7 +19,7 @@ set_option -top_module work.nanofip
 
 #device options
 set_option -technology ProASIC3
-set_option -part A3P250
+set_option -part A3P400
 
 
 
