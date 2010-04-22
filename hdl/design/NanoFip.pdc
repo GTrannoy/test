@@ -2,8 +2,8 @@
 # Generated file
 
 # Version: 8.6 SP1 8.6.1.3
-# Family: ProASIC3 , Die: A3P250 , Package: 208 PQFP
-# Date generated: Wed Apr 14 11:57:32 2010 
+# Family: ProASIC3 , Die: A3P400 , Package: 208 PQFP
+# Date generated: Thu Apr 22 17:22:45 2010 
 
 
 # 
@@ -576,10 +576,10 @@ set_io we_i           \
 # set_io {adr_i[7]} -pinname 11 -fixed yes -DIRECTION Input 
 # set_io {adr_i[8]} -pinname 12 -fixed yes -DIRECTION Input 
 # set_io {adr_i[9]} -pinname 13 -fixed yes -DIRECTION Input 
-# set_io {c_id_i[0]} -pinname 15 -fixed yes -DIRECTION Input 
-# set_io {c_id_i[1]} -pinname 19 -fixed yes -DIRECTION Input 
-# set_io {c_id_i[2]} -pinname 20 -fixed yes -DIRECTION Input 
-# set_io {c_id_i[3]} -pinname 21 -fixed yes -DIRECTION Input 
+# set_io {c_id_i[0]} -pinname 179 -fixed yes -DIRECTION Input 
+# set_io {c_id_i[1]} -pinname 180 -fixed yes -DIRECTION Input 
+# set_io {c_id_i[2]} -pinname 181 -fixed yes -DIRECTION Input 
+# set_io {c_id_i[3]} -pinname 182 -fixed yes -DIRECTION Input 
 # set_io cyc_i -pinname 75 -fixed yes -DIRECTION Input 
 # set_io {dat_i[0]} -pinname 205 -fixed yes -DIRECTION Input 
 # set_io {dat_i[1]} -pinname 204 -fixed yes -DIRECTION Input 
@@ -613,30 +613,30 @@ set_io we_i           \
 # set_io {dat_o[13]} -pinname 69 -fixed yes -DIRECTION Output 
 # set_io {dat_o[14]} -pinname 70 -fixed yes -DIRECTION Output 
 # set_io {dat_o[15]} -pinname 73 -fixed yes -DIRECTION Output 
-# set_io fd_rstn_o -pinname 120 -fixed yes -DIRECTION Output 
-# set_io fd_txck_o -pinname 121 -fixed yes -DIRECTION Output 
-# set_io fd_txena_o -pinname 127 -fixed yes -DIRECTION Output 
+# set_io fd_rstn_o -pinname 118 -fixed yes -DIRECTION Output 
+# set_io fd_txck_o -pinname 129 -fixed yes -DIRECTION Output 
+# set_io fd_txena_o -pinname 119 -fixed yes -DIRECTION Output 
 # set_io fd_txer_i -pinname 128 -fixed yes -DIRECTION Input 
-# set_io fd_wdgn_i -pinname 129 -fixed yes -DIRECTION Input 
-# set_io fx_rxa_i -pinname 131 -fixed yes -DIRECTION Input 
-# set_io fx_rxd_i -pinname 132 -fixed yes -DIRECTION Input 
-# set_io fx_txd_o -pinname 133 -fixed yes -DIRECTION Output 
-# set_io {m_id_i[0]} -pinname 139 -fixed yes -DIRECTION Input 
-# set_io {m_id_i[1]} -pinname 143 -fixed yes -DIRECTION Input 
-# set_io {m_id_i[2]} -pinname 144 -fixed yes -DIRECTION Input 
-# set_io {m_id_i[3]} -pinname 145 -fixed yes -DIRECTION Input 
-# set_io nostat_i -pinname 14 -fixed yes -DIRECTION Input 
-# set_io {p3_lgth_i[0]} -pinname 167 -fixed yes -DIRECTION Input 
-# set_io {p3_lgth_i[1]} -pinname 166 -fixed yes -DIRECTION Input 
+# set_io fd_wdgn_i -pinname 120 -fixed yes -DIRECTION Input 
+# set_io fx_rxa_i -pinname 121 -fixed yes -DIRECTION Input 
+# set_io fx_rxd_i -pinname 127 -fixed yes -DIRECTION Input 
+# set_io fx_txd_o -pinname 131 -fixed yes -DIRECTION Output 
+# set_io {m_id_i[0]} -pinname 172 -fixed yes -DIRECTION Input 
+# set_io {m_id_i[1]} -pinname 173 -fixed yes -DIRECTION Input 
+# set_io {m_id_i[2]} -pinname 174 -fixed yes -DIRECTION Input 
+# set_io {m_id_i[3]} -pinname 175 -fixed yes -DIRECTION Input 
+# set_io nostat_i -pinname 185 -fixed yes -DIRECTION Input 
+# set_io {p3_lgth_i[0]} -pinname 166 -fixed yes -DIRECTION Input 
+# set_io {p3_lgth_i[1]} -pinname 167 -fixed yes -DIRECTION Input 
 # set_io {p3_lgth_i[2]} -pinname 168 -fixed yes -DIRECTION Input 
-# set_io {rate_i[0]} -pinname 79 -fixed yes -DIRECTION Input 
-# set_io {rate_i[1]} -pinname 80 -fixed yes -DIRECTION Input 
+# set_io {rate_i[0]} -pinname 111 -fixed yes -DIRECTION Input 
+# set_io {rate_i[1]} -pinname 112 -fixed yes -DIRECTION Input 
 # set_io rst_i -pinname 92 -fixed yes -DIRECTION Input 
-# set_io rstin_i -pinname 185 -fixed yes -DIRECTION Input 
-# set_io rston_o -pinname 146 -fixed yes -DIRECTION Output 
-# set_io {s_id_o[0]} -pinname 147 -fixed yes -DIRECTION Output 
-# set_io {s_id_o[1]} -pinname 148 -fixed yes -DIRECTION Output 
-# set_io slone_i -pinname 9 -fixed yes -DIRECTION Input 
+# set_io rstin_i -pinname 93 -fixed yes -DIRECTION Input 
+# set_io rston_o -pinname 94 -fixed yes -DIRECTION Output 
+# set_io {s_id_o[0]} -pinname 176 -fixed yes -DIRECTION Output 
+# set_io {s_id_o[1]} -pinname 177 -fixed yes -DIRECTION Output 
+# set_io slone_i -pinname 184 -fixed yes -DIRECTION Input 
 # set_io stb_i -pinname 76 -fixed yes -DIRECTION Input 
 # set_io {subs_i[0]} -pinname 149 -fixed yes -DIRECTION Input 
 # set_io {subs_i[1]} -pinname 150 -fixed yes -DIRECTION Input 
