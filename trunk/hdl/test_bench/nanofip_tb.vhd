@@ -146,10 +146,15 @@ architecture archi of nanofip_tb is
 
 	signal ack			: std_logic:='0';
 	signal dat_from_fip	: std_logic_vector(7 downto 0);
+	signal slone_dat_o	: std_logic_vector(7 downto 0);
+	signal dat_o		: std_logic_vector(15 downto 0);
 
 	signal adr			: std_logic_vector(9 downto 0);
 	signal cyc			: std_logic;
 	signal dat_to_fip	: std_logic_vector(7 downto 0);
+	signal slone_dat_i	: std_logic_vector(7 downto 0);
+	signal dat_i		: std_logic_vector(15 downto 0);
+
 	signal rst			: std_logic := '0';
 	signal stb			: std_logic;
 	signal wclk			: std_logic;
@@ -188,8 +193,8 @@ begin
     var3_rdy_o=> var3_rdy,
     var3_acc_i=> var3_acc,
     wclk_i    => wclk,
-    dat_i(7 downto 0)     => dat_to_fip,
-    dat_o(7 downto 0)     => dat_from_fip,
+    dat_i     => dat_i,
+    dat_o     => dat_o,
     adr_i     => adr,
     rst_i     => rst,
     stb_i     => stb,
@@ -197,6 +202,11 @@ begin
 	cyc_i     => cyc,
     we_i      => we
     );
+
+    dat_i(7 downto 0)	<= dat_to_fip;
+    dat_o(7 downto 0)	<= dat_from_fip;
+    dat_i(15 downto 8)	<= slone_dat_i;
+    dat_o(15 downto 8)	<= slone_dat_o;
 
 	user_logic:  user_interface
 	port map(
