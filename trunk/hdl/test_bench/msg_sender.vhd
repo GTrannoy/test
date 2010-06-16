@@ -113,7 +113,7 @@ begin
 			running				<= '0';
 			
 			if msg_start ='1' then
-				if control = x"C0" then
+				if control = x"03" then
 					nxt_mstate		<= ctrl_id;
 				else
 					nxt_mstate		<= ctrl_rp;
@@ -245,9 +245,9 @@ begin
 	begin
 		if launch_fip_transmit ='1' then
 			if id_rp ='1' then
-				control		<= x"C0";
+				control		<= x"03";
 			else
-				control		<= x"40";
+				control		<= x"02";
 			end if;
 			start_value			<= std_logic_vector(un_start_value);
 			un_start_value		<= unsigned(var_length) - "1";

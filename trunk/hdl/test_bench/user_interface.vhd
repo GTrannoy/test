@@ -71,7 +71,7 @@ architecture archi of user_interface is
 	end component;
 	
 	signal block_size			: std_logic_vector(6 downto 0):="000" & x"0";
-	signal clk					: std_logic;
+	signal clk					: std_logic:='0';
 	signal launch_wb_read		: std_logic:='0';
 	signal launch_wb_write 		: std_logic:='0';
 	signal reset				: std_logic;
@@ -92,13 +92,15 @@ begin
 	reseting: process
 	begin
 		reset				<= '0';
-		wait for 10 ns;
+		wait for 2 us;
 		reset				<= '1';
-		wait for 200 ns;
+		wait for 3 us;
 		reset				<= '0';
 		wait for 1000 ms;
 	end process;
 
+	uclk_o				<= clk;
+	urstn_o				<= not(reset);
 
 	seq: sequencer
 	port map(
