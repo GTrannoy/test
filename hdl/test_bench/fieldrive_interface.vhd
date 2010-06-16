@@ -52,7 +52,7 @@ signal reset				: std_logic;
 
 signal id_rp				: std_logic;		-- '1' => id_dat, '0' => rp_dat
 signal launch_fip_transmit	: std_logic;
-signal station_adr			: std_logic_vector(7 downto 0):=x"5A";
+signal station_adr			: std_logic_vector(7 downto 0):=x"7F";
 signal var_adr				: std_logic_vector(7 downto 0);
 signal var_length			: std_logic_vector(6 downto 0);
 signal cd					: std_logic;
@@ -63,13 +63,13 @@ begin
 	clock: process
 	begin
 		clk						<= not(clk);
-		wait for 5 ns;
+		wait for 500 ns;
 	end process;
 
 	rst: process
 	begin
 		reset					<= '1';
-		wait for 10 ns;
+		wait for 5 us;
 		reset					<= '0';
 		wait for 1000 ms;
 	end process;
@@ -80,12 +80,12 @@ begin
 		launch_fip_transmit		<= '0';
 		var_adr					<= x"00";
 		var_length				<= "0000000";
-		wait for 200 ns;
+		wait for 20 us;
 		id_rp					<= '1';
 		launch_fip_transmit		<= '1';
-		var_adr					<= x"14";
+		var_adr					<= x"05";
 		var_length				<= "0000100";
-		wait for 100 ns;
+		wait for 2 us;
 		id_rp					<= '0';
 		launch_fip_transmit		<= '0';
 		var_adr					<= x"00";
@@ -93,9 +93,9 @@ begin
 		wait for 200 us;
 		id_rp					<= '1';
 		launch_fip_transmit		<= '1';
-		var_adr					<= x"10";
+		var_adr					<= x"06";
 		var_length				<= "0000100";
-		wait for 100 ns;
+		wait for 2 us;
 		id_rp					<= '0';
 		launch_fip_transmit		<= '0';
 		var_adr					<= x"00";
@@ -121,7 +121,7 @@ begin
 		dx					=> dx
 	);
 	
-	fd_wdgn_o			<= '0';
+	fd_wdgn_o			<= '1';
 	fd_txer_o			<= '0';
 	
 	fx_rxa_o			<= not(cd);
