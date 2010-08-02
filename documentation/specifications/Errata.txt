@@ -1,50 +1,90 @@
 
 Errata for NanoFIP FUNCTIONAL SPECIFICATION V1.2
-------------------------------------------------
 
-Erik van der Bij
-12/4/10
-
+Erik van der Bij, Eva Gousiou
+02/ 08 2010
 
 
-ERRATA
-------
-Table 5, MPS Status, Memory offset 10.
-   Shows value 0Ah, this should be 05h
-
-Table 6, Produced Variable MPS Status, Memory offset 11.
-   Shows value 0Ah, this should be 05h
-
-Table 6, Produced Variable MPS Status, Memory offset 10.
-   Shows value 0Ah, this should be 05h
-
-7.1 Pin assignment
-   M_ID[3:0] - Table: SID1 -> S_ID1
-   C_ID[3:0] - Table: SID1 -> S_ID1
-
-Table 9: NanoFIP memory map
-	Uses too many addresses. Make bit 9 always 0 (reserved) and shift bits 9-8 to 8-7.
-
-References
-[4] should be FIP DEVICE MANAGER Software Version 4 User Reference Manual ALS 50278 h-en
-http://www.fipware.fr/pdfs/50202_nt.pdf
+-> ERRATA:
+----------
 
 
-CLARIFICATIONS
---------------
+Tables 5,6,7: memory offset 10:
+0Ah to be corrected to 05h (following Table 2)
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+Section 7.1: Rows: M_ID[3:0] and C_ID[3:0], Column: Description:
+SIDI1 to be corrected to S_ID1
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+Section 7.1: Signals FX_TXD, FX_RXA, FX_RXD to be corrected to FD_ TXD, FD_RXA, FD_RXD.
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+Section 7.1: Signal FD_RXA to be renamed to FD_RXCDN,
+             to avoid confusions with RXA, which is an analog output of Fieldrive.
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+Page 11 Bit2: sentence to be corrected:
+This may mean that the consumed variable was read while it was being updated..
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+WISHBONE interface to be declared as an 8 bits bus DAT_I/ DAT_O(7:0);
+DAT_I/ DAT_O(15:8) should be defined as extra bits for slone operation.
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+Table 9: NanoFIP memory map: 9 bits needed, but 10 bits declared
+Correction: make bit 9 always 0 (reserved) and shift bits 9-8 to 8-7.
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+Reference [4] should be FIP DEVICE MANAGER Software Version 4 User Reference Manual (ALS 50278 h-en)
+http://cern-worldfip.web.cern.ch/cern-worldfip/Docs/Software/FDM%20and%20Services/FIP%20Device%20Manager%20%28FDM%29-ENG.pdf
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+-> CLARIFICATIONS:
+------------------
+
 P3_LGTH[2:0] should be set to 000 when using the stand-alone mode. (Chapter 7)
 
+---------------------------------------------------------------------------------------------------
 
 
-ADDITIONS TO BE DONE
---------------------
-Pinout of IC
-Page 13: address is 1 bit too long
-DATA_O and DATA_I buses that appeared as 16-bit whereas the Wishbone interface was defined as 8-bit.
 
-The Fieldrive outputs Voh of upto 4.8V. The NanoFIP is not capable of handling that, so a level conversion is needed. Would resistors be good enough? See NanoFIP test board.
 
-Add CYC_I input.
-Add a chapter about the Wishbone interface.
+
+-> ADDITIONS TO BE DONE:
+------------------------
+
+Signal CYC_I has to be added to WISHBONE to comply with WISHBONE rule 3.40
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+table with pinout of IC
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+Add few details concerning signals VARx_RDY and VARx_ACC to be added
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+A chapter about the Wishbone interface to be added
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+The Fieldrive outputs Voh of upto 4.8V. The NanoFIP is not capable of handling that, so a level
+conversion is needed. Would resistors be good enough? See NanoFIP test board.
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
 
 
