@@ -18,7 +18,8 @@ entity rx is
 		clk						: in std_logic;
 		gx						: in std_logic_vector(crc_l downto 0);
 		id_rp					: in std_logic;
-		launch_fip_transmit		: in std_logic;
+		launch_fip_cycle		: in std_logic;
+		h_clk					: in std_logic;
 		reset					: in std_logic;
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
@@ -39,7 +40,7 @@ architecture archi of rx is
 		clk						: in std_logic;
 		fcs_ready				: in std_logic;
 		fcs_complete			: in std_logic;
-		launch_fip_transmit		: in std_logic;
+		launch_fip_cycle		: in std_logic;
 		msg_complete			: in std_logic;
 		reset					: in std_logic;
 		
@@ -56,7 +57,7 @@ architecture archi of rx is
 	port(
 		clk						: in std_logic;
 		id_rp					: in std_logic;		-- '1'=>id_dat, '0'=>rp_dat
-		launch_fip_transmit		: in std_logic;
+		launch_fip_cycle		: in std_logic;
 		msg_start				: in std_logic;
 		msg_new_data_req		: in std_logic;
 		reset					: in std_logic;
@@ -96,6 +97,7 @@ architecture archi of rx is
 		clk				: in std_logic;
 		data_in			: in std_logic_vector(width-1 downto 0);
 		go				: in std_logic;
+		reset			: in std_logic;
 
 		data_out		: out std_logic;
 		done			: out std_logic
@@ -110,6 +112,7 @@ architecture archi of rx is
 		clk				: in std_logic;
 		data_in			: in std_logic_vector(width-1 downto 0);
 		go				: in std_logic;
+		reset			: in std_logic;
 
 		data_out		: out std_logic;
 		done			: out std_logic
@@ -147,9 +150,13 @@ architecture archi of rx is
 	port(
 		clk				: in std_logic;
 		data_in			: in std_logic;
+		dx_en			: in std_logic;
+		h_clk			: in std_logic;
+		reset			: in std_logic;
 		v_minus			: in std_logic;
 		v_plus			: in std_logic;
 		
+		cd				: out std_logic;
 		data_out		: out std_logic
 	);
 	end component;
@@ -201,7 +208,7 @@ begin
 		clk						=> clk,
 		fcs_ready				=> fcs_ready,
 		fcs_complete			=> fcs_complete,
-		launch_fip_transmit		=> launch_fip_transmit,
+		launch_fip_cycle		=> launch_fip_cycle,
 		msg_complete			=> msg_complete,
 		reset					=> reset,
 		
@@ -217,7 +224,7 @@ begin
 	port map(
 		clk					=> clk,
 		id_rp				=> id_rp,
-		launch_fip_transmit	=> launch_fip_transmit,
+		launch_fip_cycle	=> launch_fip_cycle,
 		msg_start			=> msg_start,
 		msg_new_data_req	=> msg_new_data_req,
 		reset				=> reset,
@@ -238,6 +245,7 @@ begin
 		clk				=> clk,
 		data_in			=> msg_data,
 		go				=> msg_go,
+		reset			=> reset,
 		
 		data_out		=> mx,
 		done			=> msg_new_data_req
@@ -268,6 +276,7 @@ begin
 		clk				=> clk,
 		data_in			=> fcs,
 		go				=> fcs_valid,
+		reset			=> reset,
 		
 		data_out		=> fx,
 		done			=> fcs_complete
@@ -299,9 +308,13 @@ begin
 	port map(
 		clk				=> clk,
 		data_in			=> dx_final,
+		dx_en			=> dx_en,
+		h_clk			=> h_clk,
+		reset			=> reset,
 		v_minus			=> v_minus,
 		v_plus			=> v_plus,
 		
+		cd				=> cd,
 		data_out		=> dx_half
 	);
 
@@ -311,36 +324,35 @@ begin
 		wait until clk ='1';
 	end process;
 
-	msg_dly(crc_l)				<= mx;
-	mx_final					<= msg_dly(0);
-
-	crc_gen_end			<= msg_new_data_req when en_crc_end ='1'
-							else '0';
-
 	dx_mux: process(dx_en, mux_select, fss, mx_final, fx, fes)
 	begin
 			case mux_select is
 			when "00" =>
-				dx_final		<= fss;
+				dx_final	<= fss;
 		
 			when "01" =>
-				dx_final		<= mx_final;
+				dx_final	<= mx_final;
 			
 			when "10" =>
-				dx_final		<= fx;
+				dx_final	<= fx;
 			
 			when "11" =>
-				dx_final		<= fes;
+				dx_final	<= fes;
 			
 			when others =>
-				dx_final		<= '0';
+				dx_final	<= '0';
 			end case;
 	end process;
 	
-	v_minus				<= v_minus_fss or v_minus_fes;
-	v_plus				<= v_plus_fss or v_plus_fes;
-	
-	dx					<= dx_half when dx_en ='1' else '0';
-	cd					<= dx_en;
+	dx						<= dx_half;
 
+	msg_dly(crc_l)			<= mx;
+	mx_final				<= msg_dly(0);
+
+	crc_gen_end				<= msg_new_data_req when en_crc_end ='1'
+								else '0';
+
+	v_minus					<= v_minus_fss or v_minus_fes;
+	v_plus					<= v_plus_fss or v_plus_fes;
+	
 end archi;

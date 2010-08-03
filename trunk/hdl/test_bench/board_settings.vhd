@@ -45,6 +45,6 @@ begin
 	
 	slone_o				<= '0';
 	
-	subs_o				<= "00000001";
+	subs_o				<= x"5A";
 	
 end archi;

@@ -1,9 +1,10 @@
 -- Created by : G. Penacoba
 -- Creation Date: March 2010
 -- Description: Converts into a serial output the input word of configurable width
--- Modified by:
--- Modification Date:
--- Modification consisted on:
+-- Modified by: Penacoba
+-- Modification Date: 29 june 2010
+-- Modification consisted on: Reset input added. 'Finished' signal not dependent
+--								on 'run' signal anymore
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -17,6 +18,7 @@ entity serializer is
 		clk				: in std_logic;
 		data_in			: in std_logic_vector(width-1 downto 0);
 		go				: in std_logic;
+		reset			: in std_logic;
 
 		data_out		: out std_logic;
 		done			: out std_logic
@@ -35,27 +37,35 @@ begin
 
 	read_bits: process
 	begin
-		if run = '1' then
+		if reset ='1' then
+			i			<= width-1;
+		elsif run = '1' then
 			if i = 0 then
 				i		<= width-1;
 			else
 				i		<= i-1;
 			end if;
-
-			if i = 1 then
-				finished	<= '1';
-			else
-				finished	<= '0';
-			end if;
 		end if;
 
-		if go ='1' then
+		if reset ='1' then
+			finished	<= '0';
+		elsif i = 1 then
+			finished	<= '1';
+		else
+			finished	<= '0';
+		end if;
+
+		if reset ='1' then
+			run		<= '0';
+		elsif go ='1' then
 			run		<= '1';
 		elsif finished ='1' then
 			run		<= '0';
 		end if;
 
-		if go ='1' then
+		if reset ='1' then
+			byte	<= (others =>'0');
+		elsif go ='1' then
 			byte	<= data_in;
 		end if;
 

@@ -102,35 +102,35 @@ begin
 	uclk_o				<= clk;
 	urstn_o				<= not(reset);
 
-	seq: sequencer
-	port map(
-		block_size				=> block_size,
-		launch_wb_read			=> launch_wb_read,
-		launch_wb_write 		=> launch_wb_write,
-		transfer_length			=> transfer_length,
-		transfer_offset			=> transfer_offset,
-		var_id					=> var_id
-	);
-
-	wb_interface:  wishbone_interface
-	port map(
-		block_size				=> block_size,
-		launch_wb_read			=> launch_wb_read,
-		launch_wb_write 		=> launch_wb_write,
-		transfer_length			=> transfer_length,
-		transfer_offset			=> transfer_offset,
-		var_id					=> var_id,
-
-		ack_i					=> ack_i,
-		clk_i					=> clk,
-		dat_i					=> dat_i,
-		rst_i					=> rst_i,
-
-		adr_o					=> adr_o,
-		cyc_o					=> cyc_o,
-		dat_o					=> dat_o,
-		stb_o					=> stb_o,
-		we_o					=> we_o
-	);
+--	seq: sequencer
+--	port map(
+--		block_size				=> block_size,
+--		launch_wb_read			=> launch_wb_read,
+--		launch_wb_write 		=> launch_wb_write,
+--		transfer_length			=> transfer_length,
+--		transfer_offset			=> transfer_offset,
+--		var_id					=> var_id
+--	);
+--
+--	wb_interface:  wishbone_interface
+--	port map(
+--		block_size				=> block_size,
+--		launch_wb_read			=> launch_wb_read,
+--		launch_wb_write 		=> launch_wb_write,
+--		transfer_length			=> transfer_length,
+--		transfer_offset			=> transfer_offset,
+--		var_id					=> var_id,
+--
+--		ack_i					=> ack_i,
+--		clk_i					=> clk,
+--		dat_i					=> dat_i,
+--		rst_i					=> rst_i,
+--
+--		adr_o					=> adr_o,
+--		cyc_o					=> cyc_o,
+--		dat_o					=> dat_o,
+--		stb_o					=> stb_o,
+--		we_o					=> we_o
+--	);
 
 end archi;
