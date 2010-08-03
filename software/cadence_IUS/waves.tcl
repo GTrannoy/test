@@ -46,4 +46,4 @@ probe -create -shm -waveform :urstin
 probe -create -shm -waveform :fieldrive:clk
 
 
-run 400 us
+run 600 us
