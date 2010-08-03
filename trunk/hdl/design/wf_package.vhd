@@ -3,6 +3,8 @@
 --	Purpose: This package defines supplemental types, subtypes, 
 --		 constants, and functions 
 
+--eva: modification line 107 (no subs_i sent at rp_data)
+
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
@@ -12,6 +14,19 @@ USE ieee.numeric_std.ALL;
 package wf_package is
 
   constant C_QUARTZ_PERIOD : real := 25.0;
+
+
+
+  -- constants regarding the manchester decoding
+  constant ONE : std_logic_vector(1 downto 0) := "10";
+  constant ZERO : std_logic_vector(1 downto 0) := "01";
+  constant VP : std_logic_vector(1 downto 0) := "11";
+  constant VN : std_logic_vector(1 downto 0) := "00";
+
+  constant FRAME_END : std_logic_vector(15 downto 0) := ONE&VP&VN&VP&VN&ONE&ZERO&ONE;    
+  constant PREAMBLE : std_logic_vector(15 downto 0) := ONE&ZERO&ONE&ZERO&ONE&ZERO&ONE&ZERO;
+  constant FRAME_START : std_logic_vector(15 downto 0) := ONE&VP&VN&ONE&ZERO&VN&VP&ZERO;
+  constant FSS : std_logic_vector(31 downto 0) := PREAMBLE&FRAME_START;
 
 
 
@@ -56,7 +71,7 @@ package wf_package is
 --constant c_var_reset : std_logic_vector(7 downto 0) := x"e0";
 
 
-  type t_var is (c_st_var_presence, c_st_var_identification, c_st_var_1, c_st_var_2, c_st_var_3, c_st_var_reset, c_st_var_whatever);
+  type t_var is (c_presence_var, c_identif_var, c_var_1, c_var_2, c_var_3, c_reset_var, c_var_whatever);
 
   type t_byte_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
@@ -77,67 +92,68 @@ package wf_package is
 --
   type t_var_array is array (natural range <>) of t_var_record;
   
-  constant c_var_length_add : integer := 3;
-  constant c_pdu_byte_add : integer := 2;
+  constant c_var_length_add : integer := 2;
+  constant c_pdu_byte_add : integer := 1;
 
   constant c_cons_byte_add : integer := 7;
   constant c_model_byte_add : integer := 8;
 
-  constant c_var_presence_pos : integer := 0;
-  constant c_var_identification_pos : integer := 1;
-  constant c_var_var3_pos : integer := 2;
-  constant c_var_var1_pos : integer := 3;
-  constant c_var_var2_pos : integer := 4;
-  constant c_var_reset_pos : integer := 5;
+  constant c_presence_var_pos : integer := 0;
+  constant c_identif_var_pos : integer := 1;
+  constant c_var_3_pos : integer := 2;
+  constant c_var_1_pos : integer := 3;
+  constant c_var_2_pos : integer := 4;
+  constant c_reset_var_pos : integer := 5;
 
   constant c_byte_0_add : integer := 2;
   constant c_byte_1_add : integer := 3;
 
 
   constant c_var_array : t_var_array(0 to 5):= 
-    (c_var_presence_pos       => (var => c_st_var_presence,
+    (c_presence_var_pos       => (var => c_presence_var,
                                   hexvalue => x"14", 
                                   response => produce,
                                   base_add => "----------",
-                                  array_length => 8, 
-                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"50", 3 => x"05", 4 => x"80", 5 => x"03", 6 => x"00", 
-                                                 7 => x"f0", 8 => x"00", others => x"ff")),
+                                  array_length => 8, --including control field
+                                  byte_array => (0 => c_rp_dat, 1 => x"50", 2 => x"05", 3 => x"80", 4 => x"03", 5 => x"00", 
+                                                 6 => x"f0", 7 => x"00", others => x"ff")),
      
-     c_var_identification_pos => (var => c_st_var_identification,
+     c_identif_var_pos => (var => c_identif_var,
                                   hexvalue => x"10",
                                   response => produce,
                                   array_length => 11,
                                   base_add => "----------",
-                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"52", 3 => x"08", 4 => x"01", 5 => x"00", 6 => x"00", 
-                                                 7 => x"f0", 8 => x"00", 9 => x"00", 10 => X"00", 11 => X"00",
+                                 --eva: 1 => x"ff" removed!
+                                  byte_array => (0 => c_rp_dat, 1 => x"52", 2 => x"08", 3 => x"01", 4 => x"00", 5 => x"00", 
+                                                 6 => x"f0", 7 => x"00", 8 => x"00", 9 => X"00", 10 => X"00",
                                                  others => x"ff")),
      
-     c_var_var3_pos           => (var => c_st_var_3,
+     c_var_3_pos           => (var => c_var_3,
                                   hexvalue => x"06", 
                                   response => produce,
-                                  base_add => "0000000000",
-                                  array_length => 3,  
-                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"40", others => x"ff")),
-     c_var_var1_pos           => (var => c_st_var_1,
+                                  base_add => "0100000010",
+                                  array_length => 2,  
+                                  byte_array => (0 => c_rp_dat, 1 => x"40", others => x"ff")),
+
+     c_var_1_pos           => (var => c_var_1,
                                   hexvalue => x"05", 
                                   response => consume,
                                   base_add => "0000000000",
-                                  array_length => 8, 
-                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"50", 3 => x"05", 4 => x"80", 5 => x"03", 6 => x"00", 
-                                                 7 => x"f0", 8 => x"00", others => x"ff")),
-     c_var_var2_pos           => (var => c_st_var_2,
+                                  array_length => 2, 
+                                  byte_array => (0 => c_rp_dat, 1 => x"40", others => x"ff")),
+     c_var_2_pos           => (var => c_var_2,
                                   hexvalue => x"04", 
                                   response => consume,
                                   base_add => "0010000000",
                                   array_length => 2,  
-                                  byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"40", others => x"ff")),
+                                  byte_array => (0 => c_rp_dat, 1 => x"40", others => x"ff")),
 
-     c_var_reset_pos           => (var => c_st_var_reset,
+     c_reset_var_pos           => (var => c_reset_var,
                                    hexvalue => x"e0", 
                                    response => reset,
                                    base_add => "0100000000",
                                    array_length => 2,  
-                                   byte_array => (0 => c_rp_dat, 1 => x"ff", 2 => x"40", others => x"ff")));
+                                   byte_array => (0 => c_rp_dat, 1 => x"40", others => x"ff")));
 
 
 --Status bit position
@@ -153,15 +169,14 @@ package wf_package is
   constant c_significance_pos : integer := 2; --! MPS significance bit
 
 
-
   function calc_data_length(var : t_var; 
                             p3_length : std_logic_vector(2 downto 0);
                             nostat : std_logic;
                             slone : std_logic) return std_logic_vector;
   
   component wf_rx_osc 
-    generic (C_OSC_LENGTH : integer := 20;
-             C_QUARTZ_PERIOD : real := 25.0;
+    generic (C_COUNTER_LENGTH : integer := 7;
+             C_QUARTZ_PERIOD : real := 24.8;
              C_CLKFCDLENTGTH :  natural := 3 
              );
 
@@ -170,8 +185,9 @@ package wf_package is
       rst_i     : in std_logic;
 
       d_edge_i : in std_logic;
+      rx_data_f_edge_i : in std_logic;
 
-      load_phase_i : in std_logic;	
+      wait_d_first_f_edge_i : in std_logic;	
       
       --! Bit rate         \n
       --! 00: 31.25 kbit/s => 62.5 KHz \n
@@ -180,21 +196,14 @@ package wf_package is
       --! 11: reserved, do not use
       rate_i    : in  std_logic_vector (1 downto 0); --! Bit rate
 
-      clk_fixed_carrier_p_o : out std_logic;
-      clk_fixed_carrier_p_d_o : out std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
-      clk_fixed_carrier_o : out std_logic;
-      
-      clk_carrier_p_o : out std_logic;
-      clk_carrier_180_p_o : out std_logic;
-      
-      clk_bit_p_o  : out std_logic;
-      clk_bit_90_p_o  : out std_logic;
-      clk_bit_180_p_o  : out std_logic;
-      clk_bit_270_p_o  : out std_logic;
-      
-      edge_window_o : out std_logic;
-      edge_180_window_o : out std_logic;
-      phase_o : out std_logic_vector(C_OSC_LENGTH -1  downto 0)
+      tx_clk_p_buff_o : out std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+      tx_clk_o : out std_logic;
+ 
+      rx_manch_clk_p_o : out std_logic;
+      rx_bit_clk_p_o  : out std_logic;
+   
+      rx_signif_edge_window_o : out std_logic;
+      rx_adjac_bits_window_o : out std_logic
       );
 
   end component wf_rx_osc;
@@ -206,11 +215,9 @@ package wf_package is
     port (
       uclk_i    : in std_logic; --! User Clock
       rst_i     : in std_logic;
-      
       start_p_i : in std_logic;
-      d_i       : in std_logic;
       d_rdy_p_i     : in std_logic;
-      data_fcs_sel_n  : in std_logic;
+      d_i       : in std_logic;
       crc_o     : out  std_logic_vector(c_poly_length - 1 downto 0);
       crc_rdy_p_o : out std_logic;
       crc_ok_p : out std_logic
@@ -222,10 +229,13 @@ package wf_package is
   component deglitcher 
     Generic (C_ACULENGTH : integer := 10);
     Port ( uclk_i : in  STD_LOGIC;
-           d_i : in  STD_LOGIC;
-           d_o : out  STD_LOGIC;
+           rx_data_i : in  STD_LOGIC;
+           rx_data_filtered_o : out  STD_LOGIC;
            carrier_p_i : in  STD_LOGIC;
-           d_ready_p_o : out  STD_LOGIC);
+           clk_bit_180_p_i : in std_logic;
+           sample_manch_bit_p_o : out  STD_LOGIC;
+           sample_bit_p_o: out  STD_LOGIC
+         );
   end component deglitcher;
 
   component wf_rx 
@@ -239,17 +249,17 @@ package wf_package is
       last_byte_p_o : out std_logic;
       fss_decoded_p_o : out std_logic;
       code_violation_p_o : out std_logic;
-      crc_bad_p_o : out std_logic;
+      crc_wrong_p_o : out std_logic;
       crc_ok_p_o : out std_logic;
       
-      d_re_i : in std_logic;
-      d_fe_i : in std_logic;
-      d_filtered_i : in std_logic;
-      s_d_ready_p_i : in std_logic;
-      load_phase_o : out std_logic;	
-      clk_bit_180_p_i  : in std_logic;
-      edge_window_i : in std_logic;
-      edge_180_window_i : in std_logic
+      rx_data_r_edge_i : in std_logic;
+      rx_data_f_edge_i : in std_logic;
+      rx_data_filtered_i : in std_logic;
+      sample_manch_bit_p_i : in std_logic;
+      wait_d_first_f_edge_o : out std_logic;	
+      sample_bit_p_i  : in std_logic;
+      signif_edge_window_i : in std_logic;
+      adjac_bits_window_i : in std_logic
 
       );
 
@@ -264,35 +274,35 @@ package wf_package is
       uclk_i    : in std_logic; --! User Clock
       rst_i     : in std_logic;
 
-      start_send_p_i  : in std_logic;
+      start_produce_p_i  : in std_logic;
       request_byte_p_o : out std_logic;
       byte_ready_p_i : in std_logic; -- byte_ready_p_i is not used
       byte_i : in std_logic_vector(7 downto 0);
       last_byte_p_i : in std_logic;
       
---	 clk_fixed_carrier_p_d_i(0) : in std_logic;
-      clk_fixed_carrier_p_d_i : in std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+--	 tx_clk_p_buff_i(0) : in std_logic;
+      tx_clk_p_buff_i : in std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
 
-      d_o : out std_logic;
-      d_e_o : out std_logic
+      tx_data_o : out std_logic;
+      tx_enable_o : out std_logic
       );
   end component wf_tx;
 
 
 
   component dpblockram_clka_rd_clkb_wr
-    generic (c_dl : integer := 42; 		-- Length of the data word 
-             c_al : integer := 10);    -- Number of words
-                                           -- 'nw' has to be coherent with 'c_al'
+    generic (c_data_length : integer := 42; 		-- Length of the data word 
+             c_addr_length : integer := 10);    -- Number of words
+                                           -- 'nw' has to be coherent with 'c_addr_length'
 
-    port (clka_i  : in std_logic; 			-- Global Clock
-          aa_i : in std_logic_vector(c_al - 1 downto 0);
-          da_o : out std_logic_vector(c_dl -1 downto 0);
+    port (clk_A_i  : in std_logic; 			-- Global Clock
+          addr_A_i : in std_logic_vector(c_addr_length - 1 downto 0);
+          data_A_o : out std_logic_vector(c_data_length -1 downto 0);
           
-          clkb_i : in std_logic;
-          ab_i : in std_logic_vector(c_al - 1 downto 0);
-          db_i : in std_logic_vector(c_dl - 1 downto 0);
-          web_i : in std_logic);
+          clk_B_i : in std_logic;
+          addr_B_i : in std_logic_vector(c_addr_length - 1 downto 0);
+          data_B_i : in std_logic_vector(c_data_length - 1 downto 0);
+          write_en_B_i : in std_logic);
   end component dpblockram_clka_rd_clkb_wr; 
   
   component wf_engine_control 
@@ -303,7 +313,7 @@ package wf_package is
       rst_i     : in std_logic;
 
       -- Transmiter interface
-      start_send_p_o  : out std_logic;
+      start_produce_p_o  : out std_logic;
       request_byte_p_i : in std_logic;
       byte_ready_p_o : out std_logic;
 -- 	byte_o : out std_logic_vector(7 downto 0);
@@ -408,7 +418,7 @@ package wf_package is
 
 --   dat_i     : in  std_logic_vector (15 downto 0); --! 
       wb_clk_i     : in std_logic;
-      wb_dat_o     : out std_logic_vector (15 downto 0); --! 
+      wb_data_o     : out std_logic_vector (15 downto 0); --! 
       wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
       wb_stb_p_i     : in  std_logic; --! Strobe
       wb_ack_p_o     : out std_logic; --! Acknowledge
@@ -458,7 +468,6 @@ package wf_package is
       stat_i : in std_logic_vector(7 downto 0); --! NanoFIP status 
       mps_i : in std_logic_vector(7 downto 0);
       sending_stat_o : out std_logic; --! The status register is being adressed
-      sending_mps_o : out std_logic; --! The status register is being adressed
 
 --      var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
 
@@ -475,9 +484,9 @@ package wf_package is
 --!  USER INTERFACE. Data and address lines synchronized with uclk_i
 -------------------------------------------------------------------------------
 
-      wb_dat_i     : in  std_logic_vector (15 downto 0); --! 
+      wb_data_i     : in  std_logic_vector (15 downto 0); --! 
       wb_clk_i     : in std_logic;
-      wb_dat_o     : out std_logic_vector (15 downto 0); --! 
+--      wb_data_o     : out std_logic_vector (15 downto 0); --! 
       wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
       wb_stb_p_i     : in  std_logic; --! Strobe
       wb_ack_p_o     : out std_logic; --! Acknowledge
@@ -493,16 +502,14 @@ package wf_package is
       uclk_i    : in std_logic; --! User Clock
       rst_i     : in std_logic;
 
-      start_send_p_i  : in std_logic;
+      start_produce_p_i  : in std_logic;
       request_byte_p_o : out std_logic;
       byte_ready_p_i : in std_logic;
       byte_i : in std_logic_vector(7 downto 0);
       last_byte_p_i : in std_logic;
---   clk_fixed_carrier_p_o : out std_logic;
-      d_o : out std_logic;
-      d_e_o : out std_logic;
+      tx_enable_o : out std_logic;
       d_clk_o : out std_logic;
-      
+      tx_data_o : out std_logic;
       d_a_i : in std_logic;
       
       rate_i    : in std_logic_vector(1 downto 0);
@@ -512,7 +519,7 @@ package wf_package is
       last_byte_p_o : out std_logic;
       fss_decoded_p_o : out std_logic;
       code_violation_p_o : out std_logic;
-      crc_bad_p_o : out std_logic;
+      crc_wrong_p_o : out std_logic;
       crc_ok_p_o : out std_logic
 
       );
@@ -779,20 +786,20 @@ package body wf_package is
     v_p3_length_decoded := to_unsigned(c_p3_var_length_table(to_integer(unsigned(p3_length))), v_p3_length_decoded'length);
     v_data_length := to_unsigned(0,v_data_length'length);
     case var is
-      when c_st_var_presence =>
+      when c_presence_var =>
         v_data_length := to_unsigned(6,v_data_length'length);
-      when c_st_var_identification => 
+      when c_identif_var => 
         v_data_length := to_unsigned(9,v_data_length'length);
-      when c_st_var_1 => 
-      when c_st_var_2 =>
-      when c_st_var_3 => 
+      when c_var_1 => 
+      when c_var_2 =>
+      when c_var_3 => 
 
         if nostat = '1' then
           v_data_length := to_unsigned(3,v_data_length'length);
         else
           v_data_length := v_p3_length_decoded + unsigned(v_nostat) ;
         end if;
-      when c_st_var_reset =>  
+      when c_reset_var =>  
       when others => 
     end case;
     return std_logic_vector(v_data_length);
