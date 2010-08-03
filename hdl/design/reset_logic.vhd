@@ -93,7 +93,7 @@ begin
 
 process(s_rstin_d,var_i)
 begin
-if (var_i = c_var_array(c_var_reset_pos).var) then 
+if (var_i = c_var_array(c_reset_var_pos).var) then 
  s_reload_rst_c <= '1';
 else
  s_reload_rst_c <=   s_rstin_d(s_rstin_d'left);

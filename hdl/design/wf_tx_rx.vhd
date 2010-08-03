@@ -70,15 +70,14 @@ entity wf_tx_rx is
     uclk_i    : in std_logic; --! User Clock
     rst_i     : in std_logic;
 
-    start_send_p_i  : in std_logic;
+    start_produce_p_i  : in std_logic;
     request_byte_p_o : out std_logic;
     byte_ready_p_i : in std_logic;
     byte_i : in std_logic_vector(7 downto 0);
     last_byte_p_i : in std_logic;
 
---   clk_fixed_carrier_p_o : out std_logic;
-    d_o : out std_logic;
-    d_e_o : out std_logic;
+    tx_data_o : out std_logic;
+    tx_enable_o : out std_logic;
     d_clk_o : out std_logic;
     
     d_a_i : in std_logic;
@@ -90,7 +89,7 @@ entity wf_tx_rx is
     last_byte_p_o : out std_logic;
     fss_decoded_p_o : out std_logic;
     code_violation_p_o : out std_logic;
-    crc_bad_p_o : out std_logic;
+    crc_wrong_p_o : out std_logic;
     crc_ok_p_o : out std_logic
 
     );
@@ -113,9 +112,9 @@ architecture rtl of wf_tx_rx is
   signal s_clk_fixed_carrier_p : std_logic;
   signal s_d_filtered : std_logic;
   signal s_d_ready_p : std_logic;
-  signal s_load_phase : std_logic;   
+  signal s_first_fe : std_logic;   
   signal s_clk_carrier_p : std_logic;
-  signal s_clk_bit_180_p  : std_logic;
+  signal s_clk_bit_180_p, s_sample_bit_p, s_sample_manch_bit_p  : std_logic;
   signal s_edge_window, edge_180_window : std_logic;
   signal s_d_edge : std_logic;   
   signal s_clk_fixed_carrier_p_d : std_logic_vector(C_CLKFCDLENTGTH - 1 downto 0); 
@@ -140,15 +139,15 @@ begin
     PORT MAP(
       uclk_i => uclk_i,
       rst_i => rst_i,
-      start_send_p_i => start_send_p_i,
+      start_produce_p_i => start_produce_p_i,
       request_byte_p_o => request_byte_p_o,
       byte_ready_p_i => byte_ready_p_i,
       byte_i => byte_i,
       last_byte_p_i => last_byte_p_i,
 --      clk_fixed_carrier_p_i => s_clk_fixed_carrier_p,
-      clk_fixed_carrier_p_d_i => s_clk_fixed_carrier_p_d,
-      d_o => d_o,
-      d_e_o => d_e_o
+      tx_clk_p_buff_i => s_clk_fixed_carrier_p_d,
+      tx_data_o => tx_data_o,
+      tx_enable_o => tx_enable_o
       );
   
 
@@ -162,16 +161,16 @@ begin
       fss_decoded_p_o => fss_decoded_p_o,
       crc_ok_p_o => crc_ok_p_o,
       
-      d_fe_i => s_d_fe,
-      d_re_i => s_d_re,
+      rx_data_f_edge_i => s_d_fe,
+      rx_data_r_edge_i => s_d_re,
       
-      d_filtered_i => s_d_filtered,
-      s_d_ready_p_i => s_d_ready_p,
-      load_phase_o => s_load_phase,
+      rx_data_filtered_i => s_d_filtered,
+      sample_manch_bit_p_i => s_sample_manch_bit_p,
+      wait_d_first_f_edge_o=> s_first_fe,
       
-      clk_bit_180_p_i => s_clk_bit_180_p,
-      edge_window_i => s_edge_window,
-      edge_180_window_i => edge_180_window
+      sample_bit_p_i => s_sample_bit_p,
+      signif_edge_window_i => s_edge_window,
+      adjac_bits_window_i => edge_180_window
 
       );
 
@@ -179,16 +178,17 @@ begin
   
   uwf_rx_osc :wf_rx_osc
 
-    generic map(C_OSC_LENGTH => 20,
-                C_QUARTZ_PERIOD => 25.0,
+    generic map(C_COUNTER_LENGTH => 7,
+                C_QUARTZ_PERIOD => 24.8,
                 C_CLKFCDLENTGTH => C_CLKFCDLENTGTH)
 
 
     port map(
       uclk_i   => uclk_i, --! User Clock
       rst_i   => rst_i, 
-      d_edge_i   => s_d_fe,
-      load_phase_i   => s_load_phase, 
+      d_edge_i => s_d_edge,      
+      rx_data_f_edge_i   => s_d_fe,
+      wait_d_first_f_edge_i   => s_first_fe, 
 
       
       --! Bit rate         \n
@@ -198,31 +198,27 @@ begin
       --! 11: reserved, do not use
       rate_i   => rate_i,  --! Bit rate
 
-      clk_fixed_carrier_p_o     => s_clk_fixed_carrier_p,
-      clk_fixed_carrier_p_d_o   => s_clk_fixed_carrier_p_d,
-      clk_fixed_carrier_o   => d_clk_o,
+      tx_clk_p_buff_o   => s_clk_fixed_carrier_p_d,
+      tx_clk_o   => d_clk_o,
       
-      clk_carrier_p_o     => s_clk_carrier_p,
-      clk_carrier_180_p_o => open,
+      rx_manch_clk_p_o     => s_clk_carrier_p,
 
-      clk_bit_p_o      => open,
-      clk_bit_90_p_o   => open, 
-      clk_bit_180_p_o  => s_clk_bit_180_p, 
-      clk_bit_270_p_o  => open, 
+      rx_bit_clk_p_o  => s_clk_bit_180_p, 
       
-      edge_window_o  => s_edge_window,
-      edge_180_window_o => edge_180_window,
-
-      phase_o  => open
+      rx_signif_edge_window_o  => s_edge_window,
+      rx_adjac_bits_window_o => edge_180_window
       );
 
   Udeglitcher : deglitcher 
     generic map (C_ACULENGTH => 10)
     Port map( uclk_i => uclk_i,
-              d_i => s_d_d(2),
-              d_o => s_d_filtered,
+              rx_data_i => s_d_d(2),
+              rx_data_filtered_o => s_d_filtered,
+              clk_bit_180_p_i => s_clk_bit_180_p,
               carrier_p_i  => s_clk_carrier_p,
-              d_ready_p_o => s_d_ready_p);
+              sample_manch_bit_p_o => s_sample_manch_bit_p,
+              sample_bit_p_o => s_sample_bit_p
+              );
   
   
 end architecture rtl;

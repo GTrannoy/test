@@ -1,7 +1,7 @@
---===========================================================================
+--=================================================================================================
 --! @file wf_engine_control.vhd
 --! @brief Nanofip control unit
---===========================================================================
+--=================================================================================================
 --! Standard library
 library IEEE;
 --! Standard packages
@@ -10,13 +10,14 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 use work.wf_package.all;
 
--------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------  
 --                                                                           --
 --                                 wf_engine_control                                 --
 --                                                                           --
 --                               CERN, BE/CO/HT                              --
 --                                                                           --
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --
 -- unit name: wf_control
 --
@@ -50,98 +51,63 @@ use work.wf_package.all;
 --!
 --! <b>Modified by:</b>\n
 --! Author: Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------  
 --! \n\n<b>Last changes:</b>\n
 --! 11/09/2009  v0.01  EB  First version \n
 --!
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------  
 --! @todo 
 --!
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------  
 
 
 
---============================================================================
+--=================================================================================================
 --! Entity declaration for wf_engine_control
---============================================================================
+--=================================================================================================
 entity wf_engine_control is
   generic( C_QUARTZ_PERIOD : real := 25.0);
 
   port (
-    uclk_i    : in std_logic; --! User Clock
-    rst_i     : in std_logic;
+    uclk_i :           in std_logic; --! 40MHz clock
+    rst_i :            in std_logic; --! global reset
 
     -- Transmiter interface
-    start_send_p_o  : out std_logic;
     request_byte_p_i : in std_logic;
-    byte_ready_p_o : out std_logic;
--- 	byte_o : out std_logic_vector(7 downto 0);
-    last_byte_p_o : out std_logic;
+
+     -- Receiver interface
+    fss_decoded_p_i :  in std_logic;   -- the receiver wf_rx has detected the start of a frame
+    byte_ready_p_i :   in std_logic;   --  ouputs a new byte on byte_i
+    byte_i :           in std_logic_vector(7 downto 0);  -- Decoded byte
+    frame_ok_p_i :     in std_logic;     
     
 
-    -- Receiver interface
-    fss_decoded_p_i : in std_logic;  -- The frame decoder has detected the start of a frame
-    byte_ready_p_i : in std_logic;   -- The frame docoder ouputs a new byte on byte_i
-    byte_i : in std_logic_vector(7 downto 0);  -- Decoded byte
-    frame_ok_p_i : in std_logic;     
-    
-    -- Worldfip bit rate
-    rate_i    : in std_logic_vector(1 downto 0);
-    
-    subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
+    rate_i :           in std_logic_vector(1 downto 0);    -- Worldfip bit rate
+    subs_i :           in  std_logic_vector (7 downto 0); --! Subscriber number coding.
+    p3_lgth_i :        in  std_logic_vector (2 downto 0); --! Produced variable data length
+    slone_i :          in  std_logic; --! Stand-alone mode
+    nostat_i :         in  std_logic; --! No NanoFIP status transmission
 
 
-    --! Produced variable data length \n
-    --! 000: 2 Bytes                  \n
-    --! 001: 8 Bytes                  \n
-    --! 010: 16 Bytes                 \n
-    --! 011: 32 Bytes                 \n
-    --! 100: 64 Bytes                 \n
-    --! 101: 124 Bytes                \n
-    --! 110: reserved, do not use     \n
-    --! 111: reserved, do not use     \n
-    --! Actual size: +1 NanoFIP Status byte +1 MPS Status byte (last transmitted) 
-    --! Note: when SLONE=Vcc, p3_lgth_i should be set to 000.
-    p3_lgth_i : in  std_logic_vector (2 downto 0); --! Produced variable data length
-
-    --! Stand-alone mode
-    --! If connected to Vcc, disables sending of NanoFIP status together with 
-    --! the produced data.
-    slone_i   : in  std_logic; --! Stand-alone mode
+    var1_rdy_o :       out std_logic; --! Variable 1 ready. signals new data is received and can safely be read (Consumed 
+                               --! variable 05xyh). In stand-alone mode one may sample the data on the 
+                               --! first clock edge VAR1_RDY is high.
 
 
-    --! No NanoFIP status transmission
-    --! If connected to Vcc, disables sending of NanoFIP status together with 
-    --! the produced data.
-    nostat_i  : in  std_logic; --! No NanoFIP status transmission
+    var2_rdy_o :       out std_logic; --! Variable 2 ready. Signals new data is received and can safely be read (Consumed 
+                               --! broadcast variable 04xyh). In stand-alone mode one may sample the 
+                               --! data on the first clock edge VAR1_RDY is high.
 
--------------------------------------------------------------------------------
---  USER INTERFACE, non WISHBONE
--------------------------------------------------------------------------------
-
-    --! Signals new data is received and can safely be read (Consumed 
-    --! variable 05xyh). In stand-alone mode one may sample the data on the 
-    --! first clock edge VAR1_RDY is high.
-    var1_rdy_o: out std_logic; --! Variable 1 ready
-
-    --! Signals new data is received and can safely be read (Consumed 
-    --! broadcast variable 04xyh). In stand-alone mode one may sample the 
-    --! data on the first clock edge VAR1_RDY is high.
-    var2_rdy_o: out std_logic; --! Variable 2 ready
-
-
-    --! Signals that the variable can safely be written (Produced variable 
-    --! 06xyh). In stand-alone mode, data is sampled on the first clock after
-    --! VAR_RDY is deasserted.
-    var3_rdy_o: out std_logic; --! Variable 3 ready
-
-
-
---   prod_byte_i : in std_logic_vector(7 downto 0);
-    var_o : out t_var;
-    append_status_o : out std_logic;
-    add_offset_o : out std_logic_vector(6 downto 0);
-    data_length_o : out std_logic_vector(6 downto 0);
+    var3_rdy_o :       out std_logic; --! Variable 3 ready. Signals that the variable can safely be written (Produced variable 
+                               --! 06xyh). In stand-alone mode, data is sampled on the first clock after
+                               --! VAR_RDY is deasserted.
+    byte_ready_p_o :   out std_logic;
+    last_byte_p_o :    out std_logic;
+    start_produce_p_o :   out std_logic;
+    var_o :            out t_var;
+    append_status_o :  out std_logic;
+    add_offset_o :     out std_logic_vector(6 downto 0);
+    data_length_o :    out std_logic_vector(6 downto 0);
     cons_byte_we_p_o : out std_logic
     );
 
@@ -149,52 +115,59 @@ end entity wf_engine_control;
 
 
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --! ARCHITECTURE OF wf_control
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 architecture rtl of wf_engine_control is
 
 --attribute syn_radhardlevel : string;
 --attribute syn_radhardlevel of rtl: architecture is "tmr";
 
 
-  type control_st_t  is (cont_idle, cont_w_id_dat_control, cont_w_id_dat_subs, cont_w_id_dat_var, cont_w_id_dat_frame_ok, 
-                         cont_w_prod_watchdog, cont_w_cons_watchdog, cont_cons_var, cont_prod_var);
+  type control_st_t  is (idle, id_dat_control_byte, id_dat_var_byte, id_dat_subs_byte, id_dat_frame_ok, 
+                         produce_wait_respon_time, cont_w_cons_watchdog, consume, produce);
 
 
   signal control_st, nx_control_st : control_st_t;
-  signal temp_var, var, nx_temp_var : t_var;
+  signal s_var_aux, s_var, s_var_aux_concurr : t_var;
 
-  signal s_watchdog_c, s_watchdog_top, s_response_time, s_silence_time  : signed(16 downto 0);
-  signal s_reset_watchdog_c : std_logic;
+  signal s_respon_silen_c, s_counter_top, s_response_time, s_silence_time  : signed(16 downto 0);
+  signal s_counter_reset : std_logic;
   signal s_p3_length_decoded : unsigned(6 downto 0);
---signal produce, consume : std_logic;
-  signal data_length : unsigned(6 downto 0);
-  signal s_reset_id_data : std_logic;
-  signal s_watchdog_is_zero : std_logic;
-  signal s_broadcast : std_logic;
-  signal s_byte_c : unsigned(7 downto 0);
+  signal s_data_length : unsigned(6 downto 0);
+  signal s_reset_id_dat : std_logic;
+  signal s_respon_silen_c_is_zero : std_logic;
+  signal s_broadcast_var : std_logic;
+  signal s_bytes_c : unsigned(7 downto 0);
   signal s_inc_bytes_c, s_reset_bytes_c : std_logic;
-  signal s_prodcons : std_logic_vector(1 downto 0);
-  signal nx_last_byte_p : std_logic;
+  signal s_produce_or_consume : std_logic_vector(1 downto 0);
+  signal s_last_byte_p : std_logic;
   signal s_load_temp_var : std_logic;
   signal s_load_var : std_logic;
   signal data_length_match : std_logic;
-  signal  nx_byte_ready_p : std_logic;
+  signal s_byte_ready_p : std_logic;
   signal s_append_status : std_logic;
-  signal var1_was_received, var2_was_received : std_logic;
-  signal s_start_send_p, s_start_send_p_d : std_logic;
+  signal s_var1_received, s_var2_received : std_logic;
+  signal s_start_produce_p, s_start_produce_p_d1 : std_logic;
 begin
 
+---------------------------------------------------------------------------------------------------
+--!@brief central control FSM: the state machine is divided in three parts (a clocked process
+--! to store the current state, a combinatorial process to manage state transitions and finally a
+--! combinatorial process to manage the output signals), which are the three processes that follow.
+--! The unit, is 
+
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM 
   
-  
-  process(uclk_i)
+  Central_Control_FSM_Sync: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if rst_i = '1' then
-        control_st <= cont_idle;
+        control_st <= idle;
       else
         control_st <= nx_control_st;
       end if;
@@ -202,284 +175,423 @@ begin
   end process;
 
 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM 
 
 
-  process(control_st, fss_decoded_p_i, nx_last_byte_p, nx_temp_var, byte_ready_p_i, byte_i, subs_i, s_prodcons, frame_ok_p_i, s_broadcast, nx_temp_var, s_watchdog_is_zero)
+  Central_Control_FSM_Comb_State_Transitions:process (control_st, fss_decoded_p_i, s_last_byte_p,
+                                                     s_var_aux_concurr, byte_ready_p_i,byte_i, subs_i,
+                                                     s_respon_silen_c_is_zero,s_produce_or_consume,
+                                                     frame_ok_p_i, s_broadcast_var)
   begin
-    nx_control_st <= cont_idle;
+    nx_control_st <= idle;
+
     case control_st is
-      when cont_idle =>
-        if fss_decoded_p_i = '1' then
-          nx_control_st <= cont_w_id_dat_control;
+
+      when idle =>
+        if fss_decoded_p_i = '1' then -- notification from the receiver that a correct FSS field has been received
+          nx_control_st <= id_dat_control_byte;
         else
-          nx_control_st <= cont_idle;
+          nx_control_st <= idle;
         end if;
-      when cont_w_id_dat_control =>
-        if (byte_ready_p_i = '1') and (byte_i =  c_id_dat) then
-          nx_control_st <= cont_w_id_dat_var;
+
+      when id_dat_control_byte =>
+        if (byte_ready_p_i = '1') and (byte_i = c_id_dat) then
+          nx_control_st <= id_dat_var_byte;
         elsif (byte_ready_p_i = '1') then
-          nx_control_st <= cont_idle;
+          nx_control_st <= idle;
         else
-          nx_control_st <= cont_w_id_dat_control;
+          nx_control_st <= id_dat_control_byte;
         end if;
         
-      when cont_w_id_dat_var =>      
-        if (byte_ready_p_i = '1') and (nx_temp_var /= c_st_var_whatever) then
-          nx_control_st <= cont_w_id_dat_subs;
-        elsif  (byte_ready_p_i = '1') and (nx_temp_var = c_st_var_whatever) then
-          nx_control_st <= cont_idle;
+      when id_dat_var_byte =>      
+        if (byte_ready_p_i = '1') and (s_var_aux_concurr /= c_var_whatever) then
+          nx_control_st <= id_dat_subs_byte;
+        elsif  (byte_ready_p_i = '1') and (s_var_aux_concurr = c_var_whatever) then
+          nx_control_st <= idle;
         else
-          nx_control_st <= cont_w_id_dat_var;
+          nx_control_st <= id_dat_var_byte;
         end if;
 
         
-      when cont_w_id_dat_subs =>      
+      when id_dat_subs_byte =>      
         if (byte_ready_p_i = '1') and (byte_i = subs_i) then
-          nx_control_st <= cont_w_id_dat_frame_ok;
-        elsif (byte_ready_p_i = '1') and (s_broadcast = '1') then
-          nx_control_st <= cont_w_id_dat_frame_ok;
+          nx_control_st <= id_dat_frame_ok;
+        elsif (byte_ready_p_i = '1') and (s_broadcast_var = '1') then
+          nx_control_st <= id_dat_frame_ok;
         elsif (byte_ready_p_i = '1') then
-          nx_control_st <= cont_idle;
+          nx_control_st <= idle;
         else
-          nx_control_st <= cont_w_id_dat_subs;
+          nx_control_st <= id_dat_subs_byte;
         end if;
         
-      when cont_w_id_dat_frame_ok =>
-        if (frame_ok_p_i = '1') and (s_prodcons = "10") then
-          nx_control_st <= cont_w_prod_watchdog;
-        elsif (frame_ok_p_i = '1') and (s_prodcons = "01") then
-          nx_control_st <= cont_cons_var;
+      when id_dat_frame_ok =>
+        if (frame_ok_p_i = '1') and (s_produce_or_consume = "10") then
+          nx_control_st <= produce_wait_respon_time;
+        elsif (frame_ok_p_i = '1') and (s_produce_or_consume = "01") then
+          nx_control_st <= consume;
         elsif (frame_ok_p_i = '1') then
-          nx_control_st <= cont_idle;
+          nx_control_st <= idle;
         elsif fss_decoded_p_i = '1' then
-          nx_control_st <= cont_w_id_dat_control;
+          nx_control_st <= id_dat_control_byte;
         else
-          nx_control_st <= cont_w_id_dat_frame_ok;
+          nx_control_st <= id_dat_frame_ok;
         end if;
         
-      when cont_w_prod_watchdog =>
-        if s_watchdog_is_zero = '1' then
-          nx_control_st <= cont_prod_var;
+      when produce_wait_respon_time =>
+        if s_respon_silen_c_is_zero = '1' then
+          nx_control_st <= produce;
         else
-          nx_control_st <= cont_w_prod_watchdog;
+          nx_control_st <= produce_wait_respon_time;
         end if;
 
---      when cont_w_cons_watchdog =>
---        if s_watchdog_is_zero = '1' then
---          nx_control_st <= cont_cons_var;
---        else
---          nx_control_st <= cont_w_cons_watchdog;
---        end if;
-
-
-      when cont_cons_var =>
-        if frame_ok_p_i = '1' or s_watchdog_is_zero = '1' then
-          nx_control_st <= cont_idle;
+      when consume =>
+        if frame_ok_p_i = '1' or s_respon_silen_c_is_zero = '1' then
+          nx_control_st <= idle;
         else
-          nx_control_st <= cont_cons_var;
+          nx_control_st <= consume;
         end if;
 
-      when cont_prod_var =>
-        if nx_last_byte_p = '1' then
-          nx_control_st <= cont_idle;
+      when produce =>
+        if s_last_byte_p = '1' then
+          nx_control_st <= idle;
         else
-          nx_control_st <= cont_prod_var;
+          nx_control_st <= produce;
         end if;
-      when others =>          nx_control_st <= cont_idle;
+
+      when others =>
+          nx_control_st <= idle;
     end case;                         
   end process;
 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM 
 
-  process(control_st, frame_ok_p_i, s_byte_c,  s_prodcons, s_start_send_p_d,  s_response_time, s_silence_time, request_byte_p_i,  s_watchdog_is_zero, byte_ready_p_i, data_length_match)
+  Central_Control_FSM_Comb_Output_Signals: process (control_st, frame_ok_p_i, s_bytes_c, 
+                                                    s_produce_or_consume, s_start_produce_p_d1,
+                                                    request_byte_p_i, s_respon_silen_c_is_zero,
+                                                    byte_ready_p_i,s_response_time, s_silence_time,
+                                                    data_length_match)
   begin
-    s_reset_watchdog_c <= '1';
-    s_inc_bytes_c <= '0';
-    s_reset_bytes_c <= '1';
-    s_load_temp_var <= '0';
-    s_load_var <= '0';
-    s_watchdog_top <= s_silence_time;
-    cons_byte_we_p_o <= '0';
-    s_start_send_p <= '0';
-    nx_last_byte_p <= '0';
-    s_reset_id_data <= '0';
-    nx_byte_ready_p <= '0';
-    add_offset_o <= (others => '0');
+
     case control_st is
-      when cont_w_id_dat_var => 
-        s_load_temp_var <= byte_ready_p_i;
-      when cont_w_id_dat_frame_ok => 
-        if s_prodcons = "10" then
-          s_watchdog_top <= s_response_time;
-        else 
-          s_watchdog_top <= s_silence_time;
-        end if;
-        s_reset_watchdog_c <= '1';
-        s_load_var <= '1';
 
-      when cont_w_prod_watchdog =>  
-        s_start_send_p <= s_watchdog_is_zero;
-        s_reset_watchdog_c <= '0';	   
+      when idle =>
+                            s_load_temp_var <= '0';
+                            s_counter_reset <= '1';
+                            s_inc_bytes_c <= '0';
+                            s_reset_bytes_c <= '1';
+                            s_load_var <= '0';
+                            s_counter_top <= s_silence_time;
+                            cons_byte_we_p_o <= '0';
+                            s_start_produce_p <= '0';
+                            s_last_byte_p <= '0';
+                            s_reset_id_dat <= '0';
+                            s_byte_ready_p <= '0';
+                            add_offset_o <= (others => '0');
+
+
+      when id_dat_control_byte =>
+                            s_load_temp_var <= '0';
+                            s_counter_reset <= '1';
+                            s_inc_bytes_c <= '0';
+                            s_reset_bytes_c <= '1';
+                            s_load_var <= '0';
+                            s_counter_top <= s_silence_time;
+                            cons_byte_we_p_o <= '0';
+                            s_start_produce_p <= '0';
+                            s_last_byte_p <= '0';
+                            s_reset_id_dat <= '0';
+                            s_byte_ready_p <= '0';
+                            add_offset_o <= (others => '0');
+
+      when id_dat_var_byte =>      
+                            s_load_temp_var <= byte_ready_p_i;
+
+                            s_counter_reset <= '1';
+                            s_inc_bytes_c <= '0';
+                            s_reset_bytes_c <= '1';
+                            s_load_var <= '0';
+                            s_counter_top <= s_silence_time;
+                            cons_byte_we_p_o <= '0';
+                            s_start_produce_p <= '0';
+                            s_last_byte_p <= '0';
+                            s_reset_id_dat <= '0';
+                            s_byte_ready_p <= '0';
+                            add_offset_o <= (others => '0');
+
+      when id_dat_subs_byte =>
+                            s_load_temp_var <= '0';
+                            s_counter_reset <= '1';
+                            s_inc_bytes_c <= '0';
+                            s_reset_bytes_c <= '1';
+                            s_load_var <= '0';
+                            s_counter_top <= s_silence_time;
+                            cons_byte_we_p_o <= '0';
+                            s_start_produce_p <= '0';
+                            s_last_byte_p <= '0';
+                            s_reset_id_dat <= '0';
+                            s_byte_ready_p <= '0';
+                            add_offset_o <= (others => '0');
+
+
+
+      when id_dat_frame_ok => 
+                            s_load_var <= '0';
+
+                            if s_produce_or_consume = "10" then
+                              s_counter_top <= s_response_time;
+                            else 
+                              s_counter_top <= s_silence_time;
+                            end if;
+
+                            s_counter_reset <= '1';
+                            s_inc_bytes_c <= '0';
+                            s_reset_bytes_c <= '1';
+                            cons_byte_we_p_o <= '0';
+                            s_start_produce_p <= '0';
+                            s_last_byte_p <= '0';
+                            s_reset_id_dat <= '0';
+                            s_byte_ready_p <= '0';
+                            s_load_temp_var <= '0';
+                            add_offset_o <= (others => '0');
+
+
+      when produce_wait_respon_time =>  
+                            s_start_produce_p <= s_respon_silen_c_is_zero;
+                            s_counter_reset <= '0';
+
+                            s_inc_bytes_c <= '0';
+                            s_reset_bytes_c <= '1';
+                            s_load_var <= '1';
+                            s_counter_top <= s_silence_time;
+                            cons_byte_we_p_o <= '0';
+                            s_load_temp_var <= '0';
+                            s_last_byte_p <= '0';
+                            s_reset_id_dat <= '0';
+                            s_byte_ready_p <= '0';
+                            add_offset_o <= (others => '0'); 
+
+	   
         
-      when cont_cons_var =>
-        s_reset_watchdog_c <= '0';
-        s_reset_bytes_c <= '0';
-        s_inc_bytes_c <= byte_ready_p_i;
+      when consume =>
+                            if unsigned(s_bytes_c) > 1 then 
+                              cons_byte_we_p_o <= byte_ready_p_i;
+                            else
+                              cons_byte_we_p_o <= '0';
+                            end if;
 
-        if unsigned(s_byte_c) > 1 then 
-            cons_byte_we_p_o <= byte_ready_p_i;
-        else
-            cons_byte_we_p_o <= '0';
-        end if;
+                            s_reset_id_dat <= frame_ok_p_i or s_respon_silen_c_is_zero;
+                            add_offset_o <= std_logic_vector(resize(s_bytes_c - 2,add_offset_o'length));
+                            s_inc_bytes_c <= byte_ready_p_i;
 
-        s_reset_id_data <= frame_ok_p_i or s_watchdog_is_zero;
-        add_offset_o <= std_logic_vector(resize(s_byte_c - 2,add_offset_o'length));
-      when cont_prod_var =>
-        s_reset_watchdog_c <= '0';	
-        nx_last_byte_p <=  data_length_match and request_byte_p_i;
-        nx_byte_ready_p <= request_byte_p_i or s_start_send_p_d;
-        s_inc_bytes_c <= request_byte_p_i;
-        s_reset_bytes_c <= '0';
-        s_reset_id_data <= data_length_match and request_byte_p_i;
-        add_offset_o <= std_logic_vector(resize(s_byte_c, add_offset_o'length));
+                            s_reset_bytes_c <= '0';
+                            s_counter_reset <= '0';
+                            s_load_var <= '1';
+                            s_counter_top <= s_silence_time;
+                            s_start_produce_p <= '0';
+                            s_last_byte_p <= '0';
+                            s_load_temp_var <= '0';
+                            s_byte_ready_p <= '0';
+
+
+
+      when produce =>
+                            s_last_byte_p <=  data_length_match and request_byte_p_i;
+                            s_byte_ready_p <= request_byte_p_i or s_start_produce_p_d1;
+                            s_inc_bytes_c <= request_byte_p_i;
+                            s_reset_id_dat <= data_length_match and request_byte_p_i;
+                            add_offset_o <= std_logic_vector(resize(s_bytes_c, add_offset_o'length));
+                            s_counter_reset <= '0';
+
+                            s_reset_bytes_c <= '0';
+                            s_start_produce_p <= '0';
+                            s_load_var <= '0';
+                            s_counter_top <= s_silence_time;
+                            cons_byte_we_p_o <= '0';
+                            s_load_temp_var <= '0';
+
       when others =>   
+
     end case;                         
   end process;
 
-  process(uclk_i)
-  begin
-    if rising_edge(uclk_i) then
-      s_start_send_p_d <= s_start_send_p;
-    end if;
-  end process;
+---------------------------------------------------------------------------------------------------
+--! The following two processes: id_dat_var_concurrent and ... manage the values of the signals
+--! s_var_aux_concurr, s_var_aux and s_var. All of them are used to keep the value of the
+--! ID_DAT.Identifier.Variable byte of the incoming ID_DAT frame, but change their value on
+--! different moments:
+--! s_var_aux_concurr: is constantly following the incoming byte byte_i 
+--! s_var_aux: locks to the value of s_var_aux_concurr when the ID_DAT.Identifier.Variable byte
+--! is received (s_load_temp_var = 1)
+--! s_var: locks to the value of s_var_aux at the end of the id_dat frame (s_load_var = 1)
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   
-  start_send_p_o <= s_start_send_p;
-
-  
-  process(byte_i)
+  id_dat_var_concurrent: process(byte_i)
   begin
-    nx_temp_var <= c_st_var_whatever;
+    s_var_aux_concurr <= c_var_whatever;
     for I in c_var_array'range loop
       if byte_i = c_var_array(I).hexvalue then
-        nx_temp_var <= c_var_array(I).var;
+        s_var_aux_concurr <= c_var_array(I).var;
         exit;
       end if;
     end loop;
   end process;
   
-
-  process(uclk_i)
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  id_dat_var_specific_moments: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if rst_i = '1' then 
-        var <= c_st_var_whatever;
-        temp_var <= c_st_var_whatever;
+        s_var <= c_var_whatever;
+        s_var_aux <= c_var_whatever;
       else
         
-        if s_reset_id_data = '1' then 
-          temp_var <= c_st_var_whatever;
+        if s_reset_id_dat = '1' then 
+          s_var_aux <= c_var_whatever; 
+
         elsif s_load_temp_var = '1' then
-          temp_var <= nx_temp_var;
+          s_var_aux <= s_var_aux_concurr;
         end if;
         
-        if s_reset_id_data = '1' then 
-          var <= c_st_var_whatever;
+        if s_reset_id_dat = '1' then 
+          s_var <= c_var_whatever;
+
         elsif s_load_var = '1' then
-          var <= temp_var;
+          s_var <= s_var_aux;
         end if;
       end if;
     end if;
   end process;
 
 
+---------------------------------------------------------------------------------------------------
+--!@brief: Combinatorial process Identify_Broadcast_Var: signal s_broadcast_var is enabled if the
+--! variable received from the id_dat, s_var_aux, is a variable 2 (04h).
 
-  process(temp_var)
+  Var_Characteristics: process(s_var_aux)
   begin
-    s_prodcons <= "00";
+    s_produce_or_consume <= "00";
+    s_broadcast_var <= '0';
+
     for I in c_var_array'range loop
-      if temp_var = c_var_array(I).var then
+
+      if s_var_aux = c_var_array(I).var then
+
         if c_var_array(I).response = produce then
-          s_prodcons <= "10";
+          s_produce_or_consume <= "10";
         else
-          s_prodcons <= "01";
+          s_produce_or_consume <= "01";
         end if;
         exit;
       end if;
     end loop;
-  end process;
-  
-  process(temp_var)
-  begin
-    s_broadcast <= '0';
-    if  temp_var = c_st_var_2 then
-      s_broadcast <= '1';
+
+    if  s_var_aux = c_var_2 then
+      s_broadcast_var <= '1';
     end if;
+
   end process;
 
+---------------------------------------------------------------------------------------------------
+--!@brief: Combinatorial process data_length_calculation: calculation of the total amount of data
+--! bytes that have to be transferreed when an rp_dat (produced variable) has to be sent,
+--! including the rp_dat.Control as well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes.
 
-  process(var, s_p3_length_decoded, slone_i, nostat_i)
-    variable v_nostat : std_logic_vector(1 downto 0);
+  data_length_calculation: process(s_var, s_p3_length_decoded, slone_i, nostat_i)
+  variable v_nostat : std_logic_vector(1 downto 0);
   begin
-    v_nostat := ('0'& ((not nostat_i) and (not slone_i)));
-    s_append_status <= '0';
-    data_length <= to_unsigned(0,data_length'length);
-    case var is
-      when c_st_var_presence =>
-        data_length <= to_unsigned(c_var_array(c_var_presence_pos).array_length-1,data_length'length);-- to_unsigned(5,data_length'length);
-      when c_st_var_identification => 
-         data_length <= to_unsigned(c_var_array(c_var_identification_pos).array_length-1,data_length'length);
-      when c_st_var_1 => 
-      when c_st_var_2 =>
-      when c_st_var_3 =>  
-        s_append_status <= not nostat_i;
+    s_append_status <= not nostat_i;
+    s_data_length <= to_unsigned(0,s_data_length'length);
+    s_p3_length_decoded <= to_unsigned (c_p3_var_length_table (to_integer(unsigned(p3_lgth_i))), 
+                                                                      s_p3_length_decoded'length);
+    case s_var is
+
+      when c_presence_var => -- data_length including rp_dat.control and rp_dat.data fields
+        s_data_length<=to_unsigned(c_var_array(c_presence_var_pos).array_length-1,s_data_length'length);
+
+      when c_identif_var => 
+        s_data_length<=to_unsigned(c_var_array(c_identif_var_pos).array_length-1,s_data_length'length);
+
+      when c_var_3 =>  
         if slone_i = '1' then
-          data_length <= to_unsigned(3,data_length'length);
+          s_data_length <= to_unsigned(3,s_data_length'length);
+        
         else
-          data_length <= s_p3_length_decoded + unsigned(v_nostat) ;
-        end if;
-      when c_st_var_reset =>  
+          if s_append_status = '1' then
+            s_data_length <= s_p3_length_decoded+1;
+           else
+            s_data_length <= s_p3_length_decoded; 
+           end if;          
+          end if;
+
+      when c_var_1 => 
+
+      when c_var_2 =>
+
+      when c_reset_var =>  
+
       when others => 
+
     end case;
   end process;
-
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  -- output signals that have been also used in the process
   append_status_o <= s_append_status;
-  data_length_o <= std_logic_vector(data_length); 
+  data_length_o <= std_logic_vector(s_data_length); 
 
-  
-  s_p3_length_decoded <= to_unsigned(c_p3_var_length_table(to_integer(unsigned(p3_lgth_i))) - 1, s_p3_length_decoded'length);
+ 
+--------------------------------------------------------------------------------------------------- 
+--!@brief Synchronous process Bytes_Counter:Managing the counter that counts the number of produced
+--! or consumed bytes of data. 
 
-  
-  s_response_time <= to_signed((c_timeouts_table(to_integer(unsigned(rate_i))).response), s_response_time'length);
-  s_silence_time <= to_signed((c_timeouts_table(to_integer(unsigned(rate_i))).silence), s_response_time'length);
-  
-  process(uclk_i)
+  Bytes_Counter: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if rst_i = '1' then
-        s_byte_c <= to_unsigned(0, s_byte_c'length);
+        s_bytes_c <= to_unsigned(0, s_bytes_c'length);
       elsif s_reset_bytes_c = '1' then
-        s_byte_c <= to_unsigned(0, s_byte_c'length);
+        s_bytes_c <= to_unsigned(0, s_bytes_c'length);
       elsif s_inc_bytes_c = '1' then
-        s_byte_c <= s_byte_c + 1;
+        s_bytes_c <= s_bytes_c + 1;
       end if;
     end if;
   end process;
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  -- when s_data_length bytes have been counted, the signal data_length_match is activated 
+  data_length_match <= '1' when s_bytes_c = s_data_length else '0'; 
 
+--------------------------------------------------------------------------------------------------- 
+-- retrieval of response and silence times information (in equivalent number of uclk ticks) from
+-- the c_timeouts_table declared in the wf_package unit. 
 
-  data_length_match <= '1' when s_byte_c = data_length else '0'; 
-  
-  process(uclk_i)
+  s_response_time <= to_signed((c_timeouts_table(to_integer(unsigned(rate_i))).response),
+                                                                           s_response_time'length);
+  s_silence_time <= to_signed((c_timeouts_table(to_integer(unsigned(rate_i))).silence),
+                                                                           s_response_time'length);
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@brief Synchronous process Response_and_Silence_Time_Counter: Managing the counter that counts
+--! either response or silence times in uclk ticks. The same counter is used in both cases.
+--! The signal s_counter_top initializes the counter to either the response or the silence time.
+
+  Response_and_Silence_Time_Counter: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if rst_i = '1' then
-        s_watchdog_c <= to_signed(-1, s_watchdog_c'length);
-      elsif s_reset_watchdog_c = '1' then
-        s_watchdog_c <= s_watchdog_top;
+        s_respon_silen_c <= to_signed(-1, s_respon_silen_c'length);
+      elsif s_counter_reset = '1' then
+        s_respon_silen_c <= s_counter_top;
       else
-        s_watchdog_c <= s_watchdog_c -1;
+        s_respon_silen_c <= s_respon_silen_c -1;
       end if;
     end if;
   end process;
-  s_watchdog_is_zero <= '1' when s_watchdog_c = 0 else '0';
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  -- when the response or silence time is reached, the signal s_respon_silen_c_is_zero is activated. 
+  s_respon_silen_c_is_zero <= '1' when s_respon_silen_c = 0 else '0';
+
+---------------------------------------------------------------------------------------------------
+--!@brief: buffering the output signals last_byte_p_o and byte_ready_p_o and start_produce_p_o
 
   process(uclk_i)
   begin
@@ -488,49 +600,75 @@ begin
         last_byte_p_o <= '0';
         byte_ready_p_o <= '0';
       else
-        last_byte_p_o <= nx_last_byte_p;
-        byte_ready_p_o <= nx_byte_ready_p;
+        last_byte_p_o <= s_last_byte_p;
+        byte_ready_p_o <= s_byte_ready_p;
       end if;
     end if;
   end process;
-
+---------------------------------------------------------------------------------------------------
 
   process(uclk_i)
   begin
     if rising_edge(uclk_i) then
+      s_start_produce_p_d1 <= s_start_produce_p;
+    end if;
+  end process;
+  
+  start_produce_p_o <= s_start_produce_p_d1;
+
+---------------------------------------------------------------------------------------------------
+--!@brief:synchronous process VAR_RDY_Generation: managment of the nanoFIP output signals VAR1_RDY,
+--! VAR2_RDY and VAR3_RDY. 
+
+--! VAR1_RDY: signals that the user can safely read from the consumed variable memory. 
+
+--! VAR2_RDY: signals that the user can safely read from the consumed broadcast variable memory.
+
+--! VAR3_RDY: signals that the user can safely write to the produced variable memory.
+--! it is deasserted right after the end of the reception of an id_dat that requests a produced var
+--! and stays deasserted until the end of the transmission of the corresponding rp_dat from nanoFIP.
+--! (in detail, it stays deasserted until the end of the transmission of the rp_dat.data field and
+--! is enabled during the rp_dat.fcs and rp_dat.fes transmission.
+
+  VAR_RDY_Generation: process(uclk_i) 
+  begin
+    if rising_edge(uclk_i) then
       if rst_i = '1' then
-        var1_rdy_o<= '0';
-        var1_was_received <= '0';
-      elsif var = c_st_var_1 then 
         var1_rdy_o <= '0';
-        var1_was_received <= '1'; -- After a reset var1_rdy must not be asserted
-      else
-        var1_rdy_o <= var1_was_received; -- After a reset var1_rdy must not be asserted
-      end if;	 
-
-      if rst_i = '1' then
-        var2_rdy_o<= '0';
-        var2_was_received <= '0';
-      elsif var = c_st_var_2 then 
         var2_rdy_o <= '0';
-        var2_was_received <= '1';
-      else 
-        var2_rdy_o <= var2_was_received; -- After a reset var2_rdy must not be asserted
-      end if;	 
-
-      if rst_i = '1' then
-        var3_rdy_o<= '0';
-      elsif var = c_st_var_3 then 
-        var3_rdy_o <= '1';
-      else 
         var3_rdy_o <= '0';
-      end if;	 	 
+        s_var1_received <= '0';
+        s_var2_received <= '0';
 
+
+      else
+        if s_var = c_var_1 then 
+          var1_rdy_o <= '0';
+          s_var1_received <= '1';
+        else
+           var1_rdy_o <= s_var1_received; 
+        end if;	 
+
+        if s_var = c_var_2 then 
+          var2_rdy_o <= '0';
+          s_var2_received <= '1';
+        else 
+          var2_rdy_o <= s_var2_received; 
+        end if;	 
+
+
+        if s_var = c_var_3 then 
+          var3_rdy_o <= '0';
+        else 
+          var3_rdy_o <= '1';
+        end if;	 	 
+
+      end if;
     end if;
   end process;
 
-  var_o <= var;
+  var_o <= s_var; --var_o takes a value at the end of the id_dat
 end architecture rtl;
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --                          E N D   O F   F I L E
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------

@@ -46,14 +46,14 @@ use work.wf_package.all;
 --!
 --! <b>Modified by:</b>\n
 --! Author: Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
 --! 11/09/2009  v0.01  EB  First version \n
 --!
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --! @todo 
 --!
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -63,38 +63,26 @@ use work.wf_package.all;
 entity wf_consumed_vars is
 
 port (
-   uclk_i    : in std_logic; --! User Clock
-   rst_i     : in std_logic;
+  -- Inputs 
+    -- User Interface general signals 
+    uclk_i :         in std_logic;                                                  --! 40MHz clock
+    rst_i :          in std_logic;                        --! global reset
+    slone_i :        in  std_logic;                              --! stand-alone mode (active high)
 
-      --! Stand-alone mode
-      --! If connected to Vcc, disables sending of NanoFIP status together with 
-      --! the produced data.
-   slone_i   : in  std_logic; --! Stand-alone mode
+    byte_ready_p_i : in std_logic;
+	add_offset_i :   in std_logic_vector(6 downto 0);
+	var_i :          in t_var;
+	byte_i :         in std_logic_vector(7 downto 0);
 
-   byte_ready_p_i : in std_logic;
-	var_i : in t_var;
---	append_status_i : in std_logic;
-	add_offset_i : in std_logic_vector(6 downto 0);
---	data_length_i : in std_logic_vector(6 downto 0);
-	byte_i : in std_logic_vector(7 downto 0);
+    wb_clk_i :        in std_logic;
 
---   var1_access_wb_clk_o: out std_logic; --! Variable 1 access flag
---   var2_access_wb_clk_o: out std_logic; --! Variable 2 access flag
+    wb_adr_i :        in  std_logic_vector (9 downto 0); --! 
+    wb_stb_p_i :      in  std_logic; --! Strobe
+    wb_we_p_i :       in  std_logic;  --! Write enable
 
---   reset_var1_access_i: in std_logic; --! Reset Variable 1 access flag
---   reset_var2_access_i: in std_logic; --! Reset Variable 2 access flag
-
--------------------------------------------------------------------------------
---!  USER INTERFACE. Data and address lines synchronized with uclk_i
--------------------------------------------------------------------------------
-
---   dat_i     : in  std_logic_vector (15 downto 0); --! 
-   wb_clk_i     : in std_logic;
-   wb_dat_o     : out std_logic_vector (15 downto 0); --! 
-   wb_adr_i     : in  std_logic_vector (9 downto 0); --! 
-   wb_stb_p_i     : in  std_logic; --! Strobe
-   wb_ack_p_o     : out std_logic; --! Acknowledge
-   wb_we_p_i      : in  std_logic  --! Write enable
+  -- Outputs
+    wb_data_o :        out std_logic_vector (15 downto 0); --! 
+    wb_ack_p_o :      out std_logic --! Acknowledge
 
 );
 
@@ -103,43 +91,49 @@ end entity wf_consumed_vars;
 
 
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
---! ARCHITECTURE OF wf_control
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--! rtl architecture of wf_consumed_vars
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 architecture rtl of wf_consumed_vars is
-
 
 constant c_presence_pos : natural := 0;
 constant c_identification_pos : natural := 1;
 constant c_mem_pos : natural := 2;
 constant c_last_pos : natural := 2;
-signal base_add, add: std_logic_vector(9 downto 0);
-signal s_dat_ram : std_logic_vector(7 downto 0);
-signal we_ram_p : std_logic;
-signal we_byte_p : std_logic_vector(1 downto 0);
-signal s_dat : std_logic_vector(15 downto 0);
---signal s_reset_var2_access_clkb, s_var2_access_clkb : std_logic;
---signal s_reset_var1_access_clkb, s_var1_access_clkb : std_logic;
+
+signal s_base_addr, s_addr: std_logic_vector(9 downto 0);
+signal s_mem_data_out : std_logic_vector(7 downto 0);
+signal s_slone_write_byte : std_logic_vector(1 downto 0);
+signal s_slone_data_out : std_logic_vector(15 downto 0);
+signal s_write_en_p : std_logic;
 
 begin
 
+---------------------------------------------------------------------------------------------------  
+-- !@brief synchronous process consumtion_dpram: Instanciation of a "Consumed ram"
 
- consumtion_dpram:  dpblockram_clka_rd_clkb_wr
- generic map(c_dl => 8, 		-- Length of the data word 
- 			 c_al => 9)    -- Number of words
-			 									-- 'nw' has to be coherent with 'c_al'
+  consumtion_dpram:  dpblockram_clka_rd_clkb_wr
 
- port map(clka_i => wb_clk_i,			-- Global Clock
-       aa_i => wb_adr_i(8 downto 0),
-		 da_o => s_dat_ram,
-		 
-		 clkb_i => uclk_i,
-		 ab_i => add(8 downto 0),
-		 db_i => byte_i,
-		 web_i => we_ram_p);
+    generic map(c_data_length => 8,         -- 8 bits: length of data word
+ 			    c_addr_length => 9)         -- 2^9: depth of consumed ram
+                                            -- first 2 bits: identification of the memory block
+                                            -- remaining 7 bits: address of a byte inside the block 
 
+
+   -- port A corresponds to: wishbone that reads from the Consumed ram & B to: nanoFIP that writes
+    port map (clk_A_i     => wb_clk_i,	           -- wishbone clck
+             addr_A_i     => wb_adr_i(8 downto 0), -- address of byte to be read from memory
+             data_A_o     => s_mem_data_out,       -- output byte read
+             
+             clk_B_i      => uclk_i,               -- 40 MHz clck 
+             addr_B_i     => s_addr(8 downto 0),   -- address of byte to be written to memory
+             data_B_i     => byte_i,               -- byte to be written
+             write_en_B_i => s_write_en_p          -- wishbone write enable
+             );
+
+---------------------------------------------------------------------------------------------------
 process(wb_clk_i)
 begin
 if rising_edge(wb_clk_i) then
@@ -172,60 +166,81 @@ end process;
 --  var1_access_wb_clk_o <= s_var1_access_clkb;
 --  var2_access_wb_clk_o <= s_var2_access_clkb;
 
-add <= std_logic_vector(unsigned(add_offset_i) + unsigned(base_add));
+s_addr <= std_logic_vector(unsigned(add_offset_i) + unsigned(s_base_addr));
 
+---------------------------------------------------------------------------------------------------
 process(var_i, add_offset_i, slone_i, byte_ready_p_i)
-begin
-   we_ram_p <= '0';
-   we_byte_p <= (others => '0');
-   base_add <= (others => '0');
-   for I in c_var_array'range loop
-      if (c_var_array(I).response = consume) then
-         if c_var_array(I).var = var_i then
-            base_add <= c_var_array(I).base_add;
+  begin
+   s_write_en_p <= '0';
+   s_slone_write_byte <= (others => '0');
+   s_base_addr <= (others => '0');
+
+    case var_i is
+
+
+    when c_var_1 =>
+            s_base_addr <= c_var_array(3).base_add;
+
             if slone_i = '0' then
-               we_ram_p <= byte_ready_p_i;
-            elsif slone_i = '1' and I = c_var_var1_pos   then
-               if unsigned(add_offset_i) = c_byte_0_add then
-                  we_byte_p(0) <= byte_ready_p_i ;					
+               s_write_en_p <= byte_ready_p_i;
+
+            elsif slone_i = '1' then
+               if unsigned(add_offset_i) = c_byte_0_add then -- 1st byte
+                  s_slone_write_byte(0) <= byte_ready_p_i ;					
                end if;
-               if unsigned(add_offset_i) = c_byte_1_add then
-                  we_byte_p(1) <= byte_ready_p_i ;		
+
+               if unsigned(add_offset_i) = c_byte_1_add then -- 2nd byte
+                  s_slone_write_byte(1) <= byte_ready_p_i ;		
                end if;
             end if;
-            exit;
-         end if;
-      end if;		
-   end loop;
+
+
+    when c_var_2 =>
+            s_base_addr <= c_var_array(4).base_add;
+
+            if slone_i = '0' then
+               s_write_en_p <= byte_ready_p_i;
+            end if;
+
+    when others =>
+
+  end case;
+ 
 end process;
 
+---------------------------------------------------------------------------------------------------
 process(uclk_i)
 begin
    if rising_edge(uclk_i) then
       if rst_i = '1' then
-         s_dat <= (others => '0');
+         s_slone_data_out <= (others => '0');
       else
-         if we_byte_p(1) = '1' then
-            s_dat(15 downto 8) <= byte_i;
+
+         if s_slone_write_byte(0) = '1' then
+            s_slone_data_out(7 downto 0) <= byte_i;
          end if;
-         if we_byte_p(0) = '1' then
-            s_dat(7 downto 0) <= byte_i;
+
+         if s_slone_write_byte(1) = '1' then
+            s_slone_data_out(15 downto 8) <= byte_i;
          end if;
+
       end if;
    end if;
 end process;
-process(s_dat, s_dat_ram, slone_i)
+
+---------------------------------------------------------------------------------------------------
+process(s_slone_data_out, s_mem_data_out, slone_i)
 begin
-   wb_dat_o <= (others => '0');
+   wb_data_o <= (others => '0');
    if slone_i = '1' then
-     wb_dat_o <= s_dat;
+     wb_data_o <= s_slone_data_out;
    else
-     wb_dat_o(7 downto 0) <= s_dat_ram;
+     wb_data_o(7 downto 0) <= s_mem_data_out;
    end if;
 end process;
 
 end architecture rtl;
 
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --                          E N D   O F   F I L E
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------

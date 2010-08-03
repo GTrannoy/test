@@ -59,11 +59,9 @@ generic(
 port (
    uclk_i    : in std_logic; --! User Clock
    rst_i     : in std_logic;
-   
-   start_p_i : in std_logic;
-	d_i       : in std_logic;
+    start_p_i : in std_logic;
 	d_rdy_p_i     : in std_logic;
-	data_fcs_sel_n : in std_logic;
+	d_i       : in std_logic;
 	crc_o     : out  std_logic_vector(c_poly_length - 1 downto 0);
 	crc_rdy_p_o : out std_logic;
 	crc_ok_p : out std_logic
@@ -95,10 +93,10 @@ begin
 s_d <= d_i;
 G: for I in 0 to c_poly'left generate
    G0: if I = 0 generate
-      s_q_nx(I) <= data_fcs_sel_n and (( s_d) xor s_q(s_q'left));
+      s_q_nx(I) <= (( s_d) xor s_q(s_q'left));
    end generate;
    G1: if I > 0 generate
-      s_q_nx(I) <= s_q(I-1) xor (c_poly(I) and data_fcs_sel_n and (s_d xor s_q(s_q'left)));
+      s_q_nx(I) <= s_q(I-1) xor (c_poly(I) and (s_d xor s_q(s_q'left)));      
    end generate;
 end generate;
 
