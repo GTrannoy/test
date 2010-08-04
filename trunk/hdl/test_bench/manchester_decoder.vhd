@@ -158,8 +158,8 @@ begin
 	qrt_period_pos	<= b_clk_period / 4;
 	qrt_period_neg	<= 0 ns - b_clk_period / 4;
 
-	clk3			<= clk1 after b_clk_period / 2 + shift;
-	clk4			<= clk2 after b_clk_period / 2 + shift;
+	clk3			<= clk1 after (b_clk_period / 2 + shift) when shift < 0 ns else clk1 after shift;
+	clk4			<= clk2 after (b_clk_period / 2 + shift) when shift < 0 ns else clk2 after shift;
 	
 -- processes for clock extraction from the received bit stream
 --------------------------------------------------------------

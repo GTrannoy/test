@@ -139,7 +139,7 @@ begin
 	
 	-- process checking the correctness of the frame structure
 	----------------------------------------------------------
-	structure_check: process(frame_data)
+	structure_check: process(frame_data, bytes_received)
 	begin
 		if control_byte = control_rp then
 			control_ok			<= TRUE;
@@ -147,7 +147,7 @@ begin
 			control_ok			<= FALSE;
 		end if;
 		
-		if to_integer(length_byte) = bytes_received then
+		if to_integer(length_byte) = (bytes_received - 4) then
 			length_ok			<= TRUE;
 		else
 			length_ok			<= FALSE;
