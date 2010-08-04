@@ -157,7 +157,7 @@ begin
 		when x"50" =>						-- presence variable
 			if (frame_data(3) = x"80" 
 			and frame_data(4) = x"03"
-			and frame_data(5) = x"08"
+			and frame_data(5) = x"00"
 			and frame_data(6) = x"F0"
 			and frame_data(7) = x"00") then
 				struct_ok	<= TRUE;
@@ -228,42 +228,42 @@ begin
 				if pdu_type_byte = x"50" then
 					if length_ok then
 						if struct_ok then
-							report "NanoFIP responded wiht a presence variable RP_DAT frame"
+							report "NanoFIP responded with a presence variable RP_DAT frame"
 							& LF & "with a coherent length and structure according to specs";
 						else
 							assert FALSE
-							report "NanoFIP responded wiht a presence variable RP_DAT frame"
+							report "NanoFIP responded with a presence variable RP_DAT frame"
 							& LF & "but its structure is not according to specs"
 							severity warning;
 						end if;
 					else
 						assert FALSE
-						report "NanoFIP responded wiht a presence variable RP_DAT frame"
+						report "NanoFIP responded with a presence variable RP_DAT frame"
 						& LF & "but its length is not coherent with the length byte"
 						severity warning;
 					end if;
 				elsif pdu_type_byte = x"52" then
 					if length_ok then
 						if struct_ok then
-							report "NanoFIP responded wiht an identification variable RP_DAT frame"
+							report "NanoFIP responded with an identification variable RP_DAT frame"
 							& LF & "with a coherent length and structure according to specs";
 						else
 							assert FALSE
-							report "NanoFIP responded wiht an identification variable RP_DAT frame"
+							report "NanoFIP responded with an identification variable RP_DAT frame"
 							& LF & "but its structure is not according to specs"
 							severity warning;
 						end if;
 					else
 						assert FALSE
-						report "NanoFIP responded wiht an identification variable RP_DAT frame"
+						report "NanoFIP responded with an identification variable RP_DAT frame"
 						& LF & "but its length is not coherent with the length byte"
 						severity warning;
 					end if;
 				elsif pdu_type_byte = x"40" then
-					report "NanoFIP responded wiht a consumed/produced variable RP_DAT frame";
+					report "NanoFIP responded with a consumed/produced variable RP_DAT frame";
 				else
 					assert FALSE
-					report "NanoFIP responded wiht an RP_DAT frame"
+					report "NanoFIP responded with an RP_DAT frame"
 					& LF & "but its PDU_type byte is not according to specs"
 					severity warning;
 				end if;

@@ -131,8 +131,8 @@ architecture archi of nanofip_tb is
 	signal nostat		: std_logic; --! No NanoFIP status transmission
 
 	signal uclk			: std_logic; --! 40 MHz clock
-	signal urstin		: std_logic; --! Initialisation control, active low
-	signal urston		: std_logic; --! Reset output, active low
+	signal urst_to_nf	: std_logic; --! Initialisation control, active low
+	signal urst_from_nf	: std_logic; --! Reset output, active low
 	
 	signal var1_rdy		: std_logic; --! Variable 1 ready
 	signal var1_acc		: std_logic; --! Variable 1 access
@@ -184,8 +184,8 @@ begin
     uclk_i    => uclk,
     slone_i   => slone,
     nostat_i  => nostat,
-    rstin_i   => urstin,
-    rston_o   => urston,
+    rstin_i   => urst_to_nf,
+    rston_o   => urst_from_nf,
     var1_rdy_o=> var1_rdy,
     var1_acc_i=> var1_acc,
     var2_rdy_o=> var2_rdy,
@@ -210,13 +210,13 @@ begin
 
 	user_logic:  user_interface
 	port map(
-		urstn_i			=> urston,
+		urstn_i			=> urst_from_nf,
 		var1_rdy_i		=> var1_rdy,
 		var2_rdy_i		=> var2_rdy,
 		var3_rdy_i		=> var3_rdy,
 
 		uclk_o			=> uclk,
-		urstn_o			=> urstin,
+		urstn_o			=> urst_to_nf,
 		var1_acc_o		=> var1_acc,
 		var2_acc_o		=> var2_acc,
 		var3_acc_o		=> var3_acc,
