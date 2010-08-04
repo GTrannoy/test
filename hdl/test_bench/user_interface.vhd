@@ -74,7 +74,7 @@ architecture archi of user_interface is
 	signal clk					: std_logic:='0';
 	signal launch_wb_read		: std_logic:='0';
 	signal launch_wb_write 		: std_logic:='0';
-	signal reset				: std_logic;
+	signal reset				: std_logic:='0';
 	signal transfer_length		: std_logic_vector(6 downto 0):="000" & x"0";
 	signal transfer_offset		: std_logic_vector(6 downto 0):="000" & x"0";
 	signal var_id		 		: std_logic_vector(1 downto 0):="00";
@@ -91,10 +91,10 @@ begin
 	
 	reseting: process
 	begin
-		reset				<= '0';
-		wait for 2 us;
+--		reset				<= '0';
+--		wait for 2 us;
 		reset				<= '1';
-		wait for 3 us;
+		wait for 2600 ns;
 		reset				<= '0';
 		wait for 1000 ms;
 	end process;
