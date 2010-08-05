@@ -13,7 +13,7 @@ USE ieee.numeric_std.ALL;
 
 package wf_package is
 
-  constant C_QUARTZ_PERIOD : real := 25.0;
+  constant C_QUARTZ_PERIOD : real := 24.8;
 
 
 
@@ -175,7 +175,7 @@ package wf_package is
                             slone : std_logic) return std_logic_vector;
   
   component wf_rx_osc 
-    generic (C_COUNTER_LENGTH : integer := 7;
+    generic (C_COUNTER_LENGTH : integer := 11;
              C_QUARTZ_PERIOD : real := 24.8;
              C_CLKFCDLENTGTH :  natural := 3 
              );
@@ -291,8 +291,8 @@ package wf_package is
 
 
   component dpblockram_clka_rd_clkb_wr
-    generic (c_data_length : integer := 42; 		-- Length of the data word 
-             c_addr_length : integer := 10);    -- Number of words
+    generic (c_data_length : integer := 8; 		-- Length of the data word 
+             c_addr_length : integer := 9);    -- Number of words
                                            -- 'nw' has to be coherent with 'c_addr_length'
 
     port (clk_A_i  : in std_logic; 			-- Global Clock
@@ -306,7 +306,7 @@ package wf_package is
   end component dpblockram_clka_rd_clkb_wr; 
   
   component wf_engine_control 
-    generic( C_QUARTZ_PERIOD : real := 25.0);
+    generic( C_QUARTZ_PERIOD : real := 24.8);
 
     port (
       uclk_i    : in std_logic; --! User Clock
@@ -467,7 +467,7 @@ package wf_package is
 
       stat_i : in std_logic_vector(7 downto 0); --! NanoFIP status 
       mps_i : in std_logic_vector(7 downto 0);
-      sending_stat_o : out std_logic; --! The status register is being adressed
+      sending_mps_o : out std_logic; 
 
 --      var3_access_wb_clk_o: out std_logic; --! Variable 2 access flag
 
@@ -567,8 +567,7 @@ package wf_package is
  --     reset_var3_access_o : out std_logic; --! Reset Variable 2 access flag
 
 
-      stat_sent_p_i : in std_logic;
-      mps_sent_p_i : in std_logic; 
+      reset_status_bytes_i : in std_logic;
       
       stat_o : out std_logic_vector(7 downto 0); 
       mps_o : out std_logic_vector(7 downto 0)
@@ -593,7 +592,8 @@ package wf_package is
       rston_o   : out std_logic; --! Reset output, active low
 
       var_i : in t_var;  --! Received variable
-      rst_o     : out std_logic --! Reset ouput active high
+      rst_o     : out std_logic; --! Reset ouput active high
+      fd_rst_o : out std_logic 
 
 
       );
@@ -658,7 +658,7 @@ package wf_package is
       fd_txena_o: out std_logic; --! Transmitter enable
       fd_txck_o : out std_logic; --! Line driver half bit clock
       fx_txd_o  : out std_logic; --! Transmitter data
-      fx_rxa_i  : in  std_logic; --! Reception activity detection
+      fx_rxa_i  : inout  std_logic; --! Reception activity detection
       fx_rxd_i  : in  std_logic; --! Receiver data
 
 

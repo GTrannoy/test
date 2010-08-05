@@ -66,7 +66,7 @@ use work.wf_package.all;
 --! Entity declaration for wf_engine_control
 --=================================================================================================
 entity wf_engine_control is
-  generic( C_QUARTZ_PERIOD : real := 25.0);
+  generic( C_QUARTZ_PERIOD : real := 24.8);
 
   port (
     uclk_i :           in std_logic; --! 40MHz clock
@@ -265,7 +265,7 @@ begin
   end process;
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM 
+--!@brief synchronous process Central_Control_FSM_Comb_Output_Signals: 
 
   Central_Control_FSM_Comb_Output_Signals: process (control_st, frame_ok_p_i, s_bytes_c, 
                                                     s_produce_or_consume, s_start_produce_p_d1,
@@ -417,14 +417,15 @@ begin
   end process;
 
 ---------------------------------------------------------------------------------------------------
---! The following two processes: id_dat_var_concurrent and ... manage the values of the signals
---! s_var_aux_concurr, s_var_aux and s_var. All of them are used to keep the value of the
+--! The following two processes: id_dat_var_concurrent and id_dat_var_specific_moments manage the
+--! signals s_var_aux_concurr, s_var_aux and s_var. All of them are used to keep the value of the
 --! ID_DAT.Identifier.Variable byte of the incoming ID_DAT frame, but change their value on
 --! different moments:
 --! s_var_aux_concurr: is constantly following the incoming byte byte_i 
 --! s_var_aux: locks to the value of s_var_aux_concurr when the ID_DAT.Identifier.Variable byte
 --! is received (s_load_temp_var = 1)
---! s_var: locks to the value of s_var_aux at the end of the id_dat frame (s_load_var = 1)
+--! s_var: locks to the value of s_var_aux at the end of the id_dat frame (s_load_var = 1) if the 
+--! specified station address matches the SUBS configuration.
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   
   id_dat_var_concurrent: process(byte_i)
@@ -464,10 +465,13 @@ begin
     end if;
   end process;
 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+  var_o <= s_var; -- var_o takes a value at the end of the id_dat
 
 ---------------------------------------------------------------------------------------------------
---!@brief: Combinatorial process Identify_Broadcast_Var: signal s_broadcast_var is enabled if the
---! variable received from the id_dat, s_var_aux, is a variable 2 (04h).
+--!@brief: Combinatorial process Var_Characteristics: managment of the signals
+--! s_produce_or_consume and s_broadcast_var, accroding to the value of s_var_aux.
 
   Var_Characteristics: process(s_var_aux)
   begin
@@ -494,11 +498,13 @@ begin
   end process;
 
 ---------------------------------------------------------------------------------------------------
---!@brief: Combinatorial process data_length_calculation: calculation of the total amount of data
---! bytes that have to be transferreed when an rp_dat (produced variable) has to be sent,
---! including the rp_dat.Control as well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes.
+--!@brief:Combinatorial process data_length_calcul_produce: calculation of the total amount of data
+--! bytes that have to be transferreed when a variable is produced, including the rp_dat.Control as
+--! well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes. In the case of presence and
+--! identification variables, the data length is predefined in the wf_package.
+--! In the case of a var_3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation 
 
-  data_length_calculation: process(s_var, s_p3_length_decoded, slone_i, nostat_i)
+  data_length_calcul_produce: process(s_var, s_p3_length_decoded, slone_i, nostat_i)
   variable v_nostat : std_logic_vector(1 downto 0);
   begin
     s_append_status <= not nostat_i;
@@ -507,7 +513,7 @@ begin
                                                                       s_p3_length_decoded'length);
     case s_var is
 
-      when c_presence_var => -- data_length including rp_dat.control and rp_dat.data fields
+      when c_presence_var => 
         s_data_length<=to_unsigned(c_var_array(c_presence_var_pos).array_length-1,s_data_length'length);
 
       when c_identif_var => 
@@ -542,8 +548,8 @@ begin
 
  
 --------------------------------------------------------------------------------------------------- 
---!@brief Synchronous process Bytes_Counter:Managing the counter that counts the number of produced
---! or consumed bytes of data. 
+--!@brief Synchronous process Bytes_Counter: Managment of the counter that counts the number of
+--! produced or consumed bytes of data. 
 
   Bytes_Counter: process(uclk_i)
   begin
@@ -560,8 +566,8 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- when s_data_length bytes have been counted, the signal data_length_match is activated 
   data_length_match <= '1' when s_bytes_c = s_data_length else '0'; 
-
 --------------------------------------------------------------------------------------------------- 
+
 -- retrieval of response and silence times information (in equivalent number of uclk ticks) from
 -- the c_timeouts_table declared in the wf_package unit. 
 
@@ -587,34 +593,9 @@ begin
     end if;
   end process;
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  -- when the response or silence time is reached, the signal s_respon_silen_c_is_zero is activated. 
+  -- when the response or silence time is reached, the signal s_respon_silen_c_is_zero is activated 
   s_respon_silen_c_is_zero <= '1' when s_respon_silen_c = 0 else '0';
 
----------------------------------------------------------------------------------------------------
---!@brief: buffering the output signals last_byte_p_o and byte_ready_p_o and start_produce_p_o
-
-  process(uclk_i)
-  begin
-    if rising_edge(uclk_i) then
-      if rst_i = '1' then
-        last_byte_p_o <= '0';
-        byte_ready_p_o <= '0';
-      else
-        last_byte_p_o <= s_last_byte_p;
-        byte_ready_p_o <= s_byte_ready_p;
-      end if;
-    end if;
-  end process;
----------------------------------------------------------------------------------------------------
-
-  process(uclk_i)
-  begin
-    if rising_edge(uclk_i) then
-      s_start_produce_p_d1 <= s_start_produce_p;
-    end if;
-  end process;
-  
-  start_produce_p_o <= s_start_produce_p_d1;
 
 ---------------------------------------------------------------------------------------------------
 --!@brief:synchronous process VAR_RDY_Generation: managment of the nanoFIP output signals VAR1_RDY,
@@ -667,7 +648,29 @@ begin
     end if;
   end process;
 
-  var_o <= s_var; --var_o takes a value at the end of the id_dat
+
+---------------------------------------------------------------------------------------------------
+--!@brief: essential buffering of output signals last_byte_p_o, byte_ready_p_o, start_produce_p_o
+
+  process(uclk_i)
+  begin
+    if rising_edge(uclk_i) then
+      if rst_i = '1' then
+        last_byte_p_o <= '0';
+        byte_ready_p_o <= '0';
+        s_start_produce_p_d1 <= '0';
+      else
+        last_byte_p_o <= s_last_byte_p;
+        byte_ready_p_o <= s_byte_ready_p;
+        s_start_produce_p_d1 <= s_start_produce_p;
+      end if;
+    end if;
+  end process;
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --   
+  start_produce_p_o <= s_start_produce_p_d1;
+
+---------------------------------------------------------------------------------------------------
+
 end architecture rtl;
 ---------------------------------------------------------------------------------------------------
 --                          E N D   O F   F I L E

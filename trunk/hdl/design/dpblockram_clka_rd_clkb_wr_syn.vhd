@@ -111,19 +111,19 @@ memory_triplication: for I in 0 to 2 generate
 
 UDualClkRam : DualClkRam  
    port map ( DINA   => s_zeros,
-               ADDRA  => addr_A_i,
-                RWA    => one, 
-               CLKA   => clk_A_i, 
+              ADDRA  => addr_A_i,
+              RWA    => one, 
+              CLKA   => clk_A_i, 
 
-               DINB   => data_B_i,
-               ADDRB  => addr_B_i, 
-               RWB    => s_rwB, 
-               CLKB   => clk_B_i, 
+              DINB   => data_B_i,
+              ADDRB  => addr_B_i, 
+              RWB    => s_rwB, 
+              CLKB   => clk_B_i, 
 
-               RESETn => one,
+              RESETn => one,
 
-               DOUTA  => data_o_A_array(I),
-               DOUTB  => open) ;
+              DOUTA  => data_o_A_array(I),
+              DOUTB  => open) ;
 end generate;
 
 

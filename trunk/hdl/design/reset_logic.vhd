@@ -59,22 +59,24 @@ use work.wf_package.all;
 --! Entity declaration for reset_logic
 --============================================================================
 entity reset_logic is
-generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
+  generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
 
-port (
-   uclk_i    : in std_logic; --! User Clock
-
-   rstin_i   : in  std_logic; --! Initialisation control, active low
-
-      --! Reset output, active low. Active when the reset variable is received 
-      --! and the second byte contains the station address.
-   rston_o   : out std_logic; --! Reset output, active low
-
-	var_i : in t_var;  --! Received variable
-   rst_o     : out std_logic --! Reset ouput active high
+  port (
+    uclk_i :   in std_logic;  --! 40MHz clock
+    rstin_i :  in  std_logic; --! Initialisation control, active low
+    var_i :    in t_var;      --! Received variable
 
 
-);
+    rston_o :  out std_logic; --! Reset output, active low.
+                              --  Active when the reset variable is received 
+                              --  and the second byte contains the station address.
+
+    rst_o :    out std_logic;  --! Reset ouput active high
+
+    fd_rst_o : out std_logic --! fieldrive reset, active low
+                              -- Active when the reset variable is received 
+                              --  and the first byte contains the station address.
+    );
 
 end entity reset_logic;
 -------------------------------------------------------------------------------
@@ -83,35 +85,63 @@ end entity reset_logic;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 architecture rtl of reset_logic is
---attribute syn_radhardlevel : string;
---attribute syn_radhardlevel of rtl: architecture is "tmr";
 
-signal s_rstin_d : std_logic_vector(1 downto 0);
-signal s_rst_c : unsigned(4 downto 0);
-signal s_reload_rst_c : std_logic;
-begin
+  signal s_rstin_buff : std_logic_vector(1 downto 0);
+  signal s_rst_c, s_rstin_c : unsigned(4 downto 0);
+  signal s_reload_rst_c, rst_o2, s_rstin_c_start, s_reset : std_logic;
+  
+  begin
 
-process(s_rstin_d,var_i)
-begin
-if (var_i = c_var_array(c_reset_var_pos).var) then 
- s_reload_rst_c <= '1';
-else
- s_reload_rst_c <=   s_rstin_d(s_rstin_d'left);
-end if;
-end process;
-
-process(uclk_i)
-begin
-   if rising_edge(uclk_i) then
-      s_rstin_d <= s_rstin_d(0) & (not rstin_i);
-      if (s_reload_rst_c = '1') then 
-         s_rst_c <=  to_unsigned(0, s_rst_c'length);
-      elsif  s_rst_c(s_rst_c'left) = '0' then
-         s_rst_c <=  s_rst_c + 1;
+    process(s_rstin_buff,var_i)
+    begin
+      if (var_i = c_var_array(c_reset_var_pos).var) then 
+        s_reload_rst_c <= '1';
+      else
+        s_reload_rst_c <=   s_rstin_buff(s_rstin_buff'left);
       end if;
-      rst_o <=  not s_rst_c(s_rst_c'left);
-      rston_o <=  s_rst_c(s_rst_c'left);
-   end if;
+    end process;
+
+  process(uclk_i)
+  begin
+    if rising_edge(uclk_i) then
+
+        s_rstin_buff <= s_rstin_buff(0) & (not rstin_i);
+
+        if (s_reload_rst_c = '1') then 
+          s_rst_c <=  to_unsigned(0, s_rst_c'length);
+
+        elsif  s_rst_c(s_rst_c'left) = '0' then
+          s_rst_c <=  s_rst_c + 1;
+        
+        end if;
+
+        rst_o <=  not s_rst_c(s_rst_c'left);
+        rston_o <=  s_rst_c(s_rst_c'left);
+        fd_rst_o <= s_rst_c(s_rst_c'left);
+---------------------------------------------------------------------------------------------------
+--        if (s_rstin_buff(0) = '1') and (s_rstin_buff(1) /= '1') then
+--         s_rstin_c_start <= '1';
+--          s_rstin_c <= to_unsigned(0, s_rstin_c'length); 
+--        end if;   
+
+--        if s_rstin_c_start = '1' then        
+--          if rstin_i = '0' then
+--            s_rstin_c <= s_rstin_c+1;
+--          end if; 
+--        end if;
+
+--        if s_rstin_c(s_rstin_c'left) = '1' then
+--          s_rstin_c_start <='0';
+--          s_reset <= rstin_i;
+--        else
+--          s_reset <= '1';          
+--        end if;
+
+--        rst_o2 <= not (s_reset);
+
+
+    end if;
+  
 end process;
 
 

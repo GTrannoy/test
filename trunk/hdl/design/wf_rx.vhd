@@ -13,7 +13,7 @@ use work.wf_package.all;
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_rx                                                         --
+--                                   wf_rx                                                       --
 --                                                                                               --
 --                               CERN, BE/CO/HT                                                  --
 --                                                                                               --
@@ -27,19 +27,20 @@ use work.wf_package.all;
 --!
 --!
 --! @author	    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!             Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --!
---! @date 10/08/2009
+--! @date 08/2010
 --
---! @version v0.01
+--! @version v0.02
 --
 --! @details 
 --!
 --! <b>Dependencies:</b>\n
---! wf_engine           \n
---! tx_engine           \n
---! clk_gen             \n
---! reset_logic         \n
---! consumed_ram        \n
+--! wf_rx_tx_osc\n
+--! wf_deglitcher\n
+--! wf_tx_rx\n
+--! 
+--! 
 --!
 --!
 --! <b>References:</b>\n
@@ -49,10 +50,14 @@ use work.wf_package.all;
 --! <b>Modified by:</b>\n
 --! Author: Erik van der Bij
 --!         Pablo Alvarez Sanchez
+--!         Evangelia Gousiou
 ---------------------------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
---! 07/08/2009  v0.02  PAAS Entity Ports added, start of architecture content
---!
+--! 07/10 state switch_to_deglitched added
+--!       output signal wait_d_first_f_edge_o added
+--!       signals renamed
+--!       code cleaned-up + commented
+--!      
 ---------------------------------------------------------------------------------------------------
 --! @todo Define I/O signals \n
 --!
@@ -68,21 +73,21 @@ entity wf_rx is
   port (
   -- Inputs 
     -- user interface general signals 
-    uclk_i :                in std_logic;                                          --! 40MHz clock
-    rst_i :                 in std_logic;                                         --! global reset
+    uclk_i :                in std_logic; --! 40MHz clock
+    rst_i :                 in std_logic; --! global reset
     
     -- signals from the wf_rx_tx_osc    
-	signif_edge_window_i :  in std_logic;      --! time window where a significant edge is expected 
-    adjac_bits_window_i :   in std_logic;       --! time window where a transition between adjacent
-                                                                              --!  bits is expected
+	signif_edge_window_i :  in std_logic; --! time window where a significant edge is expected 
+    adjac_bits_window_i :   in std_logic; --! time window where a transition between adjacent
+                                          --!  bits is expected
 
 
     -- signals from wf_tx_rx
-    rx_data_r_edge_i :      in std_logic;--!indicates a rising edge on the buffered rxd (rx_data_i)
-	rx_data_f_edge_i :      in std_logic;                  --! indicates a falling edge on the d_1  
+    rx_data_r_edge_i :      in std_logic; --!indicates a rising edge on the buffered rxd(rx_data_i)
+	rx_data_f_edge_i :      in std_logic; --! indicates a falling edge on the d_1  
 
     -- signal from the wf_deglitcher
-    rx_data_filtered_i :    in std_logic;                       --! deglitched serial input signal 
+    rx_data_filtered_i :    in std_logic; --! deglitched serial input signal 
     sample_manch_bit_p_i:   in std_logic; --! 
     sample_bit_p_i :        in std_logic; --! 
 
@@ -91,7 +96,7 @@ entity wf_rx is
 
     -- needed by the wf_consumed and wf_engine_control 	
 	byte_ready_p_o :        out std_logic;                     --! indication of a valid data byte
-    byte_o :                out std_logic_vector(7 downto 0) ;             --! retreived data byte
+    byte_o :                out std_logic_vector(7 downto 0) ; --! retreived data byte
 
     -- needed by the wf_engine_control
     crc_ok_p_o :            out std_logic;
@@ -100,11 +105,11 @@ entity wf_rx is
     last_byte_p_o :         out std_logic;
     
     -- needed by the status_gen 
-    code_violation_p_o :    out std_logic;          --! indicator of a manchester 2 code violation
+    code_violation_p_o :    out std_logic;   --! indicator of a manchester 2 code violation
 
     -- needed by the wf_rx_tx_osc
     wait_d_first_f_edge_o : out std_logic    --! indicator of the rx state machine being in idle
-                                  -- state, expecting for the first falling edge of the preamble 
+                                             --state, expecting for the preamble's 1st falling edge 
 );
 
 end entity wf_rx;
@@ -409,6 +414,7 @@ architecture rtl of wf_rx is
 
                          s_queue_bit <= FRAME_END(to_integer(resize(pointer,4)));                                          
                          code_violation_p_o <= '0';
+
                          s_start_crc_p <= '0';
                          s_calculate_crc <= '1';
                          s_frame_start_bit <= '0'; 
@@ -457,6 +463,7 @@ architecture rtl of wf_rx is
       if rising_edge(uclk_i) then
         if rst_i = '1' then
           s_frame_end_detection <= '1';
+
         elsif s_pointer_is_zero = '1' and sample_manch_bit_p_i = '1' then 
           s_frame_end_detection <= '1';
         elsif  s_frame_end_wrong_bit = '1' then
@@ -475,6 +482,7 @@ architecture rtl of wf_rx is
         if rst_i = '1' then
           pointer <= (others => '0');
         else
+
           if s_load_pointer = '1' then
             pointer <= s_start_pointer;
            elsif s_decr_pointer = '1' then
@@ -492,9 +500,14 @@ architecture rtl of wf_rx is
   Append_Bit_To_Byte: process (uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if s_write_bit_to_byte = '1' then
-         s_byte <= s_byte(6 downto 0) & rx_data_filtered_i;  
-        end if;
+        if rst_i = '1' then
+          s_byte <= (others => '0');
+        else
+
+          if s_write_bit_to_byte = '1' then
+           s_byte <= s_byte(6 downto 0) & rx_data_filtered_i;  
+          end if;
+       end if;
      end if;
   end process;
 
@@ -503,12 +516,15 @@ architecture rtl of wf_rx is
     begin
       if rising_edge(uclk_i) then
         if rst_i = '1' then
-          s_crc_ok <= '0';		
-         elsif s_calculate_crc='0' then
-             s_crc_ok <= '0';		
-         elsif s_crc_ok_p = '1' and s_calculate_crc='1' then 
-            s_crc_ok <= '1';
-        end if;
+          s_crc_ok <= '0';	
+	    else
+
+          if s_calculate_crc='0' then
+            s_crc_ok <= '0';		
+          elsif s_crc_ok_p = '1' and s_calculate_crc='1' then 
+             s_crc_ok <= '1';
+          end if;
+      end if;
     end if;
   end process;
 
@@ -521,10 +537,11 @@ architecture rtl of wf_rx is
   Detect_f_edge_rx_data_filtered: process(uclk_i)
     begin
       if rising_edge(uclk_i) then 
-        -- initializations:
         if rst_i = '1' then
           s_rx_data_filtered_buff <= (others => '0');
+          s_rx_data_filtered_f_edge <= '0';
         else
+
           -- buffer s_rx_data_filtered_buff keeps the last 2 bits of rx_data_filtered_i
           s_rx_data_filtered_buff <= s_rx_data_filtered_buff(0) & rx_data_filtered_i;
           -- falling edge detected if last bit is a 0 and previous was a 1

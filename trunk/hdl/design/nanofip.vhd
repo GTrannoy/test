@@ -147,7 +147,7 @@ entity nanofip is
     fd_txena_o: out std_logic; --! Transmitter enable
     fd_txck_o : out std_logic; --! Line driver half bit clock
     fx_txd_o  : out std_logic; --! Transmitter data
-    fx_rxa_i  : in  std_logic; --! Reception activity detection
+ --   fx_rxa_i  : inout  std_logic; --! Reception activity detection
     fx_rxd_i  : in  std_logic; --! Receiver data
 
 
@@ -225,7 +225,7 @@ entity nanofip is
     rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
     stb_i     : in  std_logic; --! Strobe
     ack_o     : out std_logic; --! Acknowledge
-    cyc_i     : in std_logic;
+ --   cyc_i     : inout std_logic;
     we_i      : in  std_logic  --! Write enable
 
     );
@@ -281,8 +281,7 @@ architecture struc of nanofip is
   signal fss_decoded_p_from_rx : std_logic;
   signal s_stat : std_logic_vector(7 downto 0);
   signal  s_ack_produced, s_ack_consumed, s_ack_o: std_logic;
-  signal s_stat_sent_p, s_sending_stat: std_logic;
-  signal s_mps_sent_p: std_logic;
+  signal s_reset_status_bytes, s_sending_mps: std_logic;
   signal s_code_violation_p : std_logic;
   signal s_crc_bad_p : std_logic;
   signal s_var1_rdy : std_logic;
@@ -291,7 +290,7 @@ architecture struc of nanofip is
   signal s_mps : std_logic_vector(7 downto 0);
   signal s_wb_d_d : std_logic_vector(15 downto 0);
   signal s_m_id_dec_o, s_c_id_dec_o : std_logic_vector(7 downto 0);
-  signal s_stb_d, s_we_d, s_fx_rxa : std_logic;
+  signal s_stb_d, s_we_d : std_logic;
   signal s_adr_d : std_logic_vector ( 9 downto 0);
 
 begin
@@ -304,7 +303,8 @@ begin
       rston_o => rston_o,
 
       var_i => s_var_from_control, 
-      rst_o => s_rst  
+      rst_o => s_rst, 
+      fd_rst_o => fd_rstn_o  
       );
 ---------------------------------------------------------------------------------------------------
 
@@ -398,7 +398,7 @@ begin
       slone_i  => slone_i,  
       nostat_i => nostat_i, 
       subs_i => subs_i, 
-      sending_stat_o => s_sending_stat, 
+      sending_mps_o => s_sending_mps, 
       stat_i => s_stat,  
       mps_i => s_mps,
       var_i => s_var_from_control,  
@@ -429,25 +429,13 @@ begin
       var1_access_a_i => var1_acc_i,
       var2_access_a_i => var2_acc_i,
       var3_access_a_i => var3_acc_i,
-      stat_sent_p_i => s_stat_sent_p,
-      mps_sent_p_i => s_mps_sent_p,   
+      reset_status_bytes_i => s_reset_status_bytes,
       stat_o => s_stat,
       mps_o => s_mps
       );
 ---------------------------------------------------------------------------------------------------
 
-  ack_o <= (s_ack_produced or s_ack_consumed) and stb_i;  
-  s_ack_o <= s_ack_produced or s_ack_consumed;
-  s_stat_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; 
-  s_mps_sent_p <= s_sending_stat and s_byte_to_tx_ready_p; 
-
-  --fd_rstn_o <= cyc_i and fx_rxa_i;
-  --s_fx_rxa <=  fx_rxa_i;
- -- s_id_o <= "0" & fx_rxa_i; -- I connect fx_rxa_i to s_id_o just to test the pinout
- fd_rstn_o <= fd_wdgn_i and cyc_i and fx_rxa_i; -- just to check place+route; as to be changed!!!!!!!
-
----------------------------------------------------------------------------------------------------
-Uwf_dec_m_ids : wf_dec_m_ids 
+ Uwf_dec_m_ids : wf_dec_m_ids 
   port map(
     uclk_i        => uclk_i,
     rst_i         => s_rst,
@@ -476,6 +464,20 @@ begin
       end if;
    end if;
 end process;
+
+---------------------------------------------------------------------------------------------------
+  ack_o <= (s_ack_produced or s_ack_consumed) and stb_i;  
+  s_ack_o <= s_ack_produced or s_ack_consumed;
+  s_reset_status_bytes <= s_sending_mps and s_byte_to_tx_ready_p;  
+--  fx_rxa_i <= 'Z';
+--  cyc_i <= 'Z';
+
+ -- s_id_o <= "0" & fx_rxa_i; -- I connect fx_rxa_i to s_id_o just to test the pinout
+
+
+---------------------------------------------------------------------------------------------------
+
+
 
 end architecture struc;
 --============================================================================

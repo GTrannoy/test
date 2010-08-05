@@ -398,8 +398,12 @@ begin
   process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if byte_ready_p_i = '1' then
-        s_byte <= byte_i;
+      if rst_i = '1' then
+        s_byte <= (others => '0');
+      else      
+        if byte_ready_p_i = '1' then
+          s_byte <= byte_i;
+        end if;
       end if;
     end if;
   end process;
@@ -440,10 +444,15 @@ begin
   Bits_Delivery: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if  tx_clk_p_buff_i(0) = '1' then
-        tx_data_o <= s_data_bit;
-      end if;
+      if rst_i = '1' then
+        tx_data_o <= '0';
+        tx_enable_o <= '0';
+      else
+        if  tx_clk_p_buff_i(0) = '1' then
+          tx_data_o <= s_data_bit;
+        end if;
       tx_enable_o <= s_tx_enable;
+      end if;
     end if;
   end process;
 
@@ -454,10 +463,15 @@ begin
   Outgoing_Bits_Pointer: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if s_load_pointer = '1' then
-        s_pointer <= s_top_pointer;
-      elsif s_decr_pointer = '1' then
-        s_pointer <= s_pointer - 1;
+      if rst_i = '1' then
+        s_pointer <= (others => '0');
+      else
+
+        if s_load_pointer = '1' then
+          s_pointer <= s_top_pointer;
+        elsif s_decr_pointer = '1' then
+          s_pointer <= s_pointer - 1;
+        end if;
       end if;
     end if;
   end process;
