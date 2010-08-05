@@ -105,6 +105,7 @@ begin
    if rising_edge(uclk_i) then
       if rst_i = '1' then
          s_q <= (others => '1');
+         
       else
          if start_p_i = '1' then
             s_q <= (others => '1');

@@ -110,10 +110,10 @@ entity wf_produced_vars is
    
   -- Outputs
     -- signal to status_gen
-    sending_stat_o : out std_logic;                    --!indication:nanoFIP status byte being sent
+    sending_mps_o : out std_logic;                    --!indication: mps byte being sent
 
     -- signal to wf_tx
-    byte_o :         out std_logic_vector(7 downto 0); --! output byte to be serialized and sent
+    byte_o :         out std_logic_vector(7 downto 0);--! output byte to be serialized and sent
 
     -- nanoFIP output
     wb_ack_p_o :     out std_logic                     --! wishbone acknowledge
@@ -227,8 +227,8 @@ architecture rtl of wf_produced_vars is
     s_base_addr <= (others => '0');                              -- specifies the ram block
                                                                  -- corresponding to each variable 
 
-    sending_stat_o <= '0';                                       -- indicates that nanoFIP status
-                                                                 -- is being sent
+    sending_mps_o <= '0';                                       -- indicates that mps status byte
+                                                                -- is being sent
 
 
 --------------------------------------------------------------------------------------------------- 	     
@@ -274,10 +274,11 @@ architecture rtl of wf_produced_vars is
       elsif s_byte_adr = (unsigned(data_length_i) - 1) and nostat_i = '0' then --one but last byte:
         s_byte <= stat_i;                              --nanoFIP status;only sent if nostat negated
  
-        sending_stat_o <= '1';                         -- indication that status byte is being sent
 
       elsif s_byte_adr = (unsigned(data_length_i))then -- last byte: mps status 
         s_byte <= mps_i;
+        sending_mps_o <= '1';                          -- indication that mps byte is being sent
+
 
       elsif slone_i='0' and s_byte_adr = c_pdu_byte_add then           -- in memory mode operation, 
         s_byte <= c_var_array(c_var_3_pos).byte_array(s_byte_adr_aux); -- PDU byte is being sent

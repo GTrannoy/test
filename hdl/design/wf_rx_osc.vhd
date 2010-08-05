@@ -40,9 +40,9 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! @author	    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --!             Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
 --!
---! @date 06/06/2010
+--! @date 07/2010
 --
---! @version v0.02
+--! @version v0.03
 --
 --! @details 
 --!
@@ -56,10 +56,13 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --!
 --! <b>Modified by:</b>\n
 --! Author:         Pablo Alvarez Sanchez
+--!                 Evangelia Gousiou
 ---------------------------------------------------------------------------------------------------
 --! \n\n<b>Last changes:</b>\n
---! 07/08/2009  v0.02  PAAS Entity Ports added, start of architecture content
---!
+--! 08/2009  v0.02  PAAS Entity Ports added, start of architecture content
+--! 07/2010  v0.03  tx, rx counter changed from 20 bits signed, to 11 bits unsigned
+--!                 rx clk generation depends on edges detection
+--!                 code cleaned-up + commented                
 ---------------------------------------------------------------------------------------------------
 --! @todo Define I/O signals \n
 --!
@@ -72,11 +75,11 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --=================================================================================================
 
 entity wf_rx_osc is
-  generic (C_COUNTER_LENGTH : integer := 12;  -- in the slowest bit rate (31.25kbps), the period is
+  generic (C_COUNTER_LENGTH : integer := 11;  -- in the slowest bit rate (31.25kbps), the period is
                                               -- 32000ns and can be measured after 1280 uclk ticks.
-                                              -- Therefore a counter of 12 bits is the max needed
+                                              -- Therefore a counter of 11 bits is the max needed
                                               -- for counting transmission/reception periods. 
-           C_QUARTZ_PERIOD : real := 25.0;    -- 40 MHz clock period
+           C_QUARTZ_PERIOD : real := 24.8;    -- 40 MHz clock period
            C_CLKFCDLENTGTH :  natural := 3 
            );
 
@@ -126,8 +129,8 @@ end entity wf_rx_osc;
 architecture rtl of wf_rx_osc is
 
   -- calculations of the number of uclk ticks equivalent to the reception/ transmission period
-  constant c_uclk_ticks_31_25kbit:unsigned:=     
-                                  to_unsigned((32000 / integer(C_QUARTZ_PERIOD)),C_COUNTER_LENGTH);
+  constant c_uclk_ticks_31_25kbit:unsigned:= 
+                                  to_unsigned((32000/ integer(C_QUARTZ_PERIOD)),C_COUNTER_LENGTH);
   constant c_uclk_ticks_1_mbit:unsigned:=
                                     to_unsigned((1000/ integer(C_QUARTZ_PERIOD)),C_COUNTER_LENGTH);
   constant c_uclk_ticks_2_5mbit:unsigned:=
@@ -144,18 +147,18 @@ architecture rtl of wf_rx_osc is
   -- auxiliary signals declarations
   signal s_counter_rx, s_counter_tx, s_period, s_jitter :   unsigned (C_COUNTER_LENGTH-1 downto 0);
   signal s_counter_full, s_one_forth_period, s_half_period :unsigned (C_COUNTER_LENGTH-1 downto 0);
-  signal s_tx_clk_p_buff :                   std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
-  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p :            std_logic;
-  signal s_rx_bit_clk, s_rx_bit_clk_d1, s_rx_manch_clk, s_rx_manch_clk_d1 :        std_logic;
-  signal s_adjac_bits_edge_found, s_signif_edge_found :                                  std_logic;
-  signal s_rx_signif_edge_window, s_rx_adjac_bits_window :                               std_logic;
+  signal s_tx_clk_p_buff :                           std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p :         std_logic;
+  signal s_rx_bit_clk, s_rx_bit_clk_d1, s_rx_manch_clk, s_rx_manch_clk_d1 : std_logic;
+  signal s_adjac_bits_edge_found, s_signif_edge_found :                     std_logic;
+  signal s_rx_signif_edge_window, s_rx_adjac_bits_window :                  std_logic;
 
  
 
 begin
  
 
-
+  
   s_period <= C_UCLK_TICKS(to_integer(unsigned(rate_i)));  -- s_period: # uclock ticks for a period
   s_half_period <= (s_period srl 1);                       -- s_period shifted 1 bit
   s_one_forth_period <= s_period srl 2;                    -- s_period shifted 2 bits
@@ -178,7 +181,6 @@ begin
   periods_count: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then                                                  
-      -- initializations:
       if rst_i = '1' then
         s_counter_tx <= (others => '0');
         s_counter_rx <= (others => '0');

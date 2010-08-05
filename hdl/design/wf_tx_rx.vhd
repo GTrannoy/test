@@ -116,7 +116,7 @@ architecture rtl of wf_tx_rx is
   signal s_clk_carrier_p : std_logic;
   signal s_clk_bit_180_p, s_sample_bit_p, s_sample_manch_bit_p  : std_logic;
   signal s_edge_window, edge_180_window : std_logic;
-  signal s_d_edge : std_logic;   
+  signal s_d_edge, s_code_violation : std_logic;   
   signal s_clk_fixed_carrier_p_d : std_logic_vector(C_CLKFCDLENTGTH - 1 downto 0); 
 begin
 
@@ -167,18 +167,19 @@ begin
       rx_data_filtered_i => s_d_filtered,
       sample_manch_bit_p_i => s_sample_manch_bit_p,
       wait_d_first_f_edge_o=> s_first_fe,
-      
+       
+      code_violation_p_o => code_violation_p_o,
+      crc_wrong_p_o => crc_wrong_p_o,
       sample_bit_p_i => s_sample_bit_p,
       signif_edge_window_i => s_edge_window,
       adjac_bits_window_i => edge_180_window
 
       );
 
-
   
   uwf_rx_osc :wf_rx_osc
 
-    generic map(C_COUNTER_LENGTH => 7,
+    generic map(C_COUNTER_LENGTH => 11,
                 C_QUARTZ_PERIOD => 24.8,
                 C_CLKFCDLENTGTH => C_CLKFCDLENTGTH)
 
