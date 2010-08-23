@@ -29,7 +29,7 @@ architecture archi of nanofip_tb is
     fd_txena_o: out std_logic; --! Transmitter enable
     fd_txck_o : out std_logic; --! Line driver half bit clock
     fx_txd_o  : out std_logic; --! Transmitter data
-    fx_rxa_i  : in  std_logic; --! Reception activity detection
+--    fx_rxa_i  : in  std_logic; --! Reception activity detection
     fx_rxd_i  : in  std_logic; --! Receiver data
 
     uclk_i    : in  std_logic; --! 40 MHz clock
@@ -50,7 +50,7 @@ architecture archi of nanofip_tb is
     rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
     stb_i     : in  std_logic; --! Strobe
     ack_o     : out std_logic; --! Acknowledge
-    cyc_i     : in std_logic;
+--    cyc_i     : in std_logic;
 	we_i      : in  std_logic  --! Write enable
     );
   end component;
@@ -171,7 +171,7 @@ begin
     c_id_i    => c_id,
     p3_lgth_i => p3_lgth,
 
-    fx_rxa_i  => fx_rxa,
+--    fx_rxa_i  => fx_rxa,
     fx_rxd_i  => fx_rxd,
     fd_txer_i => fd_txer,
     fd_wdgn_i => fd_wdgn,
@@ -199,7 +199,7 @@ begin
     rst_i     => rst,
     stb_i     => stb,
     ack_o     => ack,
-	cyc_i     => cyc,
+--	cyc_i     => cyc,
     we_i      => we
     );
 
@@ -208,6 +208,19 @@ begin
     dat_i(15 downto 8)	<= slone_dat_i;
     dat_o(15 downto 8)	<= slone_dat_o;
 
+	board: board_settings
+	port map(
+		s_id_i			=> s_id,
+
+		c_id_o			=> c_id,
+		m_id_o			=> m_id,
+		nostat_o		=> nostat,
+		p3_lgth_o		=> p3_lgth,
+		rate_o			=> rate,
+		slone_o			=> slone,
+		subs_o			=> subs
+	);
+	
 	user_logic:  user_interface
 	port map(
 		urstn_i			=> urst_from_nf,
@@ -246,18 +259,4 @@ begin
 		fx_rxd_o		=> fx_rxd
 	);
 
-	board: board_settings
-	port map(
-		s_id_i			=> s_id,
-
-		c_id_o			=> c_id,
-		m_id_o			=> m_id,
-		nostat_o		=> nostat,
-		p3_lgth_o		=> p3_lgth,
-		rate_o			=> rate,
-		slone_o			=> slone,
-		subs_o			=> subs
-	);
-	
-	
 end archi;
