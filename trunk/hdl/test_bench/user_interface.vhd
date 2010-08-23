@@ -78,18 +78,18 @@ architecture archi of user_interface is
 	signal transfer_length		: std_logic_vector(6 downto 0):="000" & x"0";
 	signal transfer_offset		: std_logic_vector(6 downto 0):="000" & x"0";
 	signal var_id		 		: std_logic_vector(1 downto 0):="00";
-
-	signal rst_i				: std_logic;
+	signal wclk					: std_logic:='0';
+	signal wreset				: std_logic:='0';
 
 begin
 
-	clock: process
+	user_clock: process
 	begin
 		clk						<= not(clk);
 		wait for 12500 ps;
 	end process;
-	
-	reseting: process
+
+	user_reset: process
 	begin
 --		reset				<= '0';
 --		wait for 2 us;
@@ -99,38 +99,57 @@ begin
 		wait for 1000 ms;
 	end process;
 
+	wb_clock: process
+	begin
+		wclk						<= not(wclk);
+		wait for 19 ns;
+	end process;
+	
+	wb_reset: process
+	begin
+--		wreset				<= '0';
+--		wait for 2 us;
+		wreset				<= '1';
+		wait for 6 us;
+		wreset				<= '0';
+		wait for 1000 ms;
+	end process;
+
 	uclk_o				<= clk;
 	urstn_o				<= not(reset);
 
---	seq: sequencer
---	port map(
---		block_size				=> block_size,
---		launch_wb_read			=> launch_wb_read,
---		launch_wb_write 		=> launch_wb_write,
---		transfer_length			=> transfer_length,
---		transfer_offset			=> transfer_offset,
---		var_id					=> var_id
---	);
---
---	wb_interface:  wishbone_interface
---	port map(
---		block_size				=> block_size,
---		launch_wb_read			=> launch_wb_read,
---		launch_wb_write 		=> launch_wb_write,
---		transfer_length			=> transfer_length,
---		transfer_offset			=> transfer_offset,
---		var_id					=> var_id,
---
---		ack_i					=> ack_i,
---		clk_i					=> clk,
---		dat_i					=> dat_i,
---		rst_i					=> rst_i,
---
---		adr_o					=> adr_o,
---		cyc_o					=> cyc_o,
---		dat_o					=> dat_o,
---		stb_o					=> stb_o,
---		we_o					=> we_o
---	);
+	rst_o				<= wreset;
+	wclk_o				<= wclk;
+
+	seq: sequencer
+	port map(
+		block_size				=> block_size,
+		launch_wb_read			=> launch_wb_read,
+		launch_wb_write 		=> launch_wb_write,
+		transfer_length			=> transfer_length,
+		transfer_offset			=> transfer_offset,
+		var_id					=> var_id
+	);
+
+	wb_interface:  wishbone_interface
+	port map(
+		block_size				=> block_size,
+		launch_wb_read			=> launch_wb_read,
+		launch_wb_write 		=> launch_wb_write,
+		transfer_length			=> transfer_length,
+		transfer_offset			=> transfer_offset,
+		var_id					=> var_id,
+
+		ack_i					=> ack_i,
+		clk_i					=> wclk,
+		dat_i					=> dat_i,
+		rst_i					=> reset,
+
+		adr_o					=> adr_o,
+		cyc_o					=> cyc_o,
+		dat_o					=> dat_o,
+		stb_o					=> stb_o,
+		we_o					=> we_o
+	);
 
 end archi;

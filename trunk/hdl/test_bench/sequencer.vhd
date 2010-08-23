@@ -24,47 +24,47 @@ end sequencer;
 architecture archi of sequencer is
 begin
 
---	seq_for_wb: process
---	begin
---		block_size			<= "000" & x"0";
---		launch_wb_read		<= '0';
---		launch_wb_write		<= '0';
---		transfer_length		<= "000" & x"0";
---		transfer_offset		<= "000" & x"0";
---		var_id				<= "00";
---		wait for 340 ns;
---
---		block_size			<= "000" & x"3";
---		launch_wb_read		<= '0';
---		launch_wb_write		<= '1';
---		transfer_length		<= "000" & x"8";
---		transfer_offset		<= "000" & x"0";
---		var_id				<= "10";
---		wait for 60 ns;
---
---		block_size			<= "000" & x"0";
---		launch_wb_read		<= '0';
---		launch_wb_write		<= '0';
---		transfer_length		<= "000" & x"0";
---		transfer_offset		<= "000" & x"0";
---		var_id				<= "00";
---		wait for 1 us;
---
---		block_size			<= "000" & x"0";
---		launch_wb_read		<= '1';
---		launch_wb_write		<= '0';
---		transfer_length		<= "000" & x"8";
---		transfer_offset		<= "000" & x"0";
---		var_id				<= "10";
---		wait for 100 ns;
---
---		block_size			<= "000" & x"0";
---		launch_wb_read		<= '0';
---		launch_wb_write		<= '0';
---		transfer_length		<= "000" & x"0";
---		transfer_offset		<= "000" & x"0";
---		var_id				<= "00";
---		wait for 10 ms;
---	end process;
+	seq_for_wb: process
+	begin
+		block_size			<= "000" & x"0";
+		launch_wb_read		<= '0';
+		launch_wb_write		<= '0';
+		transfer_length		<= "000" & x"0";
+		transfer_offset		<= "000" & x"0";
+		var_id				<= "00";
+		wait for 100 us;
+
+		block_size			<= "000" & x"0";
+		launch_wb_read		<= '0';
+		launch_wb_write		<= '1';
+		transfer_length		<= "000" & x"8";
+		transfer_offset		<= "000" & x"0";
+		var_id				<= "11";
+		wait for 60 ns;
+
+		block_size			<= "000" & x"0";
+		launch_wb_read		<= '0';
+		launch_wb_write		<= '0';
+		transfer_length		<= "000" & x"0";
+		transfer_offset		<= "000" & x"0";
+		var_id				<= "00";
+		wait for 1 us;
+
+		block_size			<= "000" & x"0";
+		launch_wb_read		<= '1';
+		launch_wb_write		<= '0';
+		transfer_length		<= "000" & x"8";
+		transfer_offset		<= "000" & x"0";
+		var_id				<= "10";
+		wait for 100 ns;
+
+		block_size			<= "000" & x"0";
+		launch_wb_read		<= '0';
+		launch_wb_write		<= '0';
+		transfer_length		<= "000" & x"0";
+		transfer_offset		<= "000" & x"0";
+		var_id				<= "00";
+		wait for 20000 ms;
+	end process;
 
 end archi;

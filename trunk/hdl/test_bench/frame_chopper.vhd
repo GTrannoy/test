@@ -177,8 +177,16 @@ begin
 				struct_ok	<= FALSE;
 			end if;
 			
-		when x"40" =>						-- consumed or produced
-			struct_ok	<= TRUE;
+		when x"40" =>						-- produced
+			if bytes_received /= 0 then
+				if (frame_data(bytes_received - 2) = x"00" 
+				or frame_data(bytes_received - 2) = x"05") then
+					struct_ok	<= TRUE;
+				else
+					struct_ok	<= FALSE;
+				end if;
+			end if;
+			
 		when others =>
 			struct_ok	<= FALSE;
 		end case;
@@ -260,7 +268,22 @@ begin
 						severity warning;
 					end if;
 				elsif pdu_type_byte = x"40" then
-					report "NanoFIP responded with a consumed/produced variable RP_DAT frame";
+					if length_ok then
+						if struct_ok then
+							report "NanoFIP responded with a produced variable RP_DAT frame"
+							& LF & "with a coherent length and structure according to specs";
+						else
+							assert FALSE
+							report "NanoFIP responded with a produced variable RP_DAT frame"
+							& LF & "but its structure is not according to specs"
+							severity warning;
+						end if;
+					else
+						assert FALSE
+						report "NanoFIP responded with a produced variable RP_DAT frame"
+						& LF & "but its length is not coherent with the length byte"
+						severity warning;
+					end if;
 				else
 					assert FALSE
 					report "NanoFIP responded with an RP_DAT frame"
