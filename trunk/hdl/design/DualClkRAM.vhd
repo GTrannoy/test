@@ -1,67 +1,82 @@
--------------------------------------------------------------------------------
+--=================================================================================================
 --! @file DualClkRAM.vhd
--------------------------------------------------------------------------------
+--=================================================================================================
+
 --! Standard library
 library IEEE;
+
 --! Standard packages
-use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
-use IEEE.NUMERIC_STD.all;    --! conversion functions
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
+
+--! ProASIC3 library
+library PROASIC3;
+
+--! ProASIC3 packages
+use PROASIC3.all;
 
 
-----------------------------------------------------------------------------
-----------------------------------------------------------------------------
--- --
--- CERN, BE  --
--- --
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--                                                                                               --
+--                                    DualClkRAM                                                 --
+--                                                                                               --
+--                                   CERN, BE/CO/HT                                              --
+--                                                                                               --
+---------------------------------------------------------------------------------------------------
 --
--- unit name: dpblockram.vhd
 --
---! @brief The DualClkRAM instantiates a template for a true dual port ram clocked on both ports by different clocks. The architecture RAM4K9 instantiates the same Proasic3 component. 
---! 
---! 
---! @author <Pablo Alvarez(pablo.alvarez.sanchez@cern.ch)>
+--! @brief     Instantiation of a template RAM4K9 component with
+--!            word width: 8 bits (1 byte) and 
+--!            memory depth: 512 bytes.
+-- 
+-- 
+--! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
 --
---! @date 24\01\2009
 --
---! @version 1
+--! @date      16/08/2010
 --
---! @details
---!
---! <b>Dependencies:</b>\n
---! 
---!
---! <b>References:</b>\n
---! <reference one> \n
---! <reference two>
---!
---! <b>Modified by:</b>\n
---! Author: Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
--------------------------------------------------------------------------------
---! \n\n<b>Last changes:</b>\n
---! 24\01\2009 paas header included\n
---! <extended description>
--------------------------------------------------------------------------------
---! @todo Adapt vhdl sintax to ohr standard\n
---! <another thing to do> \n
 --
--------------------------------------------------------------------------------
+--! @version   v0.1
+--
+--
+--! @details \n
+--
+--!   \n<b>Dependencies:</b>\n
+--!     no dependancies \n
+-- 
+--!   \n<b>Modified by:</b>\n
+--!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n
+--
+--------------------------------------------------------------------------------------------------- 
+--
+--!   \n\n<b>Last changes: </b>\n
+--!     -> pepeline not used! data appears in output 1 clock cycle after the address is given
+--!        (otherwise it was 2 clock cycles later) slack checked and is ok!
+--!     -> code cleaned-up and commented \n
+--
+--------------------------------------------------------------------------------------------------- 
+--
+--! @todo 
+--!   -> explanation on blka, blkb \n
+--
+--------------------------------------------------------------------------------------------------- 
 
-library ieee;
-use ieee.std_logic_1164.all;
-library proasic3;
-use proasic3.all;
+
+--=================================================================================================
+--!                             Entity declaration for DualClkRAM
+--=================================================================================================
 
 entity DualClkRAM is 
-    port(
-  -- Inputs 
-    -- Inputs concerning port A 
+  port(
+  -- INPUTS 
+    -- Inpouts concerning port A 
     DINA :  in std_logic_vector(7 downto 0);  --! data in A
     ADDRA : in std_logic_vector(8 downto 0);  --! address A
     RWA :   in std_logic;                     --! read/ write mode; 1 for reading, 0 for writing 
     CLKA :  in std_logic;                     --! clock A for synchronous read/ write operations
                                               -- may be indipendant of clock B
-    -- Inputs concerning port B
+    -- Inpouts concerning port B
     DINB :  in std_logic_vector(7 downto 0);  --! data in B
     ADDRB : in std_logic_vector(8 downto 0);  --! address B
     RWB :   in std_logic;                     --! read/ write mode; 1 for reading, 0 for writing
@@ -70,17 +85,21 @@ entity DualClkRAM is
     -- Reset
     RESETn : in std_logic;                    --! sets all outputs low; does not reset the memory
 
-  -- Outputs
+  -- OUTPUTS
     -- Output concerning port A          
     DOUTA : out std_logic_vector(7 downto 0); --! data out A
 
     -- Output concerning port B  
     DOUTB : out std_logic_vector(7 downto 0)  --! data out B
-        );
+      );
     end DualClkRAM;
 
 
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 architecture RAM4K9 of  DualClkRAM is
+
 ---------------------------------------------------------------------------------------------------  
 -- !@brief component RAM4K9:
 --! General information concerning RAM4K9: a fully synchronous, true dual-port RAM with an optional
@@ -90,25 +109,25 @@ architecture RAM4K9 of  DualClkRAM is
 --! is possible.
 
 --! WIDTHA0, WIDTHA1 and WIDTHB0, WIDTHB1:
---! For the aspect ratio configuration.
+--! Apect ratio configuration.
 
 --! WENA, WENB
 --! Switching between Read and Write modes for the respective ports.
 --! A Low indicates Write operation and a High indicates a Read.
 
---! BLKA, BLKB:
+--! BLKA, BLKB: *******************************************************************
 --! These signals are active low and will enable the respective ports when asserted.
 --! When BLK signals are de-asserted the output holds the previous value. 
 
 --! PIPEA, PIPEB
---! For the control of the optional pipeline stages.
---! A Low on the PIPEA or PIPEB indicates a non-pipelined read and the data appears on the output
+--! Control of the optional pipeline stages.
+--! A Low on the PIPEA or PIPEB indicates a non-pipelined Read and the data appears on the output
 --! in the same clock cycle.
---! A High indicates a pipelined read and data appears on the output in the next clock cycle.
+--! A High indicates a pipelined Read and data appears on the output in the next clock cycle.
 
 --! WMODEA, WMODEB
---! For the configuration of the behavior of the output when RAM is in the write mode.
---! A Low on this signal makes the output retain data from the previous read.
+--! Configuration of the behavior of the output when the RAM is in the Write mode.
+--! A Low on this signal makes the output retain data from the previous Read.
 
 
   component RAM4K9
@@ -151,9 +170,12 @@ architecture RAM4K9 of  DualClkRAM is
 
 ---------------------------------------------------------------------------------------------------
 
-   signal POWER, GROUND : std_logic ;
----------------------------------------------------------------------------------------------------
-  
+  signal POWER, GROUND : std_logic ;
+
+
+--=================================================================================================
+--                                      architecture begin
+--=================================================================================================
   begin   
     power_supply_signal : VCC port map(Y => POWER);
     ground_signal :       GND port map(Y => GROUND);
@@ -165,15 +187,15 @@ architecture RAM4K9 of  DualClkRAM is
 --! word width: 8 bits (1 byte); DINA8, DINB8: GND, DOUTA8, DOUTB8: open
 --! memory depth: 512 bytes; ADDRA11, ADDRA10, ADDRA9, ADDRB11, ADDRB10, ADDRB9: GND
 --! BLKA, BLKB: GND
---! PIPEA, PIPEB: VCC (pipelined read and data appears on the output in the next clock cycle)
+--! PIPEA, PIPEB: VCC (pipelined read; data appears on the output in the next clock cycle)
 --! WMODEA, WMODEB: GND (in the write mode the output retains the data from the previous read)
 
     A9D8DualClkRAM_R0C0 : RAM4K9
     port map(
-    -- Inputs 
+    -- INPUTS 
 
-      -- Inputs concerning port A
-      -- data in A (1 byte, (7 downto 0))    
+      -- INPUTS concerning port A
+      -- datain A (1 byte, (7 downto 0))    
       DINA8   => GROUND,
       DINA7   => DINA(7),
       DINA6   => DINA(6),
@@ -204,11 +226,11 @@ architecture RAM4K9 of  DualClkRAM is
       WIDTHA0 => POWER,
       WIDTHA1 => POWER,
       BLKA    => GROUND,
-      PIPEA   => POWER,
+      PIPEA   => GROUND,--POWER,
       WMODEA  => GROUND,
 
-      -- Inputs concerning port B 
-      -- data in B (1 byte, (7 downto 0))
+      -- INPUTS concerning port B 
+      -- datain B (1 byte, (7 downto 0))
       DINB8   => GROUND,
       DINB7   => DINB(7),
       DINB6   => DINB(6),
@@ -239,7 +261,7 @@ architecture RAM4K9 of  DualClkRAM is
       WIDTHB0 => POWER, 
       WIDTHB1 => POWER,
       BLKB    => GROUND,
-      PIPEB   => POWER,
+      PIPEB   => GROUND,--POWER, 
       WMODEB  => GROUND,  
 
       -- reset
@@ -247,7 +269,7 @@ architecture RAM4K9 of  DualClkRAM is
 
     -- Oututs 
     -- output concerning port A
-      -- data out A (1 byte)    
+      -- dataout A (1 byte)    
       DOUTA8  => OPEN,
       DOUTA7  => DOUTA(7),
       DOUTA6  => DOUTA(6),
@@ -259,7 +281,7 @@ architecture RAM4K9 of  DualClkRAM is
       DOUTA0  => DOUTA(0),
 
     -- output concerning port B
-      -- data out B (1 byte) 
+      -- dataout B (1 byte) 
       DOUTB8  => OPEN,
       DOUTB7  => DOUTB(7),
       DOUTB6  => DOUTB(6),
@@ -268,5 +290,13 @@ architecture RAM4K9 of  DualClkRAM is
       DOUTB3  => DOUTB(3),
       DOUTB2  => DOUTB(2),
       DOUTB1  => DOUTB(1),
-      DOUTB0  => DOUTB(0));
+      DOUTB0  => DOUTB(0)
+    );
+
   end RAM4K9;
+--=================================================================================================
+--                                      architecture end
+--=================================================================================================
+---------------------------------------------------------------------------------------------------
+--                                    E N D   O F   F I L E
+---------------------------------------------------------------------------------------------------

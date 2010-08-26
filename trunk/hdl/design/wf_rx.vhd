@@ -1,15 +1,16 @@
 --=================================================================================================
 --! @file wf_rx.vhd
---! @brief Deserialises the WorldFIP data
 --=================================================================================================
---! Standard library
+
+-- standard library
 library IEEE;
 
---! Standard packages
-use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
-use IEEE.NUMERIC_STD.all;    --! conversion functions
+-- standard packages
+use IEEE.STD_LOGIC_1164.all;  -- std_logic definitions
+use IEEE.NUMERIC_STD.all;     -- conversion functions
 
-use work.wf_package.all;
+--! specific packages
+use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -19,62 +20,63 @@ use work.wf_package.all;
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name: wf_rx
 --
---! @brief Deserialisation of the input signal fd_rxd (buffered) and construction of bytes of data
---! to be provided to the wf_consumed unit.
---!
---!
---!
---! @author	    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!             Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
---!
---! @date 08/2010
+--! @brief     Deserialisation of the input signal fd_rxd (buffered) and construction of bytes of data
+--!            to be provided to the wf_consumed unit.
 --
---! @version v0.02
 --
---! @details 
---!
---! <b>Dependencies:</b>\n
---! wf_rx_tx_osc\n
---! wf_deglitcher\n
---! wf_tx_rx\n
---! 
---! 
---!
---!
---! <b>References:</b>\n
---! 
---! 
---!
---! <b>Modified by:</b>\n
---! Author: Erik van der Bij
---!         Pablo Alvarez Sanchez
---!         Evangelia Gousiou
+--! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--
+--
+--! @date      08/2010
+--
+--
+--! @version   v0.02
+--
+--
+--! @details \n 
+--
+--!   \n<b>Dependencies:</b>\n
+--!     wf_rx_tx_osc\n
+--!     wf_deglitcher\n
+--!     wf_tx_rx      \n
+-- 
+-- 
+--!   \n<b>Modified by:</b>\n
+--!     Erik van der Bij     \n
+--!     Pablo Alvarez Sanchez \n
+--!     Evangelia Gousiou      \n
+--
+--------------------------------------------------------------------------------------------------- 
+--
+--!   \n\n<b>Last changes:</b>\n
+--!     -> state switch_to_deglitched added
+--!     -> output signal wait_d_first_f_edge_o added
+--!     -> signals renamed
+--!     -> code cleaned-up + commented
+--      
 ---------------------------------------------------------------------------------------------------
---! \n\n<b>Last changes:</b>\n
---! 07/10 state switch_to_deglitched added
---!       output signal wait_d_first_f_edge_o added
---!       signals renamed
---!       code cleaned-up + commented
---!      
+--
+--! @todo
+--! -> 
+--
 ---------------------------------------------------------------------------------------------------
---! @todo Define I/O signals \n
---!
----------------------------------------------------------------------------------------------------
-
 
 
 --=================================================================================================
---! Entity declaration for wf_rx
+--!                                 Entity declaration for wf_rx
 --=================================================================================================
+
 entity wf_rx is
 
   port (
-  -- Inputs 
-    -- user interface general signals 
+  -- INPUTS 
+    -- User interface general signal 
     uclk_i :                in std_logic; --! 40MHz clock
-    rst_i :                 in std_logic; --! global reset
+
+    -- Signal from the reset_logic unit
+    nFIP_rst_i :            in std_logic; --! internal reset
     
     -- signals from the wf_rx_tx_osc    
 	signif_edge_window_i :  in std_logic; --! time window where a significant edge is expected 
@@ -92,7 +94,7 @@ entity wf_rx is
     sample_bit_p_i :        in std_logic; --! 
 
 
-  -- Outputs
+  -- OUTPUTS
 
     -- needed by the wf_consumed and wf_engine_control 	
 	byte_ready_p_o :        out std_logic;                     --! indication of a valid data byte
@@ -115,12 +117,9 @@ entity wf_rx is
 end entity wf_rx;
 
 
-
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
---! rtl architecture of wf_rx
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 architecture rtl of wf_rx is
   
   -- states of the receiver's state machine
@@ -129,7 +128,7 @@ architecture rtl of wf_rx is
   -- signals
   signal rx_st, nx_rx_st :  rx_st_t;
 
-  signal pointer, s_start_pointer :                                        unsigned(4 downto 0);
+  signal pointer, s_start_pointer :                                        unsigned(3 downto 0);
   signal s_decr_pointer, s_load_pointer, s_pointer_is_zero :                          std_logic;
 
   signal s_sample_bit_p_d1, s_sample_bit_p_d2, s_rx_data_filtered_f_edge :            std_logic;
@@ -150,21 +149,24 @@ architecture rtl of wf_rx is
   signal s_rx_data_filtered_buff :                                 std_logic_vector(1 downto 0);
 
 
- 
+
+--=================================================================================================
+--                                      architecture begin
+--=================================================================================================  
   begin
+
 ---------------------------------------------------------------------------------------------------
  --!@brief instantiation of the crc calculator unit
-  cmp_wf_crc : wf_crc 
+  crc_verification : wf_crc 
   generic map( 
-			c_poly_length => 16) 
+			c_GENERATOR_POLY_length => 16) 
   port map(
     uclk_i => uclk_i,
-    rst_i => rst_i,
-    start_p_i => s_start_crc_p,
-    d_rdy_p_i  => s_write_bit_to_byte,
-	d_i  => rx_data_filtered_i,
+    nFIP_rst_i => nFIP_rst_i,
+    start_crc_p_i => s_start_crc_p,
+    data_bit_ready_p_i  => s_write_bit_to_byte,
+	data_bit_i  => rx_data_filtered_i,
 	crc_o  => open,
-	crc_rdy_p_o => open,
 	crc_ok_p => s_crc_ok_p
 );
 
@@ -185,7 +187,7 @@ architecture rtl of wf_rx is
    Receiver_FSM_Sync: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if rst_i = '1' then
+        if nFIP_rst_i = '1' then
           rx_st <= idle;
 		else
           rx_st <= nx_rx_st;
@@ -461,7 +463,7 @@ architecture rtl of wf_rx is
   Frame_End_Detector: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if rst_i = '1' then
+        if nFIP_rst_i = '1' then
           s_frame_end_detection <= '1';
 
         elsif s_pointer_is_zero = '1' and sample_manch_bit_p_i = '1' then 
@@ -479,7 +481,7 @@ architecture rtl of wf_rx is
   Incoming_Bits_Pointer: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if rst_i = '1' then
+        if nFIP_rst_i = '1' then
           pointer <= (others => '0');
         else
 
@@ -500,7 +502,7 @@ architecture rtl of wf_rx is
   Append_Bit_To_Byte: process (uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if rst_i = '1' then
+        if nFIP_rst_i = '1' then
           s_byte <= (others => '0');
         else
 
@@ -515,7 +517,7 @@ architecture rtl of wf_rx is
   process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if rst_i = '1' then
+        if nFIP_rst_i = '1' then
           s_crc_ok <= '0';	
 	    else
 
@@ -537,7 +539,7 @@ architecture rtl of wf_rx is
   Detect_f_edge_rx_data_filtered: process(uclk_i)
     begin
       if rising_edge(uclk_i) then 
-        if rst_i = '1' then
+        if nFIP_rst_i = '1' then
           s_rx_data_filtered_buff <= (others => '0');
           s_rx_data_filtered_f_edge <= '0';
         else
@@ -564,7 +566,7 @@ end process;
   Check_code_violations: process(uclk_i)
     begin
       if rising_edge(uclk_i) then 
-         if rst_i = '1' then
+         if nFIP_rst_i = '1' then
            byte_ready_p_o <= '0'; 
            s_violation_check <='0';
            s_rx_data_filtered_d <='0';
@@ -588,7 +590,11 @@ end process;
   crc_ok_p_o <= s_frame_end_detected_p and s_crc_ok;
   crc_wrong_p_o <= s_frame_end_detected_p and (not s_crc_ok);
 
+
 end architecture rtl;
+--=================================================================================================
+--                                      architecture end
+--=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                          E N D   O F   F I L E
+--                                    E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

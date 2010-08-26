@@ -1,12 +1,14 @@
 --=================================================================================================
 --! @file wf_rx_osc.vhd
---! @brief Recovers clock from the input serial line. 
 --=================================================================================================
+
 --! Standard library
 library IEEE;
+
 --! Standard packages
 use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
+
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -16,19 +18,20 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name: wf_rx_osc
+-- unit name   wf_rx_osc
 --
---! @brief Generation the clock signals needed for the transmiter and receiver units. \n
+--! @brief     Generation the clock signals needed for the transmiter and receiver units. \n
 --!
---!  Concerning the reception, even if the bit rate of the communication is known, jitter is
---!  expected to affect the arriving time of the incoming signal. The main idea of the wf_osc
---!  is to recalculate the expected arrival time of the next incoming bit,based on the arrival
---!  of the previous one,so that driftings are not accumulated.The clock recovery is based on
---!  the Manchester 2 coding which ensures that there is one transition for each bit. In this
---!  unit, we refer to a significant edge for an edge of a Manchester 2 encoded bit ( eg: bit
---!  0: _|-, bit 1: -|_) and to a transition between adjacacent bits for a transition that may
---!  or may not give an edge between adjacent bits (eg: a 0/1 followed by a 0/1 will give an
---!  edge _|-|_|-, but a 0/1 followed by a 1/0 will not _|--|_ ).
+--!            Concerning the reception, even if the bit rate of the communication is known, jitter
+--!            is expected to affect the arriving time of the incoming signal. The main idea of the 
+--!            wf_osc is to recalculate the expected arrival time of the next incoming bit,based on
+--!            the arrival of the previous one,so that driftings are not accumulated.The clock 
+--!            recovery is based on the Manchester 2 coding which ensures that there is one 
+--!            transition for each bit. In this unit,we refer to a significant edge for an edge of
+--!            a Manchester 2 encoded bit( eg: bit0: _|-, bit 1: -|_) and to a transition between
+--!            adjacacent bits for a transition that may or may not give an edge between adjacent 
+--!            bits (eg: a 0/1 followed by a 0/1 will give an edge _|-|_|-, but a 0/1 followed by a
+--!            1/0 will not _|--|_ ).
 --!
 --!
 --!         Concerning the transmission...\n,
@@ -37,41 +40,46 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --!                    s_tx_clk_p
 --!
 --!
---! @author	    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!             Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
---!
---! @date 07/2010
+--! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
 --
---! @version v0.03
 --
---! @details 
---!
---! <b>Dependencies:</b>\n
---!            wf_tx_rx \n
---!            wf_rx    \n  
---!
---! <b>References:</b>\n
---! 
---! 
---!
---! <b>Modified by:</b>\n
---! Author:         Pablo Alvarez Sanchez
---!                 Evangelia Gousiou
+--! @date      07/2010
+--
+--
+--! @version   v0.03
+--
+--
+--! @details\n 
+--
+--
+--!   \n<b>Dependencies:</b>\n
+--!     wf_tx_rx \n
+--!     wf_rx    \n  
+--
+--
+--!   \n<b>Modified by:</b>\n
+--!     Pablo Alvarez Sanchez \n
+--!     Evangelia Gousiou     \n
+--
 ---------------------------------------------------------------------------------------------------
---! \n\n<b>Last changes:</b>\n
---! 08/2009  v0.02  PAAS Entity Ports added, start of architecture content
---! 07/2010  v0.03  tx, rx counter changed from 20 bits signed, to 11 bits unsigned
+--
+--!   \n\n<b>Last changes:</b>\n
+--!     08/2009  v0.02  PAAS Entity Ports added, start of architecture content
+--!     07/2010  v0.03  tx, rx counter changed from 20 bits signed, to 11 bits unsigned
 --!                 rx clk generation depends on edges detection
---!                 code cleaned-up + commented                
+--!                 code cleaned-up + commented      
+--!                 C_CLKFCDLENTGTH got 1 more bit 
+--         
 ---------------------------------------------------------------------------------------------------
+--
 --! @todo Define I/O signals \n
---!
+--
 ---------------------------------------------------------------------------------------------------
-
 
 
 --=================================================================================================
---! Entity declaration for wf_rx_osc
+--!                            Entity declaration for wf_rx_osc
 --=================================================================================================
 
 entity wf_rx_osc is
@@ -80,25 +88,27 @@ entity wf_rx_osc is
                                               -- Therefore a counter of 11 bits is the max needed
                                               -- for counting transmission/reception periods. 
            C_QUARTZ_PERIOD : real := 24.8;    -- 40 MHz clock period
-           C_CLKFCDLENTGTH :  natural := 3 
+           C_CLKFCDLENTGTH :  natural := 4 
            );
 
   port (
-  -- Inputs
-    uclk_i :                  in std_logic; --! 40 MHz clock
-    rate_i :                  in  std_logic_vector (1 downto 0); --! bit rate    
-    rst_i :                   in std_logic; --! global reset
+  -- INPUTS
+    uclk_i :                  in std_logic;                      --! 40 MHz clock
+    rate_i :                  in  std_logic_vector (1 downto 0); --! bit rate  
 
-    -- signals from wf_tx_rx    
+    -- Signal from the reset_logic unit  
+    nFIP_rst_i :              in std_logic; --! internal reset
+
+    -- Signals from wf_tx_rx    
     d_edge_i :                in std_logic; --! indication of an edge on rx_data_i(buffered fd_rxd)
     rx_data_f_edge_i :        in std_logic; --! indication of a falling edge on rx_data_i
 
-     --signal from wf_rx   
+     -- Signal from wf_rx   
     wait_d_first_f_edge_i :   in std_logic; --! indication that wf_rx state machine is in idle,
                                             -- waiting for the 1st falling edge of rx_data_i
 
-  -- Outputs  
-    -- output signals needed in the reception
+  -- OUTPUTS  
+    -- Output signals needed in the reception
     rx_manch_clk_p_o :        out std_logic;-- signal with pulses 1-uclk period long
                                             -- 1) on a significant edge 
                                             -- 2) between adjacent bits
@@ -112,52 +122,51 @@ entity wf_rx_osc is
     rx_adjac_bits_window_o :  out std_logic;-- time window where a transition between adjacent
                                             --  bits is expected
     
-    -- output signals needed in the transmission
-    tx_clk_p_buff_o : out std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
-    tx_clk_o :     out std_logic
+    -- Output signals needed in the transmission
+    tx_clk_p_buff_o :         out std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+    tx_clk_o :                out std_logic
     );
 
 end entity wf_rx_osc;
 
 
 
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
---! rtl architecture of wf_rx_osc
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 architecture rtl of wf_rx_osc is
 
+
   -- calculations of the number of uclk ticks equivalent to the reception/ transmission period
-  constant c_uclk_ticks_31_25kbit:unsigned:= 
+  constant c_UCLK_TICKS_31_25Kbit:unsigned:= 
                                   to_unsigned((32000/ integer(C_QUARTZ_PERIOD)),C_COUNTER_LENGTH);
-  constant c_uclk_ticks_1_mbit:unsigned:=
+  constant c_UCLK_TICKS_1_Mbit:unsigned:=
                                     to_unsigned((1000/ integer(C_QUARTZ_PERIOD)),C_COUNTER_LENGTH);
-  constant c_uclk_ticks_2_5mbit:unsigned:=
+  constant c_UCLK_TICKS_2_5_Mbit:unsigned:=
                                      to_unsigned((400 /integer(C_QUARTZ_PERIOD)),C_COUNTER_LENGTH);
 
   -- formation of a table with the c_uclk_ticks info per bit rate
   type t_uclk_ticks is array (Natural range <>) of unsigned (C_COUNTER_LENGTH-1 downto 0);
-  constant C_UCLK_TICKS : t_uclk_ticks(3 downto 0) := (0 => (c_uclk_ticks_31_25kbit),
-                                                       1 => (c_uclk_ticks_1_mbit),
-                                                       2 => (c_uclk_ticks_2_5mbit),
-                                                       3 => (c_uclk_ticks_2_5mbit));
+  constant C_UCLK_TICKS : t_uclk_ticks(3 downto 0) := (0 => (c_UCLK_TICKS_31_25Kbit),
+                                                       1 => (c_UCLK_TICKS_1_Mbit),
+                                                       2 => (c_UCLK_TICKS_2_5_Mbit),
+                                                       3 => (c_UCLK_TICKS_2_5_Mbit));
 
   
   -- auxiliary signals declarations
   signal s_counter_rx, s_counter_tx, s_period, s_jitter :   unsigned (C_COUNTER_LENGTH-1 downto 0);
   signal s_counter_full, s_one_forth_period, s_half_period :unsigned (C_COUNTER_LENGTH-1 downto 0);
   signal s_tx_clk_p_buff :                           std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
-  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p :         std_logic;
+  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p :                                std_logic;
   signal s_rx_bit_clk, s_rx_bit_clk_d1, s_rx_manch_clk, s_rx_manch_clk_d1 : std_logic;
   signal s_adjac_bits_edge_found, s_signif_edge_found :                     std_logic;
   signal s_rx_signif_edge_window, s_rx_adjac_bits_window :                  std_logic;
 
  
-
+--=================================================================================================
+--                                      architecture begin
+--=================================================================================================
 begin
- 
-
   
   s_period <= C_UCLK_TICKS(to_integer(unsigned(rate_i)));  -- s_period: # uclock ticks for a period
   s_half_period <= (s_period srl 1);                       -- s_period shifted 1 bit
@@ -181,7 +190,7 @@ begin
   periods_count: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then                                                  
-      if rst_i = '1' then
+      if nFIP_rst_i = '1' then
         s_counter_tx <= (others => '0');
         s_counter_rx <= (others => '0');
         s_tx_clk_d1 <= '0';
@@ -296,11 +305,14 @@ begin
     begin
       if rising_edge(uclk_i) then
         -- initializations:  
-        if (rst_i = '1') then
+        if (nFIP_rst_i = '1') then
           s_rx_manch_clk <='0';
           s_rx_bit_clk <= '0';
+          s_rx_bit_clk_d1 <='0';
+          s_rx_manch_clk_d1 <='0';
           s_signif_edge_found <='0';
           s_adjac_bits_edge_found <='0';
+
 
         else
           -- regarding significant edges:
@@ -375,6 +387,9 @@ begin
 
 
 end architecture rtl;
+--=================================================================================================
+--                                      architecture end
+--=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                          E N D   O F   F I L E
+--                                    E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

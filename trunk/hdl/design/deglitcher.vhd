@@ -1,137 +1,167 @@
---===========================================================================
+--=================================================================================================
 --! @file deglitcher.vhd
---! @brief Glitch filter. 1 pulse adapted filter.
---===========================================================================
+--=================================================================================================
+
 --! Standard library
 library IEEE;
+
 --! Standard packages
 use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 
--------------------------------------------------------------------------------
---                                                                           --
---                                 deglitcher                                 --
---                                                                           --
---                               CERN, BE/CO/HT                              --
---                                                                           --
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--                                                                                               --
+--                                            deglitcher                                         --
+--                                                                                               --
+--                                          CERN, BE/CO/HT                                       --
+--                                                                                               --
+---------------------------------------------------------------------------------------------------
 --
--- unit name: deglitcher
+-- unit name   eglitcher
 --
---! @brief Glitch filter. 1 pulse adapted filter.
---!
---! 
---!
---!
---!
---! @author	    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!
---! @date 10/08/2009
+--! @brief     Glitch filter. 1 pulse adapted filter.
 --
---! @version v0.01
+--
+--! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
+--
+--
+-- @date       08/2010
+--
+--
+--! @version   v0.03
+--
 --
 --! @details 
---!
---! <b>Dependencies:</b>\n
---! wf_engine           \n
---! tx_engine           \n
---! clk_gen             \n
---! reset_logic         \n
---! consumed_ram        \n
---!
---!
---! <b>References:</b>\n
---! 
---! 
---!
---! <b>Modified by:</b>\n
---! Author:      Pablo Alvarez Sanchez
--------------------------------------------------------------------------------
---! \n\n<b>Last changes:</b>\n
---! 07/08/2009  v0.02  PAAS Entity Ports added, start of architecture content
---!
--------------------------------------------------------------------------------
---! @todo Define I/O signals \n
---!
--------------------------------------------------------------------------------
+--
+--!   \n<b>Dependencies:</b>\n
+--!   wf_osc             \n
+--!   reset_logic         \n
+--
+--
+--!   \n<b>Modified by:</b>\n
+--!   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!   Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
+--
+---------------------------------------------------------------------------------------------------
+--
+--!   \n\n<b>Last changes:</b>\n
+--!   07/08/2009  v0.02  PAS Entity Ports added, start of architecture content
+--!   23/08/2010  v0.03  EG   Signal names changed, delayed signals changed, code cleaned-up
+--
+---------------------------------------------------------------------------------------------------
+--
+--! @todo 
+--  more comments
+---------------------------------------------------------------------------------------------------
 
 
 
---============================================================================
---! Entity declaration for deglitcher
---============================================================================
+--=================================================================================================
+--!                             Entity declaration for wf_deglitcher
+--=================================================================================================
 
 entity deglitcher is
-    Generic (C_ACULENGTH : integer := 10);
-    Port ( uclk_i : in  STD_LOGIC;
-           rx_data_i : in  STD_LOGIC;
-           clk_bit_180_p_i : in std_logic;
-           rx_data_filtered_o : out  STD_LOGIC;
-           carrier_p_i : in  STD_LOGIC;
-           sample_manch_bit_p_o : out  STD_LOGIC;
-           sample_bit_p_o : out  STD_LOGIC
-         );
+  generic (C_ACULENGTH : integer := 10);
+
+  port( 
+  -- INPUTS  
+    -- User interface general signal   
+    uclk_i :               in std_logic; --! 40 MHz clock
+
+    -- Signal from the reset_logic unit  
+    nFIP_rst_i :           in std_logic; --! internal reset
+
+    -- FIELDRIVE input signal
+    rx_data_i :            in std_logic; --! buffered fd_rxd
+
+    -- Signals from the wf_osc unit
+    sample_bit_p_i :       in std_logic; --! pulsed signal signaling a new bit
+    sample_manch_bit_p_i : in std_logic; --! pulsed signal signaling a new manchestered bit 
+
+  -- OUTPUTS  
+    -- Output signals needed for the receiverwf_rx
+    sample_bit_p_o :       out  std_logic;
+    rx_data_filtered_o :   out  std_logic;
+    sample_manch_bit_p_o : out  std_logic
+      );
 end deglitcher;
 
+
+
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 architecture Behavioral of deglitcher is
 
-signal s_onesc : signed(C_ACULENGTH - 1 downto 0);
-signal s_rx_data_filtered_o: STD_LOGIC;
-signal s_d_d: std_logic_vector(2 downto 0);
+signal s_count_ones_c : signed(C_ACULENGTH - 1 downto 0);
+signal s_rx_data_filtered: STD_LOGIC;
 signal s_rx_data_filtered_d : std_logic;
 
+
+--=================================================================================================
+--                                      architecture begin
+--=================================================================================================
 begin
 
-process(uclk_i)
-begin
-if rising_edge(uclk_i) then
-	if carrier_p_i = '1' then -- 4 clock ticks after a transition of manchestered input
-		s_onesc <= to_signed(0,s_onesc'length);
-	elsif  rx_data_i = '1' then
-		s_onesc <= s_onesc - 1;
-	else
-		s_onesc <= s_onesc + 1;
-	end if;
-end if;
-end process;
 
-
+---------------------------------------------------------------------------------------------------
 process(uclk_i)
   begin
-    if rising_edge(uclk_i) then
-	  if carrier_p_i = '1' then 		
-	    s_rx_data_filtered_o <= s_onesc(s_onesc'left);
+  if rising_edge(uclk_i) then
+
+    if nFIP_rst_i = '1' then
+      s_count_ones_c <= (others =>'0');
+    else
+
+      if sample_manch_bit_p_i = '1' then -- arrival of a new manchester bit
+        s_count_ones_c <= (others =>'0'); -- counter initialized
+
+      elsif  rx_data_i = '1' then         -- counting the number of ones 
+        s_count_ones_c <= s_count_ones_c - 1;
+      else
+        s_count_ones_c <= s_count_ones_c + 1;
+
       end if;
-      s_rx_data_filtered_d <= s_rx_data_filtered_o; 
+    end if;
   end if;
 end process;
 
-      sample_manch_bit_p_o <= carrier_p_i;  
-      sample_bit_p_o <= clk_bit_180_p_i;
+---------------------------------------------------------------------------------------------------
+process(uclk_i)
+  begin
+  if rising_edge(uclk_i) then
 
---process(carrier_p_i)
-  --begin
-    --if rising_edge(carrier_p_i) then
-	--   s_rx_data_filtered_o <= s_onesc(s_onesc'left);
-   -- elsif falling_edge(carrier_p_i) then
-   --   s_rx_data_filtered_o <= s_onesc(s_onesc'left); 
-   -- end if;
- -- end process;
+    if nFIP_rst_i = '1' then
+      s_rx_data_filtered <= '0';
+      s_rx_data_filtered_d <= '0';
+    else
 
---process(uclk_i)
-  --begin
-    --if rising_edge(uclk_i) then
-     -- sample_manch_bit_p_o <= carrier_p_i;	
-     -- sample_bit_p_o <= clk_bit_180_p_i; ---- delay on clk_bit_180_p_i, so that sample_bit is 1 clock tick before rx_data_filtered_o
-    --  s_rx_data_filtered_o_1 <= s_rx_data_filtered_o_0;
-    --  s_rx_data_filtered_o_0 <= s_rx_data_filtered_o; 
- -- end if;
---end process;
- rx_data_filtered_o <= s_rx_data_filtered_d;
+	  if sample_manch_bit_p_i = '1' then 		
+        s_rx_data_filtered <= s_count_ones_c (s_count_ones_c'left); -- if the ones are more than
+                                                                      -- the zeros, the output is 1
+                                                                      -- otherwise, 0	 
+      end if;
+
+      s_rx_data_filtered_d <= s_rx_data_filtered; 
+
+    end if;
+  end if;
+end process;
+
+      rx_data_filtered_o <= s_rx_data_filtered_d;
+      sample_manch_bit_p_o <= sample_manch_bit_p_i;  
+      sample_bit_p_o <= sample_bit_p_i;
+
 end Behavioral;
 
-
+--=================================================================================================
+--                                      architecture end
+--=================================================================================================
+---------------------------------------------------------------------------------------------------
+--                                    E N D   O F   F I L E
+---------------------------------------------------------------------------------------------------
 
 
 

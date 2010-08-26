@@ -1,14 +1,16 @@
 --===========================================================================
 --! @file wf_tx_rx.vhd
---! @brief Serialises and deserialises the WorldFIP data
 --===========================================================================
---! Standard library
-library IEEE;
---! Standard packages
-use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
-use IEEE.NUMERIC_STD.all;    --! conversion functions
 
-use work.wf_package.all;
+--! standard library
+library IEEE;
+
+--! standard packages
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
+
+--! specific packages
+use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
 
 -------------------------------------------------------------------------------
 --                                                                           --
@@ -68,7 +70,7 @@ entity wf_tx_rx is
 
   port (
     uclk_i    : in std_logic; --! User Clock
-    rst_i     : in std_logic;
+    nFIP_rst_i     : in std_logic;
 
     start_produce_p_i  : in std_logic;
     request_byte_p_o : out std_logic;
@@ -105,7 +107,7 @@ end entity wf_tx_rx;
 -------------------------------------------------------------------------------
 architecture rtl of wf_tx_rx is
 
-  constant C_CLKFCDLENTGTH :  natural := 3;
+  constant C_CLKFCDLENTGTH :  natural := 4;
 
   signal s_d_d : std_logic_vector(2 downto 0);
   signal s_d_re, s_d_fe : std_logic;
@@ -138,13 +140,13 @@ begin
     generic map(C_CLKFCDLENTGTH => C_CLKFCDLENTGTH)
     PORT MAP(
       uclk_i => uclk_i,
-      rst_i => rst_i,
+      nFIP_rst_i => nFIP_rst_i,
       start_produce_p_i => start_produce_p_i,
       request_byte_p_o => request_byte_p_o,
       byte_ready_p_i => byte_ready_p_i,
       byte_i => byte_i,
       last_byte_p_i => last_byte_p_i,
---      clk_fixed_carrier_p_i => s_clk_fixed_carrier_p,
+--      clk_fixed_sample_manch_bit_p_i => s_clk_fixed_carrier_p,
       tx_clk_p_buff_i => s_clk_fixed_carrier_p_d,
       tx_data_o => tx_data_o,
       tx_enable_o => tx_enable_o
@@ -154,7 +156,7 @@ begin
   uwf_rx: wf_rx 
     PORT MAP(
       uclk_i => uclk_i,
-      rst_i => rst_i,
+      nFIP_rst_i => nFIP_rst_i,
       byte_ready_p_o => byte_ready_p_o,
       byte_o => byte_o,
       last_byte_p_o => last_byte_p_o,
@@ -186,7 +188,7 @@ begin
 
     port map(
       uclk_i   => uclk_i, --! User Clock
-      rst_i   => rst_i, 
+      nFIP_rst_i   => nFIP_rst_i, 
       d_edge_i => s_d_edge,      
       rx_data_f_edge_i   => s_d_fe,
       wait_d_first_f_edge_i   => s_first_fe, 
@@ -213,10 +215,11 @@ begin
   Udeglitcher : deglitcher 
     generic map (C_ACULENGTH => 10)
     Port map( uclk_i => uclk_i,
+              nFIP_rst_i => nFIP_rst_i,
               rx_data_i => s_d_d(2),
               rx_data_filtered_o => s_d_filtered,
-              clk_bit_180_p_i => s_clk_bit_180_p,
-              carrier_p_i  => s_clk_carrier_p,
+              sample_bit_p_i => s_clk_bit_180_p,
+              sample_manch_bit_p_i  => s_clk_carrier_p,
               sample_manch_bit_p_o => s_sample_manch_bit_p,
               sample_bit_p_o => s_sample_bit_p
               );
