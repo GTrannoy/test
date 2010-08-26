@@ -105,10 +105,10 @@ set_io {c_id_i[3]}    \
     -DIRECTION Input
 
 
-#set_io cyc_i          \
-#    -pinname 75       \
-#    -fixed yes        \
-#    -DIRECTION Input
+set_io cyc_i          \
+    -pinname 75       \
+    -fixed yes        \
+    -DIRECTION Input
 
 
 set_io {dat_i[0]}     \
@@ -333,10 +333,10 @@ set_io fd_wdgn_i      \
     -DIRECTION Input
 
 
-#set_io fx_rxa_i       \
-#    -pinname 121      \
-#    -fixed yes        \
-#    -DIRECTION Inout
+set_io fx_rxa_i       \
+    -pinname 121      \
+    -fixed yes        \
+    -DIRECTION Input
 
 
 set_io fx_rxd_i       \

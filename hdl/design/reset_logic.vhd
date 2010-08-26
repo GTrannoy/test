@@ -1,151 +1,190 @@
---===========================================================================
+--=================================================================================================
 --! @file reset_logic.vhd
---! @brief Reset logic
---===========================================================================
---! Standard library
+--=================================================================================================
+
+--! standard library
 library IEEE;
---! Standard packages
-use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
-use IEEE.NUMERIC_STD.all;    --! conversion functions
-use work.wf_package.all;
+
+--! standard packages
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
+
+--! specific packages
+use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
 
 
--------------------------------------------------------------------------------
---                                                                           --
---                                 reset_logic                               --
---                                                                           --
---                               CERN, BE/CO/HT                              --
---                                                                           --
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--                                                                                               --
+--                                        wf_reset_logic                                         --
+--                                                                                               --
+--                                        CERN, BE/CO/HT                                         --
+--                                                                                               --
+---------------------------------------------------------------------------------------------------
 --
 -- unit name: reset_logic
 --
---! @brief Reset logic.
---!
---! Used in the NanoFIP design. \n
---! The reset_logic implements the power-on reset and other resets (consumption
---! of the reset variable).
---!
---!
+--! @brief Reset logic. Manages the three nanoFIP reset signals: internal reset, FIELDRIVE reset
+--! and user interface reset (RSTON)
+--
+--
 --! @author Erik van der Bij (Erik.van.der.Bij@cern.ch)
+--!         Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
+--!         Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
---! @date 07/07/2009
 --
---! @version v0.01
+--! @date 08/2010
+--
+--
+--! @version v0.02
+--
 --
 --! @details 
---!
---! <b>Dependencies:</b>\n
---! wf_engine           \n
---!
---! <b>References:</b>\n
---! 
---! 
---!
---! <b>Modified by:</b>\n
---! Author:Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
--------------------------------------------------------------------------------
---! \n\n<b>Last changes:</b>\n
---! 07/07/2009  v0.01  EB  First version \n
---!
--------------------------------------------------------------------------------
---! @todo Define I/O signals \n
---!
--------------------------------------------------------------------------------
+--
+--!   \n<b>Dependencies:</b>\n
+--!     wf_consumed_vars\n
+-- 
+--
+--!   \n<b>Modified by:</b>\n
+--!     Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch) \n
+--!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)         \n
+--
+---------------------------------------------------------------------------------------------------
+--
+--!   \n\n<b>Last changes:</b>\n
+--!     07/2009  v0.01  EB  First version \n
+--!     08/2010  v0.02  EG  checking of bytes1 and2 of reset var added \n
+--!                         fd_rstn_o, nFIP_rst_o enabled only if rstin has been active for > 16 uclk \n
+--
+---------------------------------------------------------------------------------------------------
+--
+--! @todo 
+--
+---------------------------------------------------------------------------------------------------
 
 
 
---============================================================================
---! Entity declaration for reset_logic
---============================================================================
+--=================================================================================================
+--!                           Entity declaration for reset_logic
+--=================================================================================================
 entity reset_logic is
-  generic(c_reset_length : integer := 4); --! Reset counter length. 4==> 16 uclk_i ticks 
+  generic (c_rstin_c_length : integer := 4); --! rstin counter length 
 
   port (
-    uclk_i :   in std_logic;  --! 40MHz clock
-    rstin_i :  in  std_logic; --! Initialisation control, active low
-    var_i :    in t_var;      --! Received variable
+  -- INPUTS
+    -- User Interface general signals 
+    uclk_i :              in std_logic;      --! 40 MHz clock
+    rstin_i :             in  std_logic;     --! initialisation control, active low
+
+    -- Signals from the wf_consumed_vars unit
+    reset_nFIP_and_FD_i : in std_logic;      --! indication that a reset var was received with its
+                                             --! 1st byte containing the station's address
+    reset_RSTON_i :       in std_logic;      --! indication that a reset var was received with its
+                                             --! 2nd byte containing the station's address
 
 
-    rston_o :  out std_logic; --! Reset output, active low.
-                              --  Active when the reset variable is received 
-                              --  and the second byte contains the station address.
+  -- OUTPUTS
+    -- nanoFIP internal reset
+    nFIP_rst_o :               out std_logic;     --! nanoFIP internal reset, active high
 
-    rst_o :    out std_logic;  --! Reset ouput active high
+    -- nanoFIP output to the User Interface 
+    rston_o :             out std_logic;     --! reset output, active low
 
-    fd_rst_o : out std_logic --! fieldrive reset, active low
-                              -- Active when the reset variable is received 
-                              --  and the first byte contains the station address.
-    );
-
+    -- nanoFIP output to FIELDRIVE
+    fd_rstn_o :           out std_logic      --! FIELDRIVE reset, active low
+       );
 end entity reset_logic;
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
---! ARCHITECTURE OF reset_logic
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+
+
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 architecture rtl of reset_logic is
 
-  signal s_rstin_buff : std_logic_vector(1 downto 0);
-  signal s_rst_c, s_rstin_c : unsigned(4 downto 0);
-  signal s_reload_rst_c, rst_o2, s_rstin_c_start, s_reset : std_logic;
-  
+  signal s_rst : std_logic;
+  signal s_rstin_buff : std_logic_vector(2 downto 0);
+  signal s_rstin_c : unsigned(4 downto 0) := (others=>'0'); -- counter init for simulation purpuses
+ 
+
+--=================================================================================================
+--                                      architecture begin
+--================================================================================================= 
   begin
 
-    process(s_rstin_buff,var_i)
-    begin
-      if (var_i = c_var_array(c_reset_var_pos).var) then 
-        s_reload_rst_c <= '1';
-      else
-        s_reload_rst_c <=   s_rstin_buff(s_rstin_buff'left);
-      end if;
-    end process;
-
-  process(uclk_i)
+---------------------------------------------------------------------------------------------------
+--!@brief Synchronous process rstin_synchronisation: Synchronisation of the input signal signal
+--! rstin with a triple buffer.
+ 
+  rstin_synchronisation: process (uclk_i)
   begin
     if rising_edge(uclk_i) then
 
-        s_rstin_buff <= s_rstin_buff(0) & (not rstin_i);
+      s_rstin_buff <= s_rstin_buff(1 downto 0) & (not rstin_i); -- synchronisation buffer for input 
+                                                                --  rstin, active high                                                             
+    end if;
+  end process;
 
-        if (s_reload_rst_c = '1') then 
-          s_rst_c <=  to_unsigned(0, s_rst_c'length);
 
-        elsif  s_rst_c(s_rst_c'left) = '0' then
-          s_rst_c <=  s_rst_c + 1;
-        
-        end if;
-
-        rst_o <=  not s_rst_c(s_rst_c'left);
-        rston_o <=  s_rst_c(s_rst_c'left);
-        fd_rst_o <= s_rst_c(s_rst_c'left);
 ---------------------------------------------------------------------------------------------------
---        if (s_rstin_buff(0) = '1') and (s_rstin_buff(1) /= '1') then
---         s_rstin_c_start <= '1';
---          s_rstin_c <= to_unsigned(0, s_rstin_c'length); 
---        end if;   
+--!@brief Synchronous process s_rst_creation: the process follows the (buffered) input signal rstin 
+--! and confirms that it stays active for more than 16 uclk cycles;
+--! if so, it enables the signal s_rst to follow it.
 
---        if s_rstin_c_start = '1' then        
---          if rstin_i = '0' then
---            s_rstin_c <= s_rstin_c+1;
---          end if; 
---        end if;
+  s_rst_creation: process (uclk_i)
+  begin
+    if rising_edge(uclk_i) then
+ 
+      if (s_rstin_buff(2) = '1')  then              -- when the rstin in ON
+        if (s_rstin_c(s_rstin_c'left) = '0')  then  -- counter counts until 16 (then stays at 16)
+          s_rstin_c <= s_rstin_c+1;
+        end if;
+ 
+      else                                          -- when the reset is OFF
+        s_rstin_c <= (others => '0');               -- counter reinitialised
+      end if;
 
---        if s_rstin_c(s_rstin_c'left) = '1' then
---          s_rstin_c_start <='0';
---          s_reset <= rstin_i;
---        else
---          s_reset <= '1';          
---        end if;
+-------------------------------------------------
 
---        rst_o2 <= not (s_reset);
+      if (s_rstin_c(s_rstin_c'left) = '1')  then    -- if rstin was ON for at least 16 uclk ticks
+        s_rst <= s_rstin_buff(2);                   -- the signal s_rs starts following rstin
 
+      else                                          
+        s_rst <= '0';                               -- otherwise it stays to 0
+      end if;
 
     end if;
   
 end process;
 
 
+---------------------------------------------------------------------------------------------------
+--!@brief Synchronous process Reset_Outputs: definitions of the three reset outputs: 
+--! rston_o: user interface reset, active low; active when a reset variable is received and the 2nd
+--! byte contains the station address.
+--! The signal reset_RSTON stays asserted until the end of the transmission of the rp_dat frame
+
+--! nFIP_rst_o: nanoFIP internal reset, active high;active when rstin is active or when a reset variable
+--! is received and the 1st byte contains the station address.
+--!The signal reset_nFIP_and_FD stays asserted until the end of the transmission of the rp_dat frame
+
+--! fd_rstn_o: fieldrive reset, active low; active when a reset variable is received and the 1st
+--! byte contains the station address.
+--! The signal reset_nFIP_and_FD_i stays asserted until a new variable for this station is received
+ 
+  Reset_Outputs: process (uclk_i)
+  begin
+    if rising_edge(uclk_i) then
+
+      rston_o <=  not reset_RSTON_i; 
+      nFIP_rst_o <= s_rst or reset_nFIP_and_FD_i;
+      fd_rstn_o <= not (s_rst or reset_nFIP_and_FD_i);                                                       
+    end if;
+  end process;
+
+
 end architecture rtl;
--------------------------------------------------------------------------------
---                          E N D   O F   F I L E
--------------------------------------------------------------------------------
+--=================================================================================================
+--                                      architecture end
+--=================================================================================================
+---------------------------------------------------------------------------------------------------
+--                                    E N D   O F   F I L E
+---------------------------------------------------------------------------------------------------

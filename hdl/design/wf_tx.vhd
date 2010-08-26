@@ -1,143 +1,151 @@
 --=================================================================================================
 --! @file wf_tx.vhd
---! @brief Serialises the WorldFIP data
 --=================================================================================================
---! Standard library
+
+--! standard library
 library IEEE;
---! Standard packages
-use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
-use IEEE.NUMERIC_STD.all;    --! conversion functions
 
-use work.wf_package.all;
+--! standard packages
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
 
---eva: line 188 next state: crc instead of last_byte!
----------------------------------------------------------------------------------------------------
---                                                                           --
---                                 wf_tx                                 --
---                                                                           --
---                               CERN, BE/CO/HT                              --
---                                                                           --
----------------------------------------------------------------------------------------------------
---
--- unit name: wf_tx
---
---! @brief Serialises the WorldFIP data.
---!
---! Used in the NanoFIP design. \n
---! This unit serializes the data.
---!
---!
---! @author       Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!
---! @date 10/08/2009
---
---! @version v0.01
---
---! @details 
---!
---! <b>Dependencies:</b>\n
---! wf_engine           \n
---! tx_engine           \n
---! clk_gen             \n
---! reset_logic         \n
---! consumed_ram        \n
---!
---!
---! <b>References:</b>\n
---! 
---! 
---!
---! <b>Modified by:</b>\n
---! Author: Erik van der Bij
---!         Pablo Alvarez Sanchez
----------------------------------------------------------------------------------------------------
---! \n\n<b>Last changes:</b>\n
---! 07/08/2009  v0.02  PAAS Entity Ports added, start of architecture content
---!
----------------------------------------------------------------------------------------------------
---! @todo Define I/O signals \n
---!
----------------------------------------------------------------------------------------------------
+--! specific packages
+use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
 
+---------------------------------------------------------------------------------------------------
+--                                                                                               --
+--                                            wf_tx                                              --
+--                                                                                               --
+--                                        CERN, BE/CO/HT                                         --
+--                                                                                               --
+---------------------------------------------------------------------------------------------------
+--
+-- unit name:  wf_tx
+--
+--
+--! @brief     Serialises the WorldFIP data.
+--
+--
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--
+--
+--! @date 07/2010
+--
+--
+--! @version v0.03
+--
+--! @details\n 
+--
+--!   \n<b>Dependencies:</b>\n
+--!     wf_engine           \n
+--!     tx_engine           \n
+--!     clk_gen             \n
+--!     reset_logic         \n
+--!     consumed_ram        \n
+--
+--
+--!   \n<b>Modified by:</b>\n
+--!     Erik van der Bij     \n
+--!     Pablo Alvarez Sanchez \n
+--!     Evangelia Gousiou      \n
+--
+---------------------------------------------------------------------------------------------------
+--
+--!   \n\n<b>Last changes:</b>\n
+--!     -> v0.02  PAS Entity Ports added, start of architecture content
+--!     -> v0.03  EG  timing changes; tx_clk_p_buff_i got 1 more bit
+--!                      briefly add_offset_i needed to arrive 1 clock tick earlier       
+--
+---------------------------------------------------------------------------------------------------
+--
+--! @todo -> comments!!
+--
+---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
---! Entity declaration for wf_tx_rx
+--!                               Entity declaration for wf_tx_rx
 --=================================================================================================
 entity wf_tx is
   generic(
-    C_CLKFCDLENTGTH :  natural := 3 );
+    C_CLKFCDLENTGTH :  natural := 4 );
   port (
-  -- Inputs 
+  -- INPUTS 
     -- user interface general signals 
-    uclk_i :          in std_logic; --! 40MHz clock
-    rst_i :           in std_logic; --! global reset
+    uclk_i :            in std_logic; --! 40MHz clock
+
+    -- Signal from the reset_logic unit
+    nFIP_rst_i :        in std_logic; --! internal reset
     
-    -- signals from the wf_engine_control
-    start_produce_p_i :  in std_logic; --! indication that wf_engine_control is in prod_watchdog state 
-                                    -- a correct id_dat asking for a produced var has been 
-                                    -- received and ............ 
-    byte_ready_p_i :  in std_logic; --! indication that a byte is ready to be delivered   
-    last_byte_p_i :   in std_logic; --! indication that it is the last byte of data
-                                    --  crc bytes follow
+    -- Signals from the wf_engine_control
+    start_produce_p_i : in std_logic; --! indication that wf_engine_control is in prod_watchdog state 
+                                      -- a correct id_dat asking for a produced var has been 
+                                      -- received and ............ 
+    byte_ready_p_i :    in std_logic; --! indication that a byte is ready to be delivered   
+    last_byte_p_i :     in std_logic; --! indication that it is the last byte of data
+                                      --  crc bytes follow
 
-    -- signals from the wf_produced_vars
-    byte_i :          in std_logic_vector(7 downto 0); --! byte of data to be delivered 
+    -- Signals from the wf_produced_vars
+    byte_i :            in std_logic_vector(7 downto 0); --! byte of data to be delivered 
 
-     -- signal from the wf_rx_tx_osc    
-    tx_clk_p_buff_i : in std_logic_vector(C_CLKFCDLENTGTH-1 downto 0);--!clk for transmission synch
+     -- Signal from the wf_rx_tx_osc    
+    tx_clk_p_buff_i :   in std_logic_vector(C_CLKFCDLENTGTH-1 downto 0);--!clk for transmission synch
                                                                                       -- ronization 
 
-  -- Outputs
+  -- OUTPUTS
 
-    -- signal to wf_engine_control
-    request_byte_p_o :out std_logic;
+    -- Signal to wf_engine_control
+    request_byte_p_o :  out std_logic;
 
     -- nanoFIP output signals
-    tx_data_o :       out std_logic;
-    tx_enable_o :     out std_logic
+    tx_data_o :         out std_logic;
+    tx_enable_o :       out std_logic
     );
 
 end entity wf_tx;
 
 
 
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
---! ARCHITECTURE OF wf_tx_rx
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 architecture rtl of wf_tx is
+
 
   type tx_state_t  is (idle, send_fss, send_data_byte, send_crc_bytes, send_queue);
 
-  signal tx_state, nx_tx_state : tx_state_t;
+  signal tx_state, nx_tx_state :               tx_state_t;
 
-  signal s_pointer, s_top_pointer : unsigned(4 downto 0);
-  signal s_manchester_byte : std_logic_vector(15 downto 0);
-  signal s_load_pointer, s_decr_pointer, s_pointer_is_zero, s_pointer_is_one : std_logic;
-  signal s_data_bit, s_tx_enable : std_logic;
-  signal s_byte : std_logic_vector(7 downto 0);
-  signal s_d_to_crc_rdy_p : std_logic;
-  signal s_crc : std_logic_vector(15 downto 0);
-  signal s_manchester_crc : std_logic_vector(31 downto 0);
-  signal s_start_crc_p : std_logic;
-  signal s_nx_data_to_crc, s_tx_finished_p : std_logic;
+  signal s_start_crc_p :                       std_logic;
+  signal s_d_to_crc_rdy_p :                    std_logic;
+  signal s_data_bit, s_tx_enable :             std_logic;
+  signal s_load_pointer, s_decr_pointer :      std_logic;
+  signal s_nx_data_to_crc, s_tx_finished_p :   std_logic;
+  signal s_pointer_is_zero, s_pointer_is_one : std_logic;
+  signal s_byte :                              std_logic_vector(7 downto 0);
+  signal s_manchester_crc :                    std_logic_vector(31 downto 0);
+  signal s_crc, s_manchester_byte :            std_logic_vector(15 downto 0);
+  signal s_pointer, s_top_pointer :            unsigned(4 downto 0);
+
+
+--=================================================================================================
+--                                      architecture begin
+--=================================================================================================  
 begin
 
 ---------------------------------------------------------------------------------------------------
  --!@brief instantiation of the crc calculator unit 
- uwf_crc : wf_crc 
+  crc_generation: wf_crc 
     generic map( 
-      c_poly_length => 16)
+      c_GENERATOR_POLY_length => 16)
     port map(
       uclk_i => uclk_i,
-      rst_i => rst_i,
-      start_p_i => s_start_crc_p,
-      d_rdy_p_i  => s_d_to_crc_rdy_p,
-      d_i  => s_nx_data_to_crc,
+      nFIP_rst_i => nFIP_rst_i,
+      start_crc_p_i => s_start_crc_p,
+      data_bit_ready_p_i  => s_d_to_crc_rdy_p,
+      data_bit_i  => s_nx_data_to_crc,
       crc_o  => s_crc,
-      crc_rdy_p_o => open,
       crc_ok_p => open
       );
 
@@ -220,7 +228,7 @@ begin
   Transmitter_FSM_Sync: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if rst_i = '1' then
+      if nFIP_rst_i = '1' then
         tx_state <= idle;
       else
         tx_state <= nx_tx_state;
@@ -247,7 +255,7 @@ begin
                            end if;
 
       when send_fss =>
-                           if s_pointer_is_zero = '1'  and  tx_clk_p_buff_i(2) = '1' then
+                           if s_pointer_is_zero = '1'  and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1) = '1' then -- was 2
                              nx_tx_state <= send_data_byte;
                            else
                              nx_tx_state <= send_fss;
@@ -261,14 +269,14 @@ begin
                            end if;
 
       when send_crc_bytes =>
-                           if s_pointer_is_zero = '1' and  tx_clk_p_buff_i(1) = '1' then
+                           if s_pointer_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then -- was 1
                              nx_tx_state <= send_queue;
                            else
                              nx_tx_state <= send_crc_bytes;
                            end if;
 
       when send_queue =>
-                           if s_pointer_is_zero = '1' and  tx_clk_p_buff_i(1) = '1' then
+                           if s_pointer_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then -- was 1
                              nx_tx_state <= idle;
                            else
                              nx_tx_state <= send_queue;
@@ -314,7 +322,7 @@ begin
       when send_fss =>
                            s_tx_enable <= '1';                -- data being sent;transmitter enabld
 
-                           s_decr_pointer <= tx_clk_p_buff_i(2);-- 
+                           s_decr_pointer <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);-- was 2
 
                            s_data_bit <= FSS ( to_integer (s_pointer) ); -- 31 predefined manchester
                                                               -- encoded bits
@@ -330,11 +338,11 @@ begin
                                                               -- sent at the next state: 
                                                               -- 1 byte: 16 manchester encoded bits
 
-                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(2); 
+                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
                                                               -- pointer loaded at
                                                               -- the end of this state
 
-                           s_start_crc_p <= s_pointer_is_zero and  tx_clk_p_buff_i(2);
+                           s_start_crc_p <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);   --was 2
 
                            s_tx_finished_p <= '0';
 
@@ -342,17 +350,17 @@ begin
       when send_data_byte  => 
                            s_tx_enable <= '1';                  -- data being sent;transmitter enabld
 
-                           s_decr_pointer <= tx_clk_p_buff_i (2);-- 
+                           s_decr_pointer <= tx_clk_p_buff_i (C_CLKFCDLENTGTH-1); -- was 2
 
                            s_data_bit <= s_manchester_byte (to_integer (resize ( s_pointer, 4 ))); -- 16 manchester encoded bits
 
                            s_top_pointer <= to_unsigned ( 15, s_pointer'length ); 
 
-                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(2);
+                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  --was 2
 
-                           s_d_to_crc_rdy_p <= tx_clk_p_buff_i(2) and s_pointer(0);
+                           s_d_to_crc_rdy_p <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1) and s_pointer(0);  -- was 2
 
-                           request_byte_p_o <= s_pointer_is_zero and  tx_clk_p_buff_i(0);
+                           request_byte_p_o <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-4);
 
                            s_start_crc_p <= '0';
 
@@ -361,8 +369,8 @@ begin
 
        when send_crc_bytes =>
                            s_top_pointer <=to_unsigned(s_manchester_crc'length-1,s_pointer'length); 
-                           s_load_pointer <= s_pointer_is_zero and tx_clk_p_buff_i(2);
-                           s_decr_pointer <= tx_clk_p_buff_i(2);
+                           s_load_pointer <= s_pointer_is_zero and tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
+                           s_decr_pointer <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
                            s_data_bit <= s_manchester_crc(to_integer(resize(s_pointer,5))); -- crc: 31 manchester encoded bits
                            s_tx_enable <= '1';
 
@@ -377,11 +385,11 @@ begin
 
       when send_queue =>
                            s_top_pointer <= to_unsigned ( FRAME_END'length - 1, s_pointer'length ); 
-                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(2);
-                           s_decr_pointer <= tx_clk_p_buff_i(2);
+                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
+                           s_decr_pointer <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
                            s_data_bit <= FRAME_END(to_integer(resize(s_pointer,4))); -- Frame_End 16 manchester encoded bits
                            s_tx_enable <= '1';
-                           s_tx_finished_p <= s_pointer_is_zero and  tx_clk_p_buff_i(1);
+                           s_tx_finished_p <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2);  -- was 1
 
                            s_d_to_crc_rdy_p <= '0';
                            request_byte_p_o <= '0';
@@ -398,7 +406,7 @@ begin
   process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if rst_i = '1' then
+      if nFIP_rst_i = '1' then
         s_byte <= (others => '0');
       else      
         if byte_ready_p_i = '1' then
@@ -444,11 +452,11 @@ begin
   Bits_Delivery: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if rst_i = '1' then
+      if nFIP_rst_i = '1' then
         tx_data_o <= '0';
         tx_enable_o <= '0';
       else
-        if  tx_clk_p_buff_i(0) = '1' then
+        if  tx_clk_p_buff_i(C_CLKFCDLENTGTH-3) = '1' then -- was 0
           tx_data_o <= s_data_bit;
         end if;
       tx_enable_o <= s_tx_enable;
@@ -463,7 +471,7 @@ begin
   Outgoing_Bits_Pointer: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if rst_i = '1' then
+      if nFIP_rst_i = '1' then
         s_pointer <= (others => '0');
       else
 
@@ -480,7 +488,11 @@ begin
   s_pointer_is_zero <= '1' when s_pointer = to_unsigned(0,s_pointer'length) else '0';
   s_pointer_is_one <= '1' when s_pointer = to_unsigned(1,s_pointer'length) else '0';
 
+
 end architecture rtl;
+--=================================================================================================
+--                                      architecture end
+--=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                          E N D   O F   F I L E
+--                                    E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

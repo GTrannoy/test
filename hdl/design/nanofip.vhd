@@ -1,28 +1,32 @@
---===========================================================================
+--=================================================================================================
 --! @file nanofip.vhd
---! @brief Top level design file of nanofip
---===========================================================================
---! Standard library
+--=================================================================================================
+
+--! standard library
+library IEEE;
+
+--! standard packages
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
+
+--! specific packages
+use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
+
 --library synplify;
 --use synplify.attributes.all;
 
-library IEEE;
---! Standard packages
-use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
-use IEEE.NUMERIC_STD.all;    --! conversion functions
 
-use work.wf_package.all;
 --syn_translate on
 --library synplify;
 --syn_translate off
 
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------- 
 --                                                                           --
 --                                   nanofip                                 --
 --                                                                           --
 --                               CERN, BE/CO/HT                              --
 --                                                                           --
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------- 
 --
 -- unit name: nanofip (nanofip / nanofip)
 --
@@ -71,183 +75,105 @@ use work.wf_package.all;
 --!
 --! <b>Modified by:</b>\n
 --! Author: Erik van der Bij
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------- 
 --! \n\n<b>Last changes:</b>\n
 --! 30/06/2009  v0.010  EB  First version \n
 --! 06/07/2009  v0.011  EB  Dummy blocks  \n
 --! 07/07/2009  v0.011  EB  Comments      \n
 --!
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------- 
 --! @todo Create entity \n
 --
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------- 
 
 --! @brief Top level design file of nanofip
---============================================================================
---============================================================================
---! Entity declaration for nanofip
---============================================================================
---============================================================================
+
+--=================================================================================================
+--!                           Entity declaration for nanoFIP
+--=================================================================================================
 
 entity nanofip is
 
   port (
--------------------------------------------------------------------------------
 -- WorldFIP settings
--------------------------------------------------------------------------------
-    --! Bit rate         \n
-    --! 00: 31.25 kbit/s \n
-    --! 01: 1 Mbit/s     \n
-    --! 10: 2.5 Mbit/s   \n
-    --! 11: reserved, do not use
     rate_i    : in  std_logic_vector (1 downto 0); --! Bit rate
 
-    --! Subscriber number coding. Station address.
     subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
 
-    --! Identification selection (see M_ID, C_ID)
     s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
-
-    --! Identification variable settings. 
-    --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
-    --! obtain different values for the Model data (i=0,1,2,3).\n
-    --! M_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
-    --! Model [2*i]            0    1    0    1                \n
-    --! Model [2*i+1]          0    0    1    1
     m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
-
-    --! Constructor identification settings.
-    --! Connect the ID inputs either to Gnd, Vcc, S_ID[0] or S_ID[1] to 
-    --! obtain different values for the Model data (i=0,1,2,3).\n
-    --! C_ID[i] connected to: Gnd S_ID0 SID1 Vcc               \n
-    --! Constructor[2*i]       0    1    0    1                \n
-    --! Constructor[2*i+1]     0    0    1    1
     c_id_i    : in  std_logic_vector (3 downto 0); --! Constructor identification settings
-
-    --! Produced variable data length \n
-    --! 000: 2 Bytes                  \n
-    --! 001: 8 Bytes                  \n
-    --! 010: 16 Bytes                 \n
-    --! 011: 32 Bytes                 \n
-    --! 100: 64 Bytes                 \n
-    --! 101: 124 Bytes                \n
-    --! 110: reserved, do not use     \n
-    --! 111: reserved, do not use     \n
-    --! Actual size: +1 NanoFIP Status byte +1 MPS Status byte (last transmitted) 
-    --! Note: when SLONE=Vcc, p3_lgth_i should be set to 000.
     p3_lgth_i : in  std_logic_vector (2 downto 0); --! Produced variable data length
 
-
--------------------------------------------------------------------------------
+ 
 --  FIELDRIVE connections
--------------------------------------------------------------------------------
+
     fd_rstn_o : out std_logic; --! Initialisation control, active low
     fd_wdgn_i : in  std_logic; --! Watchdog on transmitter
     fd_txer_i : in  std_logic; --! Transmitter error
     fd_txena_o: out std_logic; --! Transmitter enable
     fd_txck_o : out std_logic; --! Line driver half bit clock
     fx_txd_o  : out std_logic; --! Transmitter data
- --   fx_rxa_i  : inout  std_logic; --! Reception activity detection
+    fx_rxa_i  : in  std_logic; --! Reception activity detection
     fx_rxd_i  : in  std_logic; --! Receiver data
 
-
--------------------------------------------------------------------------------
+ 
 --  USER INTERFACE, General signals
--------------------------------------------------------------------------------
+ 
     uclk_i    : in  std_logic; --! 40 MHz clock
-
-    --! Stand-alone mode
-    --! If connected to Vcc, disables sending of NanoFIP status together with 
-    --! the produced data.
     slone_i   : in  std_logic; --! Stand-alone mode
-
-    --! No NanoFIP status transmission
-    --! If connected to Vcc, disables sending of NanoFIP status together with 
-    --! the produced data.
     nostat_i  : in  std_logic; --! No NanoFIP status transmission
 
     rstin_i   : in  std_logic; --! Initialisation control, active low
 
-    --! Reset output, active low. Active when the reset variable is received 
-    --! and the second byte contains the station address.
     rston_o   : out std_logic; --! Reset output, active low
 
 
--------------------------------------------------------------------------------
---  USER INTERFACE, non WISHBONE
--------------------------------------------------------------------------------
 
-    --! Signals new data is received and can safely be read (Consumed 
-    --! variable 05xyh). In stand-alone mode one may sample the data on the 
-    --! first clock edge VAR1_RDY is high.
+--  USER INTERFACE, non WISHBONE
+
     var1_rdy_o: out std_logic; --! Variable 1 ready
 
-    --! Signals that the user logic is accessing variable 1. Only used to 
-    --! generate a status that verifies that VAR1_RDY was high when 
-    --! accessing. May be grounded.
     var1_acc_i: in  std_logic; --! Variable 1 access
-
-    --! Signals new data is received and can safely be read (Consumed 
-    --! broadcast variable 04xyh). In stand-alone mode one may sample the 
-    --! data on the first clock edge VAR1_RDY is high.
     var2_rdy_o: out std_logic; --! Variable 2 ready
-
-    --! Signals that the user logic is accessing variable 2. Only used to 
-    --! generate a status that verifies that VAR2_RDY was high when 
-    --! accessing. May be grounded.
     var2_acc_i: in  std_logic; --! Variable 2 access
-
-    --! Signals that the variable can safely be written (Produced variable 
-    --! 06xyh). In stand-alone mode, data is sampled on the first clock after
-    --! VAR_RDY is deasserted.
     var3_rdy_o: out std_logic; --! Variable 3 ready
-
-    --! Signals that the user logic is accessing variable 3. Only used to 
-    --! generate a status that verifies that VAR3_RDY was high when 
-    --! accessing. May be grounded.
     var3_acc_i: in  std_logic; --! Variable 3 access
 
- --   dummy_o : out std_logic;
--------------------------------------------------------------------------------
 --  USER INTERFACE, WISHBONE SLAVE
--------------------------------------------------------------------------------
-    wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
 
-    --! Data in. Wishbone access only on bits 7-0. Bits 15-8 only used
-    --! in stand-alone mode.
+    wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
     dat_i     : in  std_logic_vector (15 downto 0); --! Data in
 
-    --! Data out. Wishbone access only on bits 7-0. Bits 15-8 only used
-    --! in stand-alone mode.
     dat_o     : out std_logic_vector (15 downto 0); --! Data out
-    --  dat_i     : in  std_logic_vector(15 downto 0);
     adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
     rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
     stb_i     : in  std_logic; --! Strobe
     ack_o     : out std_logic; --! Acknowledge
- --   cyc_i     : inout std_logic;
+    cyc_i     : in std_logic;
     we_i      : in  std_logic  --! Write enable
 
     );
+
+ -- attribute syn_keep of fx_rxa_i : signal is true;
+ -- attribute syn_preserve of fx_rxa_i : signal is true;
 
 --    attribute syn_insert_buffer : string;
 --attribute syn_insert_buffer of wclk_i : signal is "GL25";
 
 end entity nanofip;
---============================================================================
+--=================================================================================================
 -- end of entity declaration
---============================================================================
+--=================================================================================================
 
 
-
---============================================================================
---============================================================================
---! architecture declaration for nanofip
---============================================================================
---============================================================================
+--=================================================================================================
+--!                                  architecture declaration
+--=================================================================================================
 
 --! Architecture contains only connectivity
 architecture struc of nanofip is
+
 --=================================================================================================
 -- TMR
 
@@ -291,20 +217,24 @@ architecture struc of nanofip is
   signal s_wb_d_d : std_logic_vector(15 downto 0);
   signal s_m_id_dec_o, s_c_id_dec_o : std_logic_vector(7 downto 0);
   signal s_stb_d, s_we_d : std_logic;
+  signal s_reset_nFIP_and_FD, s_reset_rston : std_logic;
   signal s_adr_d : std_logic_vector ( 9 downto 0);
 
 begin
+--=================================================================================================
+--                                      architecture begin
+--=================================================================================================  
 
 ---------------------------------------------------------------------------------------------------
   ureset_logic : reset_logic 
     port map(
       uclk_i => uclk_i,
       rstin_i => rstin_i,
+      reset_nFIP_and_FD_i => s_reset_nFIP_and_FD,
+      reset_RSTON_i => s_reset_rston,
       rston_o => rston_o,
-
-      var_i => s_var_from_control, 
-      rst_o => s_rst, 
-      fd_rst_o => fd_rstn_o  
+      nFIP_rst_o => s_rst, 
+      fd_rstn_o => fd_rstn_o  
       );
 ---------------------------------------------------------------------------------------------------
 
@@ -313,7 +243,7 @@ begin
 
     port map(
       uclk_i    => uclk_i,
-      rst_i     => s_rst, 
+      nFIP_rst_i     => s_rst, 
       start_produce_p_o => s_start_send_p , 
       request_byte_p_i => s_request_byte_from_tx_p, 
       byte_ready_p_o => s_byte_to_tx_ready_p, 
@@ -334,21 +264,15 @@ begin
       append_status_o  => s_append_status_from_control,
       add_offset_o => s_add_offset_from_control,
       data_length_o => s_data_length_from_control,
-      cons_byte_we_p_o => s_cons_byte_we_from_control
+      consume_byte_p_o => s_cons_byte_we_from_control
       );
----------------------------------------------------------------------------------------------------
-
-      var1_rdy_o <= s_var1_rdy;  --! Variable 1 ready
-      var2_rdy_o <= s_var2_rdy; --! Variable 2 ready
-      var3_rdy_o <= s_var3_rdy; --! Variable 3 ready
-
 ---------------------------------------------------------------------------------------------------
 
   uwf_tx_rx : wf_tx_rx 
 
     port map(
       uclk_i => uclk_i,
-      rst_i => s_rst,
+      nFIP_rst_i => s_rst,
       start_produce_p_i  => s_start_send_p,
       request_byte_p_o  => s_request_byte_from_tx_p,
       byte_ready_p_i  => s_byte_to_tx_ready_p,
@@ -373,18 +297,21 @@ begin
 
     port map(
       uclk_i => uclk_i,
-      rst_i  => s_rst, 
+      nFIP_rst_i  => s_rst, 
       slone_i   => slone_i,
+      subs_i => subs_i,
       byte_ready_p_i  => s_cons_byte_we_from_control,
       var_i  => s_var_from_control,
       add_offset_i  => s_add_offset_from_control,
       byte_i  => s_byte_from_rx,
+      wb_rst_i => rst_i,
       wb_clk_i => wclk_i,   
       wb_data_o => dat_o,   
       wb_adr_i => s_adr_d,   
       wb_stb_p_i => s_stb_d,   
-      wb_ack_p_o => s_ack_consumed,   
-      wb_we_p_i => s_we_d
+      wb_ack_cons_p_o => s_ack_consumed,   
+      reset_nFIP_and_FD_o => s_reset_nFIP_and_FD, 
+      reset_RSTON_o => s_reset_rston
       );
 ---------------------------------------------------------------------------------------------------
 
@@ -392,25 +319,26 @@ begin
 
     port map(
       uclk_i  => uclk_i, 
-      rst_i => s_rst,  
+      nFIP_rst_i => s_rst,  
       m_id_dec_i  => s_m_id_dec_o, 
       c_id_dec_i => s_c_id_dec_o,
       slone_i  => slone_i,  
       nostat_i => nostat_i, 
-      subs_i => subs_i, 
       sending_mps_o => s_sending_mps, 
-      stat_i => s_stat,  
-      mps_i => s_mps,
+      nFIP_status_byte_i => s_stat,  
+      mps_byte_i => s_mps,
       var_i => s_var_from_control,  
       append_status_i => s_append_status_from_control,  
       add_offset_i => s_add_offset_from_control,  
       data_length_i => s_data_length_from_control,  
       byte_o => s_byte_to_tx,
-      wb_data_i => s_wb_d_d,   
+      wb_rst_i => rst_i, 
+      data_i => s_wb_d_d,   
       wb_clk_i => wclk_i,   
       wb_adr_i => s_adr_d,   
-      wb_stb_p_i => s_stb_d,   
-      wb_ack_p_o => s_ack_produced,   
+      wb_stb_p_i => s_stb_d, 
+      wb_cyc_i => cyc_i,  
+      wb_ack_prod_p_o => s_ack_produced,   
       wb_we_p_i => s_we_d
       );
 ---------------------------------------------------------------------------------------------------
@@ -418,11 +346,12 @@ begin
   ustatus_gen : status_gen 
     port map(
       uclk_i => uclk_i,
-      rst_i => s_rst,
+      nFIP_rst_i => s_rst,
+      slone_i => slone_i,
       fd_wdgn_i => fd_wdgn_i,
       fd_txer_i => fd_txer_i,
       code_violation_p_i => s_code_violation_p,
-      crc_bad_p_i => s_crc_bad_p,
+      crc_wrong_p_i => s_crc_bad_p,
       var1_rdy_i => s_var1_rdy,
       var2_rdy_i => s_var2_rdy,
       var3_rdy_i => s_var3_rdy,
@@ -430,15 +359,15 @@ begin
       var2_access_a_i => var2_acc_i,
       var3_access_a_i => var3_acc_i,
       reset_status_bytes_i => s_reset_status_bytes,
-      stat_o => s_stat,
-      mps_o => s_mps
+      status_byte_o => s_stat,
+      mps_byte_o => s_mps
       );
 ---------------------------------------------------------------------------------------------------
 
  Uwf_dec_m_ids : wf_dec_m_ids 
   port map(
     uclk_i        => uclk_i,
-    rst_i         => s_rst,
+    nFIP_rst_i         => s_rst,
     s_id_o        => s_id_o,
     m_id_dec_o    => s_m_id_dec_o,
     c_id_dec_o    => s_c_id_dec_o,
@@ -448,36 +377,35 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-process(wclk_i)
+
+WISHBONE_input_signals_buffering: process(wclk_i)
 begin
  if rising_edge(wclk_i) then
-      if rst_i = '1' then
-         s_wb_d_d <= (others => '0');
-         s_stb_d <= '0';
-         s_we_d <= '0';
-         s_adr_d <= (others => '0');
-      else
-         s_wb_d_d <= dat_i;
-         s_stb_d <= stb_i;
-         s_we_d <= we_i;
-         s_adr_d <= adr_i;
-      end if;
+   if rst_i = '1' then -- reset not buffered to comply with WISHBONE rule 3.15
+     s_wb_d_d <= (others => '0');
+     s_stb_d <= '0';
+     s_we_d <= '0';
+     s_adr_d <= (others => '0');
+    else
+      s_wb_d_d <= dat_i;
+      s_stb_d <= stb_i;
+      s_we_d <= we_i;
+      s_adr_d <= adr_i;
+    end if;
    end if;
 end process;
 
 ---------------------------------------------------------------------------------------------------
-  ack_o <= (s_ack_produced or s_ack_consumed) and stb_i;  
+  ack_o <= (s_ack_produced or s_ack_consumed); --and stb_i;  
   s_ack_o <= s_ack_produced or s_ack_consumed;
   s_reset_status_bytes <= s_sending_mps and s_byte_to_tx_ready_p;  
---  fx_rxa_i <= 'Z';
---  cyc_i <= 'Z';
-
- -- s_id_o <= "0" & fx_rxa_i; -- I connect fx_rxa_i to s_id_o just to test the pinout
-
 
 ---------------------------------------------------------------------------------------------------
+      var1_rdy_o <= s_var1_rdy;  --! Variable 1 ready
+      var2_rdy_o <= s_var2_rdy; --! Variable 2 ready
+      var3_rdy_o <= s_var3_rdy; --! Variable 3 ready
 
-
+---------------------------------------------------------------------------------------------------
 
 end architecture struc;
 --============================================================================
