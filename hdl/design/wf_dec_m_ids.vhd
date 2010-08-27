@@ -98,10 +98,10 @@ end entity wf_dec_m_ids;
 architecture rtl of wf_dec_m_ids is
 
 
-  signal s_c, s_c_n : unsigned(8 downto 0);
+  signal s_load_val :        std_logic;
+  signal s_c, s_c_n :        unsigned(8 downto 0);
   signal s_m_even, s_m_odd : std_logic_vector(3 downto 0);
   signal s_c_even, s_c_odd : std_logic_vector(3 downto 0);
-  signal s_load_val : std_logic;
 
 
 --=================================================================================================
@@ -116,22 +116,31 @@ begin
   begin
     if rising_edge(uclk_i) then
       if nFIP_rst_i = '1' then
-       s_m_even <= (others => '0');
-        
-       s_c_even <= (others => '0');
-       s_c <= to_unsigned(0, s_c'length);
+       m_id_dec_o <= (others => '0');
+       c_id_dec_o <= (others => '0');
+       s_m_even   <= (others => '0');
+       s_m_odd    <= (others => '0');
+       s_c_odd    <= (others => '0');
+       s_c_even   <= (others => '0');
+       s_c        <= (others => '0');
+
       else
        
        s_m_odd <= m_id_i;
+       s_m_even <= s_m_odd;
+
        s_c_odd <= c_id_i;
-       s_m_even <= s_m_odd; 
        s_c_even <= s_c_odd;
+
        s_c <= s_c_n;
+
        if s_load_val = '1' then
           for I in 0 to 3 loop
-             m_id_dec_o(I*2) <= s_m_even(I);
+
+             m_id_dec_o(I*2)   <= s_m_even(I);
              m_id_dec_o(I*2+1) <= s_m_odd(I);
-             c_id_dec_o(I*2) <= s_c_even(I);
+
+             c_id_dec_o(I*2)   <= s_c_even(I);
              c_id_dec_o(I*2+1) <= s_c_odd(I);
           end loop;
         end if;
@@ -139,7 +148,7 @@ begin
     end if;
   end process;
 
-  s_id_o <= std_logic_vector(s_c((s_c'left - 1) downto (s_c'left - 2)));
+  s_id_o <= std_logic_vector(s_c((s_c'left - 1) downto (s_c'left - 2))); -- 2 msb of s_c
 
 
 end architecture rtl;

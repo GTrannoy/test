@@ -136,7 +136,7 @@ architecture rtl of wf_rx is
 
 
   signal s_frame_start_bit, s_queue_bit :                                             std_logic;
-  signal s_frame_start_correct_bit, s_frame_start_wrong_bit, s_frame_start_last_bit : std_logic;
+  signal s_frame_start_wrong_bit, s_frame_start_last_bit : std_logic;
   signal s_frame_end_detected_p, s_frame_end_detection, s_frame_end_wrong_bit :       std_logic;
   
   signal s_violation_check, s_code_violation :                                        std_logic;
@@ -569,6 +569,8 @@ end process;
          if nFIP_rst_i = '1' then
            byte_ready_p_o <= '0'; 
            s_violation_check <='0';
+           s_sample_bit_p_d1 <= '0';
+           s_sample_bit_p_d2 <= '0';
            s_rx_data_filtered_d <='0';
 
          else

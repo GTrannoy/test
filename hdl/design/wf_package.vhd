@@ -23,26 +23,26 @@ package wf_package is
   constant C_QUARTZ_PERIOD : real := 24.8;
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
   -- constants regarding the manchester coding
   constant VP : std_logic_vector(1 downto 0)   := "11";
   constant VN : std_logic_vector(1 downto 0)   := "00";
   constant ONE : std_logic_vector(1 downto 0)  := "10";
   constant ZERO : std_logic_vector(1 downto 0) := "01";
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
   -- constants regarding the ID_DAT and RP_DAT frame structure
   constant PREAMBLE :    std_logic_vector(15 downto 0) :=  ONE&ZERO&ONE&ZERO&ONE&ZERO&ONE&ZERO;
   constant FRAME_START : std_logic_vector(15 downto 0) :=  ONE&VP&VN&ONE&ZERO&VN&VP&ZERO;
   constant FRAME_END :   std_logic_vector(15 downto 0) :=  ONE&VP&VN&VP&VN&ONE&ZERO&ONE; 
   constant FSS :         std_logic_vector(31 downto 0) :=  PREAMBLE&FRAME_START;
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
   -- constants concerning the control byte of an ID_DAT and RP_DAT frames
   constant c_ID_DAT_CTRL_BYTE : std_logic_vector(7 downto 0) := "00000011";
   constant c_RP_DAT_CTRL_BYTE : std_logic_vector(7 downto 0) := "00000010";
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
   --constants concerning the nanoFIP status bits
   constant c_U_CACER_INDEX : integer := 2; 
   constant c_U_PACER_INDEX : integer := 3; 
@@ -51,13 +51,13 @@ package wf_package is
   constant c_T_TXER_INDEX :  integer := 6; 
   constant c_T_WDER_INDEX :  integer := 7; 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
   --constants concerning the MPS status bits
   constant c_REFRESHMENT_INDEX : integer :=  0; 
   constant c_SIGNIFICANCE_INDEX : integer := 2; 
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
   -- construction of a table with the timeout and silence times for each bit rate
   -- the table contains the number of uclk tick corresponding to the respone/ silence times
   type t_timeouts is 
@@ -89,18 +89,19 @@ package wf_package is
                                                    silence => integer(5160000.0/C_QUARTZ_PERIOD))
                                 );
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
   -- construction of a table for the P3_LGTH[2:0] settings
-  type t_integer_array is array (natural range <>) of integer;
+  type t_unsigned_array is array (natural range <>) of unsigned(6 downto 0);
 
-  constant c_P3_LGTH_TABLE : t_integer_array(0 to 7) := 
-    (0 => 2,
-     1 => 8,
-     2 => 16,
-     3 => 32,
-     4 => 64,
-     5 => 124,
-     others => 0);  
+  constant c_P3_LGTH_TABLE : t_unsigned_array(0 to 7) := 
+    (0 => "0000010",     -- 2 bytes
+     1 => "0001000",     -- 8 bytes
+     2 => "0010000",     -- 16 bytes
+     3 => "0100000",     -- 32 bytes
+     4 => "1000000",     -- 64 bytes 
+     5 => "1111100",     -- 124 bytes
+     others => "0000000" -- reserved
+     );  
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 
@@ -317,7 +318,7 @@ package wf_package is
       wb_adr_i :            in  std_logic_vector (9 downto 0); 
       wb_stb_p_i :          in  std_logic; 
       byte_ready_p_i :      in std_logic;
-      add_offset_i :        in std_logic_vector(6 downto 0);
+      index_offset_i :        in std_logic_vector(6 downto 0);
       var_i :               in t_var;
       byte_i :              in std_logic_vector(7 downto 0);
 
@@ -349,8 +350,7 @@ package wf_package is
       mps_byte_i :      in std_logic_vector(7 downto 0);
       var_i :           in t_var;
       data_length_i :   in std_logic_vector(6 downto 0);
-      append_status_i : in std_logic;
-      add_offset_i :    in std_logic_vector(6 downto 0);
+      index_offset_i :  in std_logic_vector(6 downto 0);
 
       sending_mps_o :   out std_logic; 
       byte_o :          out std_logic_vector(7 downto 0);
@@ -384,7 +384,6 @@ package wf_package is
       var2_rdy_o:         out std_logic; 
       var3_rdy_o:         out std_logic; 
       var_o :             out t_var;
-      append_status_o :   out std_logic;
       consume_byte_p_o :  out std_logic;
       add_offset_o :      out std_logic_vector(6 downto 0);
       data_length_o :     out std_logic_vector(6 downto 0)

@@ -55,7 +55,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n\n<b>Last changes:</b>\n
 --!     -> v0.02  PAS Entity Ports added, start of architecture content
 --!     -> v0.03  EG  timing changes; tx_clk_p_buff_i got 1 more bit
---!                      briefly add_offset_i needed to arrive 1 clock tick earlier       
+--!                      briefly index_offset_i needed to arrive 1 clock tick earlier       
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -73,25 +73,27 @@ entity wf_tx is
   port (
   -- INPUTS 
     -- user interface general signals 
-    uclk_i :            in std_logic; --! 40MHz clock
+    uclk_i :            in std_logic;  --! 40MHz clock
 
     -- Signal from the reset_logic unit
-    nFIP_rst_i :        in std_logic; --! internal reset
+    nFIP_rst_i :        in std_logic;  --! internal reset
     
     -- Signals from the wf_engine_control
-    start_produce_p_i : in std_logic; --! indication that wf_engine_control is in prod_watchdog state 
-                                      -- a correct id_dat asking for a produced var has been 
-                                      -- received and ............ 
-    byte_ready_p_i :    in std_logic; --! indication that a byte is ready to be delivered   
-    last_byte_p_i :     in std_logic; --! indication that it is the last byte of data
-                                      --  crc bytes follow
+    start_produce_p_i : in std_logic;  --! indication that wf_engine_control is in prod_watchdog state 
+                                       -- a correct id_dat asking for a produced var has been 
+                                       -- received and ............ 
+
+    byte_ready_p_i :    in std_logic;  --! indication that a byte is ready to be delivered   
+    last_byte_p_i :     in std_logic;  --! indication that it is the last byte of data
+                                       --  crc bytes follow
 
     -- Signals from the wf_produced_vars
-    byte_i :            in std_logic_vector(7 downto 0); --! byte of data to be delivered 
+    byte_i :            in std_logic_vector(7 downto 0);             
+                                       --! data byte to be delivered 
 
      -- Signal from the wf_rx_tx_osc    
-    tx_clk_p_buff_i :   in std_logic_vector(C_CLKFCDLENTGTH-1 downto 0);--!clk for transmission synch
-                                                                                      -- ronization 
+    tx_clk_p_buff_i :   in std_logic_vector(C_CLKFCDLENTGTH-1 downto 0);
+                                       --! clk for transmission synchronization 
 
   -- OUTPUTS
 
@@ -99,8 +101,8 @@ entity wf_tx is
     request_byte_p_o :  out std_logic;
 
     -- nanoFIP output signals
-    tx_data_o :         out std_logic;
-    tx_enable_o :       out std_logic
+    tx_data_o :         out std_logic; --! transmitter serial data
+    tx_enable_o :       out std_logic  --! transmitter enable
     );
 
 end entity wf_tx;
@@ -121,12 +123,12 @@ architecture rtl of wf_tx is
   signal s_d_to_crc_rdy_p :                    std_logic;
   signal s_data_bit, s_tx_enable :             std_logic;
   signal s_load_pointer, s_decr_pointer :      std_logic;
-  signal s_nx_data_to_crc, s_tx_finished_p :   std_logic;
+  signal s_tx_finished_p :                     std_logic;
   signal s_pointer_is_zero, s_pointer_is_one : std_logic;
+  signal s_pointer, s_top_pointer :            unsigned(4 downto 0);
   signal s_byte :                              std_logic_vector(7 downto 0);
   signal s_manchester_crc :                    std_logic_vector(31 downto 0);
   signal s_crc, s_manchester_byte :            std_logic_vector(15 downto 0);
-  signal s_pointer, s_top_pointer :            unsigned(4 downto 0);
 
 
 --=================================================================================================
@@ -140,31 +142,29 @@ begin
     generic map( 
       c_GENERATOR_POLY_length => 16)
     port map(
-      uclk_i => uclk_i,
-      nFIP_rst_i => nFIP_rst_i,
-      start_crc_p_i => s_start_crc_p,
-      data_bit_ready_p_i  => s_d_to_crc_rdy_p,
-      data_bit_i  => s_nx_data_to_crc,
-      crc_o  => s_crc,
-      crc_ok_p => open
+      uclk_i             => uclk_i,
+      nFIP_rst_i         => nFIP_rst_i,
+      start_crc_p_i      => s_start_crc_p,
+      data_bit_ready_p_i => s_d_to_crc_rdy_p,
+      data_bit_i         => s_data_bit,
+      crc_o              => s_crc,
+      crc_ok_p           => open
       );
-
-     s_nx_data_to_crc <= s_data_bit;
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Transmitter's state machine: the state machine is divided in three parts (a clocked 
 --! process to store the current state, a combinatorial process to manage state transitions and 
 --! finally a combinatorial process to manage the output signals), which are the 3 processes that
---! follow. The unit, 
+--! follow. 
 
---! The signal tx_clk_p_buff_i is used for the synchronization of all the transitions and actions
---! in the unit. 
+--! The signal tx_clk_p_buff_i is used for the synchronization of the transitions of the state
+--! machine as well as the actions on the output signals. 
 
 -- The following draft drawing shows the transitions of the signal tx_clk_p_buff_i with respect to
--- the transmission clock tx_clk (tx_clk is not used in this unit, but it may be used by the
--- receiver for the decoding and synchronization of the incoming data)
+-- the line driver half bit clock tx_clk.
 
 -- tx_clk:           __________|----------------|________________|----------------|_______________
+-- tx_clk_p_buff (2):          |0|0|0|1                          |0|0|0|1
 -- tx_clk_p_buff (2):          |0|0|1|0                          |0|0|1|0
 -- tx_clk_p_buff (1):          |0|1|0|0                          |0|1|0|0
 -- tx_clk_p_buff (0):          |1|0|0|0                          |1|0|0|0

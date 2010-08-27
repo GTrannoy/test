@@ -108,7 +108,6 @@ entity wf_engine_control is
     last_byte_p_o :    out std_logic;
     start_produce_p_o :   out std_logic;
     var_o :            out t_var;
-    append_status_o :  out std_logic;
     add_offset_o :     out std_logic_vector(6 downto 0);
     data_length_o :    out std_logic_vector(6 downto 0);
     consume_byte_p_o : out std_logic
@@ -137,7 +136,7 @@ architecture rtl of wf_engine_control is
   signal s_start_produce_p, s_start_produce_p_d1 :            std_logic;
   signal s_respon_silen_c_is_zero, s_broadcast_var :          std_logic;
   signal s_inc_bytes_c, s_reset_bytes_c, s_last_byte_p :      std_logic;
-  signal data_length_match, s_byte_ready_p, s_append_status : std_logic;
+  signal s_data_length_match, s_byte_ready_p :                  std_logic;
   signal s_p3_length_decoded, s_data_length :                 unsigned(6 downto 0);
   signal s_bytes_c :                                          unsigned(7 downto 0);
   signal s_respon_silen_c, s_counter_top:                     signed(16 downto 0); 
@@ -268,7 +267,7 @@ begin
                                                     s_produce_or_consume, s_start_produce_p_d1,
                                                     request_byte_p_i, s_respon_silen_c_is_zero,
                                                     byte_ready_p_i,s_response_time, s_silence_time,
-                                                    data_length_match)
+                                                    s_data_length_match)
   begin
 
     case control_st is
@@ -394,10 +393,10 @@ begin
 
 
       when produce =>
-                            s_last_byte_p <=  data_length_match and request_byte_p_i;
+                            s_last_byte_p <=  s_data_length_match and request_byte_p_i;
                             s_byte_ready_p <= request_byte_p_i or s_start_produce_p_d1;
                             s_inc_bytes_c <= request_byte_p_i;
-                            s_reset_id_dat <= data_length_match and request_byte_p_i;
+                            s_reset_id_dat <= s_data_length_match and request_byte_p_i;
                             add_offset_o <= std_logic_vector(resize(s_bytes_c, add_offset_o'length));
                             s_counter_reset <= '0';
 
@@ -497,39 +496,66 @@ begin
 ---------------------------------------------------------------------------------------------------
 --!@brief:Combinatorial process data_length_calcul_produce: calculation of the total amount of data
 --! bytes that have to be transferreed when a variable is produced, including the rp_dat.Control as
---! well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes. In the case of presence and
---! identification variables, the data length is predefined in the wf_package.
+--! well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes. In the case of the presence 
+--! and the identification variables, the data length is predefined in the wf_package.
 --! In the case of a var_3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation 
 
   data_length_calcul_produce: process ( s_var, s_p3_length_decoded, slone_i, nostat_i, p3_lgth_i )
   variable v_nostat : std_logic_vector(1 downto 0);
   begin
-    s_append_status <= not nostat_i;
-    s_data_length <= to_unsigned (0, s_data_length'length);
-    s_p3_length_decoded <= to_unsigned (c_P3_LGTH_TABLE (to_integer(unsigned(p3_lgth_i))), 
-                                                              s_p3_length_decoded'length);
+
+    s_data_length <= (others => '0');
+    s_p3_length_decoded <= c_P3_LGTH_TABLE (to_integer(unsigned(p3_lgth_i)));
+
     case s_var is
 
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package) 
       when presence_var => 
-        s_data_length<=to_unsigned(c_VARS_ARRAY(c_PRESENCE_VAR_INDEX).array_length-1,s_data_length'length);
+        s_data_length<=to_unsigned(c_VARS_ARRAY(c_PRESENCE_VAR_INDEX).array_length,s_data_length'length);
 
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package) 
       when identif_var => 
-        s_data_length<=to_unsigned(c_VARS_ARRAY(c_IDENTIF_VAR_INDEX).array_length-1,s_data_length'length);
+        s_data_length<=to_unsigned(c_VARS_ARRAY(c_IDENTIF_VAR_INDEX).array_length,s_data_length'length);
 
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+      -- data length calculation according to the operational mode (memory or stand-alone)
+
+      -- in slone mode                   2 bytes of "pure" data are produced
+      -- to these there should be added: 1 byte rp_dat.Control
+      --                                 1 byte MPS 
+      --                      optionally 1 byte nFIP status
+  
+      -- in memory mode the signal      "s_p3_length_decoded" indicates the amount of "pure" data
+      -- to these, there should be added 1 byte rp_dat.Control
+      --                                 1 byte PDU
+      --                                 1 byte Length
+      --                                 1 byte MPS 
+      --                      optionally 1 byte nFIP status  
+    
       when var_3 =>  
+
+
         if slone_i = '1' then
-          if s_append_status = '0' then
-            s_data_length <= to_unsigned(3,s_data_length'length); -- counting starts from 0 (4 bytes) -- control byte + 2 bytes data + mps
+
+          if nostat_i = '1' then
+            s_data_length <= "0000011"; -- 4 bytes (counting starts from 0)
+
           else 
-            s_data_length <= to_unsigned(4,s_data_length'length); -- counting starts from 0 (5 bytes) -- control byte + 2 bytes data + mos + nFIP status
+            s_data_length <= "0000100"; -- 5 bytes (counting starts from 0)
           end if;
 
+
         else
-          if s_append_status = '1' then
-            s_data_length <= s_p3_length_decoded + 4; -- control byte + pdu + length + data bytes + nFIP status + mps (bytes counting starts from 0)
+          if nostat_i = '0' then
+            s_data_length <= s_p3_length_decoded + 4; -- (bytes counting starts from 0)
 
            else
-            s_data_length <= s_p3_length_decoded + 3; -- control byte + pdu + length + data bytes +  mps (bytes counting starts from 0)
+            s_data_length <= s_p3_length_decoded + 3; -- (bytes counting starts from 0)
            end if;          
           end if;
 
@@ -545,8 +571,7 @@ begin
   end process;
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- output signals that have been also used in the process
-  append_status_o <= s_append_status;
-  data_length_o <= std_logic_vector(s_data_length); -- control byte+data bytes+nanoFIP status+mps status+pdu+data length (counting starts from 0)
+  data_length_o <= std_logic_vector(s_data_length);
 
  
 --------------------------------------------------------------------------------------------------- 
@@ -566,8 +591,8 @@ begin
     end if;
   end process;
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  -- when s_data_length bytes have been counted, the signal data_length_match is activated 
-  data_length_match <= '1' when s_bytes_c = s_data_length else '0'; 
+  -- when s_data_length bytes have been counted, the signal s_data_length_match is activated 
+  s_data_length_match <= '1' when s_bytes_c = s_data_length else '0'; 
 --------------------------------------------------------------------------------------------------- 
 
 -- retrieval of response and silence times information (in equivalent number of uclk ticks) from
