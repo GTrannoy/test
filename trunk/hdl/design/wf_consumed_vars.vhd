@@ -94,7 +94,7 @@ port (
 
    -- Signals for the wf_engine_control
     byte_ready_p_i :      in std_logic;
-	add_offset_i :        in std_logic_vector(6 downto 0);
+	index_offset_i :        in std_logic_vector(6 downto 0);
 	var_i :               in t_var;
 
    -- Signals for the receiver wf_rx
@@ -192,11 +192,11 @@ end process;
 --! s_rp_dat_control_byte_ok stays asserted until a new consumed variable arrives and its 
 --! rp_dat.Control byte is to be checked. The signal is used by the process Bytes_Consumption.
 
-Check_rp_dat_control_byte: process (byte_ready_p_i,add_offset_i,byte_i)
+Check_rp_dat_control_byte: process (byte_ready_p_i,index_offset_i,byte_i)
 
 begin
 
-  if ((byte_ready_p_i='1') and (add_offset_i = c_CTRL_BYTE_INDEX)) then
+  if ((byte_ready_p_i='1') and (index_offset_i = c_CTRL_BYTE_INDEX)) then
 
     if byte_i = c_ID_DAT_CTRL_BYTE then --** has to be rp!!
       s_rp_dat_control_byte_ok <= '1';
@@ -224,13 +224,13 @@ end process;
  
 --! Note: in stand-alone mode nanoFIP does not handdle the var2 broadcast variable.  
 
-Bytes_Consumption: process (var_i, add_offset_i, slone_i, byte_ready_p_i)
+Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
   begin
 
     if s_rp_dat_control_byte_ok = '1' then        -- only if the rp_dat.control byte is correct the 
                                                   -- process continues with the bytes' consumption
 
-      s_addr <= std_logic_vector(unsigned(add_offset_i)+s_base_addr);-- address in memory
+      s_addr <= std_logic_vector(unsigned(index_offset_i)+s_base_addr);-- address in memory
                                                                      -- of the byte to be
                                                                      -- written
       case var_i is 
@@ -258,11 +258,11 @@ Bytes_Consumption: process (var_i, add_offset_i, slone_i, byte_ready_p_i)
 
               s_write_byte_to_mem_p <= '0';
 
-              if add_offset_i = c_1st_byte_addr then        -- 1st byte to be transferred
+              if index_offset_i = c_1st_byte_addr then        -- 1st byte to be transferred
                 s_slone_write_byte_p(0) <= byte_ready_p_i ;					
               end if;
 
-              if add_offset_i = c_2nd_byte_addr then        -- 2nd byte to be transferred
+              if index_offset_i = c_2nd_byte_addr then        -- 2nd byte to be transferred
                 s_slone_write_byte_p(1) <= byte_ready_p_i ;		
               end if;
             end if;
@@ -299,14 +299,14 @@ Bytes_Consumption: process (var_i, add_offset_i, slone_i, byte_ready_p_i)
             s_slone_write_byte_p <= (others => '0');
             s_base_addr <= c_VARS_ARRAY(c_RESET_VAR_INDEX).base_add;-- base addr info from the wf_package
 
-            if ((byte_ready_p_i = '1')and(add_offset_i = c_1st_byte_addr)) then -- 1st byte
+            if ((byte_ready_p_i = '1')and(index_offset_i = c_1st_byte_addr)) then -- 1st byte
 
               if byte_i = subs_i then
                 reset_nFIP_and_FD_o <= '1'; -- reset_nFIP_and_FD_o stays asserted until 
               end if;                       -- the end of this rp_dat frame
                
 
-            elsif ((byte_ready_p_i='1')and(add_offset_i=c_2nd_byte_addr)) then  -- 2nd byte
+            elsif ((byte_ready_p_i='1')and(index_offset_i=c_2nd_byte_addr)) then  -- 2nd byte
 
               if byte_i = subs_i then  
                 reset_RSTON_o <= '1';       -- reset_RSTON_o stays asserted until 

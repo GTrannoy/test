@@ -189,7 +189,6 @@ architecture struc of nanofip is
   end component;
 
 
-  signal s_append_status_from_control : std_logic;
   signal s_data_length_from_control :  std_logic_vector(6 downto 0);
   signal s_byte_to_tx : std_logic_vector(7 downto 0);
   signal s_rst : std_logic;
@@ -216,7 +215,7 @@ architecture struc of nanofip is
   signal s_mps : std_logic_vector(7 downto 0);
   signal s_wb_d_d : std_logic_vector(15 downto 0);
   signal s_m_id_dec_o, s_c_id_dec_o : std_logic_vector(7 downto 0);
-  signal s_stb_d, s_we_d : std_logic;
+  signal s_stb_d, s_we_d, s_cyc_d : std_logic;
   signal s_reset_nFIP_and_FD, s_reset_rston : std_logic;
   signal s_adr_d : std_logic_vector ( 9 downto 0);
 
@@ -261,7 +260,6 @@ begin
       var2_rdy_o => s_var2_rdy, 
       var3_rdy_o => s_var3_rdy, 
       var_o  => s_var_from_control,
-      append_status_o  => s_append_status_from_control,
       add_offset_o => s_add_offset_from_control,
       data_length_o => s_data_length_from_control,
       consume_byte_p_o => s_cons_byte_we_from_control
@@ -302,7 +300,7 @@ begin
       subs_i => subs_i,
       byte_ready_p_i  => s_cons_byte_we_from_control,
       var_i  => s_var_from_control,
-      add_offset_i  => s_add_offset_from_control,
+      index_offset_i  => s_add_offset_from_control,
       byte_i  => s_byte_from_rx,
       wb_rst_i => rst_i,
       wb_clk_i => wclk_i,   
@@ -328,8 +326,7 @@ begin
       nFIP_status_byte_i => s_stat,  
       mps_byte_i => s_mps,
       var_i => s_var_from_control,  
-      append_status_i => s_append_status_from_control,  
-      add_offset_i => s_add_offset_from_control,  
+      index_offset_i => s_add_offset_from_control,  
       data_length_i => s_data_length_from_control,  
       byte_o => s_byte_to_tx,
       wb_rst_i => rst_i, 
@@ -337,7 +334,7 @@ begin
       wb_clk_i => wclk_i,   
       wb_adr_i => s_adr_d,   
       wb_stb_p_i => s_stb_d, 
-      wb_cyc_i => cyc_i,  
+      wb_cyc_i => s_cyc_d,  
       wb_ack_prod_p_o => s_ack_produced,   
       wb_we_p_i => s_we_d
       );
@@ -388,6 +385,7 @@ begin
      s_adr_d <= (others => '0');
     else
       s_wb_d_d <= dat_i;
+      s_cyc_d <= cyc_i;
       s_stb_d <= stb_i;
       s_we_d <= we_i;
       s_adr_d <= adr_i;
