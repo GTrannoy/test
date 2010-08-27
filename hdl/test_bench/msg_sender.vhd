@@ -247,7 +247,7 @@ begin
 		if reset ='1' then
 			control			<= x"00";
 			start_value		<= "0000000";
-			un_start_value	<= "0000000";
+--			un_start_value	<= "0000000";
 			var_id			<= x"00";
 			xy				<= x"00";
 		elsif launch_fip_cycle ='1' then
@@ -256,8 +256,9 @@ begin
 			else
 				control		<= x"02";
 			end if;
-			start_value			<= std_logic_vector(un_start_value);
-			un_start_value		<= unsigned(var_length) - "1";
+--			start_value			<= std_logic_vector(un_start_value);
+--			un_start_value		<= unsigned(var_length) - "1";
+			start_value			<= var_length;
 			var_id				<= var_adr;
 			xy					<= station_adr;
 		end if;

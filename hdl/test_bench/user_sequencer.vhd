@@ -64,14 +64,14 @@ begin
 		transfer_lgth		<= "000" & x"0";
 		transfer_offst		<= "000" & x"0";
 		var					<= "00";
-		wait for 20 us;
+		wait for 800 us;
 
 		block_size			<= "000" & x"0";
 		launch_wb_rd		<= '1';
 		launch_wb_wr		<= '0';
-		transfer_lgth		<= "000" & x"8";
+		transfer_lgth		<= "000" & x"4";
 		transfer_offst		<= "000" & x"0";
-		var					<= "10";
+		var					<= "01";
 		wait for 100 ns;
 
 		block_size			<= "000" & x"0";
@@ -89,6 +89,8 @@ begin
 	transfer_offset		<= transfer_offst;
 	var_id				<= var;
 	
+	var1_acc_o			<= cyc;
+--	var2_acc_o			<= cyc;
 	var3_acc_o			<= cyc;
 
 end archi;
