@@ -124,7 +124,7 @@ signal s_mem_data_out :           std_logic_vector(7 downto 0);
 signal s_slone_write_byte_p :     std_logic_vector(1 downto 0);
 signal s_slone_data_out :         std_logic_vector(15 downto 0);
 signal s_base_addr :              unsigned(8 downto 0);
-signal s_write_byte_to_mem_p:     std_logic;
+signal s_write_byte_to_mem_p, wb_ack_cons_p_o_d:     std_logic;
 signal s_rp_dat_control_byte_ok : std_logic := '0'; -- for simulation esthetics
 
 --=================================================================================================
@@ -169,21 +169,23 @@ begin
 
   if rising_edge(wb_clk_i) then
     if wb_rst_i = '1' then
-      wb_ack_cons_p_o <= '0';
+      wb_ack_cons_p_o_d <= '0';
     else
 
       if wb_adr_i(9 downto 8) = "00" then          -- checking of the 2 first bits of the address,
                                                    -- to confirm that the request to write is on
                                                    -- the Cosumed or Cosumed broadcast memory block 
 
-        wb_ack_cons_p_o <= wb_stb_p_i;             -- slave's indication: valid data available
+        wb_ack_cons_p_o_d <= wb_stb_p_i;             -- slave's indication: valid data available
 
       else
-        wb_ack_cons_p_o <= '0';
+        wb_ack_cons_p_o_d <= '0';
       end if;
     end if;
   end if;
 end process;
+
+wb_ack_cons_p_o <= wb_stb_p_i; 
 
 
 ---------------------------------------------------------------------------------------------------
@@ -198,7 +200,7 @@ begin
 
   if ((byte_ready_p_i='1') and (index_offset_i = c_CTRL_BYTE_INDEX)) then
 
-    if byte_i = c_ID_DAT_CTRL_BYTE then --** has to be rp!!
+    if byte_i = c_RP_DAT_CTRL_BYTE then
       s_rp_dat_control_byte_ok <= '1';
     else 
       s_rp_dat_control_byte_ok <= '0';
@@ -230,7 +232,7 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
     if s_rp_dat_control_byte_ok = '1' then        -- only if the rp_dat.control byte is correct the 
                                                   -- process continues with the bytes' consumption
 
-      s_addr <= std_logic_vector(unsigned(index_offset_i)+s_base_addr);-- address in memory
+      s_addr <= std_logic_vector(unsigned(index_offset_i)+s_base_addr - 2);-- address in memory
                                                                      -- of the byte to be
                                                                      -- written
       case var_i is 
@@ -247,7 +249,7 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
             -- in memory mode
             if slone_i = '0' then
 
-              s_slone_write_byte_p <= (others => '0');
+              s_slone_write_byte_p  <= (others => '0');
 
               s_write_byte_to_mem_p <= byte_ready_p_i;      -- managment of the write enable signal
                                                             -- of the Consumed memory
@@ -256,7 +258,7 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
             -- in stand-alone mode
             elsif slone_i = '1' then
 
-              s_write_byte_to_mem_p <= '0';
+              s_write_byte_to_mem_p      <= '0';
 
               if index_offset_i = c_1st_byte_addr then        -- 1st byte to be transferred
                 s_slone_write_byte_p(0) <= byte_ready_p_i ;					
@@ -316,23 +318,23 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --        
 
       when others =>
-            reset_RSTON_o <= '0'; 
-            reset_nFIP_and_FD_o <= '0';
+            reset_RSTON_o         <= '0'; 
+            reset_nFIP_and_FD_o   <= '0';
             s_write_byte_to_mem_p <= '0';
-            s_base_addr <= (others => '0');
-            s_slone_write_byte_p <= (others => '0');           
+            s_base_addr           <= (others => '0');
+            s_slone_write_byte_p  <= (others => '0');           
       end case;
 
 
 
     else                                    -- if the rp_dat.control byte is incorrect, 
                                             -- none of the incoming bytes is considered
-      reset_RSTON_o <= '0'; 
-      reset_nFIP_and_FD_o <= '0';
+      reset_RSTON_o         <= '0'; 
+      reset_nFIP_and_FD_o   <= '0';
       s_write_byte_to_mem_p <= '0';
-      s_addr <= (others => '0');
-      s_base_addr <= (others => '0');
-      s_slone_write_byte_p <= (others => '0');   
+      s_addr                <= (others => '0');
+      s_base_addr           <= (others => '0');
+      s_slone_write_byte_p  <= (others => '0');   
 
     end if;
 
@@ -350,7 +352,7 @@ Data_Transfer_To_Dat_o: process (uclk_i)
 begin
   if rising_edge(uclk_i) then
     if nFIP_rst_i = '1' then
-      wb_data_o <= (others => '0');           -- bus initialization
+      wb_data_o  <= (others => '0');           -- bus initialization
  
     else
 
@@ -359,11 +361,11 @@ begin
       if slone_i = '1' then                   -- 2 data bytes have to be transferred
  
         if s_slone_write_byte_p(0) = '1' then -- the 1st byte is written in the lsb of the bus 
-          wb_data_o(7 downto 0) <= byte_i;    -- the data stays there until a new byte arrives
+          wb_data_o(7 downto 0)   <= byte_i;  -- the data stays there until a new byte arrives
         end if;
 
         if s_slone_write_byte_p(1) = '1' then -- the 2nd byte is written in the msb of the bus
-          wb_data_o(15 downto 8) <= byte_i;   -- the data stays there until a new byte arrives
+          wb_data_o(15 downto 8)  <= byte_i;  -- the data stays there until a new byte arrives
         end if;
 
 
