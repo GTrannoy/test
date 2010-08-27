@@ -378,7 +378,7 @@ begin
                             --end if;
 
                             s_reset_id_dat <= frame_ok_p_i or s_respon_silen_c_is_zero;
-                            add_offset_o <= std_logic_vector(resize(s_bytes_c-2,add_offset_o'length));
+                            add_offset_o <= std_logic_vector(resize(s_bytes_c,add_offset_o'length));
                             s_inc_bytes_c <= byte_ready_p_i;
 
                             s_reset_bytes_c <= '0';

@@ -120,15 +120,14 @@ architecture rtl of wf_tx is
   signal tx_state, nx_tx_state :               tx_state_t;
 
   signal s_start_crc_p :                       std_logic;
-  signal s_d_to_crc_rdy_p :                    std_logic;
+  signal s_data_bit_to_crc_p :                 std_logic;
   signal s_data_bit, s_tx_enable :             std_logic;
-  signal s_load_pointer, s_decr_pointer :      std_logic;
-  signal s_tx_finished_p :                     std_logic;
-  signal s_pointer_is_zero, s_pointer_is_one : std_logic;
-  signal s_pointer, s_top_pointer :            unsigned(4 downto 0);
+  signal s_bit_index_load, s_decr_index :      std_logic;
+  signal s_bit_index_is_zero :                 std_logic;
+  signal s_bit_index, s_bit_index_top :        unsigned(4 downto 0);
   signal s_byte :                              std_logic_vector(7 downto 0);
   signal s_manchester_crc :                    std_logic_vector(31 downto 0);
-  signal s_crc, s_manchester_byte :            std_logic_vector(15 downto 0);
+  signal s_crc_byte_manch, s_byte_manch :      std_logic_vector(15 downto 0);
 
 
 --=================================================================================================
@@ -145,9 +144,9 @@ begin
       uclk_i             => uclk_i,
       nFIP_rst_i         => nFIP_rst_i,
       start_crc_p_i      => s_start_crc_p,
-      data_bit_ready_p_i => s_d_to_crc_rdy_p,
+      data_bit_ready_p_i => s_data_bit_to_crc_p,
       data_bit_i         => s_data_bit,
-      crc_o              => s_crc,
+      crc_o              => s_crc_byte_manch,
       crc_ok_p           => open
       );
 
@@ -161,67 +160,76 @@ begin
 --! machine as well as the actions on the output signals. 
 
 -- The following draft drawing shows the transitions of the signal tx_clk_p_buff_i with respect to
--- the line driver half bit clock tx_clk.
+-- the signal tx_clk (line driver half bit clock).
 
 -- tx_clk:           __________|----------------|________________|----------------|_______________
--- tx_clk_p_buff (2):          |0|0|0|1                          |0|0|0|1
+-- tx_clk_p_buff (3):          |0|0|0|1                          |0|0|0|1
 -- tx_clk_p_buff (2):          |0|0|1|0                          |0|0|1|0
 -- tx_clk_p_buff (1):          |0|1|0|0                          |0|1|0|0
 -- tx_clk_p_buff (0):          |1|0|0|0                          |1|0|0|0
 
--- idle state: signals initializations
--- jump to send_fss state after a pulse arrival from the signal start_produce_p_i (controlled by the
+
+-- tx states analysis:
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+-- "idle state": signals initializations
+
+-- jump to "send_fss" state after a pulse arrival from the signal start_produce_p_i (controlled by the
 -- wf_engine_control)
 
--- send_fss state: delivery of the manchester encoded bits of the Frame Start Sequence (including
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+-- "send_fss" state: delivery of the manchester encoded bits of the Frame Start Sequence (including
 -- preamble and Frame Start delimiter).
 -- 32 bits to be sent (2 encoded bytes)
--- bit delivery after tx_clk_p_buff (0) assertion
--- s_pointer updated after tx_clk_p_buff (2) assertion
+-- bit delivery starts after each        tx_clk_p_buff (1) assertion (Bits_Delivery process)
+-- the s_bit_index is updated after each tx_clk_p_buff (3) assertion (s_bit_index is ahead of the
+-- bit being sent)
 
--- jump to send_data_byte state after the 32nd bit delivery (after tx_clk_p_buff(0) assertion),
--- and after tx_clk_p_buff(2) assertion
+-- jump to "send_data_byte" state after the beginning of the 32nd bit delivery and after
+-- the tx_clk_p_buff(3) assertion.
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
--- send_data_byte state: delivery of manchester encoded bits of data that arrive from the
+-- "send_data_byte state": delivery of manchester encoded bits of data that arrive from the
 -- wf_produced_vars unit (byte_i), with the coordination of the wf_engine_control (byte_ready_p_i)
--- bit delivery after tx_clk_p_buff (0) assertion
--- s_pointer updated after tx_clk_p_buff (2) assertion
+-- request of a new byte on  tx_clk_p_buff (0) assertion
+-- bit delivery        after tx_clk_p_buff (1) assertion
+-- new byte available  after tx_clk_p_buff (2) assertion (to be sent on the next tx_clk_p_buff (1))
+-- s_bit_index updated after tx_clk_p_buff (3) assertion (the s_bit_index here loops several times
+--                                                       (between 0 and 16 for each byte, until the
+--                                                                      last_byte_p_i gives a pulse)
 
--- jump to send_crc_byte state after the delivery of the required bytes and the arrival of the
--- last_byte_p_i pulse (after the assertion of tx_clk_p_buff (1). a pulse on last_byte_p_i arrives
--- after a pulse on the request_byte_p_o if the number of bytes sent maches the requested one)
--- therefore, the transition to the state send_crc_byte takes places after after the assertion of
--- tx_clk_p_buff (1), which is 1 uclk tick earlier than in the previous transitions. This earlier
--- transition to the send_crc_byte state is essential in order to force the s_pointer (which is
--- considered on tx_clk_p_buff(2)) to the s_top_pointer indicated by the send_crc_byte state (31).
+-- the first data byte from the wf_produced_vars unit is already available after the assertion of the
+-- start_produce_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
+-- arrives to zero and on the assertion of the tx_clk_p_buff (0). A pulse on the request_byte signal
+-- triggers the wf_control_engine to send a new address to the memory of the produced_vars unit (new
+-- address avilable on tx_clk_p_buff (1)), which in turn will give an output one uclk cycle later
+-- (on tx_clk_p_buff (2)), exactly on the assertion of the byte_ready_p_i. Finally the first bit of
+-- this new byte starts being delivered after tx_clk_p_buff (3) assertion.
 
--- send_crc_byte state: delivery of the two manchester encoded bytes that come out of the crc 
--- calculator unit.
--- bit delivery after tx_clk_p_buff (0) assertion
--- s_pointer updated after tx_clk_p_buff (2) assertion
+-- jump to "send_crc_bytes" state after the arrival of the last_byte_p_i pulse (on the
+-- tx_clk_p_buff (2), along with the byte_ready_p_i). Differently than in the previous case, now
+-- the state transition takes place after the tx_clk_p_buff (2) assertion. This is essential in
+-- order to force the s_bit_index (which is updated after tx_clk_p_buff(3) assertion) to the
+-- s_bit_index_top indicated by the "send_crc_bytes" state (31 bits) and not to the one of the
+-- "send_data_byte" state (16 bits).
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
---
+-- "send_crc_bytes" state: delivery of the two manchester encoded bytes that come out of the crc 
+-- calculator unit (2 bytes).
 
--- request to wf_engine_control for a new byte when s_pointer is emptied (previous byte is sent)
--- after the assertion of tx_clk_p_buff(0)
--- arrivals of a new byte (byte_i) from the wf_produced_vars and of the byte_ready_p_i
--- confirmation from the wf_engine_control on the next uclk cycle. 
--- buffering of byte_i, and availability after tx_clk_p_buff(1) assertion for the next cycle
--- concurrent manchester encoding
+-- bit delivery starts after each        tx_clk_p_buff (1) assertion (Bits_Delivery process)
+-- the s_bit_index is updated after each tx_clk_p_buff (3) assertion (s_bit_index is ahead of the
+-- bit being sent)
 
--- state change to send_crc_byte after the delivery of all the bytes and the assertion of the
--- signal last_byte_p_i (which happens after the a request_byte_p_ib pulse  of  
--- and after tx_clk_p_buff(1) assertion. The earlier transition to the send_crc_byte state is
--- essential in order to force the s_pointer (which is considered on tx_clk_p_buff(2)) to the
--- s_top_pointer indicated by the send_crc_byte state (31).
+-- jump to "send_queue" state after the arrival of the last_byte_p_i pulse (on the tx_clk_p_buff(2)
+-- along with the byte_ready_p_i). As before, the state transition is essential before the update
+-- of the s_bit_index
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 
--- send_data_byte state: reception of bytes of data from wf_produced_vars, encoding and delivery
--- request o
--- with the s_pointer emptys and tx_clk_p_buff (0) is activated. The wf_engine_control replys 
--- with assertying the input byte_ready_p_i on the next uclk tick. Finally on tx_clk_p_buff (2)
--- the 1st bit of the new byte is delivered. In this state each time a byte of data is sent after the
--- assesment of tx_clk_p_buff (0). The pointer s_pointer is counting the bits of a byte that are
--- being sent and it is decreased after the assesment of tx_clk_p_buff (2) 
+
+
+
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Receiver_FSM_Sync:
 
@@ -240,7 +248,7 @@ begin
 --!@brief combinatorial process Transmitter_FSM_Comb_State_Transitions:
 --! definition of the state transitions of the FSM
 
-  Transmitter_FSM_Comb_State_Transitions: process (tx_state, last_byte_p_i, s_pointer_is_zero,
+  Transmitter_FSM_Comb_State_Transitions: process (tx_state, last_byte_p_i, s_bit_index_is_zero,
                                                              start_produce_p_i,  tx_clk_p_buff_i)
   begin
     nx_tx_state <= idle;
@@ -255,7 +263,7 @@ begin
                            end if;
 
       when send_fss =>
-                           if s_pointer_is_zero = '1'  and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1) = '1' then -- was 2
+                           if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1) = '1' then 
                              nx_tx_state <= send_data_byte;
                            else
                              nx_tx_state <= send_fss;
@@ -269,14 +277,14 @@ begin
                            end if;
 
       when send_crc_bytes =>
-                           if s_pointer_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then -- was 1
+                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then 
                              nx_tx_state <= send_queue;
                            else
                              nx_tx_state <= send_crc_bytes;
                            end if;
 
       when send_queue =>
-                           if s_pointer_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then -- was 1
+                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then 
                              nx_tx_state <= idle;
                            else
                              nx_tx_state <= send_queue;
@@ -292,118 +300,154 @@ begin
 --!@brief combinatorial process Transmitter_FSM_Comb_Output_Signals:
 --! definition of the output signals of the FSM
 
-  Transmitter_FSM_Comb_Output_Signals:  process ( tx_state, s_pointer_is_zero, s_manchester_crc,
-                                                 s_pointer, tx_clk_p_buff_i, s_manchester_byte )
+  Transmitter_FSM_Comb_Output_Signals:  process ( tx_state, s_bit_index_is_zero, s_manchester_crc,
+                                                 s_bit_index, tx_clk_p_buff_i, s_byte_manch )
   begin
 
     case tx_state is 
 
-      when idle =>         -- initializations    
-                           s_decr_pointer <= '0';
-                           s_data_bit <= '0';
-                           s_tx_enable <= '0';
-                           request_byte_p_o <= '0';
-                           s_d_to_crc_rdy_p <= '0';
-                           s_start_crc_p <= '0';
-                           s_load_pointer <= '1';
-                           s_tx_finished_p <= '0';
+      when idle => 
+                -- initializations    
+                s_decr_index        <= '0';
+                s_data_bit          <= '0';
+                s_tx_enable         <= '0';
+                request_byte_p_o    <= '0';
+                s_data_bit_to_crc_p <= '0';
+                s_start_crc_p       <= '0';
+                s_bit_index_load    <= '1';
 
-                           -- preparations for the next state
+                -- preparations for the next state
    
-                           s_top_pointer <= to_unsigned ( FSS'length - 1, s_pointer'length );
-                                                              -- initialize according to
-                                                              -- the data that will be
-                                                              -- sent at the next state: 
-                                                              -- FSS: 31 manchester encoded bits
+                s_bit_index_top     <= to_unsigned ( FSS'length - 1, s_bit_index'length );
+                                                           -- initialize according to
+                                                           -- the data that will be
+                                                           -- sent at the next state: 
+                                                           -- FSS: 31 manchester encoded bits
 
   
 
-                           
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
       when send_fss =>
-                           s_tx_enable <= '1';                -- data being sent;transmitter enabld
 
-                           s_decr_pointer <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);-- was 2
+                s_tx_enable         <= '1';                -- data being sent;transmitter enabld
 
-                           s_data_bit <= FSS ( to_integer (s_pointer) ); -- 31 predefined manchester
-                                                              -- encoded bits
+                s_decr_index        <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
 
-                           request_byte_p_o <= '0';           -- FSS predefined bytes
-                                                              -- no request from control_engine
-                           s_d_to_crc_rdy_p <= '0';           -- FSS not used in crc calculations
+                s_data_bit          <= FSS (to_integer (s_bit_index));
+                                                           -- 31 predefined manch encoded bits
 
-                           -- preparations for the next state
-                           s_top_pointer <= to_unsigned ( 15, s_pointer'length );
-                                                              -- initialize according to
-                                                              -- the data that will be
-                                                              -- sent at the next state: 
-                                                              -- 1 byte: 16 manchester encoded bits
-
-                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
-                                                              -- pointer loaded at
-                                                              -- the end of this state
-
-                           s_start_crc_p <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);   --was 2
-
-                           s_tx_finished_p <= '0';
+                request_byte_p_o    <= '0';                -- predefined bytes; no request for
+                                                           -- bytes from control_engine
+                                                           
+                s_data_bit_to_crc_p <= '0';                -- FSS not used in crc calculations
 
 
+                -- preparations for the next state
+                s_bit_index_top     <= to_unsigned ( 15, s_bit_index'length );
+                                                           -- initialization according to the
+                                                           -- data that will be sent at the next
+                                                           -- state:1 byte(16 manch encoded bits)
+
+                s_bit_index_load    <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+                                                           -- pointer loaded at
+                                                           -- the end of this state
+
+                s_start_crc_p       <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+                                                           -- beginning of considering data bits
+                                                           -- for the crc calculation when the 
+                                                           -- 1st bit of data is to be sent 
+                                                           -- (note: the crc calculator uses the
+                                                           -- signal s_data_bit, not tx_data_o)
+
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
       when send_data_byte  => 
-                           s_tx_enable <= '1';                  -- data being sent;transmitter enabld
 
-                           s_decr_pointer <= tx_clk_p_buff_i (C_CLKFCDLENTGTH-1); -- was 2
-
-                           s_data_bit <= s_manchester_byte (to_integer (resize ( s_pointer, 4 ))); -- 16 manchester encoded bits
-
-                           s_top_pointer <= to_unsigned ( 15, s_pointer'length ); 
-
-                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  --was 2
-
-                           s_d_to_crc_rdy_p <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1) and s_pointer(0);  -- was 2
-
-                           request_byte_p_o <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-4);
-
-                           s_start_crc_p <= '0';
-
-                           s_tx_finished_p <= '0';
+                s_tx_enable         <= '1';                -- data being sent;transmitter enabld
 
 
+                s_bit_index_load    <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+                                                           -- index reinitialized to
+                                                           -- s_bit_index_top at the end of each
+                                                           -- byte transmission
+
+                s_bit_index_top     <= to_unsigned (15, s_bit_index'length ); 
+
+                s_decr_index        <= tx_clk_p_buff_i (C_CLKFCDLENTGTH-1); 
+                                         
+                s_data_bit          <= s_byte_manch (to_integer (resize (s_bit_index, 4)));
+
+                request_byte_p_o    <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-4);
+                                                           -- request for a new byte from
+                                                           -- wf_produced_vars (passing from
+                                                           -- wf_engine_control)
+                                                             
+                s_data_bit_to_crc_p <= s_bit_index(0) and tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+                                                           -- only the 1st part of the manch
+                                                           -- encoded bit goes to the crc
+                                                           -- calculator 
+
+                s_start_crc_p       <= '0';
+
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
        when send_crc_bytes =>
-                           s_top_pointer <=to_unsigned(s_manchester_crc'length-1,s_pointer'length); 
-                           s_load_pointer <= s_pointer_is_zero and tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
-                           s_decr_pointer <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
-                           s_data_bit <= s_manchester_crc(to_integer(resize(s_pointer,5))); -- crc: 31 manchester encoded bits
-                           s_tx_enable <= '1';
 
-                           s_d_to_crc_rdy_p <= '0';
-                           request_byte_p_o <= '0';
-                           s_start_crc_p <= '0';
-        -- I enable the crc shift register at the bit boundaries by 
-        -- inverting s_pointer(0)                         
+                s_tx_enable         <= '1';
 
-                           s_tx_finished_p <= '0';
+                s_bit_index_load    <= s_bit_index_is_zero and tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+
+                s_bit_index_top     <= to_unsigned (s_manchester_crc'length-1, s_bit_index'length); 
+
+                s_decr_index        <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+
+                s_data_bit          <= s_manchester_crc (to_integer(s_bit_index)); 
+
+                request_byte_p_o    <= '0';
+                s_data_bit_to_crc_p <= '0';
+                s_start_crc_p       <= '0';
+
  
-
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
       when send_queue =>
-                           s_top_pointer <= to_unsigned ( FRAME_END'length - 1, s_pointer'length ); 
-                           s_load_pointer <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
-                           s_decr_pointer <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  -- was 2
-                           s_data_bit <= FRAME_END(to_integer(resize(s_pointer,4))); -- Frame_End 16 manchester encoded bits
-                           s_tx_enable <= '1';
-                           s_tx_finished_p <= s_pointer_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2);  -- was 1
 
-                           s_d_to_crc_rdy_p <= '0';
-                           request_byte_p_o <= '0';
-                           s_start_crc_p <= '0';
+                s_tx_enable         <= '1';
 
+                s_bit_index_load    <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);  
+
+                s_bit_index_top     <= to_unsigned (FRAME_END'length - 1, s_bit_index'length); 
+
+                s_decr_index        <= tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
+
+                s_data_bit          <= FRAME_END(to_integer(resize(s_bit_index,4))); 
+
+                s_data_bit_to_crc_p <= '0';
+                request_byte_p_o    <= '0';
+                s_start_crc_p       <= '0';
+
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
       when others => 
+
+                s_decr_index        <= '0';
+                s_data_bit          <= '0';
+                s_tx_enable         <= '0';
+                request_byte_p_o    <= '0';
+                s_data_bit_to_crc_p <= '0';
+                s_start_crc_p       <= '0';
+                s_bit_index_load    <= '1';
+                s_bit_index_top     <= (others=>'0');
+
 
     end case;
   end process;
 
+
+
 ---------------------------------------------------------------------------------------------------
 
 
-  process(uclk_i)
+Input_Byte_Sampling: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if nFIP_rst_i = '1' then
@@ -424,8 +468,8 @@ begin
   Manchester_Encoder_byte: process(s_byte)
   begin
     for I in byte_i'range loop
-      s_manchester_byte(I*2) <= not s_byte(I);
-      s_manchester_byte(I*2+1) <=  s_byte(I);
+      s_byte_manch(I*2) <= not s_byte(I);
+      s_byte_manch(I*2+1) <=  s_byte(I);
     end loop;
   end process;
 
@@ -434,11 +478,11 @@ begin
 --! creates its manchester encoded equivalent (16 bits). Each bit '1' is replaced by '10' and each
 --! bit '0' by '01'. 
 
-  Manchester_Encoder_crc_byte: process(s_crc)
+  Manchester_Encoder_crc_byte: process(s_crc_byte_manch)
   begin
-    for I in s_crc'range loop
-      s_manchester_crc(I*2) <= not s_crc(I);
-      s_manchester_crc(I*2+1) <=  s_crc(I);
+    for I in s_crc_byte_manch'range loop
+      s_manchester_crc(I*2) <= not s_crc_byte_manch(I);
+      s_manchester_crc(I*2+1) <=  s_crc_byte_manch(I);
     end loop;
   end process;
 
@@ -456,37 +500,41 @@ begin
         tx_data_o <= '0';
         tx_enable_o <= '0';
       else
-        if  tx_clk_p_buff_i(C_CLKFCDLENTGTH-3) = '1' then -- was 0
+
+        if  tx_clk_p_buff_i(C_CLKFCDLENTGTH-3) = '1' then 
           tx_data_o <= s_data_bit;
         end if;
+
       tx_enable_o <= s_tx_enable;
+
       end if;
     end if;
   end process;
 
 ---------------------------------------------------------------------------------------------------
---! @brief synchronous process Outgoing_Bits_Pointer: Managment of the pointer that indicates which
---! bit of a manchester encoded byte is to be sent (16 bits)  
+--! @brief synchronous process Outgoing_Bits_Index: Managment of the pointer that indicates which
+--! bit of a manchester encoded byte is to be sent  
 
-  Outgoing_Bits_Pointer: process(uclk_i)
+  Outgoing_Bits_Index: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if nFIP_rst_i = '1' then
-        s_pointer <= (others => '0');
+        s_bit_index <= (others => '0');
       else
 
-        if s_load_pointer = '1' then
-          s_pointer <= s_top_pointer;
-        elsif s_decr_pointer = '1' then
-          s_pointer <= s_pointer - 1;
+        if s_bit_index_load = '1' then
+          s_bit_index <= s_bit_index_top;
+
+        elsif s_decr_index = '1' then
+          s_bit_index <= s_bit_index - 1;
+
         end if;
       end if;
     end if;
   end process;
 
----------------------------------------------------------------------------------------------------
-  s_pointer_is_zero <= '1' when s_pointer = to_unsigned(0,s_pointer'length) else '0';
-  s_pointer_is_one <= '1' when s_pointer = to_unsigned(1,s_pointer'length) else '0';
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  s_bit_index_is_zero <= '1' when s_bit_index = to_unsigned(0,s_bit_index'length) else '0';
 
 
 end architecture rtl;
