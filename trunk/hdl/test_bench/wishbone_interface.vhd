@@ -56,19 +56,19 @@ signal wb_state, nxt_wb_state		: wb_st_type:=idle;
 
 signal add_count				: std_logic_vector(9 downto 0);
 signal burst_done				: std_logic;
-signal burst_size				: std_logic_vector(6 downto 0);
+signal burst_size				: std_logic_vector(6 downto 0):=(others=>'0');
 signal cyc						: std_logic;
 signal data_for_mem				: std_logic_vector(7 downto 0);
 signal mem_count				: std_logic_vector(6 downto 0);
 signal mem_done					: std_logic;
-signal mem_length				: std_logic_vector(6 downto 0);
-signal mem_offset				: std_logic_vector(6 downto 0);
+signal mem_length				: std_logic_vector(6 downto 0):=(others=>'0');
+signal mem_offset				: std_logic_vector(6 downto 0):=(others=>'0');
 signal reset_burst				: std_logic;
 signal reset_mem				: std_logic;
 signal stb						: std_logic;
 signal valid_bus_cycle			: std_logic;
-signal var_adr					: std_logic_vector(1 downto 0);
-signal we						: std_logic;
+signal var_adr					: std_logic_vector(1 downto 0):=(others=>'0');
+signal we						: std_logic:='0';
 
 constant zero					: std_logic_vector(6 downto 0):=(others =>'0');
 
@@ -160,6 +160,58 @@ begin
 		end case;
 	end process;
 
+-- latches for identifying the type of the memory access cycle
+-----------------------------------------------------------------------------------
+	latch_inference: process (launch_wb_read, launch_wb_write)
+	begin
+		if launch_wb_read ='1' then
+			if block_size = zero then
+				burst_size	<= zero;
+			else
+				burst_size	<= block_size - ("000" & x"1");
+			end if;
+			mem_length		<= transfer_length - ("000" & x"1");
+			mem_offset		<= transfer_offset;
+			var_adr			<= var_id -"01";
+			we				<= '0';
+		elsif launch_wb_write ='1' then
+			if block_size = zero then
+				burst_size	<= zero;
+			else
+				burst_size	<= block_size - ("000" & x"1");
+			end if;
+			mem_length		<= transfer_length - ("000" & x"1");
+			mem_offset		<= transfer_offset;
+			var_adr			<= var_id -"01";
+			we				<= '1';
+		end if;
+	end process;
+
+	add_count			<= ("0" & var_adr & (mem_count + mem_offset)) + ("00" & x"02");
+
+	valid_bus_cycle		<= stb and cyc and ack_i;
+
+-- output signals
+-----------------------
+	adr_o				<= add_count;
+	cyc_o				<= cyc;
+	dat_o				<= data_for_mem;
+	stb_o				<= stb;
+	we_o				<= we;
+
+-- process reading bytes from random data file
+---------------------------------------------
+	read_store: process
+	file data_file: text open read_mode is "data/data_store.txt";
+	variable data_line: line;
+	variable data_byte: std_logic_vector(7 downto 0);
+	begin
+		readline (data_file, data_line);
+		read (data_line, data_byte);
+		data_for_mem		<= data_byte;
+		wait until clk_i ='1';
+	end process;
+
 	burst_counter: encounter
 	generic map(
 		width				=> 7
@@ -187,57 +239,5 @@ begin
 		count				=> mem_count,
 		count_done			=> mem_done
 	);
-
--- process reading bytes from random data file
----------------------------------------------
-	read_store: process
-	file data_file: text open read_mode is "data/data_store.txt";
-	variable data_line: line;
-	variable data_byte: std_logic_vector(7 downto 0);
-	begin
-		readline (data_file, data_line);
-		read (data_line, data_byte);
-		data_for_mem		<= data_byte;
-		wait until clk_i ='1';
-	end process;
-
--- latches for identifying the type of the memory access cycle
------------------------------------------------------------------------------------
-	latch_inference: process (launch_wb_read, launch_wb_write)
-	begin
-		if launch_wb_read /='0' then
-			if block_size = zero then
-				burst_size	<= zero;
-			else
-				burst_size	<= block_size - ("000" & x"1");
-			end if;
-			mem_length		<= transfer_length - ("000" & x"1");
-			mem_offset		<= transfer_offset;
-			var_adr			<= var_id -"01";
-			we				<= '0';
-		elsif launch_wb_write /='0' then
-			if block_size = zero then
-				burst_size	<= zero;
-			else
-				burst_size	<= block_size - ("000" & x"1");
-			end if;
-			mem_length		<= transfer_length - ("000" & x"1");
-			mem_offset		<= transfer_offset;
-			var_adr			<= var_id -"01";
-			we				<= '1';
-		end if;
-	end process;
-
-	add_count			<= ("0" & var_adr & (mem_count + mem_offset)) + ("00" & x"02");
-
-	valid_bus_cycle		<= stb and cyc and ack_i;
-
--- output signals
------------------------
-	adr_o				<= add_count;
-	cyc_o				<= cyc;
-	dat_o				<= data_for_mem;
-	stb_o				<= stb;
-	we_o				<= we;
 
 end archi;

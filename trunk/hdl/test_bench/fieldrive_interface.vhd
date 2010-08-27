@@ -61,6 +61,16 @@ architecture archi of fieldrive_interface is
 	);
 	end component;
 
+	component bus_arbitrer
+	port(
+		id_rp				: out std_logic;
+		launch_fip_cycle	: out std_logic;
+		station_adr			: out std_logic_vector(7 downto 0);
+		var_adr				: out std_logic_vector(7 downto 0);
+		var_length			: out std_logic_vector(6 downto 0)
+	);
+	end component;
+
 constant crc_l				: integer:=16;
 constant gx					: std_logic_vector(crc_l downto 0):="10001110111001111";
 
@@ -72,13 +82,13 @@ signal cd					: std_logic;
 signal dx					: std_logic;
 signal id_rp				: std_logic;		-- '1' => id_dat, '0' => rp_dat
 signal launch_fip_cycle		: std_logic;
-signal station_adr_on_rx	: std_logic_vector(7 downto 0):=x"00";
+signal station_adr			: std_logic_vector(7 downto 0):=x"00";
 signal txck					: std_logic;
 signal txd					: std_logic;
 signal txena				: std_logic;
 signal txerr				: std_logic;
-signal var_adr_on_rx		: std_logic_vector(7 downto 0):=x"00";
-signal var_length_on_rx		: std_logic_vector(6 downto 0):="0000000";
+signal var_adr				: std_logic_vector(7 downto 0):=x"00";
+signal var_length			: std_logic_vector(6 downto 0):="0000000";
 
 begin
 
@@ -90,7 +100,7 @@ begin
 
 	half_clock: process
 	begin
-		h_clk						<= not(h_clk);
+		h_clk					<= not(h_clk);
 		wait for 250 ns;
 	end process;
 
@@ -102,35 +112,6 @@ begin
 		wait for 1000 ms;
 	end process;
 
-	scheduler: process
-	begin
-		wait for 199 us;
-		id_rp					<= '1';
-		launch_fip_cycle		<= '1' after 1 us;
-		station_adr_on_rx		<= x"5A";
-		var_adr_on_rx			<= x"06";
-		var_length_on_rx		<= "0000100";
-		wait for 10 us;
---		id_rp					<= '0';
---		launch_fip_cycle		<= '0';
---		station_adr_on_rx		<= x"00";
---		var_adr_on_rx			<= x"00";
---		var_length_on_rx		<= "0000000";
---		wait for 390 us;
---		id_rp					<= '1';
---		launch_fip_cycle		<= '1' after 1 us;
---		station_adr_on_rx		<= x"5A";
---		var_adr_on_rx			<= x"06";
---		var_length_on_rx		<= "0000100";
---		wait for 10 us;
-		id_rp					<= '0';
-		launch_fip_cycle		<= '0';
-		station_adr_on_rx		<= x"5A";
-		var_adr_on_rx			<= x"00";
-		var_length_on_rx		<= "0000000";
-		wait for 20000 ms;
-	end process;
-		
 	rx_block: rx
 	generic map(
 		crc_l				=> crc_l
@@ -142,9 +123,9 @@ begin
 		launch_fip_cycle	=> launch_fip_cycle,
 		h_clk				=> h_clk,
 		reset				=> reset,
-		station_adr			=> station_adr_on_rx,
-		var_adr				=> var_adr_on_rx,
-		var_length			=> var_length_on_rx,
+		station_adr			=> station_adr,
+		var_adr				=> var_adr,
+		var_length			=> var_length,
 
 		cd					=> cd,
 		dx					=> dx
@@ -163,6 +144,15 @@ begin
 		txena				=> txena,
 		
 		txerr				=> txerr
+	);
+	
+	fip_arbitrer: bus_arbitrer
+	port map(
+		id_rp				=> id_rp,
+		launch_fip_cycle	=> launch_fip_cycle,
+		station_adr			=> station_adr,
+		var_adr				=> var_adr,
+		var_length			=> var_length
 	);
 	
 	txd						<= fx_txd_i;

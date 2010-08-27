@@ -59,19 +59,29 @@ architecture archi of user_interface is
 	);
 	end component;
 
-	component sequencer
+	component user_sequencer
 	port(
+		cyc					: in std_logic;
+		urstn_i				: in std_logic;
+		var1_rdy_i			: in std_logic;
+		var2_rdy_i			: in std_logic;
+		var3_rdy_i			: in std_logic;
+
 		block_size			: out std_logic_vector(6 downto 0);
 		launch_wb_read		: out std_logic;
 		launch_wb_write 	: out std_logic;
 		transfer_length		: out std_logic_vector(6 downto 0);
 		transfer_offset		: out std_logic_vector(6 downto 0);
+		var1_acc_o			: out std_logic;
+		var2_acc_o			: out std_logic;
+		var3_acc_o			: out std_logic;
 		var_id			 	: out std_logic_vector(1 downto 0)
 	);
 	end component;
 	
 	signal block_size			: std_logic_vector(6 downto 0):="000" & x"0";
 	signal clk					: std_logic:='0';
+	signal cyc					: std_logic;
 	signal launch_wb_read		: std_logic:='0';
 	signal launch_wb_write 		: std_logic:='0';
 	signal reset				: std_logic:='0';
@@ -121,13 +131,22 @@ begin
 	rst_o				<= wreset;
 	wclk_o				<= wclk;
 
-	seq: sequencer
+	user: user_sequencer
 	port map(
+		cyc						=> cyc,
+		urstn_i					=> urstn_i,
+		var1_rdy_i				=> var1_rdy_i,
+		var2_rdy_i				=> var2_rdy_i,
+		var3_rdy_i				=> var3_rdy_i,
+		
 		block_size				=> block_size,
 		launch_wb_read			=> launch_wb_read,
 		launch_wb_write 		=> launch_wb_write,
 		transfer_length			=> transfer_length,
 		transfer_offset			=> transfer_offset,
+		var1_acc_o				=> var1_acc_o,
+		var2_acc_o				=> var2_acc_o,
+		var3_acc_o				=> var3_acc_o,
 		var_id					=> var_id
 	);
 
@@ -143,13 +162,15 @@ begin
 		ack_i					=> ack_i,
 		clk_i					=> wclk,
 		dat_i					=> dat_i,
-		rst_i					=> reset,
+		rst_i					=> wreset,
 
 		adr_o					=> adr_o,
-		cyc_o					=> cyc_o,
+		cyc_o					=> cyc,
 		dat_o					=> dat_o,
 		stb_o					=> stb_o,
 		we_o					=> we_o
 	);
+	
+	cyc_o				<= cyc;
 
 end archi;
