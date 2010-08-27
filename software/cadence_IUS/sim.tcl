@@ -10,7 +10,6 @@ ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work wor
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_engine_control.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/DualClkRAM.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/dpblockram_clka_rd_clkb_wr_syn.vhd
-#ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/dpblockram_clka_rd_clkb_wr.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_consumed_vars.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_produced_vars.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/status_gen.vhd
@@ -19,7 +18,7 @@ ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work wor
 
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/encounter.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/board_settings.vhd
-ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/sequencer.vhd
+ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/user_sequencer.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/wishbone_interface.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/user_interface.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/fss_gen.vhd
@@ -38,6 +37,7 @@ ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work wor
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/crc_check.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/tx.vhd
 
+ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/bus_arbitrer.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/fieldrive_interface.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/nanofip_tb.vhd
 
