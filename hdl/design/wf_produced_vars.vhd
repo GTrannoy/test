@@ -50,7 +50,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n\n<b>Last changes:</b>\n
 --!     -> egousiou: subs_i is not sent in the rp_dat frames  \n
 --!     -> egousiou: pdu_type & length bytes not sent in slone \n
---!     -> egousiou: signal s_wb_we includes the wb_stb_p_i     \n
+--!     -> egousiou: signal s_wb_we includes the wb_stb_r_edge_p_i     \n
 --!     -> egousiou: signal s_mem_byte was not in sensitivity list (pablo's varsion)! by adding it,
 --!                  changes were essential in the timing of the tx (wf_osc, wf_tx, wf_engine_control
 --!                  and the configuration of the memory needed few changes)
@@ -73,7 +73,6 @@ entity wf_produced_vars is
   -- INPUTS 
     -- User Interface general signals 
     uclk_i :          in std_logic;                      --! 40MHz clock
-    nFIP_rst_i :      in std_logic;                      --! internal reset
     slone_i :         in  std_logic;                     --! stand-alone mode 
     nostat_i :        in  std_logic;                     --! if negated, nFIP status is sent
 	
@@ -93,7 +92,7 @@ entity wf_produced_vars is
                                                         -- (buffered once with wb_clk) 
                                                         -- note: msb allways 0!
 
-    wb_stb_p_i :      in  std_logic;                    --! wishbone strobe
+    wb_stb_r_edge_p_i : in  std_logic;                    --! wishbone strobe
                                                         -- (buffered once with wb_clk)
                                                         -- note: indication that the 
                                                         -- master is ready to transfer data
@@ -107,7 +106,7 @@ entity wf_produced_vars is
    -- Signals from wf_engine_control
     var_i :           in t_var;                         --! variable received from id_dat   
 
-    data_length_i:    in std_logic_vector(6 downto 0);  --! # bytes of Conrol&Data fields of rp_dat
+    data_length_i:    in std_logic_vector(7 downto 0);  --! # bytes of Conrol&Data fields of rp_dat
                                                         -- includes 1 byte for the rp_dat.Control,
                                                         -- 1 byte for rp_dat.Data.PDU_type,
                                                         -- 1 byte for rp_dat.Data.LENGTH
@@ -116,7 +115,7 @@ entity wf_produced_vars is
                                                         -- 1 byte for rp_dat.Data.nanoFIP_status 
 
                                                                  
-    index_offset_i :    in std_logic_vector(6 downto 0);  --! pointer to message bytes
+    index_offset_i :    in std_logic_vector(7 downto 0);  --! pointer to message bytes
                                                           -- including rp_dat.Control and rp_dat.Data
 	
    -- Signals from status_gen
@@ -151,10 +150,10 @@ architecture rtl of wf_produced_vars is
 
   signal s_length, s_mem_byte, s_io_byte : std_logic_vector(7 downto 0);       
   signal s_mem_addr_A :                    std_logic_vector(8 downto 0); 
-  signal s_index_offset_d1 :               std_logic_vector(6 downto 0);
+  signal s_index_offset_d1 :               std_logic_vector(7 downto 0);
   signal s_byte_index_aux :                integer range 0 to 15;
   signal s_base_addr, s_mem_addr_offset :  unsigned(8 downto 0);
-  signal s_wb_ack_prod_p, wb_ack_prod_p_o_d :                 std_logic;
+  signal s_wb_ack_prod_p :                 std_logic;
   signal s_byte_index :                    integer; 
 
    
@@ -197,32 +196,20 @@ architecture rtl of wf_produced_vars is
 
                                                                                         
 --------------------------------------------------------------------------------------------------- 
---!@brief synchronous process Generate_wb_ack_prod_p_o: Generation of the wb_ack_prod_p_o signal
+--!@brief Generate_wb_ack_prod_p_o: Generation of the wb_ack_prod_p_o signal
 --! (acknowledgement from wishbone slave of the write cycle, as a response to the master's storbe).
 --! wb_ack_prod_p_o is asserted two wb_clk cycles after the assertion of the input strobe signal 
 --! (reminder: stb_i is buffered once in the input stage), if the wishbone input address
 --! corresponds to the Produced memory block and the wishbone write enable is asserted.
   
-  Generate_wb_ack_prod_p_o: process(wb_clk_i) 
-  begin
-    if rising_edge(wb_clk_i) then    
+  Generate_wb_ack_prod_p_o: s_wb_ack_prod_p <= '1' when ((wb_stb_r_edge_p_i = '1')    and 
+                                                         (wb_adr_i(9 downto 7) = "010") and
+                                                         (wb_we_p_i = '1')              and 
+                                                         (wb_cyc_i = '1'))
+                                            else '0';
 
-      if wb_rst_i = '1' then
-        wb_ack_prod_p_o_d <='0';
-
-      else   
-         wb_ack_prod_p_o_d <= s_wb_ack_prod_p;  -- slave's indication: write cycle identified
-                                              -- & slave ready to latch data
-      end if;
-    end if;
-  end process;
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  s_wb_ack_prod_p <= '1' when (wb_stb_p_i = '1' and wb_we_p_i = '1'  and 
-                               wb_adr_i(9 downto 7) = "010" and wb_cyc_i = '1')
-                else '0';
- 
   wb_ack_prod_p_o <= s_wb_ack_prod_p;
+ 
 --------------------------------------------------------------------------------------------------- 
 --!@brief synchronous process Delay_index_offset_i: in the combinatorial process that follows
 --! (Bytes_Generation), according to the value of the signal s_byte_index, a byte is retreived
@@ -250,11 +237,12 @@ architecture rtl of wf_produced_vars is
 --! The output byte "byte_o" is sent to the transmitter(wf_tx)for serialization
    
   Bytes_Generation: process (var_i, s_index_offset_d1, s_byte_index, data_length_i, c_id_dec_i,
-                             m_id_dec_i,nFIP_status_byte_i, mps_byte_i, s_io_byte, s_mem_byte)
+                             m_id_dec_i,nFIP_status_byte_i, mps_byte_i, s_io_byte, s_mem_byte,
+                                                           slone_i, s_byte_index_aux, nostat_i)
   
   begin
   
-    s_byte_index <= to_integer(unsigned(s_index_offset_d1));
+    s_byte_index     <= to_integer(unsigned(s_index_offset_d1));
                                                       -- index of byte to be sent
 
     s_byte_index_aux <= (to_integer(unsigned(s_index_offset_d1(3 downto 0))));
@@ -263,7 +251,7 @@ architecture rtl of wf_produced_vars is
                                                       -- c_VARS_ARRAY.byte_array, with a predefined
                                                       -- width of 15 bytes
   
-    s_length <= std_logic_vector(resize((unsigned(data_length_i)-2),byte_o'length));   
+    s_length         <= std_logic_vector(resize((unsigned(data_length_i)-2),byte_o'length));   
                                                       --signal used for the rp_dat.Data.LENGTH byte
                                                       -- it represents the # bytes of "pure data"
                                                       -- (P3_LGTH) plus 1 byte of rp_dat.Data.MPS
@@ -282,10 +270,10 @@ architecture rtl of wf_produced_vars is
     -- are predefined in the c_VARS_ARRAY(0).byte_array matrix
     when presence_var =>
 
-      byte_o        <= c_VARS_ARRAY(c_PRESENCE_VAR_INDEX).byte_array(s_byte_index_aux);
+      byte_o         <= c_VARS_ARRAY(c_PRESENCE_VAR_INDEX).byte_array(s_byte_index_aux);
  
-      s_base_addr   <= (others => '0');     
-      sending_mps_o <= '0';                                                         
+      s_base_addr    <= (others => '0');     
+      sending_mps_o  <= '0';                                                         
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --     
 
@@ -297,17 +285,17 @@ architecture rtl of wf_produced_vars is
     when identif_var =>
 
       if s_byte_index = c_CONSTR_BYTE_INDEX then       
-        byte_o <= c_id_dec_i;       
+        byte_o       <= c_id_dec_i;       
 
       elsif s_byte_index = c_MODEL_BYTE_INDEX then      
-        byte_o <= m_id_dec_i;      
+        byte_o       <= m_id_dec_i;      
 
       else
-        byte_o <= c_VARS_ARRAY(c_IDENTIF_VAR_INDEX).byte_array(s_byte_index_aux);  	  
+        byte_o       <= c_VARS_ARRAY(c_IDENTIF_VAR_INDEX).byte_array(s_byte_index_aux);  	  
       end if;
 
-      s_base_addr   <= (others => '0'); 
-      sending_mps_o <= '0';
+      s_base_addr    <= (others => '0'); 
+      sending_mps_o  <= '0';
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 
@@ -323,13 +311,13 @@ architecture rtl of wf_produced_vars is
       -- In memory mode:
       if slone_i = '0' then
 
-        s_base_addr <= c_VARS_ARRAY(c_VAR_3_INDEX).base_add; --retreival of info for mem base address 
+        s_base_addr  <= c_VARS_ARRAY(c_VAR_3_INDEX).base_add; --retreival of info for mem base address 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
         -- The first (rp_dat.Control) and second (PDU type) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the wf_package 
 
-        if s_byte_index <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then                             
+        if s_byte_index <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then -- less than or equal to                         
           byte_o        <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_aux);
           sending_mps_o <= '0'; 
        
@@ -366,7 +354,7 @@ architecture rtl of wf_produced_vars is
       -- In standalone mode:
       else
 
-        s_base_addr <= (others => '0');               -- no access in memory needed
+        s_base_addr     <= (others => '0');            -- no access in memory needed
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --      
         -- The first byte to be sent is the rp_dat.Control, which is
@@ -402,9 +390,9 @@ architecture rtl of wf_produced_vars is
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
     when others =>    
-      sending_mps_o <= '0';
-      byte_o        <= (others => '0');                                   
-      s_base_addr   <= (others => '0');                           
+      sending_mps_o     <= '0';
+      byte_o            <= (others => '0');                                   
+      s_base_addr       <= (others => '0');                           
                                      
     end case;		  
   end process;

@@ -87,14 +87,18 @@ port (
                                                              -- (buffered once with wb_clk) 
                                                              -- note: msb allways 0!
 
-    wb_stb_p_i :          in  std_logic;                     --! wishbone strobe
-                                                             -- (buffered once with wb_clk)
+    wb_stb_r_edge_p_i :          in  std_logic;              --! pulse on the rising edge of stb_i
+                                                             -- the pulse appears 2 wclk ticks after 
+                                                             -- a rising edge on the stb_i
                                                              -- note: indication that master
                                                              -- is ready to transfer data
 
+    wb_cyc_i :            in std_logic;                      --! wishbone cycle
+                                                             -- indicates a valid cycle in progress
+
    -- Signals for the wf_engine_control
     byte_ready_p_i :      in std_logic;
-	index_offset_i :        in std_logic_vector(6 downto 0);
+	index_offset_i :      in std_logic_vector(7 downto 0);
 	var_i :               in t_var;
 
    -- Signals for the receiver wf_rx
@@ -103,7 +107,7 @@ port (
 
   -- OUTPUTS
     -- User Interface WISHBONE slave 
-    wb_data_o :           out std_logic_vector (15 downto 0); --! 
+    data_o :              out std_logic_vector (15 downto 0); --! 
     wb_ack_cons_p_o :     out std_logic; --! Acknowledge
 
     -- OUTPUTS to the wf_reset_logic
@@ -122,9 +126,8 @@ architecture rtl of wf_consumed_vars is
 signal s_addr:                    std_logic_vector(8 downto 0);
 signal s_mem_data_out :           std_logic_vector(7 downto 0);
 signal s_slone_write_byte_p :     std_logic_vector(1 downto 0);
-signal s_slone_data_out :         std_logic_vector(15 downto 0);
 signal s_base_addr :              unsigned(8 downto 0);
-signal s_write_byte_to_mem_p, wb_ack_cons_p_o_d:     std_logic;
+signal s_write_byte_to_mem_p :    std_logic;
 signal s_rp_dat_control_byte_ok : std_logic := '0'; -- for simulation esthetics
 
 --=================================================================================================
@@ -157,36 +160,16 @@ begin
 
 
 --------------------------------------------------------------------------------------------------- 
---!@brief synchronous process Generate_wb_ack_cons_p_o:  Generation of the wb_ack_cons_p_o signal
+--!@brief Generate_wb_ack_cons_p_o:  Generation of the wb_ack_cons_p_o signal
 --! (acknowledgement from wishbone slave of the read cycle, as a response to the master's storbe).
 --! wb_ack_cons_p_o is asserted two wb_clk cycles after the assertion of the input strobe signal,
---! (reminder: stb_i is buffered once in the input stage), if the wishbone input address
---! corresponds to an address in the Consumed memory block.
+--! if the wishbone cycle signal is asserted and the wishbone input address corresponds to an
+--! address in the Consumed memory block.
 
-Generate_wb_ack_cons_p_o: process (wb_clk_i)
-
-begin
-
-  if rising_edge(wb_clk_i) then
-    if wb_rst_i = '1' then
-      wb_ack_cons_p_o_d <= '0';
-    else
-
-      if wb_adr_i(9 downto 8) = "00" then          -- checking of the 2 first bits of the address,
-                                                   -- to confirm that the request to write is on
-                                                   -- the Cosumed or Cosumed broadcast memory block 
-
-        wb_ack_cons_p_o_d <= wb_stb_p_i;             -- slave's indication: valid data available
-
-      else
-        wb_ack_cons_p_o_d <= '0';
-      end if;
-    end if;
-  end if;
-end process;
-
-wb_ack_cons_p_o <= wb_stb_p_i; 
-
+Generate_wb_ack_cons_p_o: wb_ack_cons_p_o <= '1' when ((wb_stb_r_edge_p_i = '1')     and 
+                                                       (wb_adr_i(9 downto 8) = "00") and
+                                                       (wb_cyc_i = '1'))
+                                          else '0';
 
 ---------------------------------------------------------------------------------------------------
 --!@brief combinatorial process Check_rp_dat_control_byte:Verification of wether the rp_dat.Control
@@ -226,7 +209,8 @@ end process;
  
 --! Note: in stand-alone mode nanoFIP does not handdle the var2 broadcast variable.  
 
-Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
+Bytes_Consumption: process (s_rp_dat_control_byte_ok, var_i, index_offset_i, slone_i, byte_i,
+                                                          subs_i, byte_ready_p_i, s_base_addr)
   begin
 
     if s_rp_dat_control_byte_ok = '1' then        -- only if the rp_dat.control byte is correct the 
@@ -241,16 +225,17 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
 
       when var_1 =>
 
-            reset_RSTON_o <= '0'; 
-            reset_nFIP_and_FD_o <= '0';
-            s_base_addr <= c_VARS_ARRAY(c_VAR_1_INDEX).base_add; -- base addr info from the wf_package
+            reset_RSTON_o           <= '0'; 
+            reset_nFIP_and_FD_o     <= '0';
+            s_base_addr             <= c_VARS_ARRAY(c_VAR_1_INDEX).base_add; -- base addr info
+                                                                             -- from wf_package
 
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then
 
               s_slone_write_byte_p  <= (others => '0');
-
+                  
               s_write_byte_to_mem_p <= byte_ready_p_i;      -- managment of the write enable signal
                                                             -- of the Consumed memory
 
@@ -260,12 +245,12 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
 
               s_write_byte_to_mem_p      <= '0';
 
-              if index_offset_i = c_1st_byte_addr then        -- 1st byte to be transferred
-                s_slone_write_byte_p(0) <= byte_ready_p_i ;					
+              if index_offset_i = c_1st_BYTE_INDEX then        -- 1st byte to be transferred
+                s_slone_write_byte_p(0)  <= byte_ready_p_i;					
               end if;
 
-              if index_offset_i = c_2nd_byte_addr then        -- 2nd byte to be transferred
-                s_slone_write_byte_p(1) <= byte_ready_p_i ;		
+              if index_offset_i = c_2nd_BYTE_INDEX then        -- 2nd byte to be transferred
+                s_slone_write_byte_p(1)  <= byte_ready_p_i;		
               end if;
             end if;
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
@@ -273,15 +258,16 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
 
       when var_2 =>
 
-            reset_nFIP_and_FD_o <= '0';
-            reset_RSTON_o <= '0'; 
-            s_base_addr <= c_VARS_ARRAY(c_VAR_2_INDEX).base_add;-- base addr info from the wf_package
+            reset_nFIP_and_FD_o     <= '0';
+            reset_RSTON_o           <= '0'; 
+            s_base_addr             <= c_VARS_ARRAY(c_VAR_2_INDEX).base_add; -- base addr info
+                                                                             -- from wf_package
 
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then 
 
-              s_slone_write_byte_p <= (others => '0');
+              s_slone_write_byte_p  <= (others => '0');
 
               s_write_byte_to_mem_p <= byte_ready_p_i;  -- managment of the write enable signal
                                                         -- of the Consumed memory(same as in var_1)
@@ -290,51 +276,52 @@ Bytes_Consumption: process (var_i, index_offset_i, slone_i, byte_ready_p_i)
             -- in stand-alone mode
             else                                        -- in slone mode nanoFIP is not able to
               s_write_byte_to_mem_p <= '0';             -- receive the broadcast variable
-              s_slone_write_byte_p <= (others => '0');              
+              s_slone_write_byte_p  <= (others => '0');              
             end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
 
       when reset_var =>
 
-            s_write_byte_to_mem_p <= '0';
-            s_slone_write_byte_p <= (others => '0');
-            s_base_addr <= c_VARS_ARRAY(c_RESET_VAR_INDEX).base_add;-- base addr info from the wf_package
+            s_write_byte_to_mem_p   <= '0';
+            s_slone_write_byte_p    <= (others => '0');
+            s_base_addr             <= c_VARS_ARRAY(c_RESET_VAR_INDEX).base_add;  -- base addr info
+                                                                                  --from wf_package
 
-            if ((byte_ready_p_i = '1')and(index_offset_i = c_1st_byte_addr)) then -- 1st byte
+            if ((byte_ready_p_i = '1')and(index_offset_i = c_1st_BYTE_INDEX)) then -- 1st byte
 
               if byte_i = subs_i then
                 reset_nFIP_and_FD_o <= '1'; -- reset_nFIP_and_FD_o stays asserted until 
               end if;                       -- the end of this rp_dat frame
                
 
-            elsif ((byte_ready_p_i='1')and(index_offset_i=c_2nd_byte_addr)) then  -- 2nd byte
+            elsif ((byte_ready_p_i='1')and(index_offset_i=c_2nd_BYTE_INDEX)) then  -- 2nd byte
 
               if byte_i = subs_i then  
-                reset_RSTON_o <= '1';       -- reset_RSTON_o stays asserted until 
+                reset_RSTON_o       <= '1';       -- reset_RSTON_o stays asserted until 
               end if;                       -- the end of this rp_dat frame
 
             end if;           
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --        
 
       when others =>
-            reset_RSTON_o         <= '0'; 
-            reset_nFIP_and_FD_o   <= '0';
-            s_write_byte_to_mem_p <= '0';
-            s_base_addr           <= (others => '0');
-            s_slone_write_byte_p  <= (others => '0');           
+            reset_RSTON_o           <= '0'; 
+            reset_nFIP_and_FD_o     <= '0';
+            s_write_byte_to_mem_p   <= '0';
+            s_base_addr             <= (others => '0');
+            s_slone_write_byte_p    <= (others => '0');           
       end case;
 
 
 
     else                                    -- if the rp_dat.control byte is incorrect, 
                                             -- none of the incoming bytes is considered
-      reset_RSTON_o         <= '0'; 
-      reset_nFIP_and_FD_o   <= '0';
-      s_write_byte_to_mem_p <= '0';
-      s_addr                <= (others => '0');
-      s_base_addr           <= (others => '0');
-      s_slone_write_byte_p  <= (others => '0');   
+      reset_RSTON_o                 <= '0'; 
+      reset_nFIP_and_FD_o           <= '0';
+      s_write_byte_to_mem_p         <= '0';
+      s_addr                        <= (others => '0');
+      s_base_addr                   <= (others => '0');
+      s_slone_write_byte_p          <= (others => '0');   
 
     end if;
 
@@ -352,7 +339,7 @@ Data_Transfer_To_Dat_o: process (uclk_i)
 begin
   if rising_edge(uclk_i) then
     if nFIP_rst_i = '1' then
-      wb_data_o  <= (others => '0');           -- bus initialization
+      data_o  <= (others => '0');           -- bus initialization
  
     else
 
@@ -361,24 +348,26 @@ begin
       if slone_i = '1' then                   -- 2 data bytes have to be transferred
  
         if s_slone_write_byte_p(0) = '1' then -- the 1st byte is written in the lsb of the bus 
-          wb_data_o(7 downto 0)   <= byte_i;  -- the data stays there until a new byte arrives
+          data_o(7 downto 0)   <= byte_i;  -- the data stays there until a new byte arrives
+
         end if;
 
         if s_slone_write_byte_p(1) = '1' then -- the 2nd byte is written in the msb of the bus
-          wb_data_o(15 downto 8)  <= byte_i;  -- the data stays there until a new byte arrives
+          data_o(15 downto 8)  <= byte_i;  -- the data stays there until a new byte arrives
+
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --
       -- in memory mode
       else
-        wb_data_o(7 downto 0) <= s_mem_data_out; -- the lsb of the bus receives the byte that is
-                                                 -- also written in the memory
+
+        data_o(7 downto 0)     <= s_mem_data_out; -- the lsb of the bus receives the byte that is
+                                                   -- also written in the memory
       end if;
     end if;
   end if;
 end process;
-
 
 end architecture rtl;
 --=================================================================================================

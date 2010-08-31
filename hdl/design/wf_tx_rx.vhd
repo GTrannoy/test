@@ -71,21 +71,16 @@ entity wf_tx_rx is
   port (
     uclk_i    : in std_logic; --! User Clock
     nFIP_rst_i     : in std_logic;
-
     start_produce_p_i  : in std_logic;
     request_byte_p_o : out std_logic;
     byte_ready_p_i : in std_logic;
     byte_i : in std_logic_vector(7 downto 0);
     last_byte_p_i : in std_logic;
-
     tx_data_o : out std_logic;
     tx_enable_o : out std_logic;
     d_clk_o : out std_logic;
-    
     d_a_i : in std_logic;
-    
     rate_i    : in std_logic_vector(1 downto 0);
-    
     byte_ready_p_o : out std_logic;
     byte_o : out std_logic_vector(7 downto 0);
     last_byte_p_o : out std_logic;
@@ -93,7 +88,6 @@ entity wf_tx_rx is
     code_violation_p_o : out std_logic;
     crc_wrong_p_o : out std_logic;
     crc_ok_p_o : out std_logic
-
     );
 
 end entity wf_tx_rx;
@@ -109,16 +103,14 @@ architecture rtl of wf_tx_rx is
 
   constant C_CLKFCDLENTGTH :  natural := 4;
 
-  signal s_d_d : std_logic_vector(2 downto 0);
-  signal s_d_re, s_d_fe : std_logic;
-  signal s_clk_fixed_carrier_p : std_logic;
+  signal s_data_in_d3 : std_logic_vector(2 downto 0);
+  signal s_data_in_r_edge, s_data_in_f_edge : std_logic;
   signal s_d_filtered : std_logic;
-  signal s_d_ready_p : std_logic;
   signal s_first_fe : std_logic;   
   signal s_clk_carrier_p : std_logic;
   signal s_clk_bit_180_p, s_sample_bit_p, s_sample_manch_bit_p  : std_logic;
   signal s_edge_window, edge_180_window : std_logic;
-  signal s_d_edge, s_code_violation : std_logic;   
+  signal s_data_in_edge, s_code_violation : std_logic;   
   signal s_clk_fixed_carrier_p_d : std_logic_vector(C_CLKFCDLENTGTH - 1 downto 0); 
 begin
 
@@ -128,13 +120,19 @@ begin
   process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      s_d_d <= s_d_d(1 downto 0) & d_a_i;
-      s_d_re <= (not s_d_d(2)) and s_d_d(1) and s_d_d(0);
-      s_d_fe <= (s_d_d(2)) and (not s_d_d(1)) and (not s_d_d(0));
+      s_data_in_d3 <= s_data_in_d3(1 downto 0) & d_a_i;
     end if;
   end process;
 
-  s_d_edge <= s_d_fe or s_d_re;
+  s_data_in_r_edge <= (not s_data_in_d3(2)) and s_data_in_d3(1); -- 1st flip-flop not considered (metastability) 
+                                                                 -- transition on input signal of less than 2 clock cycles are not considered
+  s_data_in_f_edge <= s_data_in_d3(2) and (not s_data_in_d3(1));
+  s_data_in_edge <= s_data_in_f_edge or s_data_in_r_edge;
+
+
+
+
+
 
   uwf_tx: wf_tx 
     generic map(C_CLKFCDLENTGTH => C_CLKFCDLENTGTH)
@@ -162,20 +160,16 @@ begin
       last_byte_p_o => last_byte_p_o,
       fss_decoded_p_o => fss_decoded_p_o,
       crc_ok_p_o => crc_ok_p_o,
-      
-      rx_data_f_edge_i => s_d_fe,
-      rx_data_r_edge_i => s_d_re,
-      
+      rx_data_f_edge_i => s_data_in_f_edge,
+      rx_data_r_edge_i => s_data_in_r_edge,
       rx_data_filtered_i => s_d_filtered,
       sample_manch_bit_p_i => s_sample_manch_bit_p,
       wait_d_first_f_edge_o=> s_first_fe,
-       
       code_violation_p_o => code_violation_p_o,
       crc_wrong_p_o => crc_wrong_p_o,
       sample_bit_p_i => s_sample_bit_p,
       signif_edge_window_i => s_edge_window,
       adjac_bits_window_i => edge_180_window
-
       );
 
   
@@ -187,27 +181,16 @@ begin
 
 
     port map(
-      uclk_i   => uclk_i, --! User Clock
+      uclk_i   => uclk_i,
       nFIP_rst_i   => nFIP_rst_i, 
-      d_edge_i => s_d_edge,      
-      rx_data_f_edge_i   => s_d_fe,
+      d_edge_i => s_data_in_edge,      
+      rx_data_f_edge_i   => s_data_in_f_edge,
       wait_d_first_f_edge_i   => s_first_fe, 
-
-      
-      --! Bit rate         \n
-      --! 00: 31.25 kbit/s \n
-      --! 01: 1 Mbit/s     \n
-      --! 10: 2.5 Mbit/s   \n
-      --! 11: reserved, do not use
-      rate_i   => rate_i,  --! Bit rate
-
+      rate_i   => rate_i,  
       tx_clk_p_buff_o   => s_clk_fixed_carrier_p_d,
       tx_clk_o   => d_clk_o,
-      
       rx_manch_clk_p_o     => s_clk_carrier_p,
-
       rx_bit_clk_p_o  => s_clk_bit_180_p, 
-      
       rx_signif_edge_window_o  => s_edge_window,
       rx_adjac_bits_window_o => edge_180_window
       );
@@ -216,7 +199,7 @@ begin
     generic map (C_ACULENGTH => 10)
     Port map( uclk_i => uclk_i,
               nFIP_rst_i => nFIP_rst_i,
-              rx_data_i => s_d_d(2),
+              rx_data_i => s_data_in_d3(2),
               rx_data_filtered_o => s_d_filtered,
               sample_bit_p_i => s_clk_bit_180_p,
               sample_manch_bit_p_i  => s_clk_carrier_p,

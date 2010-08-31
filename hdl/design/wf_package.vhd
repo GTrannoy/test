@@ -53,7 +53,7 @@ package wf_package is
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
   --constants concerning the MPS status bits
-  constant c_REFRESHMENT_INDEX : integer :=  0; 
+  constant c_REFRESHMENT_INDEX :  integer := 0; 
   constant c_SIGNIFICANCE_INDEX : integer := 2; 
 
 
@@ -91,16 +91,16 @@ package wf_package is
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
   -- construction of a table for the P3_LGTH[2:0] settings
-  type t_unsigned_array is array (natural range <>) of unsigned(6 downto 0);
+  type t_unsigned_array is array (natural range <>) of unsigned(7 downto 0);
 
   constant c_P3_LGTH_TABLE : t_unsigned_array(0 to 7) := 
-    (0 => "0000010",     -- 2 bytes
-     1 => "0001000",     -- 8 bytes
-     2 => "0010000",     -- 16 bytes
-     3 => "0100000",     -- 32 bytes
-     4 => "1000000",     -- 64 bytes 
-     5 => "1111100",     -- 124 bytes
-     others => "0000000" -- reserved
+    (0 => "00000010",     -- 2 bytes
+     1 => "00001000",     -- 8 bytes
+     2 => "00010000",     -- 16 bytes
+     3 => "00100000",     -- 32 bytes
+     4 => "01000000",     -- 64 bytes 
+     5 => "01111100",     -- 124 bytes
+     others => "00000000" -- reserved
      );  
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
@@ -136,9 +136,9 @@ package wf_package is
   constant c_VAR_2_INDEX :        integer := 4;
   constant c_RESET_VAR_INDEX :    integer := 5;
 
-  constant c_2nd_byte_addr : std_logic_vector(6 downto 0)   := "0000010";
-  constant c_1st_byte_addr : std_logic_vector(6 downto 0)   := "0000001";
-  constant c_CTRL_BYTE_INDEX : std_logic_vector(6 downto 0) := "0000000";
+  constant c_2nd_BYTE_INDEX :  std_logic_vector(7 downto 0) := "00000010";
+  constant c_1st_BYTE_INDEX :  std_logic_vector(7 downto 0) := "00000001";
+  constant c_CTRL_BYTE_INDEX : std_logic_vector(7 downto 0) := "00000000";
 
 
 
@@ -316,13 +316,13 @@ package wf_package is
       wb_rst_i :            in std_logic;                      
       wb_clk_i :            in std_logic;
       wb_adr_i :            in  std_logic_vector (9 downto 0); 
-      wb_stb_p_i :          in  std_logic; 
+      wb_stb_r_edge_p_i :          in  std_logic; 
+      wb_cyc_i :            in std_logic; 
       byte_ready_p_i :      in std_logic;
-      index_offset_i :        in std_logic_vector(6 downto 0);
+      index_offset_i :      in std_logic_vector(7 downto 0);
       var_i :               in t_var;
       byte_i :              in std_logic_vector(7 downto 0);
-
-      wb_data_o :           out std_logic_vector (15 downto 0);
+      data_o :              out std_logic_vector (15 downto 0);
       wb_ack_cons_p_o :     out std_logic; 
       reset_nFIP_and_FD_o : out std_logic;
       reset_RSTON_o :       out std_logic
@@ -334,7 +334,6 @@ package wf_package is
   component wf_produced_vars is
     port (
       uclk_i :          in std_logic; 
-      nFIP_rst_i :      in std_logic;
       slone_i :         in std_logic; 
       nostat_i :        in std_logic; 
       m_id_dec_i :      in std_logic_vector (7 downto 0); 
@@ -343,14 +342,14 @@ package wf_package is
       wb_clk_i :        in std_logic; 
       data_i :          in std_logic_vector (15 downto 0); 
       wb_adr_i :        in std_logic_vector (9 downto 0); 
-      wb_stb_p_i :      in std_logic; 
+      wb_stb_r_edge_p_i :      in std_logic; 
       wb_we_p_i :       in std_logic;  
       wb_cyc_i :        in std_logic;
       nFIP_status_byte_i :   in std_logic_vector(7 downto 0);
       mps_byte_i :      in std_logic_vector(7 downto 0);
       var_i :           in t_var;
-      data_length_i :   in std_logic_vector(6 downto 0);
-      index_offset_i :  in std_logic_vector(6 downto 0);
+      data_length_i :   in std_logic_vector(7 downto 0);
+      index_offset_i :  in std_logic_vector(7 downto 0);
 
       sending_mps_o :   out std_logic; 
       byte_o :          out std_logic_vector(7 downto 0);
@@ -385,8 +384,8 @@ package wf_package is
       var3_rdy_o:         out std_logic; 
       var_o :             out t_var;
       consume_byte_p_o :  out std_logic;
-      add_offset_o :      out std_logic_vector(6 downto 0);
-      data_length_o :     out std_logic_vector(6 downto 0)
+      add_offset_o :      out std_logic_vector(7 downto 0);
+      data_length_o :     out std_logic_vector(7 downto 0)
       );
 
   end component wf_engine_control;
@@ -472,7 +471,8 @@ package wf_package is
       fd_txer_i :            in std_logic; 
       var1_access_a_i :      in std_logic; 
       var2_access_a_i :      in std_logic; 
-      var3_access_a_i :      in std_logic;  
+      var3_access_a_i :      in std_logic; 
+      var_i :                in t_var;  
       var1_rdy_i :           in std_logic; 
       var2_rdy_i :           in std_logic; 
       var3_rdy_i :           in std_logic; 

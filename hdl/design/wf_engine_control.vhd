@@ -108,8 +108,8 @@ entity wf_engine_control is
     last_byte_p_o :    out std_logic;
     start_produce_p_o :   out std_logic;
     var_o :            out t_var;
-    add_offset_o :     out std_logic_vector(6 downto 0);
-    data_length_o :    out std_logic_vector(6 downto 0);
+    add_offset_o :     out std_logic_vector(7 downto 0);
+    data_length_o :    out std_logic_vector(7 downto 0);
     consume_byte_p_o : out std_logic
     );
 
@@ -136,8 +136,8 @@ architecture rtl of wf_engine_control is
   signal s_start_produce_p, s_start_produce_p_d1 :            std_logic;
   signal s_respon_silen_c_is_zero, s_broadcast_var :          std_logic;
   signal s_inc_bytes_c, s_reset_bytes_c, s_last_byte_p :      std_logic;
-  signal s_data_length_match, s_byte_ready_p :                  std_logic;
-  signal s_p3_length_decoded, s_data_length :                 unsigned(6 downto 0);
+  signal s_data_length_match, s_byte_ready_p :                std_logic;
+  signal s_p3_length_decoded, s_data_length :                 unsigned(7 downto 0);
   signal s_bytes_c :                                          unsigned(7 downto 0);
   signal s_respon_silen_c, s_counter_top:                     signed(16 downto 0); 
   signal s_response_time, s_silence_time :                    signed(16 downto 0);
@@ -273,62 +273,62 @@ begin
     case control_st is
 
       when idle =>
-                            s_load_temp_var <= '0';
-                            s_counter_reset <= '1';
-                            s_inc_bytes_c <= '0';
-                            s_reset_bytes_c <= '1';
-                            s_load_var <= '0';
-                            s_counter_top <= s_silence_time;
-                            consume_byte_p_o <= '0';
+                            s_load_temp_var   <= '0';
+                            s_counter_reset   <= '1';
+                            s_inc_bytes_c     <= '0';
+                            s_reset_bytes_c   <= '1';
+                            s_load_var        <= '0';
+                            s_counter_top     <= s_silence_time;
+                            consume_byte_p_o  <= '0';
                             s_start_produce_p <= '0';
-                            s_last_byte_p <= '0';
-                            s_reset_id_dat <= '0';
-                            s_byte_ready_p <= '0';
-                            add_offset_o <= (others => '0');
+                            s_last_byte_p     <= '0';
+                            s_reset_id_dat    <= '0';
+                            s_byte_ready_p    <= '0';
+                            add_offset_o      <= (others => '0');
 
 
       when id_dat_control_byte =>
-                            s_load_temp_var <= '0';
-                            s_counter_reset <= '1';
-                            s_inc_bytes_c <= '0';
-                            s_reset_bytes_c <= '1';
-                            s_load_var <= '0';
-                            s_counter_top <= s_silence_time;
-                            consume_byte_p_o <= '0';
+                            s_load_temp_var   <= '0';
+                            s_counter_reset   <= '1';
+                            s_inc_bytes_c     <= '0';
+                            s_reset_bytes_c   <= '1';
+                            s_load_var        <= '0';
+                            s_counter_top     <= s_silence_time;
+                            consume_byte_p_o  <= '0';
                             s_start_produce_p <= '0';
-                            s_last_byte_p <= '0';
-                            s_reset_id_dat <= '0';
-                            s_byte_ready_p <= '0';
-                            add_offset_o <= (others => '0');
+                            s_last_byte_p     <= '0';
+                            s_reset_id_dat    <= '0';
+                            s_byte_ready_p    <= '0';
+                            add_offset_o      <= (others => '0');
 
       when id_dat_var_byte =>      
-                            s_load_temp_var <= byte_ready_p_i;
+                            s_load_temp_var   <= byte_ready_p_i;
 
-                            s_counter_reset <= '1';
-                            s_inc_bytes_c <= '0';
-                            s_reset_bytes_c <= '1';
-                            s_load_var <= '0';
-                            s_counter_top <= s_silence_time;
-                            consume_byte_p_o <= '0';
+                            s_counter_reset   <= '1';
+                            s_inc_bytes_c     <= '0';
+                            s_reset_bytes_c   <= '1';
+                            s_load_var        <= '0';
+                            s_counter_top     <= s_silence_time;
+                            consume_byte_p_o  <= '0';
                             s_start_produce_p <= '0';
-                            s_last_byte_p <= '0';
-                            s_reset_id_dat <= '0';
-                            s_byte_ready_p <= '0';
-                            add_offset_o <= (others => '0');
+                            s_last_byte_p     <= '0';
+                            s_reset_id_dat    <= '0';
+                            s_byte_ready_p    <= '0';
+                            add_offset_o      <= (others => '0');
 
       when id_dat_subs_byte =>
-                            s_load_temp_var <= '0';
-                            s_counter_reset <= '1';
-                            s_inc_bytes_c <= '0';
-                            s_reset_bytes_c <= '1';
-                            s_load_var <= '0';
-                            s_counter_top <= s_silence_time;
-                            consume_byte_p_o <= '0';
+                            s_load_temp_var   <= '0';
+                            s_counter_reset   <= '1';
+                            s_inc_bytes_c     <= '0';
+                            s_reset_bytes_c   <= '1';
+                            s_load_var        <= '0';
+                            s_counter_top     <= s_silence_time;
+                            consume_byte_p_o  <= '0';
                             s_start_produce_p <= '0';
-                            s_last_byte_p <= '0';
-                            s_reset_id_dat <= '0';
-                            s_byte_ready_p <= '0';
-                            add_offset_o <= (others => '0');
+                            s_last_byte_p     <= '0';
+                            s_reset_id_dat    <= '0';
+                            s_byte_ready_p    <= '0';
+                            add_offset_o      <= (others => '0');
 
 
 
@@ -336,76 +336,76 @@ begin
                             s_load_var <= '0';
 
                             if s_produce_or_consume = "10" then
-                              s_counter_top <= s_response_time;
+                              s_counter_top   <= s_response_time;
                             else 
-                              s_counter_top <= s_silence_time;
+                              s_counter_top   <= s_silence_time;
                             end if;
 
-                            s_counter_reset <= '1';
-                            s_inc_bytes_c <= '0';
-                            s_reset_bytes_c <= '1';
-                            consume_byte_p_o <= '0';
+                            s_counter_reset   <= '1';
+                            s_inc_bytes_c     <= '0';
+                            s_reset_bytes_c   <= '1';
+                            consume_byte_p_o  <= '0';
                             s_start_produce_p <= '0';
-                            s_last_byte_p <= '0';
-                            s_reset_id_dat <= '0';
-                            s_byte_ready_p <= '0';
-                            s_load_temp_var <= '0';
-                            add_offset_o <= (others => '0');
+                            s_last_byte_p     <= '0';
+                            s_reset_id_dat    <= '0';
+                            s_byte_ready_p    <= '0';
+                            s_load_temp_var   <= '0';
+                            add_offset_o      <= (others => '0');
 
 
       when produce_wait_respon_time =>  
                             s_start_produce_p <= s_respon_silen_c_is_zero;
-                            s_counter_reset <= '0';
+                            s_counter_reset   <= '0';
 
-                            s_inc_bytes_c <= '0';
-                            s_reset_bytes_c <= '1';
-                            s_load_var <= '1';
-                            s_counter_top <= s_silence_time;
-                            consume_byte_p_o <= '0';
-                            s_load_temp_var <= '0';
-                            s_last_byte_p <= '0';
-                            s_reset_id_dat <= '0';
-                            s_byte_ready_p <= '0';
-                            add_offset_o <= (others => '0'); 
+                            s_inc_bytes_c     <= '0';
+                            s_reset_bytes_c   <= '1';
+                            s_load_var        <= '1';
+                            s_counter_top     <= s_silence_time;
+                            consume_byte_p_o  <= '0';
+                            s_load_temp_var   <= '0';
+                            s_last_byte_p     <= '0';
+                            s_reset_id_dat    <= '0';
+                            s_byte_ready_p    <= '0';
+                            add_offset_o      <= (others => '0'); 
 
 	   
         
       when consume =>
                             --if unsigned(s_bytes_c) > 1 then -- 1st byte: control; not to be consumed--should be >0???
-                              consume_byte_p_o <= byte_ready_p_i;
+                            consume_byte_p_o  <= byte_ready_p_i;
                             --else
                             --  consume_byte_p_o <= '0';
                             --end if;
 
-                            s_reset_id_dat <= frame_ok_p_i or s_respon_silen_c_is_zero;
-                            add_offset_o <= std_logic_vector(resize(s_bytes_c,add_offset_o'length));
-                            s_inc_bytes_c <= byte_ready_p_i;
+                            s_reset_id_dat    <= frame_ok_p_i or s_respon_silen_c_is_zero;
+                            add_offset_o      <= std_logic_vector(resize(s_bytes_c,add_offset_o'length));
+                            s_inc_bytes_c     <= byte_ready_p_i;
 
-                            s_reset_bytes_c <= '0';
-                            s_counter_reset <= '0';
-                            s_load_var <= '1';
-                            s_counter_top <= s_silence_time;
+                            s_reset_bytes_c   <= '0';
+                            s_counter_reset   <= '0';
+                            s_load_var        <= '1';
+                            s_counter_top     <= s_silence_time;
                             s_start_produce_p <= '0';
-                            s_last_byte_p <= '0';
-                            s_load_temp_var <= '0';
-                            s_byte_ready_p <= '0';
+                            s_last_byte_p     <= '0';
+                            s_load_temp_var   <= '0';
+                            s_byte_ready_p    <= '0';
 
 
 
       when produce =>
-                            s_last_byte_p <=  s_data_length_match and request_byte_p_i;
-                            s_byte_ready_p <= request_byte_p_i or s_start_produce_p_d1;
-                            s_inc_bytes_c <= request_byte_p_i;
-                            s_reset_id_dat <= s_data_length_match and request_byte_p_i;
-                            add_offset_o <= std_logic_vector(resize(s_bytes_c, add_offset_o'length));
-                            s_counter_reset <= '0';
+                            s_last_byte_p     <=  s_data_length_match and request_byte_p_i;
+                            s_byte_ready_p    <= request_byte_p_i or s_start_produce_p_d1;
+                            s_inc_bytes_c     <= request_byte_p_i;
+                            s_reset_id_dat    <= s_data_length_match and request_byte_p_i;
+                            add_offset_o      <= std_logic_vector(resize(s_bytes_c, add_offset_o'length));
+                            s_counter_reset   <= '0';
 
-                            s_reset_bytes_c <= '0';
+                            s_reset_bytes_c   <= '0';
                             s_start_produce_p <= '0';
-                            s_load_var <= '0';
-                            s_counter_top <= s_silence_time;
-                            consume_byte_p_o <= '0';
-                            s_load_temp_var <= '0';
+                            s_load_var        <= '0';
+                            s_counter_top     <= s_silence_time;
+                            consume_byte_p_o  <= '0';
+                            s_load_temp_var   <= '0';
 
       when others =>   
 
@@ -543,10 +543,10 @@ begin
         if slone_i = '1' then
 
           if nostat_i = '1' then
-            s_data_length <= "0000011"; -- 4 bytes (counting starts from 0)
+            s_data_length <= "00000011"; -- 4 bytes (counting starts from 0)
 
           else 
-            s_data_length <= "0000100"; -- 5 bytes (counting starts from 0)
+            s_data_length <= "00000100"; -- 5 bytes (counting starts from 0)
           end if;
 
 

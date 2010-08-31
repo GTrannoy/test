@@ -168,11 +168,12 @@ architecture rtl of wf_rx_osc is
 --=================================================================================================
 begin
   
-  s_period <= C_UCLK_TICKS(to_integer(unsigned(rate_i)));  -- s_period: # uclock ticks for a period
-  s_half_period <= (s_period srl 1);                       -- s_period shifted 1 bit
-  s_one_forth_period <= s_period srl 2;                    -- s_period shifted 2 bits
-  s_jitter <= s_period srl 3;                              -- jitter defined as 1/8 of the period
-  s_counter_full <= s_period-1;
+  s_period           <= C_UCLK_TICKS(to_integer(unsigned(rate_i)));  -- # uclock ticks for a period
+  s_half_period      <= (s_period srl 1);                            -- s_period shifted 1 bit
+  s_one_forth_period <= s_period srl 2;                              -- s_period shifted 2 bits
+  s_jitter           <= s_period srl 3;                              -- jitter defined as 1/8 of
+                                                                     -- the period
+  s_counter_full     <= s_period-1;
 
 
 ---------------------------------------------------------------------------------------------------
@@ -191,9 +192,9 @@ begin
   begin
     if rising_edge(uclk_i) then                                                  
       if nFIP_rst_i = '1' then
-        s_counter_tx <= (others => '0');
-        s_counter_rx <= (others => '0');
-        s_tx_clk_d1 <= '0';
+        s_counter_tx    <= (others => '0');
+        s_counter_rx    <= (others => '0');
+        s_tx_clk_d1     <= '0';
         s_tx_clk_p_buff <= (others => '0');
 
       else 
@@ -201,13 +202,13 @@ begin
         -- transmission counter:
         -- free counter measuring transmission periods
         if (s_counter_tx = s_counter_full) then                         
-          s_counter_tx <= (others => '0');
+          s_counter_tx  <= (others => '0');
         else
-          s_counter_tx <= s_counter_tx + 1 ;                      
+          s_counter_tx  <= s_counter_tx + 1 ;                      
         end if;
      
         -- clk signals:
-        s_tx_clk_d1 <= s_tx_clk;
+        s_tx_clk_d1     <= s_tx_clk;
         s_tx_clk_p_buff <= s_tx_clk_p_buff (s_tx_clk_p_buff'left -1 downto 0) & s_tx_clk_p; -- buffer
 
 
@@ -216,7 +217,7 @@ begin
         -- counter initialized after the first falling edge of rx_data_i 
 	    if (wait_d_first_f_edge_i = '1') then                 
           if rx_data_f_edge_i = '1' then           -- 1st falling edge of an id_dat received                                
-             s_counter_rx <= (others => '0');      -- counter initialized
+             s_counter_rx  <= (others => '0');     -- counter initialized
           else
             if (s_counter_rx=s_counter_full) then  -- measurement of the first period
               s_counter_rx <= (others => '0');              
@@ -228,14 +229,14 @@ begin
         -- for the rest of the rxd
         else
          if (s_rx_signif_edge_window = '1') and (d_edge_i ='1') then 
-           s_counter_rx <= (others => '0');        -- when an edge appears inside
+           s_counter_rx   <= (others => '0');      -- when an edge appears inside
                                                    --  the expected window, the   
                                                    --  counter is reinitialized
 
           elsif (s_counter_rx=s_counter_full) then -- otherwise, it continues counting
-            s_counter_rx <= (others => '0');       -- complete nominal periods
+            s_counter_rx  <= (others => '0');      -- complete nominal periods
           else
-            s_counter_rx <= s_counter_rx + 1 ;  
+            s_counter_rx  <= s_counter_rx + 1 ;  
   
          end if;
         end if;
@@ -306,11 +307,11 @@ begin
       if rising_edge(uclk_i) then
         -- initializations:  
         if (nFIP_rst_i = '1') then
-          s_rx_manch_clk <='0';
-          s_rx_bit_clk <= '0';
-          s_rx_bit_clk_d1 <='0';
-          s_rx_manch_clk_d1 <='0';
-          s_signif_edge_found <='0';
+          s_rx_manch_clk          <='0';
+          s_rx_bit_clk            <='0';
+          s_rx_bit_clk_d1         <='0';
+          s_rx_manch_clk_d1       <='0';
+          s_signif_edge_found     <='0';
           s_adjac_bits_edge_found <='0';
 
 
@@ -318,43 +319,46 @@ begin
           -- regarding significant edges:
           if (s_rx_signif_edge_window='1') then   -- looking for a significant edge  
             if  (d_edge_i='1') then               -- inside the corresponding window
-              s_rx_manch_clk <= not s_rx_manch_clk;
-              s_signif_edge_found <= '1';         -- indication that the edge was found
+              s_rx_manch_clk          <= not s_rx_manch_clk;
+              s_signif_edge_found     <= '1';     -- indication that the edge was found
               s_adjac_bits_edge_found <= '0';
             end if;
 
           elsif (s_signif_edge_found='0')and(s_counter_rx=s_jitter) then
-            s_rx_manch_clk <= not s_rx_manch_clk; --if a significant edge is not found where               
+            s_rx_manch_clk            <= not s_rx_manch_clk; 
+                                                  --if a significant edge is not found where               
                                                   -- expected (code violation), the
                                                   -- rx_manch_clk is inverted right after the
                                                   -- end of the signif_edge_window
 
-            s_adjac_bits_edge_found <= '0';       -- re-initialization before the next cycle
+            s_adjac_bits_edge_found   <= '0';     -- re-initialization before the next cycle
 
           -- regarding edges between adjacent bits:
-          elsif (s_rx_adjac_bits_window='1') then -- looking for an edge inside 
-            if  (d_edge_i='1') then               -- the corresponding window
-             s_rx_manch_clk <= not s_rx_manch_clk;-- inversion of rx_manch_clk
-             s_rx_bit_clk <= not s_rx_bit_clk;    -- inversion of rx_bit_clk
-             s_adjac_bits_edge_found <= '1';      -- indication that an edge was found
+          elsif (s_rx_adjac_bits_window='1') then           -- looking for an edge inside 
+            if  (d_edge_i='1') then                         -- the corresponding window
+             s_rx_manch_clk           <= not s_rx_manch_clk;-- inversion of rx_manch_clk
+             s_rx_bit_clk             <= not s_rx_bit_clk;  -- inversion of rx_bit_clk
+             s_adjac_bits_edge_found  <= '1';               -- indication that an edge was found
 
-             s_signif_edge_found <= '0';          -- re-initialization before the next cycle
+             s_signif_edge_found      <= '0';               -- re-initialization before next cycle
             end if;
 
           elsif (s_adjac_bits_edge_found='0')and(s_counter_rx=s_half_period+s_jitter) then 
-            s_rx_manch_clk <= not s_rx_manch_clk; -- if no edge occurs inside the 
-            s_rx_bit_clk <= not s_rx_bit_clk;     -- adjac_bits_edge_window, both clks are 
-                                                  -- inverted right after the end of it.
+            s_rx_manch_clk            <= not s_rx_manch_clk; -- if no edge occurs inside the 
+            s_rx_bit_clk              <= not s_rx_bit_clk;   --adjac_bits_edge_window,both clks are  
+                                                             -- inverted right after the end of it
            
            
-            s_signif_edge_found <= '0';           -- re-initialization before the next cycle
+            s_signif_edge_found       <= '0';                -- reinitialization before next cycle
          end if;
 
-         s_rx_manch_clk_d1 <= s_rx_manch_clk;     -- s_rx_manch_clk:    ____|-----|_____|-----|____
+         s_rx_manch_clk_d1            <= s_rx_manch_clk;    
+                                                  -- s_rx_manch_clk:    ____|-----|_____|-----|____
                                                   -- s_rx_manch_clk_d1: ______|-----|_____|-----|__
                                                   -- rx_manch_clk_p_o:  ____|-|___|-|___|-|___|-|__
 
-         s_rx_bit_clk_d1 <= s_rx_bit_clk;         -- s_rx_bit_clk:     ____|-----------|___________
+         s_rx_bit_clk_d1              <= s_rx_bit_clk;    
+                                                  -- s_rx_bit_clk:     ____|-----------|___________
                                                   -- s_rx_bit_clk_d1:  ______|-----------|_________
                                                   -- rx_bit_clk_p_o:   ____|-|_________|-|_________                           
 
@@ -372,18 +376,18 @@ begin
                                                                -- 2) a new bit
                                                                -- ___|-|___|-|___|-|___
 
-   rx_bit_clk_p_o  <= s_rx_bit_clk xor s_rx_bit_clk_d1;        -- a pulse 1-uclk period long, after
+   rx_bit_clk_p_o   <= s_rx_bit_clk xor s_rx_bit_clk_d1;       -- a pulse 1-uclk period long, after
                                                                -- a new bit
                                                                -- _________|-|_________
   
  -- clocks needed for the transmitter:
-  tx_clk_o <= s_tx_clk_d1;
-  tx_clk_p_buff_o <= s_tx_clk_p_buff;                           
+  tx_clk_o          <= s_tx_clk_d1;
+  tx_clk_p_buff_o   <= s_tx_clk_p_buff;                           
 
  
   -- output signals that have also been used in this unit's processes:
   rx_signif_edge_window_o <= s_rx_signif_edge_window;
-  rx_adjac_bits_window_o <= s_rx_adjac_bits_window;
+  rx_adjac_bits_window_o  <= s_rx_adjac_bits_window;
 
 
 end architecture rtl;
