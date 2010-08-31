@@ -451,10 +451,13 @@ Input_Byte_Sampling: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if nFIP_rst_i = '1' then
-        s_byte <= (others => '0');
+        s_byte   <= (others => '0');
+
       else      
+
         if byte_ready_p_i = '1' then
           s_byte <= byte_i;
+
         end if;
       end if;
     end if;
@@ -468,8 +471,8 @@ Input_Byte_Sampling: process(uclk_i)
   Manchester_Encoder_byte: process(s_byte)
   begin
     for I in byte_i'range loop
-      s_byte_manch(I*2) <= not s_byte(I);
-      s_byte_manch(I*2+1) <=  s_byte(I);
+      s_byte_manch(I*2)   <= not s_byte(I);
+      s_byte_manch(I*2+1) <= s_byte(I);
     end loop;
   end process;
 
@@ -481,8 +484,8 @@ Input_Byte_Sampling: process(uclk_i)
   Manchester_Encoder_crc_byte: process(s_crc_byte_manch)
   begin
     for I in s_crc_byte_manch'range loop
-      s_manchester_crc(I*2) <= not s_crc_byte_manch(I);
-      s_manchester_crc(I*2+1) <=  s_crc_byte_manch(I);
+      s_manchester_crc(I*2)   <= not s_crc_byte_manch(I);
+      s_manchester_crc(I*2+1) <= s_crc_byte_manch(I);
     end loop;
   end process;
 
@@ -497,7 +500,7 @@ Input_Byte_Sampling: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if nFIP_rst_i = '1' then
-        tx_data_o <= '0';
+        tx_data_o   <= '0';
         tx_enable_o <= '0';
       else
 
@@ -505,7 +508,7 @@ Input_Byte_Sampling: process(uclk_i)
           tx_data_o <= s_data_bit;
         end if;
 
-      tx_enable_o <= s_tx_enable;
+      tx_enable_o   <= s_tx_enable;
 
       end if;
     end if;
@@ -519,7 +522,7 @@ Input_Byte_Sampling: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
       if nFIP_rst_i = '1' then
-        s_bit_index <= (others => '0');
+        s_bit_index   <= (others => '0');
       else
 
         if s_bit_index_load = '1' then

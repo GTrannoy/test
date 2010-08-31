@@ -90,9 +90,11 @@ port (
     crc_wrong_p_i :        in std_logic;
     
     -- Signals from the central control unit wf_engine_control
+    var_i :                in t_var;     --! variable type 
     var1_rdy_i :           in std_logic; --! Variable 1 ready
     var2_rdy_i :           in std_logic; --! Variable 2 ready
     var3_rdy_i :           in std_logic; --! Variable 3 ready
+    
 
     -- Signal from nanofip
     reset_status_bytes_i : in std_logic;
@@ -100,8 +102,8 @@ port (
 
   -- OUTPUTS 
     -- Output to wf_produced_vars
-    status_byte_o :             out std_logic_vector(7 downto 0);  --! status byte
-    mps_byte_o :                out std_logic_vector(7 downto 0)   --! mps byte
+    status_byte_o :        out std_logic_vector(7 downto 0);  --! status byte
+    mps_byte_o :           out std_logic_vector(7 downto 0)   --! mps byte
      );
 end entity status_gen;
 
@@ -127,9 +129,9 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nFIP_rst_i = '1' then
-        s_var1_access <= (others => '0');
-        s_var2_access <= (others => '0');
-        s_var3_access <= (others => '0');
+        s_var1_access    <= (others => '0');
+        s_var2_access    <= (others => '0');
+        s_var3_access    <= (others => '0');
       else
         s_var1_access(0) <= var1_access_a_i;
         s_var2_access(0) <= var2_access_a_i; 
@@ -150,36 +152,43 @@ begin
 
     if rising_edge(uclk_i) then
   
-      if ((nFIP_rst_i = '1') or (reset_status_bytes_i = '1')) then
-        status_byte_o <= (others => '0');
+      if ((nFIP_rst_i = '1') or (reset_status_bytes_i = '1')) then -- the byte is reinitialized
+        status_byte_o                    <= (others => '0');       -- after having been delivered
 
         else
 
-        if ((var1_rdy_i = '0' and s_var1_access(1) = '1') or -- the user logic accessed a cosumed
-       (var2_rdy_i = '0' and s_var2_access(1) = '1')) then   -- variable when it was not ready
-          status_byte_o(c_U_CACER_INDEX) <= '1';
-        end if;
+        if ((var1_rdy_i = '0' and s_var1_access(1) = '1') or      -- since the last time the status
+            (var2_rdy_i = '0' and s_var2_access(1) = '1')) then   -- byte was delivered,
+          status_byte_o(c_U_CACER_INDEX) <= '1';                  -- the user logic accessed a cosmd
+        end if;                                                   -- variable when it was not ready
 
-        if ((var3_rdy_i = '0') and (s_var3_access(1) = '1')) then -- the user logic accessed a prod
-          status_byte_o(c_U_PACER_INDEX) <= '1';                    -- variable when it was not ready
-        end if;
+        if ((var3_rdy_i = '0') and (s_var3_access(1) = '1')) then -- since the last time the status 
+          status_byte_o(c_U_PACER_INDEX) <= '1';                  -- byte was delivered,
+        end if;                                                   -- the user logic accessed a prod
+                                                                  -- variable when it was not ready
 
-        if (code_violation_p_i = '1') then                        -- a variable arrived for this 
-          status_byte_o(c_R_BNER_INDEX) <= '1';                     -- station with a manchester 2
-        end if;                                                   --  violation
+        if ((var_i = var_1 or var_i = var_2) and (code_violation_p_i = '1')) then 
+          status_byte_o(c_R_BNER_INDEX)  <= '1';                  -- since the last time the status 
+                                                                  -- byte was delivered, 
+        end if;                                                   -- a consumed var arrived for 
+                                                                  -- this station with a manch code
+                                                                  -- violation (on the rp_dat.Data)
 
-        if (crc_wrong_p_i = '1') then    -- a variable arrived for this station with wrong checksum
-          status_byte_o(c_R_FCSER_INDEX) <= '1';
-        end if;
+        if ((var_i = var_1 or var_i = var_2)and(crc_wrong_p_i = '1')) then
+          status_byte_o(c_R_FCSER_INDEX) <= '1';                 -- since the last time the status  
+                                                                 -- byte was delivered,
+        end if;                                                  -- a consumed var with a wrong CRC 
+                                                                 -- arrived for this station
 
-        if (fd_wdgn_i = '1') then        -- the FIELDRIVE signalled a transmission error
-          status_byte_o(c_T_TXER_INDEX) <= '1';
-        end if;
+        if (fd_wdgn_i = '0') then                                -- since the last time the status 
+          status_byte_o(c_T_TXER_INDEX)  <= '1';                 -- byte was delivered,
+        end if;                                                  -- there has been a signal for
+                                                                 -- a FIELDRIVE transmission error
 
-        if (fd_txer_i = '1') then        -- the FIELDRIVE signalled a watchdog timer problem
-          status_byte_o(c_T_WDER_INDEX) <= '1';
-        end if;
-
+        if (fd_txer_i = '1') then                                -- since the last time the status
+          status_byte_o(c_T_WDER_INDEX)  <= '1';                 -- byte was delivered,
+        end if;                                                  -- there has been a signal for a
+                                                                 -- FIELDRIVE watchdog timer problem
       end if;
     end if;
 end process;
@@ -195,7 +204,7 @@ end process;
     if rising_edge(uclk_i) then
 
       if nFIP_rst_i = '1' or reset_status_bytes_i = '1' then
-        s_refreshment <= '0';
+        s_refreshment   <= '0';
       else
 
         if (var3_access_a_i = '1') then
@@ -215,12 +224,12 @@ end process;
   begin
     if slone_i='1' then
       mps_byte_o <= (others => '0');
-      mps_byte_o (c_REFRESHMENT_INDEX) <= '1'; 
+      mps_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
       mps_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
 
     else
       mps_byte_o <= (others => '0');      
-      mps_byte_o (c_REFRESHMENT_INDEX) <= s_refreshment; 
+      mps_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
       mps_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
     end if;
   end process;
