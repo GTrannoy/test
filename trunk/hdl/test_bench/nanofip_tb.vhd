@@ -204,9 +204,9 @@ begin
     );
 
     dat_i(7 downto 0)	<= dat_to_fip;
-    dat_o(7 downto 0)	<= dat_from_fip;
     dat_i(15 downto 8)	<= slone_dat_i;
-    dat_o(15 downto 8)	<= slone_dat_o;
+    dat_from_fip		<= dat_o(7 downto 0);
+    slone_dat_o			<= dat_o(15 downto 8);
 
 	board: board_settings
 	port map(
