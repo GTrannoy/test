@@ -64,7 +64,7 @@ begin
 		transfer_lgth		<= "000" & x"0";
 		transfer_offst		<= "000" & x"0";
 		var					<= "00";
-		wait for 800 us;
+		wait for 1800 us;
 
 		block_size			<= "000" & x"0";
 		launch_wb_rd		<= '1';

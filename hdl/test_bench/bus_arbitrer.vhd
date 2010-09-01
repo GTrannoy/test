@@ -42,7 +42,7 @@ begin
 		station_adr				<= x"5A";
 		var_adr					<= x"00";
 		var_length				<= "0000000";
-		wait for 400 us;
+		wait for 1300 us;
 		id_rp					<= '1';
 		launch_fip_cycle		<= '1' after 1 us;		-- ID_DAT for consumed
 		station_adr				<= x"5A";

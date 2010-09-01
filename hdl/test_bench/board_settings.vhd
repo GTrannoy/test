@@ -58,7 +58,7 @@ begin
 	rate				<= "01";
 	station_adr			<= x"5A";
 	slone				<= '0';
-	var_length			<= "010";
+	var_length			<= "101";
 	nostat				<= '0';
 
 	c_id(3)				<= gnd;

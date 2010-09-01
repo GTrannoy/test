@@ -44,13 +44,14 @@ constant control_id			: unsigned(7 downto 0):=x"03";
 constant control_rp			: unsigned(7 downto 0):=x"02";
 constant pdu_presence		: unsigned(7 downto 0):=x"50";
 constant pdu_identification	: unsigned(7 downto 0):=x"52";
+constant pdu_produced		: unsigned(7 downto 0):=x"40";
 
-type frame_data_ty			is array(0 to 128) of unsigned(7 downto 0); 
+type frame_data_ty			is array(0 to 130) of unsigned(7 downto 0); 
 signal frame_data			: frame_data_ty:=(others=> x"00");
 
 signal aux_latch			: std_logic;
-signal byte_nb				: integer range 0 to 128:=0;
-signal bytes_received		: integer range 0 to 128:=0;
+signal byte_nb				: integer range 0 to 130:=0;
+signal bytes_received		: integer range 0 to 130:=0;
 signal chop_byte			: std_logic;
 signal control_byte			: unsigned(7 downto 0):=x"00";
 signal control_ok			: boolean:= FALSE;
@@ -204,10 +205,10 @@ begin
 		else
 			struct_check		<= '0';
 		end if;
-		frame_struct_check		<= struct_check;
 		wait until clk ='1';
 	end process;
 	
+	frame_struct_check		<= struct_check;
 	frame_struct_ok			<= '1' when control_ok and length_ok and struct_ok
 							else '0';
 	
