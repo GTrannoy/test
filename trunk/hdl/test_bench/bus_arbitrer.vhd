@@ -59,14 +59,14 @@ begin
 		launch_fip_cycle		<= '1' after 1 us;		-- RP_DAT from consumed
 		station_adr				<= x"5A";
 		var_adr					<= x"05";
-		var_length				<= "0000100";
+		var_length				<= "0000010";
 		wait for 10 us;
 		id_rp					<= '0';
 		launch_fip_cycle		<= '0';
 		station_adr				<= x"00";
 		var_adr					<= x"00";
 		var_length				<= "0000000";
-		wait for 200 us;
+		wait for 400 us;
 		id_rp					<= '1';
 		launch_fip_cycle		<= '1' after 1 us;		-- ID_DAT for produced
 		station_adr				<= x"5A";

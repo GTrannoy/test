@@ -51,7 +51,7 @@ signal frame_data			: frame_data_ty:=(others=> x"00");
 
 signal aux_latch			: std_logic;
 signal byte_nb				: integer range 0 to 130:=0;
-signal bytes_received		: integer range 0 to 130:=0;
+signal bytes_total			: integer range 0 to 130:=0;
 signal chop_byte			: std_logic;
 signal control_byte			: unsigned(7 downto 0):=x"00";
 signal control_ok			: boolean:= FALSE;
@@ -110,9 +110,9 @@ begin
 	total_number: process
 	begin
 		if reset ='1' then
-			bytes_received			<= 0;
+			bytes_total			<= 0;
 		elsif eof ='1' then
-			bytes_received			<= byte_nb;
+			bytes_total			<= byte_nb;
 		end if;
 		wait until clk ='1';
 	end process;
@@ -140,7 +140,7 @@ begin
 	
 	-- process checking the correctness of the frame structure
 	----------------------------------------------------------
-	structure_check: process(frame_data, bytes_received)
+	structure_check: process(frame_data, bytes_total)
 	begin
 		if control_byte = control_rp then
 			control_ok			<= TRUE;
@@ -148,7 +148,7 @@ begin
 			control_ok			<= FALSE;
 		end if;
 		
-		if to_integer(length_byte) = (bytes_received - 4) then
+		if to_integer(length_byte) = (bytes_total - 4) then
 			length_ok			<= TRUE;
 		else
 			length_ok			<= FALSE;
@@ -179,9 +179,9 @@ begin
 			end if;
 			
 		when x"40" =>						-- produced
-			if bytes_received /= 0 then
-				if (frame_data(bytes_received - 2) = x"00" 
-				or frame_data(bytes_received - 2) = x"05") then
+			if bytes_total /= 0 then
+				if (frame_data(bytes_total - 2) = x"00" 
+				or frame_data(bytes_total - 2) = x"05") then
 					struct_ok	<= TRUE;
 				else
 					struct_ok	<= FALSE;
