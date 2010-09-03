@@ -57,7 +57,7 @@ begin
 
 	rate				<= "01";
 	station_adr			<= x"5A";
-	slone				<= '0';
+	slone				<= '1';
 	var_length			<= "101";
 	nostat				<= '0';
 

@@ -47,10 +47,11 @@ architecture archi of msg_sender is
 	);
 	end component;
 
-constant mps_byte			: std_logic_vector(7 downto 0):="00000101";
+constant mps_byte			: std_logic_vector(7 downto 0):=x"05";
+constant pdu_type_byte		: std_logic_vector(7 downto 0):=x"40";
 
-type mstate_ty				is (idle, ctrl_id, ctrl_rp, id_high, id_low, data, 
-								last_byte, mps, completed);
+type mstate_ty				is (idle, ctrl_id, id_high, id_low, 
+								ctrl_rp, pdu_type, length, data, last_byte, mps);
 signal mstate, nxt_mstate	: mstate_ty;
 
 signal en_count				: std_logic;
@@ -59,11 +60,12 @@ signal control				: std_logic_vector(7 downto 0);
 signal count				: std_logic_vector(6 downto 0);
 signal count_done			: std_logic;
 signal file_data			: std_logic_vector(7 downto 0);
+signal length_byte			: std_logic_vector(7 downto 0);
 signal nxt_data				: std_logic;
 signal reset_count			: std_logic;
 signal running				: std_logic;
 signal start_value			: std_logic_vector(6 downto 0);
-signal un_start_value		: unsigned(6 downto 0);
+signal un_length			: unsigned(6 downto 0);
 signal var_id				: std_logic_vector(7 downto 0);
 signal xy					: std_logic_vector(7 downto 0);
 
@@ -163,6 +165,32 @@ begin
 			end if;
 
 		when ctrl_rp =>
+			en_count			<= '0';
+			msg_complete		<= '0';
+			msg_data			<= pdu_type_byte;
+			reset_count			<= '0';
+			running				<= '1';
+	
+			if msg_new_data_req ='1' then
+				nxt_mstate			<= pdu_type;
+			else
+				nxt_mstate			<= ctrl_rp;
+			end if;
+
+		when pdu_type =>
+			en_count			<= '1';
+			msg_complete		<= '0';
+			msg_data			<= length_byte;
+			reset_count			<= '0';
+			running				<= '1';
+	
+			if msg_new_data_req ='1' then
+				nxt_mstate			<= length;
+			else
+				nxt_mstate			<= pdu_type;
+			end if;
+
+		when length =>
 			en_count			<= '1';
 			msg_complete		<= '0';
 			msg_data			<= file_data;
@@ -172,7 +200,7 @@ begin
 			if msg_new_data_req ='1' then
 				nxt_mstate			<= data;
 			else
-				nxt_mstate			<= ctrl_rp;
+				nxt_mstate			<= length;
 			end if;
 
 		when data =>
@@ -214,19 +242,6 @@ begin
 				nxt_mstate			<= mps;
 			end if;
 
-		when completed =>
-			en_count			<= '0';
-			msg_complete		<= '1';
-			msg_data			<= control;
-			reset_count			<= '0';
-			running				<= '0';
-	
-			if msg_new_data_req ='1' then
-				nxt_mstate			<= idle;
-			else
-				nxt_mstate			<= completed;
-			end if;
-
 		when others =>
 			en_count			<= '0';
 			msg_complete		<= '0';
@@ -242,12 +257,13 @@ begin
 -- for use during the whole transmission
 -------------------------------------------------------------------------
 	latching: process (reset, launch_fip_cycle, id_rp, var_length, 
-						un_start_value, station_adr)
+						un_length, var_adr, station_adr)
 	begin
 		if reset ='1' then
 			control			<= x"00";
+			length_byte		<= x"00";
 			start_value		<= "0000000";
---			un_start_value	<= "0000000";
+			un_length		<= "0000000";
 			var_id			<= x"00";
 			xy				<= x"00";
 		elsif launch_fip_cycle ='1' then
@@ -256,9 +272,9 @@ begin
 			else
 				control		<= x"02";
 			end if;
---			start_value			<= std_logic_vector(un_start_value);
---			un_start_value		<= unsigned(var_length) - "1";
-			start_value			<= var_length;
+			length_byte			<= "0" & std_logic_vector(un_length);
+			start_value			<= std_logic_vector(un_length);
+			un_length			<= unsigned(var_length) + "1";
 			var_id				<= var_adr;
 			xy					<= station_adr;
 		end if;
