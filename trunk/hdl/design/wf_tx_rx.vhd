@@ -28,7 +28,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! On reception it depacketises the data and only presents the actual data
 --! contents. It also verifies the FCS (Frame Checksum, CRC).\n
 --! On transmission it packetises the data and adds the FCS.
---! The unit wf_rx_osc recovers the carrier clock during 
+--! The unit wf_rx_tx_osc recovers the carrier clock during 
 --!
 --! @author Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --
@@ -42,7 +42,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! wf_engine           \n
 --! tx_engine           \n
 --! clk_gen             \n
---! reset_logic         \n
+--! wf_reset_unit         \n
 --! consumed_ram        \n
 --!
 --!
@@ -69,25 +69,26 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 entity wf_tx_rx is
 
   port (
-    uclk_i    : in std_logic; --! User Clock
-    nFIP_rst_i     : in std_logic;
-    start_produce_p_i  : in std_logic;
-    request_byte_p_o : out std_logic;
-    byte_ready_p_i : in std_logic;
-    byte_i : in std_logic_vector(7 downto 0);
-    last_byte_p_i : in std_logic;
-    tx_data_o : out std_logic;
-    tx_enable_o : out std_logic;
-    d_clk_o : out std_logic;
-    d_a_i : in std_logic;
-    rate_i    : in std_logic_vector(1 downto 0);
-    byte_ready_p_o : out std_logic;
-    byte_o : out std_logic_vector(7 downto 0);
-    last_byte_p_o : out std_logic;
-    fss_decoded_p_o : out std_logic;
+    uclk_i :             in std_logic; --! User Clock
+    nFIP_rst_i :         in std_logic;
+    reset_rx_unit_p_i :  in std_logic;
+    start_produce_p_i :  in std_logic;
+    request_byte_p_o :   out std_logic;
+    byte_ready_p_i :     in std_logic;
+    byte_i :             in std_logic_vector (7 downto 0);
+    last_byte_p_i :      in std_logic;
+    d_a_i :              in std_logic;
+    rate_i :             in std_logic_vector (1 downto 0);
+    tx_data_o :          out std_logic;
+    tx_enable_o :        out std_logic;
+    d_clk_o :            out std_logic;
+    byte_ready_p_o :     out std_logic;
+    byte_o :             out std_logic_vector (7 downto 0);
+    last_byte_p_o :      out std_logic;
+    fss_decoded_p_o :    out std_logic;
     code_violation_p_o : out std_logic;
-    crc_wrong_p_o : out std_logic;
-    crc_ok_p_o : out std_logic
+    crc_wrong_p_o :      out std_logic;
+    crc_ok_p_o :         out std_logic
     );
 
 end entity wf_tx_rx;
@@ -103,15 +104,15 @@ architecture rtl of wf_tx_rx is
 
   constant C_CLKFCDLENTGTH :  natural := 4;
 
-  signal s_data_in_d3 : std_logic_vector(2 downto 0);
+  signal s_data_in_d3 : std_logic_vector (2 downto 0);
   signal s_data_in_r_edge, s_data_in_f_edge : std_logic;
   signal s_d_filtered : std_logic;
   signal s_first_fe : std_logic;   
   signal s_clk_carrier_p : std_logic;
   signal s_clk_bit_180_p, s_sample_bit_p, s_sample_manch_bit_p  : std_logic;
   signal s_edge_window, edge_180_window : std_logic;
-  signal s_data_in_edge, s_code_violation : std_logic;   
-  signal s_clk_fixed_carrier_p_d : std_logic_vector(C_CLKFCDLENTGTH - 1 downto 0); 
+  signal s_data_in_edge : std_logic;   
+  signal s_clk_fixed_carrier_p_d : std_logic_vector (C_CLKFCDLENTGTH - 1 downto 0); 
 begin
 
 
@@ -155,6 +156,7 @@ begin
     PORT MAP(
       uclk_i => uclk_i,
       nFIP_rst_i => nFIP_rst_i,
+      reset_rx_unit_p_i => reset_rx_unit_p_i,
       byte_ready_p_o => byte_ready_p_o,
       byte_o => byte_o,
       last_byte_p_o => last_byte_p_o,
@@ -173,7 +175,7 @@ begin
       );
 
   
-  uwf_rx_osc :wf_rx_osc
+  uwf_rx_osc :wf_rx_tx_osc
 
     generic map(C_COUNTER_LENGTH => 11,
                 C_QUARTZ_PERIOD => 24.8,
@@ -195,7 +197,7 @@ begin
       rx_adjac_bits_window_o => edge_180_window
       );
 
-  Udeglitcher : deglitcher 
+  Udeglitcher : wf_rx_deglitcher 
     generic map (C_ACULENGTH => 10)
     Port map( uclk_i => uclk_i,
               nFIP_rst_i => nFIP_rst_i,

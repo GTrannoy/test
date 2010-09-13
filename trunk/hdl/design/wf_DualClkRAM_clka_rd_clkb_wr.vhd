@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------------------------- 
---! @file dpblockram_clka_rd_clkb_wr_syn.vhd
+--! @file wf_DualClkRAM_clka_rd_clkb_wr.vhd
 --------------------------------------------------------------------------------------------------- 
 
 -- Standard library
@@ -11,7 +11,7 @@ use IEEE.NUMERIC_STD.all;     -- conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                              dpblockram_clka_rd_clkb_wr_syn                                   --
+--                              wf_DualClkRAM_clka_rd_clkb_wr                                    --
 --                                                                                               --
 --                                   CERN, BE/CO/HT                                              --
 --                                                                                               --
@@ -58,59 +58,59 @@ use IEEE.NUMERIC_STD.all;     -- conversion functions
 
 
 --=================================================================================================
---!                   Entity declaration for dpblockram_clka_rd_clkb_wr_syn
+--!                   Entity declaration for wf_DualClkRAM_clka_rd_clkb_wr
 --=================================================================================================
 
-entity dpblockram_clka_rd_clkb_wr is
+entity wf_DualClkRAM_clka_rd_clkb_wr is
   generic (c_data_length : integer := 8; 		-- 8: length of data word (1 byte)
            c_addr_length : integer := 9);       -- 2^9: memory depth (512 bytes)
 
 
   port (
         clk_A_i  :     in std_logic;
-        addr_A_i :     in std_logic_vector(c_addr_length - 1 downto 0);
+        addr_A_i :     in std_logic_vector (c_addr_length - 1 downto 0);
         
         clk_B_i :      in std_logic;
-        addr_B_i :     in std_logic_vector(c_addr_length - 1 downto 0);
-        data_B_i :     in std_logic_vector(c_data_length - 1 downto 0);
+        addr_B_i :     in std_logic_vector (c_addr_length - 1 downto 0);
+        data_B_i :     in std_logic_vector (c_data_length - 1 downto 0);
         write_en_B_i : in std_logic;
  
-       data_A_o :      out std_logic_vector(c_data_length -1 downto 0)
+       data_A_o :      out std_logic_vector (c_data_length -1 downto 0)
 );
-end dpblockram_clka_rd_clkb_wr; 
+end wf_DualClkRAM_clka_rd_clkb_wr; 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture syn of dpblockram_clka_rd_clkb_wr is 
+architecture syn of wf_DualClkRAM_clka_rd_clkb_wr is 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief: component DualClkRam declaration
   component DualClkRam is 
     port(
-    DINA :   in std_logic_vector(7 downto 0);  
-    ADDRA :  in std_logic_vector(8 downto 0);
+    DINA :   in std_logic_vector (7 downto 0);  
+    ADDRA :  in std_logic_vector (8 downto 0);
     RWA :    in std_logic;                   
     CLKA :   in std_logic;                 
 
-    DINB :   in std_logic_vector(7 downto 0);  
-    ADDRB :  in std_logic_vector(8 downto 0); 
+    DINB :   in std_logic_vector (7 downto 0);  
+    ADDRB :  in std_logic_vector (8 downto 0); 
     RWB :    in std_logic;                   
     CLKB :   in std_logic;                   
     RESETn : in std_logic;                  
     
-    DOUTA :  out std_logic_vector(7 downto 0); 
-    DOUTB :  out std_logic_vector(7 downto 0)  
+    DOUTA :  out std_logic_vector (7 downto 0); 
+    DOUTB :  out std_logic_vector (7 downto 0)  
     );
   end component DualClkRam;
 ---------------------------------------------------------------------------------------------------
 
-type t_data_o_A_array is array (natural range <>) of std_logic_vector(7 downto 0);
+type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
 
-signal data_o_A_array :   t_data_o_A_array(0 to 2); -- keeps the DOUTA of each one of the memories
+signal data_o_A_array :   t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
 signal zero, one, s_rwB : std_logic;
-signal s_zeros :          std_logic_vector(7 downto 0);
+signal s_zeros :          std_logic_vector (7 downto 0);
 
 
 --=================================================================================================
@@ -126,7 +126,7 @@ s_rwB <= not write_en_B_i;
 --------------------------------------------------------------------------------------------------- 
 --!@brief: memory triplication
 --! The component DualClkRam is generated three times.
---! Port A is used for reading, port B for writing.
+--! Port A is used for reading only, port B for writing only.
 --! The input DINB is written in the same position in the 3 memories.
 --! The output DOUTA from each memory is kept in the array data_o_A_array.
 

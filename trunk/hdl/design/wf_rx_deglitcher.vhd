@@ -1,5 +1,5 @@
 --=================================================================================================
---! @file deglitcher.vhd
+--! @file wf_rx_deglitcher.vhd
 --=================================================================================================
 
 --! Standard library
@@ -12,7 +12,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                            deglitcher                                         --
+--                                          wf_rx_deglitcher                                     --
 --                                                                                               --
 --                                          CERN, BE/CO/HT                                       --
 --                                                                                               --
@@ -37,7 +37,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 --!   \n<b>Dependencies:</b>\n
 --!   wf_osc             \n
---!   reset_logic         \n
+--!   wf_reset_unit         \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -62,7 +62,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --!                             Entity declaration for wf_deglitcher
 --=================================================================================================
 
-entity deglitcher is
+entity wf_rx_deglitcher is
   generic (C_ACULENGTH : integer := 10);
 
   port( 
@@ -70,7 +70,7 @@ entity deglitcher is
     -- User interface general signal   
     uclk_i :               in std_logic; --! 40 MHz clock
 
-    -- Signal from the reset_logic unit  
+    -- Signal from the wf_reset_unit unit  
     nFIP_rst_i :           in std_logic; --! internal reset
 
     -- FIELDRIVE input signal
@@ -86,14 +86,14 @@ entity deglitcher is
     rx_data_filtered_o :   out  std_logic;
     sample_manch_bit_p_o : out  std_logic
       );
-end deglitcher;
+end wf_rx_deglitcher;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture Behavioral of deglitcher is
+architecture Behavioral of wf_rx_deglitcher is
 
 signal s_count_ones_c : signed(C_ACULENGTH - 1 downto 0);
 signal s_rx_data_filtered: STD_LOGIC;
@@ -115,7 +115,7 @@ process(uclk_i)
       s_count_ones_c <= (others =>'0');
     else
 
-      if sample_manch_bit_p_i = '1' then -- arrival of a new manchester bit
+      if sample_manch_bit_p_i = '1' then  -- arrival of a new manchester bit
         s_count_ones_c <= (others =>'0'); -- counter initialized
 
       elsif  rx_data_i = '1' then         -- counting the number of ones 

@@ -75,7 +75,7 @@ port (
     
   -- OUTPUTS 
     crc_ok_p :           out std_logic;            --! signaling of a correct received crc syndrome
-    crc_o :              out  std_logic_vector(c_GENERATOR_POLY_length-1 downto 0)--!calculated crc
+    crc_o :              out  std_logic_vector (c_GENERATOR_POLY_length-1 downto 0)--!calculated crc
                                                                                          -- 2 bytes
      );                                                         
 
@@ -92,11 +92,11 @@ architecture rtl of wf_crc is
 constant c_GENERATOR_POLY: std_logic_vector (c_GENERATOR_POLY_length - 1 downto 0) :=
                                                                                 "0001110111001111"; 
 --! crc check mask
-constant c_VERIFICATION_MASK:std_logic_vector(c_GENERATOR_POLY_length-1 downto 0) :=
+constant c_VERIFICATION_MASK:std_logic_vector (c_GENERATOR_POLY_length-1 downto 0) :=
                                                                                 "0001110001101011";
 
 signal s_crc_bit_ready_p : std_logic;
-signal s_q, s_q_nx, s_q_check_mask  : std_logic_vector(c_GENERATOR_POLY_length - 1 downto 0);
+signal s_q, s_q_nx, s_q_check_mask  : std_logic_vector (c_GENERATOR_POLY_length - 1 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
@@ -152,8 +152,11 @@ crc_o <= not s_q;
 
 
 ---------------------------------------------------------------------------------------------------
---!@brief Combinatorial process Syndrome_Verification: For the verification of a received crc
---! syndrome, the outputs of the 16 flip-flops are compared to the predefined mask 
+--!@brief Combinatorial process Syndrome_Verification: On the reception, the crc is being
+--! calculated as data is arriving (same as in the transmission) and it is being compared to the
+--! predefined c_VERIFICATION_MASK. When the crc calculated from the received data maches the
+--! c_VERIFICATION_MASK, it means a correct crc word has been received and the signal crc_ok_p
+--! gives a pulse. 
 
 Syndrome_Verification: process(s_q, s_crc_bit_ready_p)
 

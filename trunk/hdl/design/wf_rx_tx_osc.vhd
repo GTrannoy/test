@@ -1,5 +1,5 @@
 --=================================================================================================
---! @file wf_rx_osc.vhd
+--! @file wf_rx_tx_osc.vhd
 --=================================================================================================
 
 --! Standard library
@@ -12,13 +12,13 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                      wf_rx_osc //change name to wf_rx_tx_osc                                  --
+--                                wf_rx_tx_osc                                                   --
 --                                                                                               --
 --                               CERN, BE/CO/HT                                                  --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   wf_rx_osc
+-- unit name   wf_rx_tx_osc
 --
 --! @brief     Generation the clock signals needed for the transmiter and receiver units. \n
 --!
@@ -79,10 +79,10 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 
 --=================================================================================================
---!                            Entity declaration for wf_rx_osc
+--!                            Entity declaration for wf_rx_tx_osc
 --=================================================================================================
 
-entity wf_rx_osc is
+entity wf_rx_tx_osc is
   generic (C_COUNTER_LENGTH : integer := 11;  -- in the slowest bit rate (31.25kbps), the period is
                                               -- 32000ns and can be measured after 1280 uclk ticks.
                                               -- Therefore a counter of 11 bits is the max needed
@@ -96,7 +96,7 @@ entity wf_rx_osc is
     uclk_i :                  in std_logic;                      --! 40 MHz clock
     rate_i :                  in  std_logic_vector (1 downto 0); --! bit rate  
 
-    -- Signal from the reset_logic unit  
+    -- Signal from the wf_reset_unit unit  
     nFIP_rst_i :              in std_logic; --! internal reset
 
     -- Signals from wf_tx_rx    
@@ -123,18 +123,18 @@ entity wf_rx_osc is
                                             --  bits is expected
     
     -- Output signals needed in the transmission
-    tx_clk_p_buff_o :         out std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+    tx_clk_p_buff_o :         out std_logic_vector (C_CLKFCDLENTGTH -1 downto 0);
     tx_clk_o :                out std_logic
     );
 
-end entity wf_rx_osc;
+end entity wf_rx_tx_osc;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_rx_osc is
+architecture rtl of wf_rx_tx_osc is
 
 
   -- calculations of the number of uclk ticks equivalent to the reception/ transmission period
@@ -156,7 +156,7 @@ architecture rtl of wf_rx_osc is
   -- auxiliary signals declarations
   signal s_counter_rx, s_counter_tx, s_period, s_jitter :   unsigned (C_COUNTER_LENGTH-1 downto 0);
   signal s_counter_full, s_one_forth_period, s_half_period :unsigned (C_COUNTER_LENGTH-1 downto 0);
-  signal s_tx_clk_p_buff :                           std_logic_vector(C_CLKFCDLENTGTH -1 downto 0);
+  signal s_tx_clk_p_buff :                           std_logic_vector (C_CLKFCDLENTGTH -1 downto 0);
   signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p :                                std_logic;
   signal s_rx_bit_clk, s_rx_bit_clk_d1, s_rx_manch_clk, s_rx_manch_clk_d1 : std_logic;
   signal s_adjac_bits_edge_found, s_signif_edge_found :                     std_logic;

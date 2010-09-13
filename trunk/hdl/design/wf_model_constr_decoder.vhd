@@ -1,5 +1,5 @@
 --===========================================================================
---! @file wf_dec_m_ids.vhd
+--! @file wf_model_constr_decoder.vhd
 --===========================================================================
 
 --! standard library
@@ -14,13 +14,13 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                         wf_dec_m_ids                                          --
+--                                     wf_model_constr_decoder                                   --
 --                                                                                               --
 --                                        CERN, BE/CO/HT                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   wf_dec_m_ids
+-- unit name   wf_model_constr_decoder
 --
 --
 --! @brief     Decoding of the inputs S_ID and M_ID and construction of the nanoFIP output S_ID 
@@ -61,9 +61,9 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 
 --=================================================================================================
---!                             Entity declaration for wf_dec_m_ids
+--!                             Entity declaration for wf_model_constr_decoder
 --=================================================================================================
-entity wf_dec_m_ids is
+entity wf_model_constr_decoder is
 
   port (
   -- INPUTS 
@@ -80,14 +80,14 @@ entity wf_dec_m_ids is
 
   -- OUTPUTS
     -- WorldFIP settings nanoFIP output
-    s_id_o :     out std_logic_vector(1 downto 0);  --! Identification selection
+    s_id_o :     out std_logic_vector (1 downto 0);  --! Identification selection
 
     -- Output to wf_produced_vars
     m_id_dec_o : out  std_logic_vector (7 downto 0); --! Model identification decoded
     c_id_dec_o : out std_logic_vector (7 downto 0)  --! Constructor identification decoded
     );
 
-end entity wf_dec_m_ids;
+end entity wf_model_constr_decoder;
 
 
 
@@ -95,13 +95,13 @@ end entity wf_dec_m_ids;
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_dec_m_ids is
+architecture rtl of wf_model_constr_decoder is
 
 
   signal s_load_val :        std_logic;
   signal s_c, s_c_n :        unsigned(8 downto 0);
-  signal s_m_even, s_m_odd : std_logic_vector(3 downto 0);
-  signal s_c_even, s_c_odd : std_logic_vector(3 downto 0);
+  signal s_m_even, s_m_odd : std_logic_vector (3 downto 0);
+  signal s_c_even, s_c_odd : std_logic_vector (3 downto 0);
 
 
 --=================================================================================================
@@ -148,7 +148,7 @@ begin
     end if;
   end process;
 
-  s_id_o <= std_logic_vector(s_c((s_c'left - 1) downto (s_c'left - 2))); -- 2 msb of s_c
+  s_id_o <= std_logic_vector (s_c((s_c'left - 1) downto (s_c'left - 2))); -- 2 msb of s_c
 
 
 end architecture rtl;
