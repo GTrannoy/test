@@ -1,5 +1,5 @@
 --=================================================================================================
---! @file reset_logic.vhd
+--! @file wf_reset_unit.vhd
 --=================================================================================================
 
 --! standard library
@@ -15,13 +15,13 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                        wf_reset_logic                                         --
+--                                        wf_reset_unit                                          --
 --                                                                                               --
 --                                        CERN, BE/CO/HT                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name: reset_logic
+-- unit name: wf_reset_unit
 --
 --! @brief Reset logic. Manages the three nanoFIP reset signals: internal reset, FIELDRIVE reset
 --! and user interface reset (RSTON)
@@ -64,9 +64,9 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for reset_logic
+--!                           Entity declaration for wf_reset_unit
 --=================================================================================================
-entity reset_logic is
+entity wf_reset_unit is
   generic (c_rstin_c_length : integer := 4); --! rstin counter length 
 
   port (
@@ -92,16 +92,16 @@ entity reset_logic is
     -- nanoFIP output to FIELDRIVE
     fd_rstn_o :           out std_logic      --! FIELDRIVE reset, active low
        );
-end entity reset_logic;
+end entity wf_reset_unit;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of reset_logic is
+architecture rtl of wf_reset_unit is
 
   signal s_rst : std_logic;
-  signal s_rstin_buff : std_logic_vector(2 downto 0);
+  signal s_rstin_buff : std_logic_vector (2 downto 0);
   signal s_rstin_c : unsigned(4 downto 0) := (others=>'0'); -- counter init for simulation purpuses
  
 

@@ -1,5 +1,5 @@
 --=================================================================================================
---! @file status_gen.vhd
+--! @file wf_status_bytes_gen.vhd
 --=================================================================================================
 
 --! standard library
@@ -14,17 +14,16 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                       wf_status_byte_generator                                --
+--                                       wf_status_bytes_generator                               --
 --                                                                                               --
 --                                           CERN, BE/CO/HT                                      --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   status_gen
+-- unit name   wf_status_bytes_gen
 --
 --
---! @brief     Generation of the NanoFIP status that may be sent with Produced variables. 
---!            See Table 8 of the Functional Specification..
+--! @brief     Generation of the NanoFIP status, as well as the MPS status bytes. 
 --
 --
 --! @author    Erik van der Bij (Erik.van.der.Bij@cern.ch)
@@ -54,18 +53,21 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     07/07/2009  v0.01  EB  First version \n
+--!        08/2010  v0.02  EG  code violation & CRC errors considered
+--!                            only during a concumed var reception
+--!                            
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo Define I/O signals \n
+--! @todo bits 6 and 7 reset only when nanoFIP is reset...
 --
 ---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
--- Entity declaration for status_gen
+-- Entity declaration for wf_status_bytes_gen
 --=================================================================================================
-entity status_gen is
+entity wf_status_bytes_gen is
 
 port (
   -- INPUTS 
@@ -97,23 +99,23 @@ port (
     
 
     -- Signal from nanofip
-    reset_status_bytes_i : in std_logic;
-
+    reset_status_bytes_i : in std_logic; --! both status bytes are reinitialized
+                                         --! right after having been delivered
 
   -- OUTPUTS 
     -- Output to wf_produced_vars
-    status_byte_o :        out std_logic_vector(7 downto 0);  --! status byte
-    mps_byte_o :           out std_logic_vector(7 downto 0)   --! mps byte
-     );
-end entity status_gen;
+    nFIP_status_byte_o :   out std_logic_vector (7 downto 0);  --! status byte
+    mps_status_byte_o :    out std_logic_vector (7 downto 0)   --! mps byte
+     ); 
+end entity wf_status_bytes_gen;
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of status_gen is
+architecture rtl of wf_status_bytes_gen is
 
-signal s_refreshment : std_logic;
-signal s_var1_access, s_var2_access, s_var3_access :  std_logic_vector(1 downto 0); 
+signal s_var1_access_d1, s_var2_access_d1, s_var3_access_d1 :                std_logic;
+signal s_var1_access_d2, s_var2_access_d2, s_var3_access_d2, s_refreshment : std_logic; 
 
 
 --=================================================================================================
@@ -129,16 +131,22 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nFIP_rst_i = '1' then
-        s_var1_access    <= (others => '0');
-        s_var2_access    <= (others => '0');
-        s_var3_access    <= (others => '0');
+        s_var1_access_d1 <= '0';
+        s_var1_access_d2 <= '0';
+        s_var2_access_d1 <= '0'; 
+        s_var2_access_d2 <= '0';
+        s_var3_access_d1 <= '0';
+        s_var3_access_d2 <= '0';
+
       else
-        s_var1_access(0) <= var1_access_a_i;
-        s_var2_access(0) <= var2_access_a_i; 
-        s_var3_access(0) <= var3_access_a_i;
-        s_var1_access(1) <= s_var1_access(0);
-        s_var2_access(1) <= s_var2_access(0);
-        s_var3_access(1) <= s_var3_access(0);
+        s_var1_access_d1 <= var1_access_a_i;
+        s_var1_access_d2 <= s_var1_access_d1;
+
+        s_var2_access_d1 <= var2_access_a_i; 
+        s_var2_access_d2 <= s_var2_access_d1;
+
+        s_var3_access_d1 <= var3_access_a_i;
+        s_var3_access_d2 <= s_var3_access_d1;
       end if;
     end if;
   end process;
@@ -153,40 +161,40 @@ begin
     if rising_edge(uclk_i) then
   
       if ((nFIP_rst_i = '1') or (reset_status_bytes_i = '1')) then -- the byte is reinitialized
-        status_byte_o                    <= (others => '0');       -- after having been delivered
+        nFIP_status_byte_o                    <= (others => '0');  -- after having been delivered
 
         else
 
-        if ((var1_rdy_i = '0' and s_var1_access(1) = '1') or      -- since the last time the status
-            (var2_rdy_i = '0' and s_var2_access(1) = '1')) then   -- byte was delivered,
-          status_byte_o(c_U_CACER_INDEX) <= '1';                  -- the user logic accessed a cosmd
+        if ((var1_rdy_i = '0' and s_var1_access_d2 = '1') or      -- since the last time the status
+            (var2_rdy_i = '0' and s_var2_access_d2 = '1')) then   -- byte was delivered,
+          nFIP_status_byte_o(c_U_CACER_INDEX) <= '1';             -- the user logic accessed a cosmd
         end if;                                                   -- variable when it was not ready
 
-        if ((var3_rdy_i = '0') and (s_var3_access(1) = '1')) then -- since the last time the status 
-          status_byte_o(c_U_PACER_INDEX) <= '1';                  -- byte was delivered,
+        if ((var3_rdy_i = '0') and (s_var3_access_d2 = '1')) then -- since the last time the status 
+          nFIP_status_byte_o(c_U_PACER_INDEX) <= '1';             -- byte was delivered,
         end if;                                                   -- the user logic accessed a prod
                                                                   -- variable when it was not ready
 
         if ((var_i = var_1 or var_i = var_2) and (code_violation_p_i = '1')) then 
-          status_byte_o(c_R_BNER_INDEX)  <= '1';                  -- since the last time the status 
+          nFIP_status_byte_o(c_R_BNER_INDEX)  <= '1';             -- since the last time the status 
                                                                   -- byte was delivered, 
         end if;                                                   -- a consumed var arrived for 
                                                                   -- this station with a manch code
                                                                   -- violation (on the rp_dat.Data)
 
         if ((var_i = var_1 or var_i = var_2)and(crc_wrong_p_i = '1')) then
-          status_byte_o(c_R_FCSER_INDEX) <= '1';                 -- since the last time the status  
+          nFIP_status_byte_o(c_R_FCSER_INDEX) <= '1';            -- since the last time the status  
                                                                  -- byte was delivered,
         end if;                                                  -- a consumed var with a wrong CRC 
                                                                  -- arrived for this station
 
         if (fd_wdgn_i = '0') then                                -- since the last time the status 
-          status_byte_o(c_T_TXER_INDEX)  <= '1';                 -- byte was delivered,
+          nFIP_status_byte_o(c_T_TXER_INDEX)  <= '1';            -- byte was delivered,
         end if;                                                  -- there has been a signal for
                                                                  -- a FIELDRIVE transmission error
 
         if (fd_txer_i = '1') then                                -- since the last time the status
-          status_byte_o(c_T_WDER_INDEX)  <= '1';                 -- byte was delivered,
+          nFIP_status_byte_o(c_T_WDER_INDEX)  <= '1';            -- byte was delivered,
         end if;                                                  -- there has been a signal for a
                                                                  -- FIELDRIVE watchdog timer problem
       end if;
@@ -197,17 +205,17 @@ end process;
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process Refreshment_bit_Formation: Formation of the refreshment bit (used in
 --! the mps status byte). It is set to 1 if the user has updated the produced variable (var3_access
---! has been asserted) since the last transmission of the variable.
+--! has been asserted since the last time a variable was produced).
  
   refreshment_bit_formation: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then
 
-      if nFIP_rst_i = '1' or reset_status_bytes_i = '1' then
-        s_refreshment   <= '0';
+      if nFIP_rst_i = '1' or reset_status_bytes_i = '1' then -- the bit is reinitialized
+        s_refreshment   <= '0';                              -- after having been delivered
       else
 
-        if (var3_access_a_i = '1') then
+        if (var3_access_a_i = '1') then -- indication that the memory has been accessed
           s_refreshment <= '1';
         end if;
 
@@ -223,14 +231,14 @@ end process;
   
   begin
     if slone_i='1' then
-      mps_byte_o <= (others => '0');
-      mps_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
-      mps_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
+      mps_status_byte_o                        <= (others => '0');
+      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
+      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
 
     else
-      mps_byte_o <= (others => '0');      
-      mps_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
-      mps_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
+      mps_status_byte_o                        <= (others => '0');      
+      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
+      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
     end if;
   end process;
 

@@ -75,8 +75,11 @@ entity wf_rx is
     -- User interface general signal 
     uclk_i :                in std_logic; --! 40MHz clock
 
-    -- Signal from the reset_logic unit
+    -- Signal from the wf_reset_unit unit
     nFIP_rst_i :            in std_logic; --! internal reset
+
+    -- Signal from the wf_engine_control
+    reset_rx_unit_p_i :     in std_logic;
     
     -- signals from the wf_rx_tx_osc    
 	signif_edge_window_i :  in std_logic; --! time window where a significant edge is expected 
@@ -95,10 +98,9 @@ entity wf_rx is
 
 
   -- OUTPUTS
-
     -- needed by the wf_consumed and wf_engine_control 	
 	byte_ready_p_o :        out std_logic;                     --! indication of a valid data byte
-    byte_o :                out std_logic_vector(7 downto 0) ; --! retreived data byte
+    byte_o :                out std_logic_vector (7 downto 0) ; --! retreived data byte
 
     -- needed by the wf_engine_control
     crc_ok_p_o :            out std_logic;
@@ -106,7 +108,7 @@ entity wf_rx is
     fss_decoded_p_o :       out std_logic;   	
     last_byte_p_o :         out std_logic;
     
-    -- needed by the status_gen 
+    -- needed by the wf_status_bytes_gen 
     code_violation_p_o :    out std_logic;   --! indicator of a manchester 2 code violation
 
     -- needed by the wf_rx_tx_osc
@@ -139,14 +141,14 @@ architecture rtl of wf_rx is
   signal s_frame_start_wrong_bit, s_frame_start_last_bit : std_logic;
   signal s_frame_end_detected_p, s_frame_end_detection, s_frame_end_wrong_bit :       std_logic;
   
-  signal s_violation_check, s_code_violation_p :                                        std_logic;
+  signal s_check_violation, s_code_violation_p :                                        std_logic;
   signal s_calculate_crc, s_crc_ok_p, s_crc_ok, s_start_crc_p :                       std_logic;
 
   signal s_byte_ok, s_write_bit_to_byte, s_rx_data_filtered_d:                        std_logic;
 
-  signal s_byte :                                                  std_logic_vector(7 downto 0);
+  signal s_byte :                                                  std_logic_vector (7 downto 0);
 
-  signal s_rx_data_filtered_buff :                                 std_logic_vector(1 downto 0);
+  signal s_rx_data_filtered_buff :                                 std_logic_vector (1 downto 0);
 
 
 
@@ -158,16 +160,15 @@ architecture rtl of wf_rx is
 ---------------------------------------------------------------------------------------------------
  --!@brief instantiation of the crc calculator unit
   crc_verification : wf_crc 
-  generic map( 
-			c_GENERATOR_POLY_length => 16) 
+  generic map(c_GENERATOR_POLY_length => 16) 
   port map(
-    uclk_i => uclk_i,
-    nFIP_rst_i => nFIP_rst_i,
-    start_crc_p_i => s_start_crc_p,
-    data_bit_ready_p_i  => s_write_bit_to_byte,
-	data_bit_i  => rx_data_filtered_i,
-	crc_o  => open,
-	crc_ok_p => s_crc_ok_p
+    uclk_i             => uclk_i,
+    nFIP_rst_i         => nFIP_rst_i,
+    start_crc_p_i      => s_start_crc_p,
+    data_bit_ready_p_i => s_write_bit_to_byte,
+	data_bit_i         => rx_data_filtered_i,
+	crc_o              => open,
+	crc_ok_p           => s_crc_ok_p
 );
 
 ---------------------------------------------------------------------------------------------------
@@ -204,7 +205,8 @@ architecture rtl of wf_rx is
                                                 s_frame_start_wrong_bit, s_manch_f_edge, rx_st,
                                                 s_frame_end_detected_p, s_frame_end_wrong_bit,
                                                 rx_data_f_edge_i, s_edge_outside_manch_window,
-                                                s_code_violation_p,s_bit_r_edge, s_manch_r_edge )
+                                                s_code_violation_p,s_bit_r_edge, s_manch_r_edge,
+                                                reset_rx_unit_p_i )
   
   begin
   nx_rx_st <= idle;
@@ -255,7 +257,7 @@ architecture rtl of wf_rx is
                          end if;				
 
     -- A small delay is expected between the rx_data_i and the rx_data_filtered_i (output of the
-    -- deglitcher) which means that the last falling edge of the preamble of rx_data_i arrives
+    -- wf_rx_deglitcher) which means that the last falling edge of the preamble of rx_data_i arrives
     -- earlier than the one of the rx_data_filtered_i. the state switch_to _deglitched is used for
     -- this purpose. 
 
@@ -284,7 +286,7 @@ architecture rtl of wf_rx is
 
     
     when data_field_byte =>
-                        if s_frame_end_detected_p = '1' then
+                        if s_frame_end_detected_p = '1' or reset_rx_unit_p_i = '1' then
                           nx_rx_st <= idle;
 					-- Is there a code violation that does not correspond to the queue pattern?
                         elsif s_frame_end_wrong_bit = '1' and s_code_violation_p = '1' then
@@ -362,7 +364,7 @@ architecture rtl of wf_rx is
                          s_start_pointer       <= to_unsigned(0,s_start_pointer'length);
                          s_load_pointer        <= '0'; 
                          s_decr_pointer        <= '0';
-                         s_frame_start_bit     <='0';
+                         s_frame_start_bit     <= '0';
                          fss_decoded_p_o       <= '0';
                          s_write_bit_to_byte   <= '0';
                          s_byte_ok             <= '0';
@@ -413,7 +415,7 @@ architecture rtl of wf_rx is
                          s_byte_ok             <= s_pointer_is_zero and sample_manch_bit_p_i and 
                                                   (not s_frame_end_detected_p);
                          s_queue_bit           <= FRAME_END(to_integer(resize(pointer,4)));                                          
-                         code_violation_p_o    <= s_code_violation_p;
+                         code_violation_p_o    <= s_code_violation_p and s_frame_end_wrong_bit;
                          s_start_crc_p         <= '0';
                          s_calculate_crc       <= '1';
                          s_frame_start_bit     <= '0'; 
@@ -448,7 +450,7 @@ architecture rtl of wf_rx is
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 -- extra concurrent signal assignments
 
- s_code_violation_p  <= (not (rx_data_filtered_i xor s_rx_data_filtered_d)) and s_violation_check;
+ s_code_violation_p  <= (not (rx_data_filtered_i xor s_rx_data_filtered_d)) and s_check_violation;
  s_pointer_is_zero <= '1' when pointer = 0 else '0';
 
 -- s_frame_start_last_bit <= s_pointer_is_zero and s_frame_start_correct_bit and sample_manch_bit_p_i;
@@ -565,14 +567,14 @@ end process;
 --                             0    V-    1
 --   rx_data_filtered_i:     __|--|____|--|__ 
 --   s_rx_data_filtered_d:      __|--|____|--|__
---   s_violation_check:           ^    ^     ^
+--   s_check_violation:           ^    ^     ^
 
   Check_code_violations: process(uclk_i)
     begin
       if rising_edge(uclk_i) then 
          if nFIP_rst_i = '1' then
            byte_ready_p_o        <='0'; 
-           s_violation_check     <='0';
+           s_check_violation     <='0';
            s_sample_bit_p_d1     <='0';
            s_sample_bit_p_d2     <='0';
            s_rx_data_filtered_d  <='0';
@@ -581,7 +583,7 @@ end process;
            if sample_manch_bit_p_i = '1' then
              s_rx_data_filtered_d <= rx_data_filtered_i; 
            end if;
-            s_violation_check     <= s_sample_bit_p_d2;
+            s_check_violation     <= s_sample_bit_p_d2;
             s_sample_bit_p_d2     <= s_sample_bit_p_d1;
             s_sample_bit_p_d1     <= sample_bit_p_i;
             byte_ready_p_o        <= s_byte_ok and (not s_frame_end_detected_p); 

@@ -41,7 +41,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!     wf_engine           \n
 --!     tx_engine           \n
 --!     clk_gen             \n
---!     reset_logic         \n
+--!     wf_reset_unit         \n
 --!     consumed_ram        \n
 --
 --
@@ -55,7 +55,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n\n<b>Last changes:</b>\n
 --!     -> v0.02  PAS Entity Ports added, start of architecture content
 --!     -> v0.03  EG  timing changes; tx_clk_p_buff_i got 1 more bit
---!                      briefly index_offset_i needed to arrive 1 clock tick earlier       
+--!                      briefly byte_index_i needed to arrive 1 clock tick earlier       
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -75,7 +75,7 @@ entity wf_tx is
     -- user interface general signals 
     uclk_i :            in std_logic;  --! 40MHz clock
 
-    -- Signal from the reset_logic unit
+    -- Signal from the wf_reset_unit unit
     nFIP_rst_i :        in std_logic;  --! internal reset
     
     -- Signals from the wf_engine_control
@@ -88,11 +88,11 @@ entity wf_tx is
                                        --  crc bytes follow
 
     -- Signals from the wf_produced_vars
-    byte_i :            in std_logic_vector(7 downto 0);             
+    byte_i :            in std_logic_vector (7 downto 0);             
                                        --! data byte to be delivered 
 
      -- Signal from the wf_rx_tx_osc    
-    tx_clk_p_buff_i :   in std_logic_vector(C_CLKFCDLENTGTH-1 downto 0);
+    tx_clk_p_buff_i :   in std_logic_vector (C_CLKFCDLENTGTH-1 downto 0);
                                        --! clk for transmission synchronization 
 
   -- OUTPUTS
@@ -125,9 +125,9 @@ architecture rtl of wf_tx is
   signal s_bit_index_load, s_decr_index :      std_logic;
   signal s_bit_index_is_zero :                 std_logic;
   signal s_bit_index, s_bit_index_top :        unsigned(4 downto 0);
-  signal s_byte :                              std_logic_vector(7 downto 0);
-  signal s_manchester_crc :                    std_logic_vector(31 downto 0);
-  signal s_crc_byte_manch, s_byte_manch :      std_logic_vector(15 downto 0);
+  signal s_byte :                              std_logic_vector (7 downto 0);
+  signal s_manchester_crc :                    std_logic_vector (31 downto 0);
+  signal s_crc_byte_manch, s_byte_manch :      std_logic_vector (15 downto 0);
 
 
 --=================================================================================================
@@ -156,10 +156,10 @@ begin
 --! finally a combinatorial process to manage the output signals), which are the 3 processes that
 --! follow. 
 
---! The signal tx_clk_p_buff_i is used for the synchronization of the transitions of the state
---! machine as well as the actions on the output signals. 
+--! The signal tx_clk_p_buff_i is used for the synchronization of the state transitions of the
+--! machine as well as of the actions on the output signals. 
 
--- The following draft drawing shows the transitions of the signal tx_clk_p_buff_i with respect to
+-- The following drawing shows the transitions of the signal tx_clk_p_buff_i with respect to
 -- the signal tx_clk (line driver half bit clock).
 
 -- tx_clk:           __________|----------------|________________|----------------|_______________
@@ -174,7 +174,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- "idle state": signals initializations
 
--- jump to "send_fss" state after a pulse arrival from the signal start_produce_p_i (controlled by the
+-- jump to "send_fss" state after a pulse on the signal start_produce_p_i (controlled by the
 -- wf_engine_control)
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -189,9 +189,9 @@ begin
 -- the tx_clk_p_buff(3) assertion.
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
--- "send_data_byte state": delivery of manchester encoded bits of data that arrive from the
+-- "send_data_byte" state: delivery of manchester encoded bits of data that arrive from the
 -- wf_produced_vars unit (byte_i), with the coordination of the wf_engine_control (byte_ready_p_i)
--- request of a new byte on  tx_clk_p_buff (0) assertion
+-- request of a new byte on  tx_clk_p_buff (0) assertion (with s_bit_index = 0)
 -- bit delivery        after tx_clk_p_buff (1) assertion
 -- new byte available  after tx_clk_p_buff (2) assertion (to be sent on the next tx_clk_p_buff (1))
 -- s_bit_index updated after tx_clk_p_buff (3) assertion (the s_bit_index here loops several times
@@ -202,7 +202,7 @@ begin
 -- start_produce_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
 -- arrives to zero and on the assertion of the tx_clk_p_buff (0). A pulse on the request_byte signal
 -- triggers the wf_control_engine to send a new address to the memory of the produced_vars unit (new
--- address avilable on tx_clk_p_buff (1)), which in turn will give an output one uclk cycle later
+-- address available on tx_clk_p_buff (1)), which in turn will give an output one uclk cycle later
 -- (on tx_clk_p_buff (2)), exactly on the assertion of the byte_ready_p_i. Finally the first bit of
 -- this new byte starts being delivered after tx_clk_p_buff (3) assertion.
 
