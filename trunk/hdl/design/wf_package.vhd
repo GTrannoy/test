@@ -6,7 +6,7 @@
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> egousiou: base_add unsigned(8 downto 0) instead of std_logic_vector (9 downto 0), 
+--!     -> egousiou: base_addr unsigned(8 downto 0) instead of std_logic_vector (9 downto 0), 
 --!                  to simplify calculations
 --
 --------------------------------------------------------------------------------------------------- 
@@ -65,11 +65,11 @@ package wf_package is
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
   --constants concerning the position of certain bytes in the frame structure
-  constant c_CTRL_BYTE_INDEX :    std_logic_vector (7 downto 0) := "00000000"; -- 0
-  constant c_PDU_BYTE_INDEX :     std_logic_vector (7 downto 0) := "00000001"; -- 1
-  constant c_LENGTH_BYTE_INDEX :  std_logic_vector (7 downto 0) := "00000010"; -- 2
-  constant c_1st_DAT_BYTE_INDEX : std_logic_vector (7 downto 0) := "00000011"; -- 3
-  constant c_2nd_DAT_BYTE_INDEX : std_logic_vector (7 downto 0) := "00000100"; -- 4 
+  constant c_CTRL_BYTE_INDEX :     std_logic_vector (7 downto 0) := "00000000"; -- 0
+  constant c_PDU_BYTE_INDEX :      std_logic_vector (7 downto 0) := "00000001"; -- 1
+  constant c_LENGTH_BYTE_INDEX :   std_logic_vector (7 downto 0) := "00000010"; -- 2
+  constant c_1st_DATA_BYTE_INDEX : std_logic_vector (7 downto 0) := "00000011"; -- 3
+  constant c_2nd_DATA_BYTE_INDEX : std_logic_vector (7 downto 0) := "00000100"; -- 4 
 
   constant c_CONSTR_BYTE_INDEX :  std_logic_vector (7 downto 0) := "00000110"; -- 6
   constant c_MODEL_BYTE_INDEX :   std_logic_vector (7 downto 0) := "00000111"; -- 7
@@ -134,9 +134,10 @@ package wf_package is
     response :     t_var_response;
     hexvalue :     std_logic_vector (7 downto 0);
     var :          t_var;
-    base_add :     unsigned(8 downto 0);
-    array_length : unsigned(7 downto 0);
-    byte_array :   t_byte_array(0 to 15);
+    base_addr :    unsigned (8 downto 0);
+    last_addr :    std_logic_vector (8 downto 0);
+    array_length : unsigned (7 downto 0);
+    byte_array :   t_byte_array (0 to 15);
   end record;
 
   type t_var_array is array (natural range <>) of t_var_record;
@@ -154,7 +155,8 @@ package wf_package is
     (c_PRESENCE_VAR_INDEX => (var          => presence_var,
                               hexvalue     => x"14", 
                               response     => produce,
-                              base_add     => "---------",
+                              base_addr    => "---------",
+                              last_addr    => "---------",
                               array_length => "00000111", -- 8 bytes in total including the Control byte
                                                           -- (counting starts from 0)
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => x"50", 2 => x"05", 
@@ -167,7 +169,8 @@ package wf_package is
                               response     => produce,
                               array_length => "00001010", -- 11 bytes in total including the Control byte
                                                           -- (counting starts from 0)
-                              base_add     => "---------",
+                              base_addr    => "---------",
+                              last_addr    => "---------",
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => x"52", 2 => x"08",
                                                3 => x"01", 4 => x"00", 5 => x"00", 6 => x"ff",
                                                7 => x"ff", 8 => x"00", 9 => x"00", 10 => x"00",
@@ -177,7 +180,8 @@ package wf_package is
      c_VAR_3_INDEX        => (var          => var_3,
                               hexvalue     => x"06", 
                               response     => produce,
-                              base_add     => "100000000",
+                              base_addr    => "100000000",
+                              last_addr    => "101111101",
                               array_length => "00000001", -- only the Control and PDU type bytes are
                                                           -- predefined (counting starts from 0)  
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
@@ -187,7 +191,8 @@ package wf_package is
      c_VAR_1_INDEX        => (var => var_1,
                               hexvalue     => x"05", 
                               response     => consume,
-                              base_add     => "000000000",
+                              base_addr    => "000000000",
+                              last_addr    => "001111111",
                               array_length => "00000001", -- only the Control and PDU type bytes are
                                                  -- predefined (counting starts from 0)  
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
@@ -197,7 +202,8 @@ package wf_package is
      c_VAR_2_INDEX        => (var          => var_2,
                               hexvalue     => x"04", 
                               response     => consume,
-                              base_add     => "010000000",
+                              base_addr    => "010000000",
+                              last_addr    => "011111111",
                               array_length => "00000001", -- only the Control and PDU type bytes are
                                                           -- predefined (counting starts from 0)   
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
@@ -206,7 +212,8 @@ package wf_package is
      c_RESET_VAR_INDEX    => (var          => reset_var,
                               hexvalue     => x"e0", 
                               response     => reset,
-                              base_add     => "010000000",
+                              base_addr    => "010000000",
+                              last_addr    => "011111111",
                               array_length => "00000001", -- only the Control byte is predefined
                                                           -- (counting starts from 0)
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
@@ -323,13 +330,12 @@ component wf_rx
   component wf_consumed_vars 
     port (
       uclk_i :              in std_logic;
-      subs_i :              in  std_logic_vector (7 downto 0); 
-      slone_i :             in  std_logic; 
+      subs_i :              in std_logic_vector (7 downto 0); 
+      slone_i :             in std_logic; 
       nFIP_rst_i :          in std_logic;
-      wb_rst_i :            in std_logic;                      
       wb_clk_i :            in std_logic;
-      wb_adr_i :            in  std_logic_vector (9 downto 0); 
-      wb_stb_r_edge_p_i :   in  std_logic; 
+      wb_adr_i :            in std_logic_vector (9 downto 0); 
+      wb_stb_r_edge_p_i :   in std_logic; 
       wb_cyc_i :            in std_logic; 
       byte_ready_p_i :      in std_logic;
       byte_index_i :        in std_logic_vector (7 downto 0);
@@ -355,7 +361,6 @@ component wf_rx
       nFIP_rst_i :         in std_logic;
       m_id_dec_i :         in std_logic_vector (7 downto 0); 
       c_id_dec_i :         in std_logic_vector (7 downto 0); 
-      wb_rst_i :           in std_logic;    
       wb_clk_i :           in std_logic; 
       wb_data_i :          in std_logic_vector (7 downto 0); 
       wb_adr_i :           in std_logic_vector (9 downto 0); 
