@@ -2,9 +2,10 @@
 -- Creation Date: May 2010
 -- Description: Reads the msg bytes from a text file for transmission
 --				to NanoFIP.
--- Modified by:
--- Modification Date:
--- Modification consisted on:
+-- Modified by: Penacoba
+-- Modification Date: September 2010
+-- Modification consisted on: Addition of PDU_type byte and Length_byte 
+--								on consumed variable frame.
 
 library IEEE;
 use IEEE.std_logic_1164.all;
