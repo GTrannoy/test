@@ -77,34 +77,33 @@ entity wf_produced_vars is
     nostat_i :        in  std_logic;                     --! if negated, nFIP status is sent
 
     -- Signal from the wf_reset_unit unit
-    nFIP_rst_i :          in std_logic;                      --! internal reset
+    nFIP_rst_i :      in std_logic;                      --! internal reset
 	
-    -- User Interface Wishbone Slave
-    wb_rst_i :        in std_logic;                      --! wishbone reset
+    -- User Interface WISHBONE Slave
 
-    wb_clk_i :        in std_logic;                      --! wishbone clock
+    wb_clk_i :        in std_logic;                      --! WISHBONE clock
                                                          -- note: may be indipendant of uclk
 
     wb_data_i :       in  std_logic_vector (7 downto 0); --! WISHBONE data bus
                                                          -- (buffered twice with wclk)    
 
-    wb_adr_i :        in  std_logic_vector (9 downto 0); --! wishbone address to memory
+    wb_adr_i :        in  std_logic_vector (9 downto 0); --! WISHBONE address to memory
                                                          -- (buffered once with wb_clk) 
                                                          -- note: msb allways 0!
 
-    wb_stb_r_edge_p_i : in  std_logic;                   --! wishbone strobe
+    wb_stb_r_edge_p_i : in  std_logic;                   --! WISHBONE strobe
                                                          -- (buffered once with wb_clk)
                                                          -- note: indication that the 
                                                          -- master is ready to transfer data
                                                       
-    wb_we_p_i :       in  std_logic;                    --! wishbone write enable
+    wb_we_p_i :       in  std_logic;                    --! WISHBONE write enable
                                                         -- note: indicates a write cycle of master
 
-    wb_cyc_i :        in std_logic;                     --! wishbone cycle
+    wb_cyc_i :        in std_logic;                     --! WISHBONE cycle
                                                         -- note:indicates a valid cycle in progress
 
 
-    -- User Interface Non Wishbone
+    -- User Interface Non WISHBONE
     slone_data_i :    in  std_logic_vector (15 downto 0);--! input data bus for slone mode
                                                          -- (buffered twice with uclk)   
 
@@ -142,7 +141,7 @@ entity wf_produced_vars is
     byte_o :          out std_logic_vector (7 downto 0); --! output byte to be serialized and sent
 
     -- nanoFIP output
-    wb_ack_prod_p_o : out std_logic                     --! wishbone acknowledge
+    wb_ack_prod_p_o : out std_logic                     --! WISHBONE acknowledge
                                                         -- response to master's strobe signal
       );
 end entity wf_produced_vars;
@@ -182,15 +181,15 @@ architecture rtl of wf_produced_vars is
                                                    -- first 2 bits: identification of memory block
                                                    --remaining 7: address of a byte inside the blck 
  
-    -- port A corresponds to: nanoFIP that reads from the Produced ram & B to: wishbone that writes
+    -- port A corresponds to: nanoFIP that reads from the Produced ram & B to: WISHBONE that writes
     port map (clk_A_i     => uclk_i,	           -- 40 MHz clck
              addr_A_i     => s_mem_addr_A,         -- address of byte to be read from memory
              data_A_o     => s_mem_byte,           -- output byte read
              
-             clk_B_i      => wb_clk_i,             -- wishbone clck
+             clk_B_i      => wb_clk_i,             -- WISHBONE clck
              addr_B_i     => wb_adr_i (8 downto 0), -- address of byte to be written
              data_B_i     => wb_data_i(7 downto 0),-- byte to be written
-             write_en_B_i => s_wb_ack_prod_p       -- wishbone write enable ********************
+             write_en_B_i => s_wb_ack_prod_p       -- WISHBONE write enable ********************
              );
              
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
@@ -206,10 +205,10 @@ architecture rtl of wf_produced_vars is
                                                                                         
 --------------------------------------------------------------------------------------------------- 
 --!@brief Generate_wb_ack_prod_p_o: Generation of the wb_ack_prod_p_o signal
---! (acknowledgement from wishbone slave of the write cycle, as a response to the master's storbe).
+--! (acknowledgement from WISHBONE slave of the write cycle, as a response to the master's storbe).
 --! wb_ack_prod_p_o is asserted two wb_clk cycles after the assertion of the input strobe signal 
---! (reminder: stb_i is buffered once in the input stage), if the wishbone input address
---! corresponds to the Produced memory block and the wishbone write enable is asserted.
+--! (reminder: stb_i is buffered once in the input stage), if the WISHBONE input address
+--! corresponds to the Produced memory block and the WISHBONE write enable is asserted.
   
   Generate_wb_ack_prod_p_o: s_wb_ack_prod_p <= '1' when ((wb_stb_r_edge_p_i = '1')      and 
                                                          (wb_adr_i(9 downto 7) = "010") and
@@ -296,7 +295,7 @@ architecture rtl of wf_produced_vars is
   
     s_length         <= std_logic_vector (resize((unsigned(data_length_i)-2),byte_o'length));   
                                                       --signal used for the rp_dat.Data.LENGTH byte
-                                                      -- it represents the # bytes of "pure data"
+                                                      -- it represents the # bytes of user-data
                                                       -- (P3_LGTH) plus 1 byte of rp_dat.Data.MPS
                                                       -- plus 1 byte of rp_dat.Data.nanoFIP_status,
                                                       -- if applicable  
@@ -354,7 +353,7 @@ architecture rtl of wf_produced_vars is
       -- In memory mode:
       if slone_i = '0' then
 
-        s_base_addr  <= c_VARS_ARRAY(c_VAR_3_INDEX).base_add; --retreival of info for mem base address 
+        s_base_addr  <= c_VARS_ARRAY(c_VAR_3_INDEX).base_addr; --retreival of info for mem base address 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
         -- The first (rp_dat.Control) and second (PDU type) bytes to be sent 

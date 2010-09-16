@@ -130,27 +130,27 @@ architecture rtl of wf_rx is
   -- signals
   signal rx_st, nx_rx_st :  rx_st_t;
 
-  signal pointer, s_start_pointer :                                        unsigned(3 downto 0);
-  signal s_decr_pointer, s_load_pointer, s_pointer_is_zero :                          std_logic;
+  signal s_bit_index, s_bit_index_top :                                        unsigned(3 downto 0);
+  signal s_decr_bit_index, s_load_bit_index, s_pointer_is_zero :                          std_logic;
 
   signal s_sample_bit_p_d1, s_sample_bit_p_d2, s_rx_data_filtered_f_edge :            std_logic;
   signal s_manch_r_edge, s_manch_f_edge, s_edge_outside_manch_window, s_bit_r_edge :  std_logic;
 
 
   signal s_frame_start_bit, s_queue_bit :                                             std_logic;
-  signal s_frame_start_wrong_bit, s_frame_start_last_bit : std_logic;
+  signal s_frame_start_wrong_bit, s_frame_start_last_bit :                            std_logic;
   signal s_frame_end_detected_p, s_frame_end_detection, s_frame_end_wrong_bit :       std_logic;
   
-  signal s_check_violation, s_code_violation_p :                                        std_logic;
-  signal s_calculate_crc, s_crc_ok_p, s_crc_ok, s_start_crc_p :                       std_logic;
+  signal s_check_violation, s_code_violation_p :            std_logic;
+  signal s_calculate_crc, s_crc_ok_p, s_crc_ok, s_start_crc_p :    std_logic;
+  signal s_enble_load_bit_index, s_enble_decr_bit_index :          std_logic;
+  signal s_enble_data_bytes_follower, s_enble_FSS_follower, s_reinit_rx :        std_logic;
 
-  signal s_byte_ok, s_write_bit_to_byte, s_rx_data_filtered_d:                        std_logic;
+  signal s_byte_ready_p, s_write_bit_to_byte, s_rx_data_filtered_d:                        std_logic;
 
   signal s_byte :                                                  std_logic_vector (7 downto 0);
 
   signal s_rx_data_filtered_buff :                                 std_logic_vector (1 downto 0);
-
-
 
 --=================================================================================================
 --                                      architecture begin
@@ -275,16 +275,17 @@ architecture rtl of wf_rx is
    
     when frame_start_field =>
                         if s_frame_start_last_bit = '1' then-- reception of the last (15th) bit of  
-                          nx_rx_st <= data_field_byte;   -- the fss, jump to data_field_byte state
+                          nx_rx_st <= data_field_byte;      -- the fss, jump to data_field_byte state
 
-                        elsif s_frame_start_wrong_bit = '1' then          -- wrong frame start bit
+                        elsif s_frame_start_wrong_bit = '1' then     -- wrong frame start bit
                           nx_rx_st <= idle;                          -- jump back to the beginning
   
                         else
                           nx_rx_st <= frame_start_field;		
                         end if;
 
-    
+
+     
     when data_field_byte =>
                         if s_frame_end_detected_p = '1' or reset_rx_unit_p_i = '1' then
                           nx_rx_st <= idle;
@@ -294,6 +295,7 @@ architecture rtl of wf_rx is
                         else
                           nx_rx_st <= data_field_byte;
                         end if;	
+
     when others => 
                         nx_rx_st <= idle;
   end case;	
@@ -303,9 +305,7 @@ architecture rtl of wf_rx is
 --!@brief combinatorial process Receiver_FSM_Comb_Output_Signals:
 --! definition of the output signals of the FSM
 
-  Receiver_FSM_Comb_Output_Signals: process (rx_st, pointer,sample_manch_bit_p_i,s_pointer_is_zero,
-                                             s_frame_start_last_bit, s_frame_end_detected_p,
-                                             s_code_violation_p,s_frame_end_wrong_bit,sample_bit_p_i)
+  Receiver_FSM_Comb_Output_Signals: process (rx_st)
 
   begin
   
@@ -313,119 +313,106 @@ architecture rtl of wf_rx is
   
     when idle =>
                         -- initializations:
-                         wait_d_first_f_edge_o <= '1'; -- signal for rx_osc
+                         s_reinit_rx            <= '1'; -- signal for rx_osc
+                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
+                         s_enble_load_bit_index           <= '0'; 
+                         s_enble_decr_bit_index           <= '0';
+                         s_enble_FSS_follower             <= '0';
+                         s_enble_data_bytes_follower      <= '0';
+                         s_start_crc_p                    <= '0';
+                         s_calculate_crc                  <= '0';
 
-                         s_start_pointer     <= to_unsigned(0,s_start_pointer'length);
-                         s_load_pointer      <= '0'; 
-                         s_decr_pointer      <= '0';
-                         s_frame_start_bit   <='0';
-                         fss_decoded_p_o     <= '0';
-                         s_write_bit_to_byte <= '0';
-                         s_byte_ok           <= '0';
-                         s_start_crc_p       <= '0';
-                         s_calculate_crc     <= '0';
-                         code_violation_p_o  <= '0';
-                         s_queue_bit         <= '0';
 
                                  
     when preamble_field_first_fe =>
-                         wait_d_first_f_edge_o <= '0';
+                         s_reinit_rx             <= '0';
+                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
+                         s_enble_load_bit_index           <= '0'; 
+                         s_enble_decr_bit_index           <= '0';
+                         s_enble_FSS_follower             <= '0';
+                         s_enble_data_bytes_follower      <= '0';
+                         s_start_crc_p                    <= '0';
+                         s_calculate_crc                  <= '0';
 
-                         s_start_pointer     <= to_unsigned(0,s_start_pointer'length);
-                         s_load_pointer      <= '0'; 
-                         s_decr_pointer      <= '0';
-                         s_frame_start_bit   <='0';
-                         fss_decoded_p_o     <= '0';
-                         s_write_bit_to_byte <= '0';
-                         s_byte_ok           <= '0';
-                         s_start_crc_p       <= '0';
-                         s_calculate_crc     <= '0';
-                         code_violation_p_o  <= '0';
-                         s_queue_bit         <= '0';
 
   
     when preamble_field_re =>
-                         wait_d_first_f_edge_o <= '0';
-                         s_start_pointer       <= to_unsigned(0,s_start_pointer'length);
-                         s_load_pointer        <= '0'; 
-                         s_decr_pointer        <= '0';
-                         s_frame_start_bit     <='0';
-                         fss_decoded_p_o       <= '0';
-                         s_write_bit_to_byte   <= '0';
-                         s_byte_ok             <= '0';
-                         s_start_crc_p         <= '0';
-                         s_calculate_crc       <= '0';
-                         code_violation_p_o    <= '0';
-                         s_queue_bit           <= '0';
+                         s_reinit_rx            <= '0';
+                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
+                         s_enble_load_bit_index           <= '0'; 
+                         s_enble_decr_bit_index           <= '0';
+                         s_enble_FSS_follower <= '0';
+                         s_enble_data_bytes_follower      <= '0';
+                          s_start_crc_p                   <= '0';
+                         s_calculate_crc                  <= '0';
+
 
 
     when preamble_field_fe =>
-                         wait_d_first_f_edge_o <= '0';
-                         s_start_pointer       <= to_unsigned(0,s_start_pointer'length);
-                         s_load_pointer        <= '0'; 
-                         s_decr_pointer        <= '0';
-                         s_frame_start_bit     <= '0';
-                         fss_decoded_p_o       <= '0';
-                         s_write_bit_to_byte   <= '0';
-                         s_byte_ok             <= '0';
-                         s_start_crc_p         <= '0';
-                         s_calculate_crc       <= '0';
-                         code_violation_p_o    <= '0';
-                         s_queue_bit           <= '0';
+                         s_reinit_rx            <= '0';
+                         s_bit_index_top       <= to_unsigned(0,s_bit_index_top'length);
+                         s_enble_load_bit_index           <= '0'; 
+                         s_enble_decr_bit_index           <= '0';
+                         s_enble_FSS_follower <= '0';
+                         s_enble_data_bytes_follower          <= '0';
+                         s_start_crc_p                    <= '0';
+                         s_calculate_crc                  <= '0';
+
 
   
     when switch_to_deglitched =>
 
-                         s_load_pointer        <= '1'; 
-                         s_frame_start_bit     <= FRAME_START(to_integer(pointer)); 
-                         s_start_pointer       <= to_unsigned(FRAME_START'left-1,s_start_pointer'length);
-
-                         wait_d_first_f_edge_o <= '0';
-                         s_decr_pointer        <= '0';
-                         fss_decoded_p_o       <= '0';
-                         s_write_bit_to_byte   <= '0';
-                         s_byte_ok             <= '0';
-                         s_start_crc_p         <= '0';
-                         s_calculate_crc       <= '0';
-                         code_violation_p_o    <= '0';
-                         s_queue_bit           <= '0';
+                         s_enble_load_bit_index           <= '1'; 
+                         s_enble_FSS_follower <= '0'; 
+                         s_bit_index_top <= to_unsigned(FRAME_START'left-1,s_bit_index_top'length);
+                         s_reinit_rx            <= '0';
+                         s_enble_decr_bit_index           <= '0';
+                         s_enble_data_bytes_follower          <= '0';
+                         s_start_crc_p                    <= '0';
+                         s_calculate_crc                  <= '0';
 
 
     when frame_start_field =>
-                         s_load_pointer        <=  s_pointer_is_zero and sample_manch_bit_p_i; 
-                         s_frame_start_bit     <= FRAME_START(to_integer(pointer)); 
-                         s_start_pointer       <= to_unsigned(FRAME_END'left,s_start_pointer'length);
-                         s_decr_pointer        <= sample_manch_bit_p_i;
-                         fss_decoded_p_o       <= s_frame_start_last_bit;
-                         s_start_crc_p         <= '1';
-                         s_calculate_crc       <= '1';
-                         code_violation_p_o    <= '0';
-                         s_queue_bit           <= '0';
-                         wait_d_first_f_edge_o <= '0';
-                         s_write_bit_to_byte   <= '0';
-                         s_byte_ok             <= '0';
+                         s_enble_load_bit_index           <= '1';
+                         s_enble_FSS_follower <= '1'; 
+                         s_bit_index_top <= to_unsigned(FRAME_END'left,s_bit_index_top'length);
+                         s_enble_decr_bit_index           <= '1';
+                         s_start_crc_p                    <= '1';
+                         s_calculate_crc                  <= '1';
+                         s_reinit_rx            <= '0';
+                         s_enble_data_bytes_follower      <= '0';
+
 
    
     when data_field_byte =>
 
-                         s_load_pointer        <=  s_pointer_is_zero and sample_manch_bit_p_i; 
-                         s_start_pointer       <= to_unsigned(FRAME_END'left,s_start_pointer'length);
-                         s_decr_pointer        <= sample_manch_bit_p_i;
-                         s_write_bit_to_byte   <= sample_bit_p_i;
-                         s_byte_ok             <= s_pointer_is_zero and sample_manch_bit_p_i and 
-                                                  (not s_frame_end_detected_p);
-                         s_queue_bit           <= FRAME_END(to_integer(resize(pointer,4)));                                          
-                         code_violation_p_o    <= s_code_violation_p and s_frame_end_wrong_bit;
-                         s_start_crc_p         <= '0';
-                         s_calculate_crc       <= '1';
-                         s_frame_start_bit     <= '0'; 
-                         wait_d_first_f_edge_o <= '0';
-                         fss_decoded_p_o       <= '0';
+                         s_enble_load_bit_index           <= '1'; 
+                         s_bit_index_top <= to_unsigned(FRAME_END'left,s_bit_index_top'length);
+                         s_enble_decr_bit_index           <= '1';
+                         s_enble_data_bytes_follower          <= '1';
+                         s_start_crc_p                    <= '0';
+                         s_calculate_crc                  <= '1';
+                         s_enble_FSS_follower <= '0'; 
+                         s_reinit_rx            <= '0';
  
     when others => 
     
     end case;	
   end process;
+
+
+  fss_decoded_p_o     <= s_enble_FSS_follower    and s_frame_start_last_bit;
+  s_load_bit_index    <= (s_enble_load_bit_index  and s_pointer_is_zero and sample_manch_bit_p_i) or s_reinit_rx; 
+  s_decr_bit_index    <= s_enble_decr_bit_index  and sample_manch_bit_p_i;
+  s_write_bit_to_byte <= s_enble_data_bytes_follower and sample_bit_p_i;
+  s_byte_ready_p      <= s_enble_data_bytes_follower      and s_pointer_is_zero and sample_manch_bit_p_i
+                                                                and (not s_frame_end_detected_p);
+
+  code_violation_p_o  <= s_enble_data_bytes_follower  and s_code_violation_p and s_frame_end_wrong_bit;
+  s_queue_bit         <= s_enble_data_bytes_follower  and FRAME_END(to_integer(resize(s_bit_index,4)));
+  s_frame_start_bit   <= s_enble_FSS_follower   and FRAME_START(to_integer(s_bit_index));  
+
+  wait_d_first_f_edge_o <= s_reinit_rx;
 
 ---------------------------------------------------------------------------------------------------
 -- concurrent signal assignments concerning edges detection for the preamble field
@@ -451,7 +438,7 @@ architecture rtl of wf_rx is
 -- extra concurrent signal assignments
 
  s_code_violation_p  <= (not (rx_data_filtered_i xor s_rx_data_filtered_d)) and s_check_violation;
- s_pointer_is_zero <= '1' when pointer = 0 else '0';
+ s_pointer_is_zero <= '1' when s_bit_index = 0 else '0';
 
 -- s_frame_start_last_bit <= s_pointer_is_zero and s_frame_start_correct_bit and sample_manch_bit_p_i;
 
@@ -478,21 +465,21 @@ architecture rtl of wf_rx is
   end process;
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Incoming_Bits_Pointer: managment of the pointer that indicates the 
+--!@brief synchronous process Incoming_Bits_Pointer: managment of the s_bit_index that indicates the 
 --! position inside a manchester encoded byte of the incoming deglitched signal (16 bits)  
 
   Incoming_Bits_Pointer: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
         if nFIP_rst_i = '1' then
-          pointer   <= (others => '0');
+          s_bit_index   <= (others => '0');
         else
 
-          if s_load_pointer = '1' then
-            pointer <= s_start_pointer;
+          if s_load_bit_index = '1' then
+            s_bit_index <= s_bit_index_top;
 
-           elsif s_decr_pointer = '1' then
-            pointer <= pointer - 1;
+           elsif s_decr_bit_index = '1' then
+            s_bit_index <= s_bit_index - 1;
 
           end if;
         end if;
@@ -586,7 +573,7 @@ end process;
             s_check_violation     <= s_sample_bit_p_d2;
             s_sample_bit_p_d2     <= s_sample_bit_p_d1;
             s_sample_bit_p_d1     <= sample_bit_p_i;
-            byte_ready_p_o        <= s_byte_ok and (not s_frame_end_detected_p); 
+            byte_ready_p_o        <= s_byte_ready_p; 
          end if;
       end if;
   end process; 

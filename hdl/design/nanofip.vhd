@@ -140,12 +140,12 @@ entity nanofip is
 
 --  USER INTERFACE, WISHBONE SLAVE
 
-    wclk_i    : in  std_logic; --! Wishbone clock. May be independent of UCLK.
+    wclk_i    : in  std_logic; --! WISHBONE clock. May be independent of UCLK.
     dat_i     : in  std_logic_vector (15 downto 0); --! Data in
 
     dat_o     : out std_logic_vector (15 downto 0); --! Data out
     adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
-    rst_i     : in  std_logic; --! Wishbone reset. Does not reset other internal logic.
+    rst_i     : in  std_logic; --! WISHBONE reset. Does not reset other internal logic.
     stb_i     : in  std_logic; --! Strobe
     ack_o     : out std_logic; --! Acknowledge
     cyc_i     : in std_logic;
@@ -215,7 +215,7 @@ architecture struc of nanofip is
   signal s_slone_data_i_d1, s_slone_data_i_d2 : std_logic_vector (15 downto 0);
   signal s_stb_r_edge, s_stb_d1, s_stb_d2, s_stb_d3 : std_logic;
   signal s_we_d1, s_we_d2, s_cyc_d1, s_cyc_d2, s_reset_rx_unit_p : std_logic;
-  signal s_ctrl_byte_received, s_pdu_byte_received, s_length_byte_received, s_wb_dati : std_logic_vector (7 downto 0);
+  signal s_ctrl_byte_received, s_pdu_byte_received, s_length_byte_received : std_logic_vector (7 downto 0);
 
 begin
 --=================================================================================================
@@ -313,7 +313,6 @@ begin
       var_i               => s_var_from_control,
       byte_index_i        => s_add_offset_from_control,
       byte_i              => s_byte_from_rx,
-      wb_rst_i            => rst_i,
       wb_clk_i            => wclk_i,   
       wb_adr_i            => s_adr_d2,   
       wb_stb_r_edge_p_i   => s_stb_r_edge,   
@@ -338,7 +337,6 @@ begin
       slone_i            => slone_i,  
       nostat_i           => nostat_i, 
       nFIP_rst_i         => s_rst,
-      wb_rst_i           => rst_i,   
       wb_clk_i           => wclk_i,   
       wb_adr_i           => s_adr_d2,   
       wb_stb_r_edge_p_i  => s_stb_r_edge, 

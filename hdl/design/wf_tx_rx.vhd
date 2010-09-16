@@ -135,78 +135,77 @@ begin
 
 
 
-  uwf_tx: wf_tx 
+  tx: wf_tx 
     generic map(C_CLKFCDLENTGTH => C_CLKFCDLENTGTH)
     PORT MAP(
-      uclk_i => uclk_i,
-      nFIP_rst_i => nFIP_rst_i,
+      uclk_i            => uclk_i,
+      nFIP_rst_i        => nFIP_rst_i,
       start_produce_p_i => start_produce_p_i,
-      request_byte_p_o => request_byte_p_o,
-      byte_ready_p_i => byte_ready_p_i,
-      byte_i => byte_i,
-      last_byte_p_i => last_byte_p_i,
---      clk_fixed_sample_manch_bit_p_i => s_clk_fixed_carrier_p,
-      tx_clk_p_buff_i => s_clk_fixed_carrier_p_d,
-      tx_data_o => tx_data_o,
-      tx_enable_o => tx_enable_o
+      byte_ready_p_i    => byte_ready_p_i,
+      byte_i            => byte_i,
+      last_byte_p_i     => last_byte_p_i,
+      tx_clk_p_buff_i   => s_clk_fixed_carrier_p_d,
+      tx_data_o         => tx_data_o,
+      request_byte_p_o  => request_byte_p_o,
+      tx_enable_o       => tx_enable_o
       );
   
 
-  uwf_rx: wf_rx 
+  rx: wf_rx 
     PORT MAP(
-      uclk_i => uclk_i,
-      nFIP_rst_i => nFIP_rst_i,
-      reset_rx_unit_p_i => reset_rx_unit_p_i,
-      byte_ready_p_o => byte_ready_p_o,
-      byte_o => byte_o,
-      last_byte_p_o => last_byte_p_o,
-      fss_decoded_p_o => fss_decoded_p_o,
-      crc_ok_p_o => crc_ok_p_o,
-      rx_data_f_edge_i => s_data_in_f_edge,
-      rx_data_r_edge_i => s_data_in_r_edge,
-      rx_data_filtered_i => s_d_filtered,
-      sample_manch_bit_p_i => s_sample_manch_bit_p,
-      wait_d_first_f_edge_o=> s_first_fe,
-      code_violation_p_o => code_violation_p_o,
-      crc_wrong_p_o => crc_wrong_p_o,
-      sample_bit_p_i => s_sample_bit_p,
+      uclk_i               => uclk_i,
+      nFIP_rst_i           => nFIP_rst_i,
+      reset_rx_unit_p_i    => reset_rx_unit_p_i,
+      sample_bit_p_i       => s_sample_bit_p,
       signif_edge_window_i => s_edge_window,
-      adjac_bits_window_i => edge_180_window
+      adjac_bits_window_i  => edge_180_window,
+      rx_data_f_edge_i     => s_data_in_f_edge,
+      rx_data_r_edge_i     => s_data_in_r_edge,
+      rx_data_filtered_i   => s_d_filtered,
+      sample_manch_bit_p_i => s_sample_manch_bit_p,
+      byte_ready_p_o       => byte_ready_p_o,
+      byte_o               => byte_o,
+      last_byte_p_o        => last_byte_p_o,
+      fss_decoded_p_o      => fss_decoded_p_o,
+      crc_ok_p_o           => crc_ok_p_o,
+      wait_d_first_f_edge_o=> s_first_fe,
+      code_violation_p_o   => code_violation_p_o,
+      crc_wrong_p_o        => crc_wrong_p_o
       );
 
   
-  uwf_rx_osc :wf_rx_tx_osc
+  rx_tx_osc :wf_rx_tx_osc
 
     generic map(C_COUNTER_LENGTH => 11,
-                C_QUARTZ_PERIOD => 24.8,
-                C_CLKFCDLENTGTH => C_CLKFCDLENTGTH)
+                C_QUARTZ_PERIOD  => 24.8,
+                C_CLKFCDLENTGTH  => C_CLKFCDLENTGTH)
 
 
     port map(
-      uclk_i   => uclk_i,
-      nFIP_rst_i   => nFIP_rst_i, 
-      d_edge_i => s_data_in_edge,      
-      rx_data_f_edge_i   => s_data_in_f_edge,
+      uclk_i                  => uclk_i,
+      nFIP_rst_i              => nFIP_rst_i, 
+      d_edge_i                => s_data_in_edge,      
+      rx_data_f_edge_i        => s_data_in_f_edge,
       wait_d_first_f_edge_i   => s_first_fe, 
-      rate_i   => rate_i,  
-      tx_clk_p_buff_o   => s_clk_fixed_carrier_p_d,
-      tx_clk_o   => d_clk_o,
-      rx_manch_clk_p_o     => s_clk_carrier_p,
-      rx_bit_clk_p_o  => s_clk_bit_180_p, 
-      rx_signif_edge_window_o  => s_edge_window,
-      rx_adjac_bits_window_o => edge_180_window
+      rate_i                  => rate_i,  
+      tx_clk_p_buff_o         => s_clk_fixed_carrier_p_d,
+      tx_clk_o                => d_clk_o,
+      rx_manch_clk_p_o        => s_clk_carrier_p,
+      rx_bit_clk_p_o          => s_clk_bit_180_p, 
+      rx_signif_edge_window_o => s_edge_window,
+      rx_adjac_bits_window_o  => edge_180_window
       );
 
-  Udeglitcher : wf_rx_deglitcher 
+  deglitcher : wf_rx_deglitcher 
     generic map (C_ACULENGTH => 10)
-    Port map( uclk_i => uclk_i,
-              nFIP_rst_i => nFIP_rst_i,
-              rx_data_i => s_data_in_d3(2),
-              rx_data_filtered_o => s_d_filtered,
-              sample_bit_p_i => s_clk_bit_180_p,
-              sample_manch_bit_p_i  => s_clk_carrier_p,
+    Port map( uclk_i               => uclk_i,
+              nFIP_rst_i           => nFIP_rst_i,
+              rx_data_i            => s_data_in_d3(2),
+              sample_bit_p_i       => s_clk_bit_180_p,
+              sample_manch_bit_p_i => s_clk_carrier_p,
+              rx_data_filtered_o   => s_d_filtered,
               sample_manch_bit_p_o => s_sample_manch_bit_p,
-              sample_bit_p_o => s_sample_bit_p
+              sample_bit_p_o       => s_sample_bit_p
               );
   
   
