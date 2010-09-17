@@ -75,6 +75,30 @@ begin
 		wait for 10 us;
 		id_rp					<= '0';
 		launch_fip_cycle		<= '0';
+		station_adr				<= x"00";
+		var_adr					<= x"00";
+		var_length				<= "0000000";
+		wait for 1400 us;
+		id_rp					<= '1';
+		launch_fip_cycle		<= '1' after 1 us;		-- ID_DAT for presence
+		station_adr				<= x"5A";
+		var_adr					<= x"14";
+		var_length				<= "0000100";
+		wait for 10 us;
+		id_rp					<= '0';
+		launch_fip_cycle		<= '0';
+		station_adr				<= x"00";
+		var_adr					<= x"00";
+		var_length				<= "0000000";
+		wait for 400 us;
+		id_rp					<= '1';
+		launch_fip_cycle		<= '1' after 1 us;		-- ID_DAT for identification
+		station_adr				<= x"5A";
+		var_adr					<= x"10";
+		var_length				<= "0000100";
+		wait for 10 us;
+		id_rp					<= '0';
+		launch_fip_cycle		<= '0';
 		station_adr				<= x"5A";
 		var_adr					<= x"00";
 		var_length				<= "0000000";
