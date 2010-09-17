@@ -129,6 +129,7 @@ end entity wf_consumed_vars;
 --=================================================================================================
 architecture rtl of wf_consumed_vars is
 
+signal s_slone_datao :                      std_logic_vector (15 downto 0);
 signal s_addr:                              std_logic_vector (8 downto 0);
 signal s_mem_data_out :                     std_logic_vector (7 downto 0);
 signal s_rst_var_byte_1, s_rst_var_byte_2 : std_logic_vector (7 downto 0);
@@ -282,7 +283,7 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i,
             s_rst_var_byte_1      <= (others => '0');
             s_rst_var_byte_2      <= (others => '0'); 
             s_base_addr           <= c_VARS_ARRAY(c_VAR_2_INDEX).base_addr; -- base addr info
-                                                                             -- from wf_package
+                                                                            -- from wf_package
 
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
@@ -317,13 +318,13 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i,
             if ((byte_ready_p_i = '1')and(byte_index_i = c_1st_DATA_BYTE_INDEX)) then -- 1st byte
 
                s_rst_var_byte_1 <= byte_i;
-              -- s_rst_var_byte_2 <= (others => '0'); 
+               s_rst_var_byte_2 <= (others => '0'); 
 
 
             elsif ((byte_ready_p_i='1')and(byte_index_i=c_2nd_DATA_BYTE_INDEX)) then  -- 2nd byte
 
               s_rst_var_byte_2 <= byte_i;
-            --  s_rst_var_byte_1 <= (others => '0'); 
+              s_rst_var_byte_1 <= (others => '0'); 
 
             else
               s_rst_var_byte_1 <= (others => '0');
@@ -383,7 +384,7 @@ Data_Transfer_To_Dat_o: process (uclk_i)
 begin
   if rising_edge(uclk_i) then
     if nFIP_rst_i = '1' then
-      data_o  <= (others => '0');           -- bus initialization
+      s_slone_datao  <= (others => '0');           -- bus initialization
  
     else
 
@@ -393,13 +394,13 @@ begin
  
         if s_slone_write_byte_p(0) = '1' then -- the 1st byte is written in the lsb of the bus 
           if byte_ready_p_i ='1' then
-            data_o(7 downto 0)   <= byte_i;   -- the data stays there until a new byte arrives
+            s_slone_datao(7 downto 0)   <= byte_i;   -- the data stays there until a new byte arrives
           end if;      
         end if;                               -- on purpose latch, to store the value on DAT_O 
 
         if s_slone_write_byte_p(1) = '1' then -- the 2nd byte is written in the msb of the bus
           if byte_ready_p_i ='1' then
-            data_o(15 downto 8)  <= byte_i;   -- the data stays there until a new byte arrives
+            s_slone_datao(15 downto 8)  <= byte_i;   -- the data stays there until a new byte arrives
           end if;
         end if;
 
@@ -407,13 +408,18 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --
       -- in memory mode
       else
+        s_slone_datao(7 downto 0)     <= (others=>'0'); 
 
-        data_o(7 downto 0)     <= s_mem_data_out; -- the lsb of the bus receives the byte that is
-                                                  -- also written in the memory
       end if;
     end if;
   end if;
 end process;
+
+---------------------------------------------------------------------------------------------------
+  data_o(7 downto 0) <= s_mem_data_out when slone_i = '0'
+                    else s_slone_datao(7 downto 0);
+
+  data_o(15 downto 8) <= s_slone_datao(15 downto 8);  
 
 end architecture rtl;
 --=================================================================================================

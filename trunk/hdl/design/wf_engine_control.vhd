@@ -468,13 +468,25 @@ begin
 
       when others =>   
 
+                  s_reset_rx_unit <= '0';
+                  s_enble_load_temp_var <= '0';
+                  s_rst_time_c       <= '0';
+                  s_time_counter_top   <= s_silence_time;
+                  s_enble_bytes_counter  <= '0';
+                  s_rst_tx_rx_bytes_counter<= '0';
+                  s_load_var           <= '0';
+                  s_enble_rx    <= '0';
+                  s_start_producing <= '0';
+                  s_enble_tx     <= '0';
+
+
     end case;                         
   end process;
 
 
   reset_rx_unit_p_o          <= s_reset_rx_unit and rx_byte_ready_p_i;
   s_load_temp_var            <= s_enble_load_temp_var and rx_byte_ready_p_i;
-  rx_byte_ready_p_o          <=  s_enble_rx and rx_byte_ready_p_i;
+  rx_byte_ready_p_o          <= s_enble_rx and rx_byte_ready_p_i;
   s_tx_last_byte_p           <= s_enble_tx and s_tx_data_length_match and tx_request_byte_p_i;
   reset_status_bytes_o       <= s_enble_tx and s_tx_byte_ready_p_d2 and tx_sending_mps_i;
   s_inc_tx_rx_bytes_counter  <= s_enble_bytes_counter and (tx_request_byte_p_i or rx_byte_ready_p_i);
