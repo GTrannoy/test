@@ -230,16 +230,18 @@ end process;
   MPS_byte_formation: process (slone_i, s_refreshment)
   
   begin
-    if slone_i='1' then
-      mps_status_byte_o                        <= (others => '0');
-      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
+ --   if slone_i='1' then
+      mps_status_byte_o (7 downto 3)           <= (others => '0');   
       mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
+      mps_status_byte_o (1)                    <= '0';
+      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
 
-    else
-      mps_status_byte_o                        <= (others => '0');      
-      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
-      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
-    end if;
+
+ --   else
+ --     mps_status_byte_o                        <= (others => '0');      
+ --     mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
+ --     mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
+ --   end if;
   end process;
 
 
