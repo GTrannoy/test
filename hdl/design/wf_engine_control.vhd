@@ -336,7 +336,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Central_Control_FSM_Comb_Output_Signals: 
 
-  Central_Control_FSM_Comb_Output_Signals: process (control_st, s_silence_time, s_response_time)
+  Central_Control_FSM_Comb_Output_Signals: process (control_st)
   begin
 
     case control_st is
@@ -344,7 +344,6 @@ begin
       when idle =>
                   s_reset_rx_unit           <= '1';
                   s_rst_time_c              <= '1';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '1';
                   s_enble_load_temp_var     <= '0';
@@ -357,7 +356,6 @@ begin
       when id_dat_control_byte =>
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '1';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '1';
                   s_enble_load_temp_var     <= '0';
@@ -370,7 +368,6 @@ begin
       when id_dat_var_byte =>      
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '1';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '1';
                   s_enble_load_temp_var     <= '1';
@@ -383,7 +380,6 @@ begin
       when id_dat_subs_byte =>
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '1';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '1';
                   s_enble_load_temp_var     <= '0';
@@ -396,7 +392,6 @@ begin
       when id_dat_frame_ok => 
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '1';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '1';
                   s_rst_tx_rx_bytes_counter <= '0';
                   s_enble_load_temp_var     <= '0';
@@ -409,7 +404,6 @@ begin
       when produce_wait_respon_time =>  
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '0';
-                  s_time_counter_top        <= s_response_time;
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '1';
                   s_enble_load_temp_var     <= '0';
@@ -423,7 +417,6 @@ begin
       when consume_wait_FSS =>
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '0';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '1';
                   s_enble_load_temp_var     <= '0';
@@ -437,7 +430,6 @@ begin
       when consume =>
                   s_reset_rx_unit           <= '0';
                   s_rst_time_c              <= '1';
-                  s_time_counter_top        <= s_silence_time;
                   s_enble_bytes_counter     <= '1';
                   s_rst_tx_rx_bytes_counter <= '0';
                   s_enble_load_temp_var     <= '0';
@@ -450,8 +442,7 @@ begin
 
       when produce =>
                   s_reset_rx_unit           <= '0';
-                  s_rst_time_c              <= '0';
-                  s_time_counter_top        <= s_silence_time;
+                  s_rst_time_c              <= '1';
                   s_enble_bytes_counter     <= '1';
                   s_rst_tx_rx_bytes_counter <= '0';
                   s_enble_load_temp_var     <= '0';
@@ -463,8 +454,7 @@ begin
 
       when others =>   
                   s_reset_rx_unit           <= '0';
-                  s_rst_time_c              <= '0';
-                  s_time_counter_top        <= s_silence_time;
+                  s_rst_time_c              <= '1';
                   s_enble_bytes_counter     <= '0';
                   s_rst_tx_rx_bytes_counter <= '0';
                   s_enble_load_temp_var     <= '0';
@@ -476,6 +466,8 @@ begin
     end case;                         
   end process;
 
+  s_time_counter_top <= s_response_time when (s_rst_time_c ='1' and s_produce_or_consume = "10")
+                   else s_silence_time;
 
   reset_rx_unit_p_o          <= s_reset_rx_unit and rx_byte_ready_p_i;
   s_load_temp_var            <= s_enble_load_temp_var and rx_byte_ready_p_i;
