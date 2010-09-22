@@ -179,11 +179,11 @@ Generate_wb_ack_cons_p_o: wb_ack_cons_p_o <= '1' when ((wb_stb_r_edge_p_i = '1')
                                           else '0';
 
 ---------------------------------------------------------------------------------------------------
---!@brief combinatorial process Latch_Ctrl_PDU_Length_bytes_received: Latching the rp_dat.Control,
+--!@brief synchronous process Buffer_Ctrl_PDU_Length_bytes_received: Storage of the rp_dat.Control,
 --! PDU_TYPE and Length bytes of an incoming rp_dat frame. The bytes are sent to the control unit
 --! that verifies if they are correct and accordingly enables or not the signals var1_rdy, var2_rdy
 
-Latch_Ctrl_PDU_Length_bytes_received: process (uclk_i)
+Buffer_Ctrl_PDU_Length_bytes_received: process (uclk_i)
 
 begin                                               
 

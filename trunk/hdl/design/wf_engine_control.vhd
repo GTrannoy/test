@@ -336,149 +336,142 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Central_Control_FSM_Comb_Output_Signals: 
 
-  Central_Control_FSM_Comb_Output_Signals: process (control_st, s_produce_or_consume, s_silence_time,s_response_time)
+  Central_Control_FSM_Comb_Output_Signals: process (control_st, s_silence_time, s_response_time)
   begin
 
     case control_st is
 
       when idle =>
-                  s_reset_rx_unit <= '1';
-                  s_enble_load_temp_var <= '0';
-                  s_rst_time_c       <= '1';
-                  s_time_counter_top   <= s_silence_time;
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '1';
-                  s_load_var           <= '0';
-                  s_enble_rx    <= '0';
-                  s_start_producing <= '0';
-                  s_enble_tx     <= '0';
+                  s_reset_rx_unit           <= '1';
+                  s_rst_time_c              <= '1';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '1';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
 
 
       when id_dat_control_byte =>
-                  s_reset_rx_unit    <= '0';
-                  s_enble_load_temp_var      <= '0';
-                  s_rst_time_c       <= '1';
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '1';
-                  s_load_var           <= '0';
-                  s_time_counter_top   <= s_silence_time;
-                  s_enble_rx    <= '0';
-                  s_start_producing <= '0';
-                  s_enble_tx    <= '0';
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '1';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '1';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
+
 
       when id_dat_var_byte =>      
-                  s_reset_rx_unit    <= '0';
-                  s_enble_load_temp_var   <= '1';
-
-                  s_rst_time_c       <= '1';
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '1';
-                  s_load_var           <= '0';
-                  s_time_counter_top   <= s_silence_time;
-                  s_enble_rx    <= '0';
-                  s_start_producing <= '0';
-                  s_enble_tx    <= '0';
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '1';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '1';
+                  s_enble_load_temp_var     <= '1';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
 
 
       when id_dat_subs_byte =>
-                  s_reset_rx_unit    <= '0';
-                  s_enble_load_temp_var      <= '0';
-                  s_rst_time_c       <= '1';
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '1';
-                  s_load_var           <= '0';
-                  s_time_counter_top   <= s_silence_time;
-                  s_enble_rx    <= '0';
-                  s_start_producing <= '0';
-                  s_enble_tx    <= '0';
-
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '1';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '1';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
 
 
       when id_dat_frame_ok => 
-                  s_reset_rx_unit    <= '0';
-                  s_load_var <= '0';
-
-                  if s_produce_or_consume = "10" then
-                    s_time_counter_top <= s_response_time;
-                  else 
-                    s_time_counter_top <= s_silence_time;
-                  end if;
-
-                  s_rst_time_c       <= '1';
-                  s_enble_bytes_counter  <= '1';
-                  s_rst_tx_rx_bytes_counter<= '0';
-                  s_enble_rx    <= '0';
-                  s_start_producing <= '0';
-                  s_enble_tx    <= '0';
-                  s_enble_load_temp_var      <= '0';
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '1';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '1';
+                  s_rst_tx_rx_bytes_counter <= '0';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
 
 
       when produce_wait_respon_time =>  
-                  s_reset_rx_unit    <= '0';
-                  s_start_producing <= '1';
-                  s_time_counter_top   <= s_silence_time;
-                  s_rst_time_c       <= '0';
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '1';
-                  s_load_var           <= '1';
-                  s_enble_rx    <= '0';
-                  s_enble_load_temp_var      <= '0';
-                  s_enble_tx    <= '0';
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '0';
+                  s_time_counter_top        <= s_response_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '1';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '1';
+                  s_start_producing         <= '1';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
+
 
 
       when consume_wait_FSS =>
-                  s_rst_time_c       <= '0';
-                  s_reset_rx_unit    <= '0';
-                  s_enble_rx    <= '0';
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '1';
-                  s_load_var           <= '0';
-                  s_time_counter_top   <= s_silence_time;
-                  s_start_producing <= '0';
-                  s_enble_load_temp_var      <= '0';
-                  s_enble_tx    <= '0';
-
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '0';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '1';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
 
 	   
         
       when consume =>
-                  s_rst_time_c       <= '1';
-                  s_reset_rx_unit    <= '0';
-                  s_enble_rx    <= '1';
-                  s_enble_bytes_counter  <= '1';
-                  s_rst_tx_rx_bytes_counter<= '0';
-                  s_load_var           <= '1';
-                  s_time_counter_top   <= s_silence_time;
-                  s_start_producing <= '0';
-                  s_enble_load_temp_var      <= '0';
-                  s_enble_tx    <= '0';
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '1';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '1';
+                  s_rst_tx_rx_bytes_counter <= '0';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '1';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '1';
+                  s_enble_tx                <= '0';
+
 
 
       when produce =>
-                  s_reset_rx_unit    <= '0';
-                  s_enble_tx    <= '1';
-                  s_enble_bytes_counter  <= '1';
-                  s_rst_time_c        <= '0';
-                  s_rst_tx_rx_bytes_counter   <= '0';
-                  s_start_producing  <= '0';
-                  s_load_var            <= '0';
-                  s_time_counter_top    <= s_silence_time;
-                  s_enble_rx <= '0';
-                  s_enble_load_temp_var <= '0';
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '0';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '1';
+                  s_rst_tx_rx_bytes_counter <= '0';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '1';
+
 
       when others =>   
-
-                  s_reset_rx_unit <= '0';
-                  s_enble_load_temp_var <= '0';
-                  s_rst_time_c       <= '0';
-                  s_time_counter_top   <= s_silence_time;
-                  s_enble_bytes_counter  <= '0';
-                  s_rst_tx_rx_bytes_counter<= '0';
-                  s_load_var           <= '0';
-                  s_enble_rx    <= '0';
-                  s_start_producing <= '0';
-                  s_enble_tx     <= '0';
-
+                  s_reset_rx_unit           <= '0';
+                  s_rst_time_c              <= '0';
+                  s_time_counter_top        <= s_silence_time;
+                  s_enble_bytes_counter     <= '0';
+                  s_rst_tx_rx_bytes_counter <= '0';
+                  s_enble_load_temp_var     <= '0';
+                  s_load_var                <= '0';
+                  s_start_producing         <= '0';
+                  s_enble_rx                <= '0';
+                  s_enble_tx                <= '0';
 
     end case;                         
   end process;
