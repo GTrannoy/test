@@ -155,12 +155,13 @@ architecture rtl of wf_produced_vars is
   constant c_ZERO : integer := 0;
 
   signal s_wb_ack_prod_p, var3_rdy_int_d3 : std_logic;
-  signal var3_rdy_int_d2, var3_rdy_int_d1 : std_logic;
+  signal var3_rdy_int_d2, var3_rdy_int_d1, var3_rdy_int_d4 : std_logic;
+  signal s_mem_wr_en_B_d1, s_mem_wr_en_B_d2, s_mem_wr_en_B_d3 : std_logic;
   signal s_base_addr, s_mem_addr_offset :   unsigned(8 downto 0);
   signal s_byte_index_aux :                 integer range 0 to 15;
   signal s_length, s_mem_byte, s_io_byte :  std_logic_vector (7 downto 0);
   signal s_byte_index :                     std_logic_vector (7 downto 0);       
-  signal s_mem_addr_A :                     std_logic_vector (8 downto 0); 
+  signal s_mem_addr_A :                     std_logic_vector (8 downto 0);
   signal s_sample_data_i :                  std_logic_vector (15 downto 0);
   signal zero :                             std_logic_vector (7 downto 0);
 
@@ -187,9 +188,9 @@ architecture rtl of wf_produced_vars is
              data_A_o     => s_mem_byte,           -- output byte read
              
              clk_B_i      => wb_clk_i,             -- WISHBONE clck
-             addr_B_i     => wb_adr_i (8 downto 0), -- address of byte to be written
-             data_B_i     => wb_data_i(7 downto 0),-- byte to be written
-             write_en_B_i => s_wb_ack_prod_p       -- WISHBONE write enable ********************
+             addr_B_i     => wb_adr_i (8 downto 0),-- address of byte to be written
+             data_B_i     => wb_data_i,            -- byte to be written
+             write_en_B_i => s_mem_wr_en_B_d3      -- WISHBONE write enable ********************
              );
              
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
@@ -202,7 +203,20 @@ architecture rtl of wf_produced_vars is
                                                                                   
     s_mem_addr_offset <= (resize((unsigned(byte_index_i)), s_mem_addr_offset'length));
 
-                                                                                        
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
+
+  --!@brief synchronous process Delay_mem_wr_en_and_addr: since the input buses wb_data_i and 
+  --! wb_addr_i are the triply buffered versions of the DAT_I and ADR_I, the signal wb_write_enable
+  --! has to be delayed too.
+  Delay_mem_wr_en_and_addr: process(wb_clk_i) 
+  begin
+    if rising_edge(wb_clk_i) then
+      s_mem_wr_en_B_d3 <= s_mem_wr_en_B_d2;
+      s_mem_wr_en_B_d2 <= s_mem_wr_en_B_d1;        
+      s_mem_wr_en_B_d1 <= s_wb_ack_prod_p;       
+    end if;
+  end process;
+
 --------------------------------------------------------------------------------------------------- 
 --!@brief Generate_wb_ack_prod_p_o: Generation of the wb_ack_prod_p_o signal
 --! (acknowledgement from WISHBONE slave of the write cycle, as a response to the master's storbe).
@@ -217,11 +231,46 @@ architecture rtl of wf_produced_vars is
                                             else '0';
 
   wb_ack_prod_p_o <= s_wb_ack_prod_p;
- 
+
+
+
 --------------------------------------------------------------------------------------------------- 
---!@brief synchronous process Delay_index_offset_i: in the combinatorial process that follows
---! (Bytes_Generation), according to the value of the signal s_byte_index, a byte is retreived
---! either from the memory, or from the wf_package or from the wf_status_bytes_gen or dec_m_ids units.
+--!@brief synchronous process Sample_Data_i: in stand-alone mode, nanoFIP should sample the data on
+--! the first clock cycle after the deassettion of VAR3_RDY. Since slone_data_i is the triply
+--! buffered version of the input bus DAT_I, the signal VAR3_RDY has to be delayed too.
+
+  Sample_Data_i: process(uclk_i) 
+  begin
+    if rising_edge(uclk_i) then 
+      if nFIP_rst_i = '1' then
+        var3_rdy_int_d4   <= '0';
+        var3_rdy_int_d3   <= '0';
+        var3_rdy_int_d2   <= '0';
+        var3_rdy_int_d1   <= '0';
+        s_sample_data_i   <= (others=>'0');
+      else 
+        var3_rdy_int_d4   <= var3_rdy_int_d3;
+        var3_rdy_int_d3   <= var3_rdy_int_d2;
+        var3_rdy_int_d2   <= var3_rdy_int_d1;
+        var3_rdy_int_d1   <= var3_rdy_i;
+
+        if var3_rdy_int_d4 = '1' then        -- data latching
+          s_sample_data_i <= slone_data_i;
+
+        end if;
+      end if;
+    end if;  
+  end process;
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  s_io_byte <= s_sample_data_i(7 downto 0) when byte_index_i(0) = '1'
+          else s_sample_data_i(15 downto 8); 
+
+
+--------------------------------------------------------------------------------------------------- 
+--!@brief synchronous process Delay_index_offset_i: in the combinatorial process Bytes_Generation),
+--! according to the value of the signal s_byte_index, a byte is retreived either from the memory,
+--! or from the wf_package or from the wf_status_bytes_gen or dec_m_ids units.
 --! Since the memory needs one clock cycle to output its data the signal s_byte_index has to be a
 --! delayed version of the byte_index_i, which is actually the signal used as address for the mem
 
@@ -238,38 +287,6 @@ architecture rtl of wf_produced_vars is
   end process;
 
 
-
---------------------------------------------------------------------------------------------------- 
---!@brief synchronous process Sample_Data_i: in stand-alone mode, nanoFIP should sample the data on
---! the first clock cycle after the deassettion of VAR3_RDY. Since slone_data_i is the doubly
---! buffered version of the input bus DAT_I, the signal VAR3_RDY has to be delayed too in order
---! to comply with the statement above.  
-
-  Sample_Data_i: process(uclk_i) 
-  begin
-    if rising_edge(uclk_i) then 
-      if nFIP_rst_i = '1' then
-        var3_rdy_int_d3   <= '0';
-        var3_rdy_int_d2   <= '0';
-        var3_rdy_int_d1   <= '0';
-        s_sample_data_i   <= (others=>'0');
-      else 
-
-        var3_rdy_int_d3   <= var3_rdy_int_d2;
-        var3_rdy_int_d2   <= var3_rdy_int_d1;
-        var3_rdy_int_d1   <= var3_rdy_i;
-
-        if var3_rdy_int_d3 = '1' then        -- data latching
-          s_sample_data_i <= slone_data_i;
-
-        end if;
-      end if;
-    end if;  
-  end process;
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  s_io_byte <= s_sample_data_i(7 downto 0) when byte_index_i(0) = '1'
-          else s_sample_data_i(15 downto 8); 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial process Bytes_Generation: Generation of bytes for the Control and Data

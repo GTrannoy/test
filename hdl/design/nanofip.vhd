@@ -208,13 +208,13 @@ architecture struc of nanofip is
   signal s_crc_bad_p : std_logic;
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy : std_logic;
   signal s_mps : std_logic_vector (7 downto 0);
-  signal s_wb_data_i_d1, s_wb_data_i_d2 : std_logic_vector (7 downto 0);
+  signal s_wb_data_i_d1, s_wb_data_i_d2, s_wb_data_i_d3 : std_logic_vector (7 downto 0);
   signal s_m_id_dec_o, s_c_id_dec_o : std_logic_vector (7 downto 0);  
   signal s_reset_nFIP_and_FD, s_reset_rston : std_logic;
-  signal s_adr_d1, s_adr_d2 : std_logic_vector (9 downto 0);
-  signal s_slone_data_i_d1, s_slone_data_i_d2 : std_logic_vector (15 downto 0);
-  signal s_stb_r_edge, s_stb_d1, s_stb_d2, s_stb_d3 : std_logic;
-  signal s_we_d1, s_we_d2, s_cyc_d1, s_cyc_d2, s_reset_rx_unit_p : std_logic;
+  signal s_adr_d1, s_adr_d2, s_adr_d3 : std_logic_vector (9 downto 0);
+  signal s_slone_data_i_d1, s_slone_data_i_d2, s_slone_data_i_d3 : std_logic_vector (15 downto 0);
+  signal s_stb_r_edge, s_stb_d1, s_stb_d2, s_stb_d3, s_stb_d4 : std_logic;
+  signal s_we_d1, s_we_d2, s_we_d3, s_cyc_d1, s_cyc_d2, s_cyc_d3, s_reset_rx_unit_p : std_logic;
   signal s_ctrl_byte_received, s_pdu_byte_received, s_length_byte_received : std_logic_vector (7 downto 0);
 
 begin
@@ -314,9 +314,9 @@ begin
       byte_index_i        => s_add_offset_from_control,
       byte_i              => s_byte_from_rx,
       wb_clk_i            => wclk_i,   
-      wb_adr_i            => s_adr_d2,   
+      wb_adr_i            => s_adr_d3,   
       wb_stb_r_edge_p_i   => s_stb_r_edge,   
-      wb_cyc_i            => s_cyc_d2, 
+      wb_cyc_i            => s_cyc_d3, 
       wb_ack_cons_p_o     => s_ack_consumed, 
       data_o              => dat_o,
       reset_nFIP_and_FD_o => s_reset_nFIP_and_FD, 
@@ -338,17 +338,17 @@ begin
       nostat_i           => nostat_i, 
       nFIP_rst_i         => s_rst,
       wb_clk_i           => wclk_i,   
-      wb_adr_i           => s_adr_d2,   
+      wb_adr_i           => s_adr_d3,   
       wb_stb_r_edge_p_i  => s_stb_r_edge, 
-      wb_cyc_i           => s_cyc_d2,  
-      wb_we_p_i          => s_we_d2, 
+      wb_cyc_i           => s_cyc_d3,  
+      wb_we_p_i          => s_we_d3, 
       nFIP_status_byte_i => s_stat,  
       mps_status_byte_i  => s_mps,
       var_i              => s_var_from_control,  
       byte_index_i       => s_add_offset_from_control,  
       data_length_i      => s_data_length_from_control, 
-      wb_data_i          => s_wb_data_i_d2,
-      slone_data_i       => s_slone_data_i_d2,
+      wb_data_i          => s_wb_data_i_d3,
+      slone_data_i       => s_slone_data_i_d3,
       var3_rdy_i     => s_var3_rdy,
       sending_mps_o      => s_sending_mps, 
       byte_o             => s_byte_to_tx,
@@ -369,7 +369,7 @@ begin
       var_i                => s_var_from_control,
       var1_rdy_i           => s_var1_rdy,
       var2_rdy_i           => s_var2_rdy,
-      var3_rdy_i       => s_var3_rdy,
+      var3_rdy_i          => s_var3_rdy,
       var1_access_a_i      => var1_acc_i,
       var2_access_a_i      => var2_acc_i,
       var3_access_a_i      => var3_acc_i,
@@ -400,39 +400,48 @@ begin
    if rst_i = '1' then -- reset not buffered to comply with WISHBONE rule 3.15
      s_wb_data_i_d1 <= (others => '0');
      s_wb_data_i_d2 <= (others => '0');
+     s_wb_data_i_d3 <= (others => '0');
      s_adr_d1     <= (others => '0');
      s_adr_d2     <= (others => '0');
+     s_adr_d3     <= (others => '0');
      s_stb_d1     <= '0';
      s_stb_d2     <= '0';
      s_stb_d3     <= '0';
      s_cyc_d1     <= '0';
      s_cyc_d2     <= '0';
+     s_cyc_d3     <= '0';
      s_we_d1      <= '0';
      s_we_d2      <= '0';
+     s_we_d3      <= '0';
 
     else
+      s_wb_data_i_d3 <= s_wb_data_i_d2; 
       s_wb_data_i_d2 <= s_wb_data_i_d1; 
       s_wb_data_i_d1 <= dat_i(7 downto 0);
 
+      s_adr_d3 <= s_adr_d2;
       s_adr_d2 <= s_adr_d1;
       s_adr_d1 <= adr_i;
 
       s_stb_d1 <= stb_i;
       s_stb_d2 <= s_stb_d1; 
       s_stb_d3 <= s_stb_d2;   
+      s_stb_d4 <= s_stb_d3;   
 
       s_cyc_d1 <= cyc_i;
-      s_cyc_d2 <= s_cyc_d1;    
+      s_cyc_d2 <= s_cyc_d1;
+      s_cyc_d3 <= s_cyc_d2;    
 
       s_we_d1 <= we_i;
-      s_we_d2 <= s_we_d1;    
+      s_we_d2 <= s_we_d1; 
+      s_we_d3 <= s_we_d2;   
 
     end if;
    end if;
 end process;
 
 ---------------------------------------------------------------------------------------------------
-  s_stb_r_edge <= (not s_stb_d3) and s_stb_d2; 
+  s_stb_r_edge <= (not s_stb_d4) and s_stb_d3; 
 
   ack_o <= (s_ack_produced or s_ack_consumed); --and stb_i;  
   s_ack_o <= s_ack_produced or s_ack_consumed;
@@ -446,10 +455,12 @@ Slone_dat_i_buffering: process(uclk_i)
 begin
  if rising_edge(uclk_i) then
    if s_rst = '1' then -- reset not buffered to comply with WISHBONE rule 3.15
+     s_slone_data_i_d3  <= (others => '0');
      s_slone_data_i_d2  <= (others => '0');
      s_slone_data_i_d1  <= (others => '0');
 
     else
+      s_slone_data_i_d3 <= s_slone_data_i_d2;
       s_slone_data_i_d2 <= s_slone_data_i_d1; 
       s_slone_data_i_d1 <= dat_i;
 
