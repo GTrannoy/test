@@ -3,7 +3,7 @@
 ## variable adress: Identification(10h)/ Presence(14h)/ Broadcast(04h)/ Consumed(05h)/ Produced(06h)/ Reset (E0h), variable length integer from 2 to 124
 200 us		-- stand-by time
 1,5A,14,4	-- ID_DAT for Presence variable
-300 us		-- stand-by time
+168291 ns		-- stand-by time
 1,5A,10,4	-- ID_DAT for Identification variable
 500 us		-- stand-by time
 1,5A,05,4	-- ID_DAT for Consumed variable
