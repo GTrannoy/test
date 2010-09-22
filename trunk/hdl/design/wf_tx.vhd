@@ -443,7 +443,8 @@ Input_Byte_Sampling: process(uclk_i)
 --! tx_enable: flip-floped s_tx_enable (s_tx_enable is activated during bits delivery: from the 
 --! beginning of tx_state send_fss until the end of send_queue state)  
 
-  Bit_to_be_sent: process(s_data_byte_manch, s_crc_byte_manch, s_bit_index)
+  Bit_to_be_sent: process(s_sending_FSS, s_sending_data, s_sending_crc, s_sending_frame_end,
+                          s_data_byte_manch, s_crc_byte_manch, s_bit_index)
   begin
     if s_sending_FSS = '1' then
       s_bit           <= FSS (to_integer (s_bit_index));
