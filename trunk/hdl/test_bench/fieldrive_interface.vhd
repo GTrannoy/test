@@ -33,7 +33,7 @@ architecture archi of fieldrive_interface is
 		clk						: in std_logic;
 		gx						: in std_logic_vector(crc_l downto 0);
 		id_rp					: in std_logic;
-		launch_fip_cycle		: in std_logic;
+		fip_frame_trigger		: in std_logic;
 		h_clk					: in std_logic;
 		reset					: in std_logic;
 		station_adr				: in std_logic_vector(7 downto 0);
@@ -64,7 +64,7 @@ architecture archi of fieldrive_interface is
 	component bus_arbitrer
 	port(
 		id_rp				: out std_logic;
-		launch_fip_cycle	: out std_logic;
+		fip_frame_trigger	: out std_logic;
 		station_adr			: out std_logic_vector(7 downto 0);
 		var_adr				: out std_logic_vector(7 downto 0);
 		var_length			: out std_logic_vector(6 downto 0)
@@ -81,7 +81,7 @@ signal reset				: std_logic;
 signal cd					: std_logic;
 signal dx					: std_logic;
 signal id_rp				: std_logic;		-- '1' => id_dat, '0' => rp_dat
-signal launch_fip_cycle		: std_logic;
+signal fip_frame_trigger	: std_logic;
 signal station_adr			: std_logic_vector(7 downto 0):=x"00";
 signal txck					: std_logic;
 signal txd					: std_logic;
@@ -120,7 +120,7 @@ begin
 		clk					=> clk,
 		gx					=> gx,
 		id_rp				=> id_rp,
-		launch_fip_cycle	=> launch_fip_cycle,
+		fip_frame_trigger	=> fip_frame_trigger,
 		h_clk				=> h_clk,
 		reset				=> reset,
 		station_adr			=> station_adr,
@@ -149,7 +149,7 @@ begin
 	fip_arbitrer: bus_arbitrer
 	port map(
 		id_rp				=> id_rp,
-		launch_fip_cycle	=> launch_fip_cycle,
+		fip_frame_trigger	=> fip_frame_trigger,
 		station_adr			=> station_adr,
 		var_adr				=> var_adr,
 		var_length			=> var_length
