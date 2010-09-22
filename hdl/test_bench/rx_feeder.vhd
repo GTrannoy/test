@@ -17,7 +17,7 @@ entity rx_feeder is
 		clk						: in std_logic;
 		fcs_ready				: in std_logic;
 		fcs_complete			: in std_logic;
-		launch_fip_cycle		: in std_logic;
+		fip_frame_trigger		: in std_logic;
 		msg_complete			: in std_logic;
 		reset					: in std_logic;
 		
@@ -62,7 +62,7 @@ begin
 	
 -- serial data feeder state machine (combinatorial section)
 --------------------------------------------------------
-	rx_feeder_comb: process (fstate, launch_fip_cycle, fss_complete,
+	rx_feeder_comb: process (fstate, fip_frame_trigger, fss_complete,
 							 msg_complete, fcs_ready, fcs_complete, fes_complete)
 	begin
 		case fstate is
@@ -74,7 +74,7 @@ begin
 			msg_seq_start			<= '0';
 			mux_select				<= "00";
 			
-			if launch_fip_cycle ='1' then
+			if fip_frame_trigger ='1' then
 				nxt_fstate			<= start_seq;
 			else
 				nxt_fstate			<= idle;

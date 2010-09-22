@@ -17,7 +17,7 @@ entity msg_sender is
 	port(
 		clk						: in std_logic;
 		id_rp					: in std_logic;		-- '1'=>id_dat, '0'=>rp_dat
-		launch_fip_cycle		: in std_logic;
+		fip_frame_trigger		: in std_logic;
 		msg_start				: in std_logic;
 		msg_new_data_req		: in std_logic;
 		reset					: in std_logic;
@@ -257,7 +257,7 @@ begin
 -- process latching the input signals when the transmission is launched
 -- for use during the whole transmission
 -------------------------------------------------------------------------
-	latching: process (reset, launch_fip_cycle, id_rp, var_length, 
+	latching: process (reset, fip_frame_trigger, id_rp, var_length, 
 						un_length, var_adr, station_adr)
 	begin
 		if reset ='1' then
@@ -267,7 +267,7 @@ begin
 			un_length		<= "0000000";
 			var_id			<= x"00";
 			xy				<= x"00";
-		elsif launch_fip_cycle ='1' then
+		elsif fip_frame_trigger ='1' then
 			if id_rp ='1' then
 				control		<= x"03";
 			else
@@ -295,35 +295,35 @@ begin
 		count_done	=> count_done
 	);
 
-	reporting: process(launch_fip_cycle)
+	reporting: process(fip_frame_trigger)
 	begin
-		if launch_fip_cycle ='1' then
+		if fip_frame_trigger ='1' then
 			if id_rp ='1' then
 				case var_adr is 
 				when x"14" =>
-					report "ID_DAT identifier sent for Presence Variable to agent with address "
+					report LF & "ID_DAT identifier sent for Presence Variable to agent with address "
 					& integer'image(to_integer(unsigned(station_adr)));
 				when x"10" =>
-					report "ID_DAT identifier sent for Identification Variable to agent with address "
+					report LF & "ID_DAT identifier sent for Identification Variable to agent with address "
 					& integer'image(to_integer(unsigned(station_adr)));
 				when x"05" =>
-					report "ID_DAT identifier sent for Consumed Variable to agent with address "
+					report LF & "ID_DAT identifier sent for Consumed Variable to agent with address "
 					& integer'image(to_integer(unsigned(station_adr)));
 				when x"04" =>
-					report "ID_DAT identifier sent for Consumed Broadcast Variable to agent with address "
+					report LF & "ID_DAT identifier sent for Consumed Broadcast Variable to agent with address "
 					& integer'image(to_integer(unsigned(station_adr)));
 				when x"06" =>
-					report "ID_DAT identifier sent for Produced Variable to agent with address "
+					report LF & "ID_DAT identifier sent for Produced Variable to agent with address "
 					& integer'image(to_integer(unsigned(station_adr)));
 				when x"E6" =>
-					report "ID_DAT identifier sent for Reset Variable to agent with address "
+					report LF & "ID_DAT identifier sent for Reset Variable to agent with address "
 					& integer'image(to_integer(unsigned(station_adr)));
 				when others =>
-					report "ID_DAT identifier sent for a not supported variable to agent with address " 
+					report LF & "ID_DAT identifier sent for a not supported variable to agent with address " 
 					& integer'image(to_integer(unsigned(station_adr)));
 				end case;
 			else
-				report "RP_DAT response sent with a variable length of "
+				report LF & "RP_DAT response sent with a variable length of "
 				& integer'image(to_integer(unsigned(var_length))) & " bytes";
 			end if;
 		end if;
