@@ -391,13 +391,13 @@ architecture rtl of wf_produced_vars is
         -- The one but last byte if the input nostat_i is negated is the nanoFIP status byte
         -- (if nostat_i is not negated, the "else" condition takes place) 
 
-        elsif unsigned(s_byte_index) = (unsigned(data_length_i)-1 ) and nostat_i = '0' then 
-          byte_o        <= nFIP_status_byte_i;                            
-          sending_mps_o <= '0'; 
+       -- elsif unsigned(s_byte_index) = (unsigned(data_length_i)-1 ) and nostat_i = '0' then !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       --   byte_o        <= nFIP_status_byte_i;                            
+       --   sending_mps_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The last byte is the MPS status
-        elsif s_byte_index = (data_length_i)then    
+        elsif s_byte_index = (data_length_i)  then    
           byte_o        <= mps_status_byte_i;
           sending_mps_o <= '1';                       -- indication: MPS byte is being sent
     
