@@ -1,8 +1,0 @@
-KEY IDE_DES_TOOL "Ide"
-KEY IDE_DES_ADB_PATH "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\wf_consumed_vars.adb"
-LIST SOURCE_FILES
-ENDLIST
-LIST OPTIONAL_FILES
-ENDLIST
-LIST VCD_FILES
-ENDLIST
