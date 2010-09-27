@@ -84,7 +84,7 @@ package wf_package is
      3 => "00100000",     -- 32 bytes
      4 => "01000000",     -- 64 bytes 
      5 => "01111100",     -- 124 bytes
-     others => "00000000" -- reserved
+     others => "00000010" -- reserved ----------!!!!!!!!!!
      );  
 
 

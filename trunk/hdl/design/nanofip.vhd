@@ -98,22 +98,23 @@ entity nanofip is
 -- WorldFIP settings
     rate_i    : in  std_logic_vector (1 downto 0); --! Bit rate
     subs_i    : in  std_logic_vector (7 downto 0); --! Subscriber number coding.
-    s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
     m_id_i    : in  std_logic_vector (3 downto 0); --! Model identification settings
     c_id_i    : in  std_logic_vector (3 downto 0); --! Constructor identification settings
     p3_lgth_i : in  std_logic_vector (2 downto 0); --! Produced variable data length
 
+    s_id_o    : out std_logic_vector (1 downto 0); --! Identification selection
  
 --  FIELDRIVE connections
 
-    fd_rstn_o : out std_logic; --! Initialisation control, active low
+    fx_rxa_i  : in  std_logic; --! Reception activity detection
+    fx_rxd_i  : in  std_logic; --! Receiver data
     fd_wdgn_i : in  std_logic; --! Watchdog on transmitter
     fd_txer_i : in  std_logic; --! Transmitter error
+
     fd_txena_o: out std_logic; --! Transmitter enable
     fd_txck_o : out std_logic; --! Line driver half bit clock
     fx_txd_o  : out std_logic; --! Transmitter data
-    fx_rxa_i  : in  std_logic; --! Reception activity detection
-    fx_rxd_i  : in  std_logic; --! Receiver data
+    fd_rstn_o : out std_logic; --! Initialisation control, active low
 
  
 --  USER INTERFACE, General signals
@@ -121,35 +122,34 @@ entity nanofip is
     uclk_i    : in  std_logic; --! 40 MHz clock
     slone_i   : in  std_logic; --! Stand-alone mode
     nostat_i  : in  std_logic; --! No NanoFIP status transmission
-
     rstin_i   : in  std_logic; --! Initialisation control, active low
 
     rston_o   : out std_logic; --! Reset output, active low
 
 
-
 --  USER INTERFACE, non WISHBONE
 
-    var1_rdy_o: out std_logic; --! Variable 1 ready
-
     var1_acc_i: in  std_logic; --! Variable 1 access
-    var2_rdy_o: out std_logic; --! Variable 2 ready
     var2_acc_i: in  std_logic; --! Variable 2 access
-    var3_rdy_o: out std_logic; --! Variable 3 ready
     var3_acc_i: in  std_logic; --! Variable 3 access
+
+    var1_rdy_o: out std_logic; --! Variable 1 ready
+    var2_rdy_o: out std_logic; --! Variable 2 ready
+    var3_rdy_o: out std_logic; --! Variable 3 ready
+
 
 --  USER INTERFACE, WISHBONE SLAVE
 
     wclk_i    : in  std_logic; --! WISHBONE clock. May be independent of UCLK.
+    rst_i     : in  std_logic; --! WISHBONE reset. Does not reset other internal logic.
+    stb_i     : in  std_logic; --! Strobe
+    cyc_i     : in std_logic;
+    we_i      : in  std_logic;  --! Write enable
+    adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
     dat_i     : in  std_logic_vector (15 downto 0); --! Data in
 
     dat_o     : out std_logic_vector (15 downto 0); --! Data out
-    adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
-    rst_i     : in  std_logic; --! WISHBONE reset. Does not reset other internal logic.
-    stb_i     : in  std_logic; --! Strobe
-    ack_o     : out std_logic; --! Acknowledge
-    cyc_i     : in std_logic;
-    we_i      : in  std_logic  --! Write enable
+    ack_o     : out std_logic --! Acknowledge
 
     );
 
