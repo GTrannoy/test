@@ -156,7 +156,7 @@ architecture rtl of wf_engine_control is
 
   signal s_load_var, s_load_temp_var, s_tx_byte_ready_p_d1 :           std_logic;
   signal s_rst_time_c, s_tx_byte_ready_p_d2 :        std_logic;
-  signal s_var1_received, s_var2_received, s_tx_last_byte_p_d :        std_logic;
+  signal s_var1_received, s_var2_received, s_var1_received_d1, s_tx_last_byte_p_d :        std_logic;
   signal s_tx_start_produce_p, s_tx_start_produce_p_d1 :               std_logic;
   signal s_time_c_is_zero, s_broadcast_var :                           std_logic;
   signal s_inc_tx_rx_bytes_counter, s_rst_tx_rx_bytes_counter, s_tx_last_byte_p :std_logic;
@@ -819,6 +819,7 @@ s_cons_frame_ok_p <= rx_CRC_FES_ok_p_i and s_rx_length_byte_ok and s_rx_ctrl_byt
         var2_rdy_o <= '0';
         var3_rdy_o <= '0';
         s_var1_received <= '0';
+        s_var1_received_d1 <= '0';
         s_var2_received <= '0';
 
       else
@@ -828,7 +829,7 @@ s_cons_frame_ok_p <= rx_CRC_FES_ok_p_i and s_rx_length_byte_ok and s_rx_ctrl_byt
           var2_rdy_o        <= s_var2_received; -- var 2 retains its previous value
           var3_rdy_o        <= '1';             -- the user can write in the produced memory
 
-          s_var1_received   <= '0';
+          s_var1_received_d1 <= s_var1_received;
           var1_rdy_o        <= '0';
 
           if s_cons_frame_ok_p = '1' then 
@@ -844,7 +845,7 @@ s_cons_frame_ok_p <= rx_CRC_FES_ok_p_i and s_rx_length_byte_ok and s_rx_ctrl_byt
       --  --  --  --  --  --  --  --
         elsif s_var = var_2 then 
 
-            var1_rdy_o        <= s_var1_received; -- var 1 retains its previous value
+            var1_rdy_o        <= s_var1_received_d1; -- var 1 retains its previous value
             var3_rdy_o        <= '1';             -- the user can write in the produced memory
 
             var2_rdy_o        <= '0';
@@ -863,7 +864,7 @@ s_cons_frame_ok_p <= rx_CRC_FES_ok_p_i and s_rx_length_byte_ok and s_rx_ctrl_byt
       --  --  --  --  --  --  --  --
         elsif s_var = var_3 then 
 
-          var1_rdy_o          <= s_var1_received; -- var 1 and 2 retain their previous values
+          var1_rdy_o          <= s_var1_received_d1; -- var 1 and 2 retain their previous values
           var2_rdy_o          <= s_var2_received;
 
           var3_rdy_o          <= '0';             -- when nanoFIP is producing data, accessing
@@ -871,7 +872,7 @@ s_cons_frame_ok_p <= rx_CRC_FES_ok_p_i and s_rx_length_byte_ok and s_rx_ctrl_byt
 
       --  --  --  --  --  --  --  --
         else
-          var1_rdy_o          <= s_var1_received; -- var 1 and 2 retain their previous values
+          var1_rdy_o          <= s_var1_received_d1; -- var 1 and 2 retain their previous values
           var2_rdy_o          <= s_var2_received; 
           var3_rdy_o          <= '1';             -- the user can write in the produced memory
       
