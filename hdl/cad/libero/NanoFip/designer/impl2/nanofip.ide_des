@@ -5,17 +5,16 @@ KEY IDE_DES_PACKAGE "pq208"
 KEY IDE_DES_TOP_CELL_NAME "nanofip"
 KEY IDE_DES_KEEP_PHY_CONSTR "TRUE"
 KEY IDE_DES_KEEP_TIME_CONSTR "TRUE"
-KEY IDE_DES_LAYOUT_DONE "FALSE"
+KEY IDE_DES_LAYOUT_DONE "TRUE"
 KEY IDE_DES_BA_EXPORTED "FALSE"
 KEY IDE_DES_ERROR_FOUND "FALSE"
 KEY IDE_DES_ADB_PATH "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb"
 LIST SOURCE_FILES
 VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn;edn"
-VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip_sdc.sdc;sdc"
-VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip_1.pdc;pdc"
+VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc;pdc"
 ENDLIST
 LIST OPTIONAL_FILES
-VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip_sdc.sdc;Used"
+VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip_sdc.sdc;Skipped"
 ENDLIST
 LIST VCD_FILES
 ENDLIST
