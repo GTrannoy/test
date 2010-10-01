@@ -1,5 +1,5 @@
-probe -create -shm -waveform :fieldrive:clk
-probe -create -shm -waveform :fieldrive:reset
+probe -create -shm -waveform :fieldrive:f_clk
+probe -create -shm -waveform :fieldrive:fd_reset
 
 #probe -create -shm -waveform :board:read_config_trigger
 #probe -create -shm -waveform :board:report_config_trigger
@@ -74,15 +74,15 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:struct_check
 probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_struct_check
 probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_struct_ok
 
+probe -create -shm -waveform :fieldrive:f_clk
+probe -create -shm -waveform :fd_rstn
 probe -create -shm -waveform :fx_rxa
 probe -create -shm -waveform :fx_rxd
+probe -create -shm -waveform :fd_txena
+probe -create -shm -waveform :fx_txd
+probe -create -shm -waveform :fd_txck
 probe -create -shm -waveform :fd_wdgn
 probe -create -shm -waveform :fd_txer
-probe -create -shm -waveform :fieldrive:clk
-probe -create -shm -waveform :fd_rstn
-probe -create -shm -waveform :fd_txck
-probe -create -shm -waveform :fx_txd
-probe -create -shm -waveform :fd_txena
 
 probe -create -shm -waveform :uclk
 probe -create -shm -waveform :urst_from_nf
