@@ -1,9 +1,9 @@
 -- Created by : G. Penacoba
 -- Creation Date: February 2010
 -- Description: Module to perform wishbone cycles (read/write in single or block transfer)
--- Modified by:
--- Modification Date:
--- Modification consisted on:
+-- Modified by: G. Penacoba
+-- Modification Date: October 2010
+-- Modification consisted on: Memory counters on read adapted to include Length and PDU type bytes.
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -19,6 +19,8 @@ entity wishbone_interface is
 		transfer_length		: in std_logic_vector(6 downto 0);
 		transfer_offset		: in std_logic_vector(6 downto 0);
 		var_id			 	: in std_logic_vector(1 downto 0);
+		
+		valid_wb_cycle		: out std_logic;
 
 		ack_i				: in std_logic;
 		clk_i				: in std_logic;
@@ -162,6 +164,34 @@ begin
 
 -- latches for identifying the type of the memory access cycle
 -----------------------------------------------------------------------------------
+--	latch_inference: process (launch_wb_read, launch_wb_write)
+--	begin
+--		if launch_wb_read ='1' then
+--			if block_size = zero then
+--				burst_size	<= zero;
+--			else
+--				burst_size	<= block_size - ("000" & x"1");
+--			end if;
+--			mem_length		<= transfer_length - ("000" & x"1");
+--			mem_offset		<= transfer_offset;
+--			var_adr			<= var_id -"01";
+--			we				<= '0';
+--		elsif launch_wb_write ='1' then
+--			if block_size = zero then
+--				burst_size	<= zero;
+--			else
+--				burst_size	<= block_size - ("000" & x"1");
+--			end if;
+--			mem_length		<= transfer_length - ("000" & x"1");
+--			mem_offset		<= transfer_offset;
+--			var_adr			<= var_id -"01";
+--			we				<= '1';
+--		end if;
+--	end process;
+--
+--	add_count			<= ("0" & var_adr & (mem_count + mem_offset)) + ("00" & x"02");
+
+--------------------------------------------------------------
 	latch_inference: process (launch_wb_read, launch_wb_write)
 	begin
 		if launch_wb_read ='1' then
@@ -170,8 +200,13 @@ begin
 			else
 				burst_size	<= block_size - ("000" & x"1");
 			end if;
-			mem_length		<= transfer_length - ("000" & x"1");
-			mem_offset		<= transfer_offset;
+			if transfer_offset = zero then
+				mem_length		<= transfer_length + ("000" & x"1");
+				mem_offset		<= (others=>'0');
+			else
+				mem_length		<= transfer_length - ("000" & x"1");
+				mem_offset		<= transfer_offset + ("000" & x"2");
+			end if;
 			var_adr			<= var_id -"01";
 			we				<= '0';
 		elsif launch_wb_write ='1' then
@@ -181,18 +216,20 @@ begin
 				burst_size	<= block_size - ("000" & x"1");
 			end if;
 			mem_length		<= transfer_length - ("000" & x"1");
-			mem_offset		<= transfer_offset;
+			mem_offset		<= transfer_offset + ("000" & x"2");
 			var_adr			<= var_id -"01";
 			we				<= '1';
 		end if;
 	end process;
 
-	add_count			<= ("0" & var_adr & (mem_count + mem_offset)) + ("00" & x"02");
+	add_count			<= "0" & var_adr & (mem_count + mem_offset);
+------------------------------------------------------------------------------------
 
 	valid_bus_cycle		<= stb and cyc and ack_i;
 
 -- output signals
 -----------------------
+	valid_wb_cycle		<= valid_bus_cycle;
 	adr_o				<= add_count;
 	cyc_o				<= cyc;
 	dat_o				<= data_for_mem;

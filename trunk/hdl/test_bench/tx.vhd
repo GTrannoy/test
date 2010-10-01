@@ -22,7 +22,8 @@ entity tx is
 		txd						: in std_logic;
 		txena					: in std_logic;
 		
-		txerr					: out std_logic
+		txerr					: out std_logic;
+		wdgn					: out std_logic
 	);
 end tx;
 
@@ -144,5 +145,6 @@ begin
 	);
 
 	txerr					<= '0';
+	wdgn					<= '1';
 
 end archi;

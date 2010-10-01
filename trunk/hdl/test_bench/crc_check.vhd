@@ -254,10 +254,10 @@ begin
 	begin
 		if valid_check ='0' and now/= 0 fs then
 			if fcs_check_ok ='1' then
-				report "Frame Check Sequence (CRC) received from nanoFIP is correct";
+				report "            Frame Check Sequence (CRC) received from nanoFIP is correct" & LF & LF;
 			else
 				assert FALSE
-				report "Frame Check Sequence (CRC) received from nanoFIP is NOT correct"
+				report "            Frame Check Sequence (CRC) received from nanoFIP is NOT correct" & LF & LF
 				severity warning;
 			end if;
 		end if;

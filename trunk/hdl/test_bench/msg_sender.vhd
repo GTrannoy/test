@@ -295,39 +295,39 @@ begin
 		count_done	=> count_done
 	);
 
-	reporting: process(fip_frame_trigger)
-	begin
-		if fip_frame_trigger ='1' then
-			if id_rp ='1' then
-				case var_adr is 
-				when x"14" =>
-					report LF & "ID_DAT identifier sent for Presence Variable to agent with address "
-					& integer'image(to_integer(unsigned(station_adr)));
-				when x"10" =>
-					report LF & "ID_DAT identifier sent for Identification Variable to agent with address "
-					& integer'image(to_integer(unsigned(station_adr)));
-				when x"05" =>
-					report LF & "ID_DAT identifier sent for Consumed Variable to agent with address "
-					& integer'image(to_integer(unsigned(station_adr)));
-				when x"04" =>
-					report LF & "ID_DAT identifier sent for Consumed Broadcast Variable to agent with address "
-					& integer'image(to_integer(unsigned(station_adr)));
-				when x"06" =>
-					report LF & "ID_DAT identifier sent for Produced Variable to agent with address "
-					& integer'image(to_integer(unsigned(station_adr)));
-				when x"E6" =>
-					report LF & "ID_DAT identifier sent for Reset Variable to agent with address "
-					& integer'image(to_integer(unsigned(station_adr)));
-				when others =>
-					report LF & "ID_DAT identifier sent for a not supported variable to agent with address " 
-					& integer'image(to_integer(unsigned(station_adr)));
-				end case;
-			else
-				report LF & "RP_DAT response sent with a variable length of "
-				& integer'image(to_integer(unsigned(var_length))) & " bytes";
-			end if;
-		end if;
-	end process;
+--	reporting: process(fip_frame_trigger)
+--	begin
+--		if fip_frame_trigger ='1' then
+--			if id_rp ='1' then
+--				case var_adr is 
+--				when x"14" =>
+--					report "            ID_DAT identifier for Presence Variable sent to agent with address "
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				when x"10" =>
+--					report "            ID_DAT identifier for Identification Variable sent to agent with address "
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				when x"05" =>
+--					report "            ID_DAT identifier for Consumed Variable sent to agent with address "
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				when x"04" =>
+--					report "            ID_DAT identifier for Consumed Broadcast Variable sent to agent with address "
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				when x"06" =>
+--					report "            ID_DAT identifier for Produced Variable sent to agent with address "
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				when x"E6" =>
+--					report "            ID_DAT identifier for Reset Variable sent to agent with address "
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				when others =>
+--					report "            ID_DAT identifier for a not supported variable sent to agent with address " 
+--					& integer'image(to_integer(unsigned(station_adr))) & LF;
+--				end case;
+--			else
+--				report "            RP_DAT frame with " & integer'image(to_integer(unsigned(var_length))) 
+--						& " bytes of data + MPS sent for consumption" & LF & LF;
+--			end if;
+--		end if;
+--	end process;
 
 end archi;
 	
