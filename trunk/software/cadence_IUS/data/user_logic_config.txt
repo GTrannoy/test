@@ -1,0 +1,5 @@
+25 ns				-- User clock period
+10 us				-- User reset length
+40 ns				-- Wishbone interface clock period
+1 us				-- Wishbone interface reset length
+2000 ms				-- validity time: time for which the configuration above is valid
