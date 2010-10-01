@@ -231,69 +231,69 @@ begin
 		if struct_check ='1' then
 			if control_byte = control_id then
 				assert FALSE
-				report "NanoFIP issued an ID_DAT frame"
+				report "            NanoFIP issued an ID_DAT frame"
 				severity warning;
 			elsif control_byte = control_rp then
 				if pdu_type_byte = x"50" then
 					if length_ok then
 						if struct_ok then
-							report "NanoFIP responded with a presence variable RP_DAT frame"
-							& LF & "with a coherent length and structure according to specs";
+							report "            NanoFIP responded with a presence variable RP_DAT frame"
+							& LF & "            with a coherent length and structure according to specs";
 						else
 							assert FALSE
-							report "NanoFIP responded with a presence variable RP_DAT frame"
-							& LF & "but its structure is not according to specs"
+							report "            NanoFIP responded with a presence variable RP_DAT frame"
+							& LF & "            but its structure is not according to specs"
 							severity warning;
 						end if;
 					else
 						assert FALSE
-						report "NanoFIP responded with a presence variable RP_DAT frame"
-						& LF & "but its length is not coherent with the length byte"
+						report "            NanoFIP responded with a presence variable RP_DAT frame"
+						& LF & "            but its length is not coherent with the length byte"
 						severity warning;
 					end if;
 				elsif pdu_type_byte = x"52" then
 					if length_ok then
 						if struct_ok then
-							report "NanoFIP responded with an identification variable RP_DAT frame"
-							& LF & "with a coherent length and structure according to specs";
+							report "            NanoFIP responded with an identification variable RP_DAT frame"
+							& LF & "            with a coherent length and structure according to specs";
 						else
 							assert FALSE
-							report "NanoFIP responded with an identification variable RP_DAT frame"
-							& LF & "but its structure is not according to specs"
+							report "            NanoFIP responded with an identification variable RP_DAT frame"
+							& LF & "            but its structure is not according to specs"
 							severity warning;
 						end if;
 					else
 						assert FALSE
-						report "NanoFIP responded with an identification variable RP_DAT frame"
-						& LF & "but its length is not coherent with the length byte"
+						report "            NanoFIP responded with an identification variable RP_DAT frame"
+						& LF & "            but its length is not coherent with the length byte"
 						severity warning;
 					end if;
 				elsif pdu_type_byte = x"40" then
 					if length_ok then
 						if struct_ok then
-							report "NanoFIP responded with a produced variable RP_DAT frame"
-							& LF & "with a coherent length and structure according to specs";
+							report "            NanoFIP responded with a produced variable RP_DAT frame"
+							& LF & "            with a coherent length and structure according to specs";
 						else
 							assert FALSE
-							report "NanoFIP responded with a produced variable RP_DAT frame"
-							& LF & "but its structure is not according to specs"
+							report "            NanoFIP responded with a produced variable RP_DAT frame"
+							& LF & "            but its structure is not according to specs"
 							severity warning;
 						end if;
 					else
 						assert FALSE
-						report "NanoFIP responded with a produced variable RP_DAT frame"
-						& LF & "but its length is not coherent with the length byte"
+						report "            NanoFIP responded with a produced variable RP_DAT frame"
+						& LF & "            but its length is not coherent with the length byte"
 						severity warning;
 					end if;
 				else
 					assert FALSE
-					report "NanoFIP responded with an RP_DAT frame"
-					& LF & "but its PDU_type byte is not according to specs"
+					report "            NanoFIP responded with an RP_DAT frame"
+					& LF & "            but its PDU_type byte is not according to specs"
 					severity warning;
 				end if;
 			else
 				assert FALSE
-				report "NanoFIP issued an illegal frame control byte"
+				report "            NanoFIP issued an illegal frame control byte"
 				severity warning;
 			end if;
 		end if;

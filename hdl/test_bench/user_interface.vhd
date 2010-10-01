@@ -1,9 +1,9 @@
 -- Created by : G. Penacoba
 -- Creation Date: MAy 2010
 -- Description: Module emulating all the user logic activity
--- Modified by:
--- Modification Date:
--- Modification consisted on:
+-- Modified by: G. Penacoba
+-- Modification Date: September 2010
+-- Modification consisted on: Configuration settings retrieved from a text file through an independent module.
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -45,6 +45,8 @@ architecture archi of user_interface is
 		transfer_length		: in std_logic_vector(6 downto 0);
 		transfer_offset		: in std_logic_vector(6 downto 0);
 		var_id			 	: in std_logic_vector(1 downto 0);
+		
+		valid_wb_cycle		: out std_logic;
 
 		ack_i				: in std_logic;
 		clk_i				: in std_logic;
@@ -62,6 +64,7 @@ architecture archi of user_interface is
 	component user_sequencer
 	port(
 		cyc					: in std_logic;
+		uclk_period			: in time;
 		urstn_i				: in std_logic;
 		var1_rdy_i			: in std_logic;
 		var2_rdy_i			: in std_logic;
@@ -72,68 +75,96 @@ architecture archi of user_interface is
 		launch_wb_write 	: out std_logic;
 		transfer_length		: out std_logic_vector(6 downto 0);
 		transfer_offset		: out std_logic_vector(6 downto 0);
+		var_id			 	: out std_logic_vector(1 downto 0);
 		var1_acc_o			: out std_logic;
 		var2_acc_o			: out std_logic;
-		var3_acc_o			: out std_logic;
-		var_id			 	: out std_logic_vector(1 downto 0)
+		var3_acc_o			: out std_logic
+	);
+	end component;
+	
+	component user_config is
+	port(
+		config_validity		: out time;
+		uclk_period			: out time;
+		ureset_length		: out time;
+		wclk_period			: out time;
+		wreset_length		: out time
 	);
 	end component;
 	
 	signal block_size			: std_logic_vector(6 downto 0):="000" & x"0";
-	signal clk					: std_logic:='0';
+	signal config_validity_time	: time;
 	signal cyc					: std_logic;
 	signal launch_wb_read		: std_logic:='0';
 	signal launch_wb_write 		: std_logic:='0';
-	signal reset				: std_logic:='0';
 	signal transfer_length		: std_logic_vector(6 downto 0):="000" & x"0";
 	signal transfer_offset		: std_logic_vector(6 downto 0):="000" & x"0";
+	signal uclk					: std_logic:='0';
+	signal uclk_period			: time;
+	signal ureset				: std_logic;
+	signal ureset_length		: time;
 	signal var_id		 		: std_logic_vector(1 downto 0):="00";
+	signal valid_wb_cycle		: std_logic;
 	signal wclk					: std_logic:='0';
-	signal wreset				: std_logic:='0';
+	signal wclk_period			: time;
+	signal wreset				: std_logic;
+	signal wreset_length		: time;
 
 begin
 
 	user_clock: process
 	begin
-		clk						<= not(clk);
-		wait for 12500 ps;
+		wait for 0 us;			-- wait needed for the config text file to be read
+		uclk		<= not(uclk);
+		wait for uclk_period/2;
 	end process;
 
 	user_reset: process
 	begin
---		reset				<= '0';
---		wait for 2 us;
-		reset				<= '1';
-		wait for 2600 ns;
-		reset				<= '0';
-		wait for 1000 ms;
+		wait for 0 us;			-- wait needed for the config text file to be read
+		ureset			<= '1';
+		wait for ureset_length;
+		ureset			<= '0';
+		wait for config_validity_time - ureset_length;
 	end process;
-
+	
 	wb_clock: process
 	begin
-		wclk						<= not(wclk);
-		wait for 19 ns;
+		wait for 0 us;			-- wait needed for the config text file to be read
+		wclk		<= not(wclk);
+		wait for wclk_period/2;
 	end process;
 	
 	wb_reset: process
 	begin
---		wreset				<= '0';
---		wait for 2 us;
-		wreset				<= '1';
-		wait for 6 us;
-		wreset				<= '0';
-		wait for 1000 ms;
+		wait for 0 us;			-- wait needed for the config text file to be read
+		wreset			<= '1';
+		wait for wreset_length;
+		wreset			<= '0';
+		wait for config_validity_time - wreset_length;
 	end process;
 
-	uclk_o				<= clk;
-	urstn_o				<= not(reset);
+	uclk_o				<= uclk;
+	urstn_o				<= not(ureset);
 
 	rst_o				<= wreset;
 	wclk_o				<= wclk;
 
-	user: user_sequencer
+	cyc_o				<= cyc;
+
+	user_configuration: user_config
+	port map(
+		config_validity			=> config_validity_time,
+		uclk_period				=> uclk_period,
+		ureset_length			=> ureset_length,
+		wclk_period				=> wclk_period,
+		wreset_length			=> wreset_length
+	);
+
+	user_sequence: user_sequencer
 	port map(
 		cyc						=> cyc,
+		uclk_period				=> uclk_period,
 		urstn_i					=> urstn_i,
 		var1_rdy_i				=> var1_rdy_i,
 		var2_rdy_i				=> var2_rdy_i,
@@ -144,10 +175,10 @@ begin
 		launch_wb_write 		=> launch_wb_write,
 		transfer_length			=> transfer_length,
 		transfer_offset			=> transfer_offset,
+		var_id					=> var_id,
 		var1_acc_o				=> var1_acc_o,
 		var2_acc_o				=> var2_acc_o,
-		var3_acc_o				=> var3_acc_o,
-		var_id					=> var_id
+		var3_acc_o				=> var3_acc_o
 	);
 
 	wb_interface:  wishbone_interface
@@ -158,6 +189,8 @@ begin
 		transfer_length			=> transfer_length,
 		transfer_offset			=> transfer_offset,
 		var_id					=> var_id,
+
+		valid_wb_cycle			=> valid_wb_cycle,
 
 		ack_i					=> ack_i,
 		clk_i					=> wclk,
@@ -171,6 +204,5 @@ begin
 		we_o					=> we_o
 	);
 	
-	cyc_o				<= cyc;
 
 end archi;

@@ -118,7 +118,7 @@ begin
 		if endfile(config_file) then
 			file_close(config_file);
 		end if;
-		wait for 1 ps;
+--		wait for 1 ps;
 		
 		read_config_trigger		<= '1';
 		c_id_3					<= c_id_3_config;
@@ -140,49 +140,49 @@ begin
 	-- Signals actually sent to nanoFIP
 	-----------------------------------
 	with c_id_3 select
-			c_id_o(3)				<=	'0'			when "gnd",
+					c_id_o(3)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with c_id_2 select
-			c_id_o(2)				<=	'0'			when "gnd",
+					c_id_o(2)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with c_id_1 select
-			c_id_o(1)				<=	'0'			when "gnd",
+					c_id_o(1)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with c_id_0 select
-			c_id_o(0)				<=	'0'			when "gnd",
+					c_id_o(0)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with m_id_3 select
-			m_id_o(3)				<=	'0'			when "gnd",
+					m_id_o(3)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with m_id_2 select
-			m_id_o(2)				<=	'0'			when "gnd",
+					m_id_o(2)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with m_id_1 select
-			m_id_o(1)				<=	'0'			when "gnd",
+					m_id_o(1)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
 										'0'			when others;
 	with m_id_0 select
-			m_id_o(0)				<=	'0'			when "gnd",
+					m_id_o(0)		<=	'0'			when "gnd",
 										'1' 		when "vcc",
 										s_id_i(1) 	when "sd1",
 										s_id_i(0) 	when "sd0",
