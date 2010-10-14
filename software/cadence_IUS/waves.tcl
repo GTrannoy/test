@@ -19,11 +19,16 @@ probe -create -shm -waveform :fieldrive:rx_block:msg_start
 probe -create -shm -waveform :fieldrive:rx_block:msg_complete
 
 probe -create -shm -waveform :fieldrive:rx_block:msg_block:msg_new_data_req
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:en_count
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:reset_count
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:start_value
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:count
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:count_done
+probe -create -shm -waveform :fieldrive:rx_block:msg_block:nxt_data
+probe -create -shm -waveform :fieldrive:rx_block:msg_block:ind
+probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_consumed
+probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
+
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:en_count
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:reset_count
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:start_value
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:count
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:count_done
 
 probe -create -shm -waveform :fieldrive:rx_block:msg_block:mstate
 probe -create -shm -waveform :fieldrive:rx_block:msg_data
@@ -60,19 +65,23 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:enable_chopping
 probe -create -shm -waveform :fieldrive:tx_block:chopper:chop_byte
 #probe -create -shm -waveform :fieldrive:tx_block:chopper:count_done
 probe -create -shm -waveform :fieldrive:tx_block:chopper:byte_nb
-#probe -create -shm -waveform :fieldrive:tx_block:chopper:bytes_total
+probe -create -shm -waveform :fieldrive:tx_block:chopper:bytes_total
 #probe -create -shm -waveform :fieldrive:tx_block:chopper:current_byte
 probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_data
-#probe -create -shm -waveform :fieldrive:tx_block:chopper:pdu_type_byte
-#probe -create -shm -waveform :fieldrive:tx_block:chopper:length_byte
-#probe -create -shm -waveform :fieldrive:tx_block:chopper:control_byte
+
+probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_received
+probe -create -shm -waveform :fieldrive:tx_block:monitor:out_produced
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:pdu_type_byte
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:length_byte
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:control_byte
 
 #probe -create -shm -waveform :fieldrive:tx_block:chopper:control_ok
-probe -create -shm -waveform :fieldrive:tx_block:chopper:length_ok
-#probe -create -shm -waveform :fieldrive:tx_block:chopper:struct_ok
-probe -create -shm -waveform :fieldrive:tx_block:chopper:struct_check
-probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_struct_check
-probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_struct_ok
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:length_specs_ok
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:length_coherent
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_ok
+probe -create -shm -waveform :fieldrive:tx_block:monitor:compare_data
+probe -create -shm -waveform :fieldrive:tx_block:monitor:data_contents_ok
+probe -create -shm -waveform :fieldrive:tx_block:monitor:checking_produced:mismatches
 
 probe -create -shm -waveform :fieldrive:f_clk
 probe -create -shm -waveform :fd_rstn
@@ -90,7 +99,7 @@ probe -create -shm -waveform :urst_to_nf
 probe -create -shm -waveform :var1_rdy
 probe -create -shm -waveform :var1_acc
 probe -create -shm -waveform :var2_rdy
-#probe -create -shm -waveform :var2_acc
+probe -create -shm -waveform :var2_acc
 probe -create -shm -waveform :var3_rdy
 probe -create -shm -waveform :var3_acc
 probe -create -shm -waveform :wclk
@@ -102,11 +111,19 @@ probe -create -shm -waveform :we
 probe -create -shm -waveform :adr
 probe -create -shm -waveform :dat_from_fip
 probe -create -shm -waveform :dat_to_fip
-#probe -create -shm -waveform :dat_i
-#probe -create -shm -waveform :dat_o
-probe -create -shm -waveform :user_logic:wb_interface:valid_bus_cycle
+#probe -create -shm -waveform :user_logic:wb_interface:valid_bus_cycle
 probe -create -shm -waveform :user_logic:wb_interface:wb_state
 
+probe -create -shm -waveform :user_logic:wishbone_monitor:in_consumed
+probe -create -shm -waveform :user_logic:wishbone_monitor:in_broadcast
+probe -create -shm -waveform :user_logic:wishbone_monitor:valid_bus_cycle
+probe -create -shm -waveform :user_logic:wishbone_monitor:var_id
+probe -create -shm -waveform :user_logic:wishbone_monitor:adr
+probe -create -shm -waveform :user_logic:user_sequence:var3_fresh
+probe -create -shm -waveform :user_logic:user_sequence:ucacerr
+probe -create -shm -waveform :user_logic:user_sequence:upacerr
 
-run 3000 us
+
+
+run 4000 us
 

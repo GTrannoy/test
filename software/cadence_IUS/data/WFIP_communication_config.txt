@@ -1,3 +1,7 @@
 1					-- bit rate: 31.25 kbit/s(0), 1 Mbit/s(1), 2.5 Mbit/s(2)
 10001110111001111	-- gx bit polynomial for CRC
+03					-- id_dat frame control byte
+05					-- mps byte
+40					-- pdu_type byte
+02					-- rp_dat frame control byte
 2000 ms				-- time for which the configuration above is valid
