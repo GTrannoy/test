@@ -90,30 +90,30 @@ begin
 			if s_id_rp ='1' then
 				case s_var_adr is 
 				when x"14" =>
-					report "            ID_DAT identifier for Presence Variable sent to agent with address "
+					report "            FIP BA sends an ID_DAT identifier for Presence Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when x"10" =>
-					report "            ID_DAT identifier for Identification Variable sent to agent with address "
+					report "            FIP BA sends an ID_DAT identifier for Identification Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when x"05" =>
-					report "            ID_DAT identifier for Consumed Variable sent to agent with address "
+					report "            FIP BA sends an ID_DAT identifier for Consumed Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when x"04" =>
-					report "            ID_DAT identifier for Consumed Broadcast Variable sent to agent with address "
+					report "            FIP BA sends an ID_DAT identifier for Consumed Broadcast Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when x"06" =>
-					report "            ID_DAT identifier for Produced Variable sent to agent with address "
+					report "            FIP BA sends an ID_DAT identifier for Produced Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when x"E6" =>
-					report "            ID_DAT identifier for Reset Variable sent to agent with address "
+					report "            FIP BA sends an ID_DAT identifier for Reset Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when others =>
-					report "            ID_DAT identifier for a not supported variable sent to agent with address " 
+					report "            FIP BA sends an ID_DAT identifier for a not supported variable to the agent with address " 
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				end case;
 			else
-				report "            RP_DAT frame with " & integer'image(to_integer(unsigned(s_var_length))) 
-						& " bytes of data + MPS sent for consumption" & LF & LF;
+				report "            FIP BA sends an RP_DAT frame with " & integer'image(to_integer(unsigned(s_var_length))) 
+						& " bytes of data + MPS for consumption" & LF & LF;
 			end if;
 		end if;
 	end process;

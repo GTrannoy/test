@@ -16,10 +16,14 @@ entity rx is
 	);
 	port(
 		clk						: in std_logic;
-		gx						: in std_logic_vector(crc_l downto 0);
-		id_rp					: in std_logic;
 		fip_frame_trigger		: in std_logic;
+		gx						: in std_logic_vector(crc_l downto 0);
+		id_control_byte			: in std_logic_vector(7 downto 0);
+		id_rp					: in std_logic;
 		h_clk					: in std_logic;
+		mps_byte				: in std_logic_vector(7 downto 0);
+		pdu_type_byte			: in std_logic_vector(7 downto 0);
+		rp_control_byte			: in std_logic_vector(7 downto 0);
 		reset					: in std_logic;
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
@@ -56,11 +60,15 @@ architecture archi of rx is
 	component msg_sender
 	port(
 		clk						: in std_logic;
-		id_rp					: in std_logic;		-- '1'=>id_dat, '0'=>rp_dat
 		fip_frame_trigger		: in std_logic;
+		id_control_byte			: in std_logic_vector(7 downto 0);
+		id_rp					: in std_logic;		-- '1'=>id_dat, '0'=>rp_dat
+		mps_byte				: in std_logic_vector(7 downto 0);
 		msg_start				: in std_logic;
 		msg_new_data_req		: in std_logic;
+		pdu_type_byte			: in std_logic_vector(7 downto 0);
 		reset					: in std_logic;
+		rp_control_byte			: in std_logic_vector(7 downto 0);
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
 		var_length				: in std_logic_vector(6 downto 0);
@@ -223,11 +231,15 @@ begin
 	msg_block: msg_sender
 	port map(
 		clk					=> clk,
-		id_rp				=> id_rp,
 		fip_frame_trigger	=> fip_frame_trigger,
+		id_control_byte		=> id_control_byte,
+		id_rp				=> id_rp,
+		mps_byte			=> mps_byte,
 		msg_start			=> msg_start,
 		msg_new_data_req	=> msg_new_data_req,
+		pdu_type_byte		=> pdu_type_byte,
 		reset				=> reset,
+		rp_control_byte		=> rp_control_byte,
 		station_adr			=> station_adr,
 		var_adr				=> var_adr,
 		var_length			=> var_length,

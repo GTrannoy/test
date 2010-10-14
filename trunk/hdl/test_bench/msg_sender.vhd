@@ -12,15 +12,20 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.std_logic_textio.all;
 use std.textio.all;
+use work.tb_package.all;
 
 entity msg_sender is
 	port(
 		clk						: in std_logic;
-		id_rp					: in std_logic;		-- '1'=>id_dat, '0'=>rp_dat
 		fip_frame_trigger		: in std_logic;
+		id_control_byte			: in std_logic_vector(7 downto 0);
+		id_rp					: in std_logic;		-- '1'=>id_dat, '0'=>rp_dat
+		mps_byte				: in std_logic_vector(7 downto 0);
 		msg_start				: in std_logic;
 		msg_new_data_req		: in std_logic;
+		pdu_type_byte			: in std_logic_vector(7 downto 0);
 		reset					: in std_logic;
+		rp_control_byte			: in std_logic_vector(7 downto 0);
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
 		var_length				: in std_logic_vector(6 downto 0);
@@ -48,9 +53,6 @@ architecture archi of msg_sender is
 	);
 	end component;
 
-constant mps_byte			: std_logic_vector(7 downto 0):=x"05";
-constant pdu_type_byte		: std_logic_vector(7 downto 0):=x"40";
-
 type mstate_ty				is (idle, ctrl_id, id_high, id_low, 
 								ctrl_rp, pdu_type, length, data, last_byte, mps);
 signal mstate, nxt_mstate	: mstate_ty;
@@ -61,7 +63,11 @@ signal control				: std_logic_vector(7 downto 0);
 signal count				: std_logic_vector(6 downto 0);
 signal count_done			: std_logic;
 signal file_data			: std_logic_vector(7 downto 0);
+signal in_broadcast			: vector_type;
+signal in_consumed			: vector_type;
+signal ind					: byte_count_type;
 signal length_byte			: std_logic_vector(7 downto 0);
+signal m_data				: std_logic_vector(7 downto 0);
 signal nxt_data				: std_logic;
 signal reset_count			: std_logic;
 signal running				: std_logic;
@@ -87,10 +93,6 @@ begin
 		wait until clk ='1';
 	end process;
 
-
-	msg_go			<= msg_start or nxt_data;
-	nxt_data		<= msg_new_data_req when running ='1' else '0';
-
 -- state machine for the generation of the message bytes (sequential section)
 -----------------------------------------------------------------------------
 	msg_send_seq: process
@@ -112,12 +114,12 @@ begin
 		when idle =>
 			en_count			<= '0';
 			msg_complete		<= '0';
-			msg_data			<= control;
+			m_data				<= control;
 			reset_count			<= '1';
 			running				<= '0';
 			
 			if msg_start ='1' then
-				if control = x"03" then
+				if control = id_control_byte then
 					nxt_mstate		<= ctrl_id;
 				else
 					nxt_mstate		<= ctrl_rp;
@@ -129,7 +131,7 @@ begin
 		when ctrl_id =>
 			en_count			<= '0';
 			msg_complete		<= '0';
-			msg_data			<= var_id;
+			m_data				<= var_id;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -142,7 +144,7 @@ begin
 		when id_high =>
 			en_count			<= '0';
 			msg_complete		<= '0';
-			msg_data			<= xy;
+			m_data				<= xy;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -155,7 +157,7 @@ begin
 		when id_low =>
 			en_count			<= '0';
 			msg_complete		<= '1';
-			msg_data			<= control;
+			m_data				<= control;
 			reset_count			<= '0';
 			running				<= '0';
 	
@@ -168,7 +170,7 @@ begin
 		when ctrl_rp =>
 			en_count			<= '0';
 			msg_complete		<= '0';
-			msg_data			<= pdu_type_byte;
+			m_data				<= pdu_type_byte;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -181,7 +183,7 @@ begin
 		when pdu_type =>
 			en_count			<= '1';
 			msg_complete		<= '0';
-			msg_data			<= length_byte;
+			m_data				<= length_byte;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -194,7 +196,7 @@ begin
 		when length =>
 			en_count			<= '1';
 			msg_complete		<= '0';
-			msg_data			<= file_data;
+			m_data				<= file_data;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -207,7 +209,7 @@ begin
 		when data =>
 			en_count			<= '1';
 			msg_complete		<= '0';
-			msg_data			<= file_data;
+			m_data				<= file_data;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -220,7 +222,7 @@ begin
 		when last_byte =>
 			en_count			<= '1';
 			msg_complete		<= '0';
-			msg_data			<= mps_byte;
+			m_data				<= mps_byte;
 			reset_count			<= '0';
 			running				<= '1';
 	
@@ -233,7 +235,7 @@ begin
 		when mps =>
 			en_count			<= '1';
 			msg_complete		<= '1';
-			msg_data			<= control;
+			m_data				<= control;
 			reset_count			<= '0';
 			running				<= '0';
 	
@@ -246,7 +248,7 @@ begin
 		when others =>
 			en_count			<= '0';
 			msg_complete		<= '0';
-			msg_data			<= control;
+			m_data				<= control;
 			reset_count			<= '0';
 			running				<= '0';
 			
@@ -269,9 +271,9 @@ begin
 			xy				<= x"00";
 		elsif fip_frame_trigger ='1' then
 			if id_rp ='1' then
-				control		<= x"03";
+				control		<= id_control_byte;
 			else
-				control		<= x"02";
+				control		<= rp_control_byte;
 			end if;
 			length_byte			<= "0" & std_logic_vector(un_length);
 			start_value			<= std_logic_vector(un_length);
@@ -280,7 +282,61 @@ begin
 			xy					<= station_adr;
 		end if;
 	end process;
-		
+	
+	consumed_memory: process
+	begin
+		if control = rp_control_byte and nxt_data ='1' then
+			if var_id = x"05" then
+				in_consumed(ind)		<= m_data;
+			elsif var_id = x"04" then
+				in_broadcast(ind)		<= m_data;
+			end if;
+		end if;
+		wait until clk ='1';
+	end process;
+	
+	index: process
+	begin
+		if running ='1' then
+			if nxt_data ='1' then
+				ind			<= ind + 1;
+			end if;
+		else
+			ind				<= 0;
+		end if;
+		wait until clk ='1';
+	end process;
+	
+	write_incoming: process(running)
+	file data_file			: text;
+	variable data_line		: line;
+	
+	begin
+		if running'event and running ='0' then
+			if control = rp_control_byte then
+				if var_id = x"05" then
+					file_open(data_file,"data/tmp_var1_mem.txt",write_mode);
+					for i in 0 to max_frame_length-1 loop
+						hwrite		(data_line, in_consumed(i));
+						writeline	(data_file, data_line);
+					end loop;
+					file_close(data_file);
+				elsif var_id = x"04" then
+					file_open(data_file,"data/tmp_var2_mem.txt",write_mode);
+					for i in 0 to max_frame_length-1 loop
+						hwrite		(data_line, in_broadcast(i));
+						writeline	(data_file, data_line);
+					end loop;
+					file_close(data_file);
+				end if;
+			end if;
+		end if;
+	end process;
+	
+	msg_data		<= m_data;		
+	msg_go			<= msg_start or nxt_data;
+	nxt_data		<= msg_new_data_req when running ='1' else '0';
+
 	length_counter: encounter
 	generic map(
 		width		=> 7
@@ -294,40 +350,6 @@ begin
 		count		=> count,
 		count_done	=> count_done
 	);
-
---	reporting: process(fip_frame_trigger)
---	begin
---		if fip_frame_trigger ='1' then
---			if id_rp ='1' then
---				case var_adr is 
---				when x"14" =>
---					report "            ID_DAT identifier for Presence Variable sent to agent with address "
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				when x"10" =>
---					report "            ID_DAT identifier for Identification Variable sent to agent with address "
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				when x"05" =>
---					report "            ID_DAT identifier for Consumed Variable sent to agent with address "
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				when x"04" =>
---					report "            ID_DAT identifier for Consumed Broadcast Variable sent to agent with address "
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				when x"06" =>
---					report "            ID_DAT identifier for Produced Variable sent to agent with address "
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				when x"E6" =>
---					report "            ID_DAT identifier for Reset Variable sent to agent with address "
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				when others =>
---					report "            ID_DAT identifier for a not supported variable sent to agent with address " 
---					& integer'image(to_integer(unsigned(station_adr))) & LF;
---				end case;
---			else
---				report "            RP_DAT frame with " & integer'image(to_integer(unsigned(var_length))) 
---						& " bytes of data + MPS sent for consumption" & LF & LF;
---			end if;
---		end if;
---	end process;
 
 end archi;
 	

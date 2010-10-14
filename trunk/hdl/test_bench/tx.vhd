@@ -9,6 +9,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.tb_package.all;
 
 entity tx is
 	generic(
@@ -77,8 +78,20 @@ architecture archi of tx is
 		sof						: in std_logic;
 		vx						: in std_logic;
 		
-		frame_struct_check		: out std_logic;
-		frame_struct_ok			: out std_logic
+		bytes_total				: out byte_count_type;
+		control_byte			: out std_logic_vector(7 downto 0);
+		frame_data				: out vector_type;
+		frame_received			: out std_logic
+	);
+	end component;
+
+	component frame_monitor
+	port(
+		bytes_total			: in byte_count_type;
+		clk					: in std_logic;
+		control_byte		: in std_logic_vector(7 downto 0);
+		frame_data			: in vector_type;
+		frame_received		: in std_logic
 	);
 	end component;
 
@@ -92,6 +105,11 @@ architecture archi of tx is
 	signal sof					: std_logic;
 	signal violation			: std_logic;
 	signal vx					: std_logic;
+	
+	signal bytes_total			: byte_count_type;
+	signal control_byte			: std_logic_vector(7 downto 0);
+	signal frame_data			: vector_type;
+	signal frame_received		: std_logic;
 	
 begin
 
@@ -124,8 +142,19 @@ begin
 		sof					=> sof,
 		vx					=> vx,
 		
-		frame_struct_check	=> frame_struct_check,
-		frame_struct_ok		=> frame_struct_ok
+		bytes_total			=> bytes_total,
+		control_byte		=> control_byte,
+		frame_data			=> frame_data,
+		frame_received		=> frame_received
+	);
+	
+	monitor: frame_monitor
+	port map(
+		bytes_total			=> bytes_total,
+		clk					=> extracted_clk,
+		control_byte		=> control_byte,
+		frame_data			=> frame_data,
+		frame_received		=> frame_received
 	);
 	
 	checker: crc_check

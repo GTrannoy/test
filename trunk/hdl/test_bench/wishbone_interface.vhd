@@ -52,6 +52,7 @@ component encounter
 	);
 end component;
 
+constant zero					: std_logic_vector(6 downto 0):=(others =>'0');
 
 type wb_st_type						is (idle, single, burst, rest);
 signal wb_state, nxt_wb_state		: wb_st_type:=idle;
@@ -71,8 +72,6 @@ signal stb						: std_logic;
 signal valid_bus_cycle			: std_logic;
 signal var_adr					: std_logic_vector(1 downto 0):=(others=>'0');
 signal we						: std_logic:='0';
-
-constant zero					: std_logic_vector(6 downto 0):=(others =>'0');
 
 begin
 
@@ -163,34 +162,6 @@ begin
 	end process;
 
 -- latches for identifying the type of the memory access cycle
------------------------------------------------------------------------------------
---	latch_inference: process (launch_wb_read, launch_wb_write)
---	begin
---		if launch_wb_read ='1' then
---			if block_size = zero then
---				burst_size	<= zero;
---			else
---				burst_size	<= block_size - ("000" & x"1");
---			end if;
---			mem_length		<= transfer_length - ("000" & x"1");
---			mem_offset		<= transfer_offset;
---			var_adr			<= var_id -"01";
---			we				<= '0';
---		elsif launch_wb_write ='1' then
---			if block_size = zero then
---				burst_size	<= zero;
---			else
---				burst_size	<= block_size - ("000" & x"1");
---			end if;
---			mem_length		<= transfer_length - ("000" & x"1");
---			mem_offset		<= transfer_offset;
---			var_adr			<= var_id -"01";
---			we				<= '1';
---		end if;
---	end process;
---
---	add_count			<= ("0" & var_adr & (mem_count + mem_offset)) + ("00" & x"02");
-
 --------------------------------------------------------------
 	latch_inference: process (launch_wb_read, launch_wb_write)
 	begin
@@ -223,8 +194,6 @@ begin
 	end process;
 
 	add_count			<= "0" & var_adr & (mem_count + mem_offset);
-------------------------------------------------------------------------------------
-
 	valid_bus_cycle		<= stb and cyc and ack_i;
 
 -- output signals

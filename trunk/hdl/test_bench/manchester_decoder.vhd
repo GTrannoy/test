@@ -35,7 +35,7 @@ signal qrt_period_neg	: time := 0 ns;
 signal offset1			: time := 0 ns;
 signal offset2			: time := 0 ns;
 
-signal b_clk_period		: time := 980 ns;
+signal b_clk_period		: time := 1 us;
 
 signal last_transition	: time := 0 ns;
 signal input_period		: time := 0 ns;
@@ -49,7 +49,7 @@ signal b_clk_edge		: time := 0 ns;
 signal zero_event		: time := 0 ns;
 signal one_event		: time := 0 ns;
 
-signal shift			: time := 100 ns;
+signal shift			: time := 0 ns;
 
 signal b_clk			: std_logic;
 signal clk1, clk2		: std_logic;
