@@ -42,7 +42,6 @@ begin
 	variable wclk_period_config	: time;
 	variable wreset_lgth_config	: time;
 	begin
-		read_config_trigger			<= '0';
 		readline	(config_file, config_line);
 		read		(config_line, uclk_period_config);
 		readline	(config_file, config_line);
@@ -64,12 +63,14 @@ begin
 		wclk_period				<= wclk_period_config;
 		wreset_length			<= wreset_lgth_config;
 		read_config_trigger		<= '1';
-		wait for validity_time;
+		wait for validity_time - 1 ps;
+		read_config_trigger			<= '0';
+		wait for 1 ps;
 	end process;
 
 	-- reporting processes
 	-----------------------
-	report_config_trigger		<= read_config_trigger after 1 ps;
+	report_config_trigger		<= read_config_trigger;-- after 1 ps;
 
 	reporting: process(report_config_trigger)
 	begin

@@ -11,13 +11,13 @@ use IEEE.numeric_std.all;
 
 entity user_interface is
 	port(
-		urstn_i				: in std_logic;
+		urstn_from_nf		: in std_logic;
 		var1_rdy_i			: in std_logic;
 		var2_rdy_i			: in std_logic;
 		var3_rdy_i			: in std_logic;
 
 		uclk_o				: out std_logic;
-		urstn_o				: out std_logic;
+		urstn_to_nf			: out std_logic;
 		var1_acc_o			: out std_logic;
 		var2_acc_o			: out std_logic;
 		var3_acc_o			: out std_logic;
@@ -65,7 +65,7 @@ architecture archi of user_interface is
 	port(
 		cyc					: in std_logic;
 		uclk_period			: in time;
-		urstn_i				: in std_logic;
+		urstn_from_nf		: in std_logic;
 		var1_rdy_i			: in std_logic;
 		var2_rdy_i			: in std_logic;
 		var3_rdy_i			: in std_logic;
@@ -92,6 +92,26 @@ architecture archi of user_interface is
 	);
 	end component;
 	
+	component wb_monitor
+	port(
+		ack_i					: in std_logic;
+		clk_o					: in std_logic;
+		dat_i					: in std_logic_vector(7 downto 0);
+		rst_o					: in std_logic;
+
+		adr_o					: in std_logic_vector(9 downto 0);
+		cyc_o					: in std_logic;
+		dat_o					: in std_logic_vector(7 downto 0);
+		stb_o					: in std_logic;
+		we_o					: in std_logic
+	);
+	end component;
+
+	signal adr					: std_logic_vector(9 downto 0);
+	signal dat_to_nf			: std_logic_vector(7 downto 0);
+	signal stb					: std_logic;
+	signal we					: std_logic;
+
 	signal block_size			: std_logic_vector(6 downto 0):="000" & x"0";
 	signal config_validity_time	: time;
 	signal cyc					: std_logic;
@@ -144,14 +164,6 @@ begin
 		wait for config_validity_time - wreset_length;
 	end process;
 
-	uclk_o				<= uclk;
-	urstn_o				<= not(ureset);
-
-	rst_o				<= wreset;
-	wclk_o				<= wclk;
-
-	cyc_o				<= cyc;
-
 	user_configuration: user_config
 	port map(
 		config_validity			=> config_validity_time,
@@ -165,7 +177,7 @@ begin
 	port map(
 		cyc						=> cyc,
 		uclk_period				=> uclk_period,
-		urstn_i					=> urstn_i,
+		urstn_from_nf			=> urstn_from_nf,
 		var1_rdy_i				=> var1_rdy_i,
 		var2_rdy_i				=> var2_rdy_i,
 		var3_rdy_i				=> var3_rdy_i,
@@ -197,12 +209,36 @@ begin
 		dat_i					=> dat_i,
 		rst_i					=> wreset,
 
-		adr_o					=> adr_o,
+		adr_o					=> adr,
 		cyc_o					=> cyc,
-		dat_o					=> dat_o,
-		stb_o					=> stb_o,
-		we_o					=> we_o
+		dat_o					=> dat_to_nf,
+		stb_o					=> stb,
+		we_o					=> we
 	);
 	
+	wishbone_monitor: wb_monitor
+	port map(
+		ack_i					=> ack_i,
+		clk_o					=> wclk,
+		dat_i					=> dat_i,
+		rst_o					=> wreset,
+		adr_o					=> adr,
+		cyc_o					=> cyc,
+		dat_o					=> dat_to_nf,
+		stb_o					=> stb,
+		we_o					=> we
+	);
+	
+	uclk_o				<= uclk;
+	urstn_to_nf			<= not(ureset);
+
+	adr_o				<= adr;
+	cyc_o				<= cyc;
+	dat_o				<= dat_to_nf;
+	rst_o				<= wreset;
+	wclk_o				<= wclk;
+	stb_o				<= stb;
+	we_o				<= we;
+
 
 end archi;

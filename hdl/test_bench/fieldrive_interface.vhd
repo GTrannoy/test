@@ -8,8 +8,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use IEEE.std_logic_textio.all;
-use std.textio.all;
 
 entity fieldrive_interface is
 	port(
@@ -33,10 +31,14 @@ architecture archi of fieldrive_interface is
 	);
 	port(
 		clk						: in std_logic;
-		gx						: in std_logic_vector(crc_l downto 0);
-		id_rp					: in std_logic;
 		fip_frame_trigger		: in std_logic;
+		gx						: in std_logic_vector(crc_l downto 0);
+		id_control_byte			: in std_logic_vector(7 downto 0);
+		id_rp					: in std_logic;
 		h_clk					: in std_logic;
+		mps_byte				: in std_logic_vector(7 downto 0);
+		pdu_type_byte			: in std_logic_vector(7 downto 0);
+		rp_control_byte			: in std_logic_vector(7 downto 0);
 		reset					: in std_logic;
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
@@ -82,71 +84,40 @@ architecture archi of fieldrive_interface is
 	);
 	port(
 		f_clk_period		: out time;
-		gx					: out std_logic_vector(crc_l downto 0)		
+		gx					: out std_logic_vector(crc_l downto 0);
+		id_control_byte		: out std_logic_vector(7 downto 0);
+		mps_byte			: out std_logic_vector(7 downto 0);
+		pdu_type_byte		: out std_logic_vector(7 downto 0);
+		rp_control_byte		: out std_logic_vector(7 downto 0)
 	);
 	end component;
 
 constant crc_l				: integer:=16;
 
-signal gx					: std_logic_vector(crc_l downto 0);--:="10001110111001111";
---signal bit_rate				: integer;
-signal f_clk_period			: time:= 0 us;
-
-signal f_clk				: std_logic:='1';
-signal h_clk				: std_logic:='1';
-signal fd_reset				: std_logic;
-
 signal cd					: std_logic;
 signal dx					: std_logic;
-signal id_rp				: std_logic;		-- '1' => id_dat, '0' => rp_dat
+signal f_clk_period			: time:= 0 us;
+signal f_clk				: std_logic:='1';
+signal fd_reset				: std_logic;
 signal fip_frame_trigger	: std_logic;
-signal station_adr			: std_logic_vector(7 downto 0);--:=x"00";
+signal gx					: std_logic_vector(crc_l downto 0);
+signal h_clk				: std_logic:='1';
+signal id_rp				: std_logic;		-- '1' => id_dat, '0' => rp_dat
+signal id_control_byte		: std_logic_vector(7 downto 0);
+signal mps_byte				: std_logic_vector(7 downto 0);
+signal pdu_type_byte		: std_logic_vector(7 downto 0);
+signal rp_control_byte		: std_logic_vector(7 downto 0);
+signal station_adr			: std_logic_vector(7 downto 0);
 signal txck					: std_logic;
 signal txd					: std_logic;
 signal txena				: std_logic;
 signal txerr				: std_logic;
-signal var_adr				: std_logic_vector(7 downto 0);--:=x"00";
-signal var_length			: std_logic_vector(6 downto 0);--:="0000000";
+signal var_adr				: std_logic_vector(7 downto 0);
+signal var_length			: std_logic_vector(6 downto 0);
 signal wdgn					: std_logic;
-
---signal gx_strg					: string(1 to crc_l+1);
---signal rate_strg				: string(1 to 19);
---signal read_config_trigger		: std_logic:='0';
---signal report_config_trigger	: std_logic:='0';
 
 begin
 	
---	-- process reading config values from a file
---	---------------------------------------------
---	read_config: process
---	file config_file			: text open read_mode is "data/WFIP_communication_config.txt";
---	variable config_line		: line;
---	variable validity_time		: time;
---
---	variable bit_rate_config	: integer;
---	variable gx_config			: std_logic_vector(crc_l downto 0);
---	begin
---		read_config_trigger		<= '0';
---		readline	(config_file, config_line);
---		read		(config_line, bit_rate_config);
---		readline	(config_file, config_line);
---		read		(config_line, gx_config);
---		readline	(config_file, config_line);
---		read		(config_line, validity_time);
---		if endfile(config_file) then
---			file_close(config_file);
---		end if;
---		bit_rate				<= bit_rate_config;
---		gx						<= gx_config;
---		read_config_trigger		<= '1';
---		wait for validity_time;
---	end process;
---
---	with bit_rate select
---						f_clk_period	<=	32 us	when 0,
---											1 us	when 1,
---											400 ns	when 2,
---											0 us	when others;
 	clock: process
 	begin
 		wait for 0 us;
@@ -161,16 +132,31 @@ begin
 		wait for f_clk_period/4;
 	end process;
 
+	fd_reset				<= not(fd_rstn_i);
+	txd						<= fx_txd_i;
+	txck					<= fd_txck_i;
+	txena					<= fd_txena_i;
+	
+	fd_wdgn_o				<= wdgn;
+	fd_txer_o				<= txerr;
+	
+	fx_rxa_o				<= not(cd);
+	fx_rxd_o				<= dx;
+
 	rx_block: rx
 	generic map(
 		crc_l				=> crc_l
 	)
 	port map(
 		clk					=> f_clk,
-		gx					=> gx,
-		id_rp				=> id_rp,
 		fip_frame_trigger	=> fip_frame_trigger,
+		gx					=> gx,
+		id_control_byte		=> id_control_byte,
+		id_rp				=> id_rp,
 		h_clk				=> h_clk,
+		mps_byte			=> mps_byte,
+		pdu_type_byte		=> pdu_type_byte,
+		rp_control_byte		=> rp_control_byte,
 		reset				=> fd_reset,
 		station_adr			=> station_adr,
 		var_adr				=> var_adr,
@@ -213,45 +199,11 @@ begin
 	)
 	port map(
 		f_clk_period		=> f_clk_period,
-		gx					=> gx
+		gx					=> gx,
+		id_control_byte		=> id_control_byte,
+		mps_byte			=> mps_byte,
+		pdu_type_byte		=> pdu_type_byte,
+		rp_control_byte		=> rp_control_byte
 	);
-	
-	fd_reset				<= not(fd_rstn_i);
-	txd						<= fx_txd_i;
-	txck					<= fd_txck_i;
-	txena					<= fd_txena_i;
-	
-	fd_wdgn_o				<= wdgn;
-	fd_txer_o				<= txerr;
-	
-	fx_rxa_o				<= not(cd);
-	fx_rxd_o				<= dx;
-
---	-- Translation of values for the reporting
---	------------------------------------------
---	with bit_rate select
---		rate_strg					<=	"31.25 kbit/s       "	when 0,
---										"1 Mbit/s           "	when 1,
---										"2.5 Mbit/s         "	when 2,
---										"Incorrectly defined"	when others;
---	
---	gx_strg_generation: for i in crc_l downto 0 generate
---		gx_strg(crc_l+1-i) <= '1' when gx(i) ='1' else '0';
---	end generate;
---	
---	-- reporting process
---	-----------------------
---	report_config_trigger		<= read_config_trigger after 1 ps;
---
---	reporting: process(report_config_trigger)
---	begin
---		if report_config_trigger'event and report_config_trigger ='1' then
---			report LF & "WFIP bus configuration settings for test" & LF &
---						"-----------------------------------------" & LF &
---			"WorldFIP rate: " & rate_strg & LF &
---			"CRC length: " & integer'image(crc_l) & " bits" & LF &
---			"CRC generation polinomial: " & gx_strg & Lf;
---		end if;
---	end process;
 	
 end archi;

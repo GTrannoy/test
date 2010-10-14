@@ -13,6 +13,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.std_logic_textio.all;
 use std.textio.all;
+use work.tb_package.all;
 
 entity board_settings is
 	port(
@@ -78,7 +79,6 @@ begin
 	variable station_adr_config	: std_logic_vector(7 downto 0);
 	
 	begin
-		read_config_trigger		<= '0';
 		
 		readline	(config_file, config_line);
 		read		(config_line, c_id_3_config);
@@ -118,9 +118,7 @@ begin
 		if endfile(config_file) then
 			file_close(config_file);
 		end if;
---		wait for 1 ps;
 		
-		read_config_trigger		<= '1';
 		c_id_3					<= c_id_3_config;
 		c_id_2					<= c_id_2_config;
 		c_id_1					<= c_id_1_config;
@@ -134,7 +132,39 @@ begin
 		rate					<= rate_config;
 		slone					<= slone_config;
 		station_adr				<= unsigned(station_adr_config);
-		wait for validity_time;
+		read_config_trigger		<= '1';
+		wait for validity_time - 1 ps;
+		read_config_trigger		<= '0';
+		wait for 1 ps;
+	end process;
+	
+	-- process transcribing the current board configuration into a temp file
+	-- for other blocks
+	-----------------------------------------------------------------------
+	board_temp_config: process(report_config_trigger)
+	file config_file				: text;
+	variable config_line			: line;
+
+	variable constructor_config	: std_logic_vector(7 downto 0);
+	variable model_config		: std_logic_vector(7 downto 0);
+	variable nostat_config		: std_logic;
+	variable varlength_config	: byte_count_type;
+	
+	begin
+		if report_config_trigger = '1' then
+			file_open(config_file,"data/tmp_board_config.txt",write_mode);
+			
+			write(config_line,length_strg);
+			writeline(config_file,config_line);
+			write(config_line,nostat);
+			writeline(config_file,config_line);
+			hwrite(config_line,std_logic_vector(constructor));
+			writeline(config_file,config_line);
+			hwrite(config_line,std_logic_vector(model));
+			writeline(config_file,config_line);
+
+			file_close(config_file);
+		end if;
 	end process;
 	
 	-- Signals actually sent to nanoFIP
@@ -267,7 +297,7 @@ begin
 
 	-- reporting processes
 	-----------------------
-	report_config_trigger		<= read_config_trigger after 1 ps;
+	report_config_trigger		<= read_config_trigger;-- after 1 ps;
 
 	reporting: process(report_config_trigger)
 	begin

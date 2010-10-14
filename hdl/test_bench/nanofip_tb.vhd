@@ -57,13 +57,13 @@ architecture archi of nanofip_tb is
 
 	component user_interface
 	port(
-		urstn_i				: in std_logic;
+		urstn_from_nf		: in std_logic;
 		var1_rdy_i			: in std_logic;
 		var2_rdy_i			: in std_logic;
 		var3_rdy_i			: in std_logic;
 
 		uclk_o				: out std_logic;
-		urstn_o				: out std_logic;
+		urstn_to_nf			: out std_logic;
 		var1_acc_o			: out std_logic;
 		var2_acc_o			: out std_logic;
 		var3_acc_o			: out std_logic;
@@ -223,13 +223,13 @@ begin
 	
 	user_logic:  user_interface
 	port map(
-		urstn_i			=> urst_from_nf,
+		urstn_from_nf	=> urst_from_nf,
 		var1_rdy_i		=> var1_rdy,
 		var2_rdy_i		=> var2_rdy,
 		var3_rdy_i		=> var3_rdy,
 
 		uclk_o			=> uclk,
-		urstn_o			=> urst_to_nf,
+		urstn_to_nf		=> urst_to_nf,
 		var1_acc_o		=> var1_acc,
 		var2_acc_o		=> var2_acc,
 		var3_acc_o		=> var3_acc,
