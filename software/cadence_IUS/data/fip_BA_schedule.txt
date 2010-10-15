@@ -14,17 +14,17 @@
 400 us		-- stand-by time
 1,01,04,0	-- ID_DAT for Broadcast variable
 100 us		-- stand-by time
-0,01,04,20	-- RP_DAT for Broadcast variable
+0,01,04,4	-- RP_DAT for Broadcast variable
 300 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 100 us		-- stand-by time
-0,5A,05,4	-- RP_DAT for Consumed variable
+0,5A,05,8	-- RP_DAT for Consumed variable
 300 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
 400 us		-- stand-by time
 1,01,04,0	-- ID_DAT for Broadcast variable
 100 us		-- stand-by time
-0,01,04,8	-- RP_DAT for Broadcast variable
+0,01,04,4	-- RP_DAT for Broadcast variable
 300 us		-- stand-by time
 1,5A,14,0	-- ID_DAT for Presence variable
 300 us		-- stand-by time

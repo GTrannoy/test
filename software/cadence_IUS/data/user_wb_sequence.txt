@@ -2,15 +2,15 @@
 ## The order and values must be as follows: rd_wr: (0) for read / (1) for write, variable: (1) for consumed / (2) for broadcast / (3) for produced,
 ## data transfer size: integer from 1 to 124, transfer offset: integer from 1 to 124, transfer block size: integer from 1 to 124.
 1100 us		-- stand-by time
-0,1,10,0,0	-- reading VAR1 from memory
+0,1,11,0,0	-- reading VAR1 from memory
 50 us		-- stand-by time
 1,3,30,0,0	-- writting VAR3 in memory
 800 us		-- stand-by time
-0,2,20,0,0	-- reading VAR2 from memory
+0,2,4,0,0	-- reading VAR2 from memory
 400 us		-- stand-by time
-0,1,4,0,0	-- reading VAR1 from memory
+0,1,9,0,0	-- reading VAR1 from memory
 100 us		-- stand-by time
 1,3,30,0,0	-- writting VAR3 in memory
-800 us		-- stand-by time
-0,2,8,0,0	-- reading VAR2 from memory
+700 us		-- stand-by time
+0,2,4,0,0	-- reading VAR2 from memory
 2000 ms		-- final stand-by time to end the simulation
