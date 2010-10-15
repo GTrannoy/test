@@ -212,7 +212,7 @@ begin
 			file_open(data_file,"data/tmp_var3_mem.txt",read_mode);
 			for i in 0 to max_frame_length-1 loop
 				readline			(data_file, data_line);
-				hread				(data_line, data_byte);
+				read				(data_line, data_byte);
 				data_vector(i)		:= data_byte;
 			end loop;
 			file_close(data_file);

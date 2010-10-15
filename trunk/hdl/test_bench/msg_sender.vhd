@@ -317,14 +317,14 @@ begin
 				if var_id = x"05" then
 					file_open(data_file,"data/tmp_var1_mem.txt",write_mode);
 					for i in 0 to max_frame_length-1 loop
-						hwrite		(data_line, in_consumed(i));
+						write		(data_line, in_consumed(i));
 						writeline	(data_file, data_line);
 					end loop;
 					file_close(data_file);
 				elsif var_id = x"04" then
 					file_open(data_file,"data/tmp_var2_mem.txt",write_mode);
 					for i in 0 to max_frame_length-1 loop
-						hwrite		(data_line, in_broadcast(i));
+						write		(data_line, in_broadcast(i));
 						writeline	(data_file, data_line);
 					end loop;
 					file_close(data_file);
