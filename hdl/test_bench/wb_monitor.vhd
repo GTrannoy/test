@@ -58,7 +58,7 @@ begin
 				file_open(data_file,"data/tmp_var1_mem.txt",read_mode);
 				while not(endfile(data_file)) loop
 					readline			(data_file, data_line);
-					hread				(data_line, data_byte);
+					read				(data_line, data_byte);
 					data_vector(i)		:= data_byte;
 					i					:= i+1;
 				end loop;
@@ -71,7 +71,7 @@ begin
 				file_open(data_file,"data/tmp_var2_mem.txt",read_mode);
 				while not(endfile(data_file)) loop
 					readline			(data_file, data_line);
-					hread				(data_line, data_byte);
+					read				(data_line, data_byte);
 					data_vector(i)		:= data_byte;
 					i					:= i+1;
 				end loop;
@@ -122,7 +122,7 @@ begin
 		if writing_produced'event and writing_produced = FALSE then
 			file_open(data_file,"data/tmp_var3_mem.txt",write_mode);
 			for i in 0 to max_frame_length-1 loop
-				hwrite		(data_line, out_produced(i));
+				write		(data_line, out_produced(i));
 				writeline	(data_file, data_line);
 			end loop;
 			file_close(data_file);
