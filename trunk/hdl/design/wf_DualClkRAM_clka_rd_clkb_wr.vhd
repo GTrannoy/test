@@ -17,7 +17,7 @@ use IEEE.NUMERIC_STD.all;     -- conversion functions
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   dpblockram.vhd
+-- unit name   wf_DualClkRAM_clka_rd_clkb_wr.vhd
 --
 --
 --! @brief     The unit provides, transparently to the outside world, the memory triplication.
@@ -62,20 +62,20 @@ use IEEE.NUMERIC_STD.all;     -- conversion functions
 --=================================================================================================
 
 entity wf_DualClkRAM_clka_rd_clkb_wr is
-  generic (c_data_length : integer := 8; 		-- 8: length of data word (1 byte)
-           c_addr_length : integer := 9);       -- 2^9: memory depth (512 bytes)
+  generic (C_RAM_DATA_LGTH : integer;  -- length of data word
+           C_RAM_ADDR_LGTH : integer); -- memory depth
 
 
   port (
         clk_A_i  :     in std_logic;
-        addr_A_i :     in std_logic_vector (c_addr_length - 1 downto 0);
+        addr_A_i :     in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
         
         clk_B_i :      in std_logic;
-        addr_B_i :     in std_logic_vector (c_addr_length - 1 downto 0);
-        data_B_i :     in std_logic_vector (c_data_length - 1 downto 0);
+        addr_B_i :     in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
+        data_B_i :     in std_logic_vector (C_RAM_DATA_LGTH - 1 downto 0);
         write_en_B_i : in std_logic;
  
-       data_A_o :      out std_logic_vector (c_data_length -1 downto 0)
+       data_A_o :      out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
 );
 end wf_DualClkRAM_clka_rd_clkb_wr; 
 
@@ -118,10 +118,10 @@ signal s_zeros :          std_logic_vector (7 downto 0);
 --=================================================================================================
 begin 
 
-zero <= '0';
-one <= '1';
+zero    <= '0';
+one     <= '1';
 s_zeros <= (others => '0');
-s_rwB <= not write_en_B_i;
+s_rwB   <= not write_en_B_i;
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief: memory triplication
@@ -149,23 +149,6 @@ UDualClkRam : DualClkRam
               DOUTB  => open) ;
 end generate;
 
---------------------------------------------------------------------------------------------------- 
---without memory triplication:
---UDualClkRam : DualClkRam  
---    port map ( DINA   => s_zeros,
---               ADDRA  => addr_A_i,
---               RWA    => one, 
---               CLKA   => clk_A_i, 
---
---               DINB   => data_B_i,
---               ADDRB  => addr_B_i, 
---               RWB    => s_rwB, 
---               CLKB   => clk_B_i, 
---
---               RESETn => one,
---
---               DOUTA  => data_A_o,
---               DOUTB  => open) ;
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief majority voter: when a reading is done from the memory, the output of the unit is the

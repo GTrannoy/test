@@ -2,31 +2,40 @@
 --! @file wf_rx.vhd
 --=================================================================================================
 
--- standard library
+--! standard library
 library IEEE;
 
--- standard packages
-use IEEE.STD_LOGIC_1164.all;  -- std_logic definitions
-use IEEE.NUMERIC_STD.all;     -- conversion functions
+--! standard packages
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 --! specific packages
 use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                   wf_rx                                                       --
+--                                              wf_rx                                            --
 --                                                                                               --
---                               CERN, BE/CO/HT                                                  --
+--                                         CERN, BE/CO/HT                                        --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Deserialisation of the input signal fd_rxd (buffered) and construction of bytes of data
---!            to be provided to the wf_consumed unit.
+--! @brief     De-serialization of the input signal fd_rxd and construction of bytes of data
+--!            to be provided to the wf_cons_bytes_from_rx unit.
+--
+--!            Remark: We refer to a significant edge for an edge of a Manchester 2 (manch.) 
+--!            encoded bit (eg: bit0: _|-, bit 1: -|_) and to a transition between adjacent bits
+--!            for a transition that may or may not give an edge between adjacent bits 
+--!            (e.g.: a 0 followed by a 0 will give an edge _|-|_|-, but a 0 followed by
+--!            a 1 will not _|--|_ ).
+--!            The term sample_manch_bit_p refers to the moments when a manch. encoded bit
+--!            should be sampled (before and after a significant edge), whereas the 
+--!            sample_bit_p includes only the sampling of the 1st part, before the transition. 
 --
 --
---! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)         \n
 --
 --
 --! @date      08/2010
@@ -38,29 +47,40 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! @details \n 
 --
 --!   \n<b>Dependencies:</b>\n
---!     wf_rx_tx_osc\n
---!     wf_deglitcher\n
---!     wf_tx_rx      \n
+--!     wf_reset_unit     \n
+--!     wf_rx_tx_osc       \n
+--!     wf_deglitcher       \n
+--!     wf_engine_control    \n
+--!     wf_inputs_synchronizer\n
 -- 
 -- 
 --!   \n<b>Modified by:</b>\n
---!     Erik van der Bij     \n
---!     Pablo Alvarez Sanchez \n
---!     Evangelia Gousiou      \n
+--!     Erik van der Bij    \n
+--!     Pablo Alvarez Sanchez\n
+--!     Evangelia Gousiou     \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> state switch_to_deglitched added
---!     -> output signal wait_d_first_f_edge_o added
---!     -> signals renamed
---!     -> code cleaned-up + commented
+--!     -> 09/2009 v0.01 PS First version \n
+--!     -> 10/2010 v0.02 EG state switch_to_deglitched added;
+--!                         output signal wait_rxd_first_f_edge_o added; signals renamed;
+--!                         state machine rewritten (mealy style); 
+--!                         units wf_manch_code_viol_check and Incoming_Bits_Index created;
+--!                         code cleaned-up + commented.\n
 --      
 ---------------------------------------------------------------------------------------------------
 --
 --! @todo
 --! -> 
 --
+---------------------------------------------------------------------------------------------------
+
+
+---/!\----------------------------/!\----------------------------/!\--------------------------/!\--
+--                                    Sunplify Premier Warnings                                  --
+-- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
+--                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
 
 
@@ -73,47 +93,46 @@ entity wf_rx is
   port (
   -- INPUTS 
     -- User interface general signal 
-    uclk_i :                in std_logic; --! 40MHz clock
-
-    -- Signal from the wf_reset_unit unit
-    nFIP_rst_i :            in std_logic; --! internal reset
+    uclk_i :                    in std_logic; --! 40MHz clock
+ 
+    -- Signal from the wf_reset_unit
+    nFIP_u_rst_i :              in std_logic; --! internal reset
 
     -- Signal from the wf_engine_control
-    reset_rx_unit_p_i :     in std_logic;
+    reset_rx_unit_p_i :         in std_logic; --! signals that more bytes than expected are being
+                                              --! received (ex: ID_DAT > 8 bytes etc) and the unit
+                                              --! has to be reset
     
-    -- signals from the wf_rx_tx_osc    
-	signif_edge_window_i :  in std_logic; --! time window where a significant edge is expected 
-    adjac_bits_window_i :   in std_logic; --! time window where a transition between adjacent
-                                          --!  bits is expected
+    -- Signals from the wf_rx_tx_osc    
+    signif_edge_window_i :      in std_logic; --! time window where a significant edge is expected 
+    adjac_bits_window_i :       in std_logic; --! time window where a transition between adjacent
+                                              --! bits is expected
 
 
-    -- signals from wf_tx_rx
-    rx_data_r_edge_i :      in std_logic; --!indicates a rising edge on the buffered rxd(rx_data_i)
-	rx_data_f_edge_i :      in std_logic; --! indicates a falling edge on the d_1  
+    -- Signals from wf_inputs_synchronizer
+    rxd_r_edge_i :              in std_logic; --! indicates a rising edge on fd_rxd
+    rxd_f_edge_i :              in std_logic; --! indicates a falling edge on fd_rxd  
 
-    -- signal from the wf_deglitcher
-    rx_data_filtered_i :    in std_logic; --! deglitched serial input signal 
-    sample_manch_bit_p_i:   in std_logic; --! 
-    sample_bit_p_i :        in std_logic; --! 
+    -- Signals from the wf_deglitcher
+    rxd_filtered_o :            in std_logic; --! deglitched fd_rxd
+    rxd_filtered_f_edge_p_i :   in std_logic; --! falling edge on the deglitched fd_rxd  
+    sample_manch_bit_p_i :      in std_logic; --! pulse indicating a valid sampling time for a manch. bit 
+    sample_bit_p_i :            in std_logic; --! pulse indicating a valid sampling time for a bit
 
 
   -- OUTPUTS
-    -- needed by the wf_consumed and wf_engine_control 	
-	byte_ready_p_o :        out std_logic;                     --! indication of a valid data byte
-    byte_o :                out std_logic_vector (7 downto 0) ; --! retreived data byte
+    -- Signals to the wf_consumed and wf_engine_control 	
+    byte_o :                    out std_logic_vector (7 downto 0) ;     --! retrieved data byte
+    byte_ready_p_o :            out std_logic; --! pulse indicating a valid retrieved data byte
 
-    -- needed by the wf_engine_control
-    crc_ok_p_o :            out std_logic;
-    crc_wrong_p_o :         out std_logic; 
-    fss_decoded_p_o :       out std_logic;   	
-    last_byte_p_o :         out std_logic;
-    
-    -- needed by the wf_status_bytes_gen 
-    code_violation_p_o :    out std_logic;   --! indicator of a manchester 2 code violation
+    -- Signals to the wf_engine_control
+    FSS_CRC_FES_viol_ok_p_o :   out std_logic; --! indication of a frame with a correct FSS,FES,CRC
+                                               --! and with no unexpected manch code violations
+    CRC_wrong_p_o :             out std_logic; --! indication of a wrong CRC reception
+    FSS_received_p_o :          out std_logic; --! indication of a correct FSS reception
 
-    -- needed by the wf_rx_tx_osc
-    wait_d_first_f_edge_o : out std_logic    --! indicator of the rx state machine being in idle
-                                             --state, expecting for the preamble's 1st falling edge 
+    -- Signal to the wf_rx_tx_osc
+    wait_rxd_first_f_edge_o :   out std_logic--! indication that wf_rx is in idle state
 );
 
 end entity wf_rx;
@@ -127,30 +146,20 @@ architecture rtl of wf_rx is
   -- states of the receiver's state machine
   type rx_st_t  is (idle, preamble_field_first_fe, preamble_field_re, preamble_field_fe,
                     frame_start_field, switch_to_deglitched, data_field_byte);
-  -- signals
-  signal rx_st, nx_rx_st :  rx_st_t;
 
-  signal s_bit_index, s_bit_index_top :                                        unsigned(3 downto 0);
-  signal s_decr_bit_index, s_load_bit_index, s_pointer_is_zero :                          std_logic;
+  signal rx_st, nx_rx_st :                                           rx_st_t;
+  signal s_manch_code_viol_p, s_CRC_ok_p, s_CRC_ok :                 std_logic;
+  signal s_frame_start_last_bit, s_frame_end_wrong_bit :             std_logic;
+  signal s_frame_end_detected_p, s_frame_end_detection :             std_logic;
+  signal s_manch_code_violations, s_switching_to_deglitched :        std_logic;
+  signal s_receiving_FSS, s_receiving_bytes, s_receiving_preamble :  std_logic;
+  signal s_decr_bit_index_p, s_bit_index_load, s_bit_index_is_zero : std_logic;
+  signal s_byte_ready_p, s_write_bit_to_byte, s_idle :               std_logic;
+  signal s_bit_r_edge,s_FSS_bit,s_FES_bit, s_frame_start_wrong_bit : std_logic;
+  signal s_manch_r_edge, s_manch_f_edge,s_edge_outside_manch_window: std_logic;
+  signal s_bit_index, s_bit_index_top :                              unsigned(3 downto 0);
+  signal s_byte :                                                    std_logic_vector (7 downto 0);
 
-  signal s_sample_bit_p_d1, s_sample_bit_p_d2, s_rx_data_filtered_f_edge :            std_logic;
-  signal s_manch_r_edge, s_manch_f_edge, s_edge_outside_manch_window, s_bit_r_edge :  std_logic;
-
-
-  signal s_frame_start_bit, s_queue_bit :                                             std_logic;
-  signal s_frame_start_wrong_bit, s_frame_start_last_bit :                            std_logic;
-  signal s_frame_end_detected_p, s_frame_end_detection, s_frame_end_wrong_bit :       std_logic;
-  
-  signal s_check_violation, s_code_violation_p :            std_logic;
-  signal s_calculate_crc, s_crc_ok_p, s_crc_ok, s_start_crc_p :    std_logic;
-  signal s_enble_load_bit_index, s_enble_decr_bit_index :          std_logic;
-  signal s_enble_data_bytes_follower, s_enble_FSS_follower, s_reinit_rx :        std_logic;
-
-  signal s_byte_ready_p, s_write_bit_to_byte, s_rx_data_filtered_d:                        std_logic;
-
-  signal s_byte :                                                  std_logic_vector (7 downto 0);
-
-  signal s_rx_data_filtered_buff :                                 std_logic_vector (1 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
@@ -158,29 +167,15 @@ architecture rtl of wf_rx is
   begin
 
 ---------------------------------------------------------------------------------------------------
- --!@brief instantiation of the crc calculator unit
-  crc_verification : wf_crc 
-  generic map(c_GENERATOR_POLY_length => 16) 
-  port map(
-    uclk_i             => uclk_i,
-    nFIP_rst_i         => nFIP_rst_i,
-    start_crc_p_i      => s_start_crc_p,
-    data_bit_ready_p_i => s_write_bit_to_byte,
-	data_bit_i         => rx_data_filtered_i,
-	crc_o              => open,
-	crc_ok_p           => s_crc_ok_p
-);
-
----------------------------------------------------------------------------------------------------
 --!@brief Receiver's state machine: the state machine is divided in three parts (a clocked process
 --! to store the current state, a combinatorial process to manage state transitions and finally a
 --! combinatorial process to manage the output signals), which are the three processes that follow.
---! The unit, is firstly following the input data stream (from the buffered input rx_data_i) for 
---! monitoring the preamble field, and then switches to following the deglitched signal for
---! the rest of the data. It is responsible for the detection of the the preamble, frame start
---! delimiter and queue fields of a received id_dat or consumed rp_dat frame, as well as for the
---! formation of bytes of data out of the serial input. The main outputs of the unit (byte_o and
---! byte_ready_p_o) are the main inputs of the units wf_consumed_vars and wf_engine_control.
+--! The unit, is firstly following the input data stream for monitoring the preamble field, and
+--! then switches to following the deglitched signal for the rest of the data. It is responsible
+--! for the detection of the the preamble, FSS and FES of a received id_dat or consumed
+--! rp_dat frame, as well as for the formation of bytes of data.
+--! The main outputs of the unit (byte_o and byte_ready_p_o) are the main inputs of the unit
+--! wf_cons_bytes_from_rx.
   
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM
@@ -188,9 +183,9 @@ architecture rtl of wf_rx is
    Receiver_FSM_Sync: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if nFIP_rst_i = '1' then
+        if nFIP_u_rst_i = '1' then
           rx_st <= idle;
-		else
+        else
           rx_st <= nx_rx_st;
         end if;
       end if;
@@ -198,87 +193,89 @@ architecture rtl of wf_rx is
  
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief combinatorial process Receiver_FSM_Comb_StateTransitions:
---! definition of the state transitions of the FSM
+--!@brief Combinatorial process Receiver_FSM_Comb_StateTransitions:
+--! definition of the state transitions of the FSM.
   
-  Receiver_FSM_Comb_State_Transitions: process (s_frame_start_last_bit, s_rx_data_filtered_f_edge,
+  Receiver_FSM_Comb_State_Transitions: process (s_manch_code_viol_p,s_bit_r_edge, s_manch_r_edge,
+                                                s_frame_start_last_bit, rxd_filtered_f_edge_p_i,
                                                 s_frame_start_wrong_bit, s_manch_f_edge, rx_st,
                                                 s_frame_end_detected_p, s_frame_end_wrong_bit,
-                                                rx_data_f_edge_i, s_edge_outside_manch_window,
-                                                s_code_violation_p,s_bit_r_edge, s_manch_r_edge,
-                                                reset_rx_unit_p_i )
+                                                rxd_f_edge_i, s_edge_outside_manch_window,
+                                                reset_rx_unit_p_i)
   
   begin
   nx_rx_st <= idle;
   
   case rx_st is 
 
-    -- for the monitoring of the preamble, directly the input rx_data_i is used and the unit is following
-    -- its rising and falling edges. The deglitched signal is still not reliable.
-    -- for the rest of the frame, the deglitched signal is used.
+    -- For the monitoring of the preamble, the unit is following the rising and falling edges of
+    -- fd_rxd. For the rest of the frame, the deglitched signal (rxd_filtered) is used.
 
-    when idle =>                                      -- in idle state until falling edge detection   
-                        if rx_data_f_edge_i = '1' then
-                          nx_rx_st <= preamble_field_first_fe;--nxt state:preamble 1st falling edge
+    when idle =>                                                     -- in idle state until falling    
+                        if rxd_f_edge_i = '1' then                   -- edge detection
+                          nx_rx_st <= preamble_field_first_fe;
                         else
                           nx_rx_st <= idle;
                         end if;	
    
     when preamble_field_first_fe=>
-                        if s_manch_r_edge = '1' then         -- arrival of a manchester rising edge 
-                          nx_rx_st <= preamble_field_re;     -- jump to preamble rising edge state
-                        elsif s_edge_outside_manch_window = '1' then  -- arrival of any other edge, 
-                          nx_rx_st <= idle;                         --  jump back to the beginning
+                        if s_manch_r_edge = '1' then                 -- arrival of a manch.  
+                          nx_rx_st <= preamble_field_re;             -- rising edge
+
+                        elsif s_edge_outside_manch_window = '1' then -- arrival of any other edge 
+                          nx_rx_st <= idle;                      
                         else 
                           nx_rx_st <= preamble_field_first_fe;
                         end if;	
   
     when preamble_field_re =>  
-                        if s_manch_f_edge = '1' then       -- arrival of a manchester falling edge 
-                          nx_rx_st <= preamble_field_fe;     -- jump to preamble falling edge state
-                                                            -- note: 4 loops between a rising and a
-                                                     --  falling edge are expected for the preamble
-                        elsif s_edge_outside_manch_window = '1' then  -- arrival of any other edge
-                           nx_rx_st <= idle;                         -- jump back to the beginning
+                        if s_manch_f_edge = '1' then             -- arrival of a manch. falling edge 
+                          nx_rx_st <= preamble_field_fe;         -- note: several loops between
+                                                                 -- a rising and a falling edge are  
+                                                                 -- expected for the preamble
+
+                        elsif s_edge_outside_manch_window = '1' then -- arrival of any other edge
+                           nx_rx_st <= idle;                     
                         else 
                            nx_rx_st <= preamble_field_re;
-                         end if;
+                        end if;
 	
     when preamble_field_fe =>  					
-                        if s_manch_r_edge = '1' then        -- arrival of a manchester rising edge
-                          nx_rx_st <= preamble_field_re;         -- jump to preamble falling edge                         
-                        elsif s_bit_r_edge = '1' then              -- arrival of a bit rising edge                  
-                          nx_rx_st <=  switch_to_deglitched;      -- signaling the beginning of the 
-                                                                              -- first V+ violation                                                    
-                        elsif s_edge_outside_manch_window = '1' then  -- arrival of any other edge
-                          nx_rx_st <= idle;                         -- jump back to the beginning
+                        if s_manch_r_edge = '1' then             -- arrival of a manch. rising edge
+                          nx_rx_st <= preamble_field_re;                               
+                        elsif s_bit_r_edge = '1' then            -- arrival of a bit rising edge,                  
+                          nx_rx_st <=  switch_to_deglitched;     -- signaling the beginning of the 
+                                                                 -- first V+ violation  
+                                                  
+                        elsif s_edge_outside_manch_window = '1' then -- arrival of any other edge
+                          nx_rx_st <= idle;                         
                         else 
                           nx_rx_st <= preamble_field_fe;
                          end if;				
 
-    -- A small delay is expected between the rx_data_i and the rx_data_filtered_i (output of the
-    -- wf_rx_deglitcher) which means that the last falling edge of the preamble of rx_data_i arrives
-    -- earlier than the one of the rx_data_filtered_i. the state switch_to _deglitched is used for
+    -- A small delay is expected between the rxd and the rxd_filtered (output of the
+    -- wf_rx_deglitcher) which means that the last falling edge of the preamble of rxd arrives
+    -- earlier than the one of the rxd_filtered. The state switch_to_deglitched is used for
     -- this purpose. 
 
     when switch_to_deglitched =>
-                        if s_rx_data_filtered_f_edge = '1' then
+                        if rxd_filtered_f_edge_p_i = '1' then
                           nx_rx_st <= frame_start_field; 
                         else
                           nx_rx_st <= switch_to_deglitched;
                         end if;
 
-    -- For the monitoring of the frame start delimiter, the unit is sampling each manchester bit of
-    -- the incoming d_filtered signal and it is comparing it to the nominal bit of the frame start
-    -- delimiter field. If a wrong bit is received, the state machine jumps back to idle, whereas if
+    -- For the monitoring of the frame start delimiter, the unit is sampling each manch. bit of
+    -- the incoming filtered signal and it is comparing it to the nominal bit of the frame start
+    -- delimiter. If a wrong bit is received, the state machine jumps back to idle, whereas if
     -- the complete byte is correctly received, it jumps to the data_field_byte state.  
    
     when frame_start_field =>
-                        if s_frame_start_last_bit = '1' then-- reception of the last (15th) bit of  
-                          nx_rx_st <= data_field_byte;      -- the fss, jump to data_field_byte state
+                        if s_frame_start_last_bit = '1' then         -- reception of the last(15th)  
+                          nx_rx_st <= data_field_byte;               -- FSS bit
 
-                        elsif s_frame_start_wrong_bit = '1' then     -- wrong frame start bit
-                          nx_rx_st <= idle;                          -- jump back to the beginning
+                        elsif s_frame_start_wrong_bit = '1' then     -- wrong bit
+                          nx_rx_st <= idle;
   
                         else
                           nx_rx_st <= frame_start_field;		
@@ -289,8 +286,8 @@ architecture rtl of wf_rx is
     when data_field_byte =>
                         if s_frame_end_detected_p = '1' or reset_rx_unit_p_i = '1' then
                           nx_rx_st <= idle;
-					-- Is there a code violation that does not correspond to the queue pattern?
-                        elsif s_frame_end_wrong_bit = '1' and s_code_violation_p = '1' then
+
+                        elsif s_frame_end_wrong_bit = '1' and s_manch_code_viol_p = '1' then
                           nx_rx_st <= idle;				
                         else
                           nx_rx_st <= data_field_byte;
@@ -312,293 +309,256 @@ architecture rtl of wf_rx is
     case rx_st is 
   
     when idle =>
-                        -- initializations:
-                         s_reinit_rx                 <= '1'; -- signal for rx_osc
-                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '0'; 
-                         s_enble_decr_bit_index      <= '0';
-                         s_enble_FSS_follower        <= '0';
-                         s_enble_data_bytes_follower <= '0';
-                         s_start_crc_p               <= '0';
-                         s_calculate_crc             <= '0';
-
+                   s_idle                    <= '1';
+                   s_receiving_preamble      <= '0';
+                   s_switching_to_deglitched <= '0';
+                   s_receiving_FSS           <= '0';
+                   s_receiving_bytes         <= '0';
 
                                  
-    when preamble_field_first_fe =>
-                         s_reinit_rx                 <= '0';
-                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '0'; 
-                         s_enble_decr_bit_index      <= '0';
-                         s_enble_FSS_follower        <= '0';
-                         s_enble_data_bytes_follower <= '0';
-                         s_start_crc_p               <= '0';
-                         s_calculate_crc             <= '0';
+    when preamble_field_first_fe | preamble_field_re | preamble_field_fe =>
 
+                   s_idle                    <= '0';
+                   s_receiving_preamble      <= '1';
+                   s_switching_to_deglitched <= '0';
+                   s_receiving_FSS           <= '0';
+                   s_receiving_bytes         <= '0';
 
-  
-    when preamble_field_re =>
-                         s_reinit_rx                <= '0';
-                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '0'; 
-                         s_enble_decr_bit_index      <= '0';
-                         s_enble_FSS_follower        <= '0';
-                         s_enble_data_bytes_follower <= '0';
-                          s_start_crc_p              <= '0';
-                         s_calculate_crc             <= '0';
-
-
-
-    when preamble_field_fe =>
-                         s_reinit_rx                 <= '0';
-                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '0'; 
-                         s_enble_decr_bit_index      <= '0';
-                         s_enble_FSS_follower        <= '0';
-                         s_enble_data_bytes_follower <= '0';
-                         s_start_crc_p               <= '0';
-                         s_calculate_crc             <= '0';
-
-
-  
     when switch_to_deglitched =>
-                         s_reinit_rx                 <= '0';
-                         s_bit_index_top <= to_unsigned(FRAME_START'left-1,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '1'; 
-                         s_enble_decr_bit_index      <= '0';
-                         s_enble_FSS_follower        <= '0'; 
-                         s_enble_data_bytes_follower <= '0';
-                         s_start_crc_p               <= '0';
-                         s_calculate_crc             <= '0';
+
+                   s_idle                    <= '0';
+                   s_receiving_preamble      <= '0';
+                   s_switching_to_deglitched <= '1';
+                   s_receiving_FSS           <= '0';
+                   s_receiving_bytes         <= '0';
+
 
 
     when frame_start_field =>
-                         s_reinit_rx                 <= '0';
-                         s_bit_index_top <= to_unsigned(FRAME_END'left,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '1';
-                         s_enble_decr_bit_index      <= '1';
-                         s_enble_FSS_follower        <= '1'; 
-                         s_enble_data_bytes_follower <= '0';
-                         s_start_crc_p               <= '1';
-                         s_calculate_crc             <= '1';
+
+                   s_idle                    <= '0';
+                   s_receiving_preamble      <= '0';
+                   s_switching_to_deglitched <= '0';
+                   s_receiving_FSS           <= '1';
+                   s_receiving_bytes         <= '0';
 
    
     when data_field_byte =>
-                         s_reinit_rx                 <= '0';
-                         s_bit_index_top <= to_unsigned(FRAME_END'left,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '1'; 
-                         s_enble_decr_bit_index      <= '1';
-                         s_enble_FSS_follower        <= '0'; 
-                         s_enble_data_bytes_follower <= '1';
-                         s_start_crc_p               <= '0';
-                         s_calculate_crc             <= '1';
+
+                   s_idle                    <= '0';
+                   s_receiving_preamble      <= '0';
+                   s_switching_to_deglitched <= '0';
+                   s_receiving_FSS           <= '0';
+                   s_receiving_bytes         <= '1';
 
  
     when others => 
-                         s_reinit_rx                 <= '0';
-                         s_bit_index_top <= to_unsigned(0,s_bit_index_top'length);
-                         s_enble_load_bit_index      <= '0'; 
-                         s_enble_decr_bit_index      <= '0';
-                         s_enble_FSS_follower        <= '0'; 
-                         s_enble_data_bytes_follower <= '0';
-                         s_start_crc_p               <= '0';
-                         s_calculate_crc             <= '0';
 
-
+                   s_idle                    <= '0';
+                   s_receiving_preamble      <= '0';
+                   s_switching_to_deglitched <= '0';
+                   s_receiving_FSS           <= '0';
+                   s_receiving_bytes         <= '0';
     
     end case;	
   end process;
 
----------------------------------------------------------------------------------------------------
--- concurrent signal assignments:
-
-  wait_d_first_f_edge_o <= s_reinit_rx;
-  fss_decoded_p_o       <= s_enble_FSS_follower        and s_frame_start_last_bit;
-  code_violation_p_o    <= s_enble_data_bytes_follower and s_code_violation_p and s_frame_end_wrong_bit;
-
-
-  s_load_bit_index    <= (s_enble_load_bit_index  and s_pointer_is_zero and sample_manch_bit_p_i) or s_reinit_rx; 
-  s_decr_bit_index    <= s_enble_decr_bit_index   and sample_manch_bit_p_i;
-  s_frame_start_bit   <= s_enble_FSS_follower     and FRAME_START(to_integer(s_bit_index));  
-
-  s_write_bit_to_byte <= s_enble_data_bytes_follower and sample_bit_p_i;
-  s_byte_ready_p      <= s_enble_data_bytes_follower and s_pointer_is_zero and sample_manch_bit_p_i
-                                                     and (not s_frame_end_detected_p);
-
-  s_queue_bit         <= s_enble_data_bytes_follower and FRAME_END(to_integer(resize(s_bit_index,4)));
-
-
 
 ---------------------------------------------------------------------------------------------------
--- concurrent signal assignments concerning edges detection for the preamble field
+--!@brief Instantiation of a counter that manages the position of an incoming deglitched bit
+--! inside a manch encoded byte  (16 bits)  
+    Incoming_Bits_Index: wf_decr_counter
+    generic map(counter_length => 4)
+    port map(
+      uclk_i              => uclk_i,
+      nFIP_u_rst_i         => nFIP_u_rst_i,      
+      counter_top         => s_bit_index_top,
+      counter_load_i      => s_bit_index_load,
+      counter_decr_p_i    => s_decr_bit_index_p,
+      counter_o           => s_bit_index,
+      counter_is_zero_o   => s_bit_index_is_zero);
 
-  s_manch_r_edge              <= signif_edge_window_i and rx_data_r_edge_i;
-  s_manch_f_edge              <= signif_edge_window_i and rx_data_f_edge_i;
-  s_bit_r_edge                <= adjac_bits_window_i and ( rx_data_r_edge_i);
-  s_edge_outside_manch_window <= (not signif_edge_window_i)and(rx_data_r_edge_i or rx_data_f_edge_i);
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
--- concurrent signal assignments concerning the frame start field (used in frame_start_field state)
+-- Combinatorial process that according to the state of the FSM sets the values to the
+-- Incoming_Bits_Index inputs
 
-  s_frame_start_wrong_bit <= (s_frame_start_bit xor rx_data_filtered_i) and sample_bit_p_i;     
-  s_frame_start_last_bit  <= s_pointer_is_zero and sample_manch_bit_p_i;
+  Bit_Index: process (s_idle,s_receiving_preamble, s_switching_to_deglitched, s_receiving_FSS,
+                      s_receiving_bytes, s_bit_index_is_zero,sample_manch_bit_p_i)
+  begin
 
- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --                                                         
--- concurrent signal assignments concerning the frame end field (used in data_field_byte state)
+    if s_idle ='1' then                       -- counter re-initialization after a reception
+      s_bit_index_top    <= to_unsigned (0, s_bit_index_top'length);   
+      s_bit_index_load   <= '1';
+      s_decr_bit_index_p <= '0';
+      
 
-  s_frame_end_wrong_bit  <= (s_queue_bit xor rx_data_filtered_i) and sample_bit_p_i;   
-  s_frame_end_detected_p <= s_frame_end_detection and sample_manch_bit_p_i and s_pointer_is_zero;                                           
+    elsif s_receiving_preamble = '1' then     -- no action
+      s_bit_index_top    <= to_unsigned (0, s_bit_index_top'length);
+      s_bit_index_load   <= '0';
+      s_decr_bit_index_p <= '0';
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
--- extra concurrent signal assignments
+    elsif s_switching_to_deglitched = '1' then -- preparation for FSS
+      s_bit_index_top    <= to_unsigned(FRAME_START'left-1,s_bit_index_top'length);
+      s_bit_index_load   <= s_bit_index_is_zero and sample_manch_bit_p_i;
+      s_decr_bit_index_p <= '0';
 
- s_code_violation_p  <= (not (rx_data_filtered_i xor s_rx_data_filtered_d)) and s_check_violation;
- s_pointer_is_zero <= '1' when s_bit_index = 0 else '0';
+    elsif s_receiving_FSS = '1' then          -- counting FSS bits
+      s_bit_index_top    <= to_unsigned (0, s_bit_index_top'length);
+      s_bit_index_load   <= '0';
+      s_decr_bit_index_p <= sample_manch_bit_p_i;
 
--- s_frame_start_last_bit <= s_pointer_is_zero and s_frame_start_correct_bit and sample_manch_bit_p_i;
+    elsif s_receiving_bytes = '1' then        -- preparation for FSS & counting data bits
+      s_bit_index_top    <= to_unsigned (FRAME_END'left, s_bit_index_top'length); 
+      s_bit_index_load   <= s_bit_index_is_zero and sample_manch_bit_p_i;
+      s_decr_bit_index_p <= sample_manch_bit_p_i;
 
----------------------------------------------------------------------------------------------------
---!@brief synchronous process Frame_End_Detector: creation of a window that is activated at the 
---! beginning of an incoming byte and stays active as long as 14 incoming bits match the FES 
-
-  Frame_End_Detector: process(uclk_i)
-    begin
-      if rising_edge(uclk_i) then
-        if nFIP_rst_i = '1' then
-          s_frame_end_detection <= '1';
-
-        elsif s_pointer_is_zero = '1' and sample_manch_bit_p_i = '1' then 
-
-          s_frame_end_detection <= '1';
-
-        elsif  s_frame_end_wrong_bit = '1' then
-
-          s_frame_end_detection <= '0';
-
-        end if;
-      end if;
+    else
+      s_bit_index_top    <= to_unsigned (0, s_bit_index_top'length); 
+      s_bit_index_load   <= '0';
+      s_decr_bit_index_p <= '0';
+    end if;
   end process;
 
----------------------------------------------------------------------------------------------------
---!@brief synchronous process Incoming_Bits_Pointer: managment of the s_bit_index that indicates the 
---! position inside a manchester encoded byte of the incoming deglitched signal (16 bits)  
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  -- aux signals concurrent assignments:
+  s_FSS_bit         <= s_receiving_FSS   and FRAME_START (to_integer(s_bit_index));  
+  s_FES_bit         <= s_receiving_bytes and FRAME_END (to_integer(resize(s_bit_index,4)));
 
-  Incoming_Bits_Pointer: process(uclk_i)
-    begin
-      if rising_edge(uclk_i) then
-        if nFIP_rst_i = '1' then
-          s_bit_index   <= (others => '0');
-        else
+  s_frame_start_wrong_bit <= (s_FSS_bit xor rxd_filtered_o) and sample_manch_bit_p_i;     
+  s_frame_start_last_bit  <= s_bit_index_is_zero and sample_manch_bit_p_i;
 
-          if s_load_bit_index = '1' then
-            s_bit_index <= s_bit_index_top;
 
-           elsif s_decr_bit_index = '1' then
-            s_bit_index <= s_bit_index - 1;
+  s_frame_end_wrong_bit  <= (s_FES_bit xor rxd_filtered_o) and sample_manch_bit_p_i;   
+  s_frame_end_detected_p <= s_frame_end_detection and sample_manch_bit_p_i and s_bit_index_is_zero; 
 
-          end if;
-        end if;
-      end if;
-    end process;
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Append_Bit_To_Byte: creation of bytes of data.
+--!@brief Synchronous process Append_Bit_To_Byte: creation of bytes of data.
 --! a new bit of the deglitched input signal is appended to the output
 --! byte when s_write_bit_to_byte is enabled.
 
   Append_Bit_To_Byte: process (uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if nFIP_rst_i = '1' then
-          s_byte <= (others => '0');
+        if nFIP_u_rst_i = '1' then
+          byte_ready_p_o <='0'; 
+          s_byte         <= (others => '0');
         else
+
+          byte_ready_p_o <= s_byte_ready_p; 
 
           if s_write_bit_to_byte = '1' then
-           s_byte <= s_byte(6 downto 0) & rx_data_filtered_i;  
+           s_byte        <= s_byte(6 downto 0) & rxd_filtered_o;  
           end if;
-       end if;
-     end if;
-  end process;
 
----------------------------------------------------------------------------------------------------
-  process(uclk_i)
-    begin
-      if rising_edge(uclk_i) then
-        if nFIP_rst_i = '1' then
-          s_crc_ok <= '0';	
-	    else
-
-          if s_calculate_crc='0' then
-            s_crc_ok <= '0';		
-
-          elsif s_crc_ok_p = '1' and s_calculate_crc='1' then 
-            s_crc_ok <= '1';
-          end if;
-      end if;
-    end if;
-  end process;
-
----------------------------------------------------------------------------------------------------
---!@brief synchronous process Detect_f_edge_rx_data_filtered: detection of a falling edge on the 
---! deglitched input signal (rx_data_filtered). A buffer is used to store the last 2 bits of the 
---! signal. A falling edge is detected if the last bit of the buffer (new bit) is a zero and the 
---! first (old) is a one. 
-
-  Detect_f_edge_rx_data_filtered: process(uclk_i)
-    begin
-      if rising_edge(uclk_i) then 
-        if nFIP_rst_i = '1' then
-          s_rx_data_filtered_buff <= (others => '0');
-          s_rx_data_filtered_f_edge <= '0';
-        else
-
-          -- buffer s_rx_data_filtered_buff keeps the last 2 bits of rx_data_filtered_i
-          s_rx_data_filtered_buff <= s_rx_data_filtered_buff(0) & rx_data_filtered_i;
-          -- falling edge detected if last bit is a 0 and previous was a 1
-          s_rx_data_filtered_f_edge<=s_rx_data_filtered_buff(1)and(not s_rx_data_filtered_buff(0));
         end if;
       end if;
-end process; 
+    end process;
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  s_write_bit_to_byte <= s_receiving_bytes and sample_bit_p_i;
+  s_byte_ready_p      <= s_receiving_bytes and s_bit_index_is_zero and sample_manch_bit_p_i
+                                                     and (not s_frame_end_detected_p);
+
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Check_Code_Violations:in order to check the existance code violations
---! the deglitched input signal is delayed by half reception period.
--- As the following drawing roughly indicates, a violation exists if the signal and its delayed
--- version are identical on........... 
+ --!@brief Instantiation of the CRC calculator unit
+  Check_CRC : wf_crc 
+  generic map(c_GENERATOR_POLY_length => 16) 
+  port map(
+    uclk_i             => uclk_i,
+    nFIP_u_rst_i       => nFIP_u_rst_i,
+    start_CRC_p_i      => s_receiving_FSS,
+    data_bit_ready_p_i => s_write_bit_to_byte,
+    data_bit_i         => rxd_filtered_o,
+    CRC_o              => open,
+    CRC_ok_p           => s_CRC_ok_p);
 
---                             0    V-    1
---   rx_data_filtered_i:     __|--|____|--|__ 
---   s_rx_data_filtered_d:      __|--|____|--|__
---   s_check_violation:           ^    ^     ^
+---------------------------------------------------------------------------------------------------
+ --!@brief Instantiation of the unit that checks for code violations
+  Check_code_violations: wf_manch_code_viol_check
+  port map(
+    uclk_i                => uclk_i,
+    nFIP_u_rst_i          => nFIP_u_rst_i,
+    serial_input_signal_i => rxd_filtered_o,
+    sample_bit_p_i        => sample_bit_p_i,
+    sample_manch_bit_p_i  => sample_manch_bit_p_i,
+    manch_code_viol_p_o   => s_manch_code_viol_p);
 
-  Check_code_violations: process(uclk_i)
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@brief Synchronous process that manages the signals regarding CRC errors and code violations.
+--! If the calculated CRC is correct the signal s_CRC_ok stays asserted until the end of the 
+--! corresponding frame.
+--! Similarly, if at any point after the FSS and before the FES a code violation appears, the 
+--! signal s_manch_code_violations stays asserted until the end of the corresponding frame.    
+
+  CRC_Code_viol_signals: process(uclk_i)
     begin
-      if rising_edge(uclk_i) then 
-         if nFIP_rst_i = '1' then
-           byte_ready_p_o        <='0'; 
-           s_check_violation     <='0';
-           s_sample_bit_p_d1     <='0';
-           s_sample_bit_p_d2     <='0';
-           s_rx_data_filtered_d  <='0';
+      if rising_edge(uclk_i) then
+        if nFIP_u_rst_i = '1' then
+          s_CRC_ok                    <= '0';
+          s_manch_code_violations     <= '0';	
 
-         else
-           if sample_manch_bit_p_i = '1' then
-             s_rx_data_filtered_d <= rx_data_filtered_i; 
-           end if;
-            s_check_violation     <= s_sample_bit_p_d2;
-            s_sample_bit_p_d2     <= s_sample_bit_p_d1;
-            s_sample_bit_p_d1     <= sample_bit_p_i;
-            byte_ready_p_o        <= s_byte_ready_p; 
-         end if;
+        else
+
+          if s_receiving_bytes = '0' then
+            s_CRC_ok                  <= '0';		
+            s_manch_code_violations   <= '0';
+
+
+          else
+            if s_CRC_ok_p = '1' then 
+               s_CRC_ok               <= '1';
+            end if;
+
+            if s_manch_code_viol_p ='1' and s_frame_end_wrong_bit ='1' then  
+              s_manch_code_violations <= '1';                     -- if a code violation appears                   
+                                                                  -- that doesn't belong to the FES         
+            end if;                                            
+
+          end if;
+        end if;
       end if;
-  end process; 
+    end process;
+
 
 ---------------------------------------------------------------------------------------------------
-  -- output signals that have also been used in this unit's processes:
-  byte_o        <= s_byte; 
-  last_byte_p_o <= s_frame_end_detected_p;
-  crc_ok_p_o    <= s_frame_end_detected_p and s_crc_ok;
-  crc_wrong_p_o <= s_frame_end_detected_p and (not s_crc_ok);
+--!@brief Synchronous process FES_Detector: creation of a window that is activated at the 
+--! beginning of an incoming byte and stays active as long as 16 incoming manch. bits match the FES. 
 
+  FES_Detector: process(uclk_i)
+    begin
+      if rising_edge(uclk_i) then
+        if nFIP_u_rst_i = '1' then
+          s_frame_end_detection   <= '1';
+
+        else
+          if s_bit_index_is_zero = '1' and sample_manch_bit_p_i = '1' then 
+            s_frame_end_detection <= '1';
+
+          elsif  s_frame_end_wrong_bit = '1' then
+            s_frame_end_detection <= '0';
+          end if;
+
+        end if;
+      end if;
+    end process;
+
+---------------------------------------------------------------------------------------------------
+-- aux signals concurrent assignments:
+
+  s_manch_r_edge              <= signif_edge_window_i and rxd_r_edge_i;
+  s_manch_f_edge              <= signif_edge_window_i and rxd_f_edge_i;
+  s_bit_r_edge                <= adjac_bits_window_i and ( rxd_r_edge_i);
+  s_edge_outside_manch_window <= (not signif_edge_window_i)and(rxd_r_edge_i or rxd_f_edge_i);
+
+---------------------------------------------------------------------------------------------------
+  -- output signals:
+  byte_o                  <= s_byte; 
+  wait_rxd_first_f_edge_o <= s_idle;
+  FSS_received_p_o        <= s_receiving_FSS and s_frame_start_last_bit;
+  CRC_wrong_p_o           <= s_frame_end_detected_p and (not s_CRC_ok);
+  FSS_CRC_FES_viol_ok_p_o <= s_frame_end_detected_p and s_CRC_ok and (not s_manch_code_violations);
 
 end architecture rtl;
 --=================================================================================================
