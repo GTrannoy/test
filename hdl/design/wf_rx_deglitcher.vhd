@@ -68,23 +68,24 @@ entity wf_rx_deglitcher is
   port( 
   -- INPUTS  
     -- User interface general signal   
-    uclk_i :               in std_logic; --! 40 MHz clock
+    uclk_i :                  in std_logic; --! 40 MHz clock
 
     -- Signal from the wf_reset_unit unit  
-    nFIP_rst_i :           in std_logic; --! internal reset
+    nFIP_u_rst_i :              in std_logic; --! internal reset
 
     -- FIELDRIVE input signal
-    rx_data_i :            in std_logic; --! buffered fd_rxd
+    rxd_i :                   in std_logic; --! buffered fd_rxd
 
     -- Signals from the wf_osc unit
-    sample_bit_p_i :       in std_logic; --! pulsed signal signaling a new bit
-    sample_manch_bit_p_i : in std_logic; --! pulsed signal signaling a new manchestered bit 
+    sample_bit_p_i :          in std_logic; --! pulsed signal signaling a new bit
+    sample_manch_bit_p_i :    in std_logic; --! pulsed signal signaling a new manchestered bit 
 
   -- OUTPUTS  
     -- Output signals needed for the receiverwf_rx
-    sample_bit_p_o :       out  std_logic;
-    rx_data_filtered_o :   out  std_logic;
-    sample_manch_bit_p_o : out  std_logic
+    sample_bit_p_o :          out std_logic;
+    rxd_filtered_o :          out std_logic;
+    rxd_filtered_f_edge_p_o : out std_logic;
+    sample_manch_bit_p_o :    out std_logic
       );
 end wf_rx_deglitcher;
 
@@ -95,9 +96,11 @@ end wf_rx_deglitcher;
 --=================================================================================================
 architecture Behavioral of wf_rx_deglitcher is
 
-signal s_count_ones_c : signed(C_ACULENGTH - 1 downto 0);
-signal s_rx_data_filtered: STD_LOGIC;
-signal s_rx_data_filtered_d : std_logic;
+signal s_count_ones_c :      signed(C_ACULENGTH - 1 downto 0);
+signal s_rxd_filtered    :   std_logic;
+signal s_rxd_filtered_d  :   std_logic;
+signal s_rxd_filtered_buff : std_logic_vector (1 downto 0);
+
 
 
 --=================================================================================================
@@ -111,14 +114,14 @@ process(uclk_i)
   begin
   if rising_edge(uclk_i) then
 
-    if nFIP_rst_i = '1' then
+    if nFIP_u_rst_i = '1' then
       s_count_ones_c <= (others =>'0');
     else
 
       if sample_manch_bit_p_i = '1' then  -- arrival of a new manchester bit
         s_count_ones_c <= (others =>'0'); -- counter initialized
 
-      elsif  rx_data_i = '1' then         -- counting the number of ones 
+      elsif  rxd_i = '1' then             -- counting the number of ones 
         s_count_ones_c <= s_count_ones_c - 1;
       else
         s_count_ones_c <= s_count_ones_c + 1;
@@ -133,26 +136,51 @@ process(uclk_i)
   begin
   if rising_edge(uclk_i) then
 
-    if nFIP_rst_i = '1' then
-      s_rx_data_filtered <= '0';
-      s_rx_data_filtered_d <= '0';
+    if nFIP_u_rst_i = '1' then
+      s_rxd_filtered <= '0';
+      s_rxd_filtered_d <= '0';
     else
 
 	  if sample_manch_bit_p_i = '1' then 		
-        s_rx_data_filtered <= s_count_ones_c (s_count_ones_c'left); -- if the ones are more than
-                                                                      -- the zeros, the output is 1
-                                                                      -- otherwise, 0	 
+        s_rxd_filtered <= s_count_ones_c (s_count_ones_c'left); -- if the ones are more than
+                                                                -- the zeros, the output is 1
+                                                                -- otherwise, 0	 
       end if;
 
-      s_rx_data_filtered_d <= s_rx_data_filtered; 
+      s_rxd_filtered_d <= s_rxd_filtered; 
 
     end if;
   end if;
 end process;
 
-      rx_data_filtered_o <= s_rx_data_filtered_d;
-      sample_manch_bit_p_o <= sample_manch_bit_p_i;  
-      sample_bit_p_o <= sample_bit_p_i;
+---------------------------------------------------------------------------------------------------
+--!@brief synchronous process Detect_f_edge_rx_data_filtered: detection of a falling edge on the 
+--! deglitched input signal (rx_data_filtered). A buffer is used to store the last 2 bits of the 
+--! signal. A falling edge is detected if the last bit of the buffer (new bit) is a zero and the 
+--! first (old) is a one. 
+
+  Detect_f_edge_rx_data_filtered: process(uclk_i)
+    begin
+      if rising_edge(uclk_i) then 
+        if nFIP_u_rst_i = '1' then
+          s_rxd_filtered_buff <= (others => '0');
+          rxd_filtered_f_edge_p_o <= '0';
+        else
+
+          -- buffer s_rxd_filtered_buff keeps the last 2 bits of s_rxd_filtered_d
+          s_rxd_filtered_buff <= s_rxd_filtered_buff(0) & s_rxd_filtered_d;
+          -- falling edge detected if last bit is a 0 and previous was a 1
+          rxd_filtered_f_edge_p_o <= s_rxd_filtered_buff(1)and(not s_rxd_filtered_buff(0));
+        end if;
+      end if;
+end process;
+
+
+---------------------------------------------------------------------------------------------------
+
+  rxd_filtered_o <= s_rxd_filtered_d;
+  sample_manch_bit_p_o <= sample_manch_bit_p_i;  
+  sample_bit_p_o <= sample_bit_p_i;
 
 end Behavioral;
 

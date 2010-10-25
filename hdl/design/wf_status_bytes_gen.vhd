@@ -76,19 +76,18 @@ port (
     slone_i :              in  std_logic; --! Stand-alone mode
 
     -- Signal from the reset_logic unit
-    nFIP_rst_i :           in std_logic;  --! internal reset
+    nFIP_u_rst_i :           in std_logic;  --! internal reset
 
     -- Signals from the fieldrive interface  
     fd_wdgn_i :            in  std_logic; --! Watchdog on transmitter
     fd_txer_i :            in  std_logic; --! Transmitter error
 
     -- Signals from the non-WISHBONE user interface
-    var1_access_a_i :      in std_logic; --! Variable 1 access (asynchronous)
-    var2_access_a_i :      in std_logic; --! Variable 2 access (asynchronous)
-    var3_access_a_i :      in std_logic; --! Variable 3 access (asynchronous)
+    var1_acc_i :          in std_logic; --! Variable 1 access (asynchronous)
+    var2_acc_i :          in std_logic; --! Variable 2 access (asynchronous)
+    var3_acc_i :          in std_logic; --! Variable 3 access (asynchronous)
 
     -- Signal from the receiver wf_rx
-    code_violation_p_i :   in std_logic; 
     crc_wrong_p_i :        in std_logic;
     
     -- Signals from the central control unit wf_engine_control
@@ -103,7 +102,7 @@ port (
                                          --! right after having been delivered
 
   -- OUTPUTS 
-    -- Output to wf_produced_vars
+    -- Output to wf_prod_bytes_to_tx
     nFIP_status_byte_o :   out std_logic_vector (7 downto 0);  --! status byte
     mps_status_byte_o :    out std_logic_vector (7 downto 0)   --! mps byte
      ); 
@@ -114,8 +113,7 @@ end entity wf_status_bytes_gen;
 --=================================================================================================
 architecture rtl of wf_status_bytes_gen is
 
-signal s_var1_access_d1, s_var2_access_d1, s_var3_access_d1 :                std_logic;
-signal s_var1_access_d2, s_var2_access_d2, s_var3_access_d2, s_refreshment : std_logic; 
+signal s_refreshment : std_logic; 
 
 
 --=================================================================================================
@@ -123,33 +121,6 @@ signal s_var1_access_d2, s_var2_access_d2, s_var3_access_d2, s_refreshment : std
 --=================================================================================================
 begin
 
----------------------------------------------------------------------------------------------------
---@brief: VAR_ACC_synchronisation
--- Use of double buffers to synchronise the incoming signals var1_acc, va2_acc, var3_acc.
- 
-  VAR_ACC_synchronisation: process(uclk_i) 
-  begin
-    if rising_edge (uclk_i) then
-      if nFIP_rst_i = '1' then
-        s_var1_access_d1 <= '0';
-        s_var1_access_d2 <= '0';
-        s_var2_access_d1 <= '0'; 
-        s_var2_access_d2 <= '0';
-        s_var3_access_d1 <= '0';
-        s_var3_access_d2 <= '0';
-
-      else
-        s_var1_access_d1 <= var1_access_a_i;
-        s_var1_access_d2 <= s_var1_access_d1;
-
-        s_var2_access_d1 <= var2_access_a_i; 
-        s_var2_access_d2 <= s_var2_access_d1;
-
-        s_var3_access_d1 <= var3_access_a_i;
-        s_var3_access_d2 <= s_var3_access_d1;
-      end if;
-    end if;
-  end process;
 
 ---------------------------------------------------------------------------------------------------
 --! @brief Synchronous process Status_byte_Formation: Formation of the nanoFIP status byte
@@ -160,26 +131,26 @@ begin
 
     if rising_edge(uclk_i) then
   
-      if ((nFIP_rst_i = '1') or (reset_status_bytes_i = '1')) then -- the byte is reinitialized
+      if ((nFIP_u_rst_i = '1') or (reset_status_bytes_i = '1')) then -- the byte is reinitialized
         nFIP_status_byte_o                    <= (others => '0');  -- after having been delivered
 
         else
 
-        if ((var1_rdy_i = '0' and s_var1_access_d2 = '1') or      -- since the last time the status
-            (var2_rdy_i = '0' and s_var2_access_d2 = '1')) then   -- byte was delivered,
+        if ((var1_rdy_i = '0' and var1_acc_i = '1') or      -- since the last time the status
+            (var2_rdy_i = '0' and var2_acc_i = '1')) then   -- byte was delivered,
           nFIP_status_byte_o(c_U_CACER_INDEX) <= '1';             -- the user logic accessed a cosmd
         end if;                                                   -- variable when it was not ready
 
-        if ((var3_rdy_i = '0') and (s_var3_access_d2 = '1')) then -- since the last time the status 
+        if ((var3_rdy_i = '0') and (var3_acc_i = '1')) then -- since the last time the status 
           nFIP_status_byte_o(c_U_PACER_INDEX) <= '1';             -- byte was delivered,
         end if;                                                   -- the user logic accessed a prod
                                                                   -- variable when it was not ready
 
-        if ((var_i = var_1 or var_i = var_2) and (code_violation_p_i = '1')) then 
+        if ((var_i = var_1 or var_i = var_2) and (crc_wrong_p_i = '1')) then -------------------------------------------------------------
           nFIP_status_byte_o(c_R_BNER_INDEX)  <= '1';             -- since the last time the status 
                                                                   -- byte was delivered, 
         end if;                                                   -- a consumed var arrived for 
-                                                                  -- this station with a manch code
+                                                                  -- this station with a manch. code
                                                                   -- violation (on the rp_dat.Data)
 
         if ((var_i = var_1 or var_i = var_2)and(crc_wrong_p_i = '1')) then
@@ -211,11 +182,11 @@ end process;
   begin
     if rising_edge(uclk_i) then
 
-      if nFIP_rst_i = '1' or reset_status_bytes_i = '1' then -- the bit is reinitialized
+      if nFIP_u_rst_i = '1' or reset_status_bytes_i = '1' then -- the bit is reinitialized
         s_refreshment   <= '0';                              -- after having been delivered
       else
 
-        if (var3_access_a_i = '1') then -- indication that the memory has been accessed
+        if (var3_acc_i = '1') then -- indication that the memory has been accessed
           s_refreshment <= '1';
         end if;
 
@@ -230,18 +201,18 @@ end process;
   MPS_byte_formation: process (slone_i, s_refreshment)
   
   begin
- --   if slone_i='1' then
+    if slone_i='1' then
       mps_status_byte_o (7 downto 3)           <= (others => '0');   
       mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
       mps_status_byte_o (1)                    <= '0';
       mps_status_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
 
 
- --   else
- --     mps_status_byte_o                        <= (others => '0');      
- --     mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
- --     mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
- --   end if;
+    else
+      mps_status_byte_o                        <= (others => '0');      
+     mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
+      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
+    end if;
   end process;
 
 

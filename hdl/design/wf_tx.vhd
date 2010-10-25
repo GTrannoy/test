@@ -23,7 +23,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 -- unit name:  wf_tx
 --
 --
---! @brief     Serialises the WorldFIP data.
+--! @brief     Serializes the WorldFIP data.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -68,15 +68,14 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!                               Entity declaration for wf_tx_rx
 --=================================================================================================
 entity wf_tx is
-  generic(
-    C_CLKFCDLENTGTH :  natural := 4 );
+  generic(C_TXCLKBUFFLENTGTH: natural);
   port (
   -- INPUTS 
     -- user interface general signals 
     uclk_i :            in std_logic;  --! 40MHz clock
 
     -- Signal from the wf_reset_unit unit
-    nFIP_rst_i :        in std_logic;  --! internal reset
+    nFIP_u_rst_i :        in std_logic;  --! internal reset
     
     -- Signals from the wf_engine_control
     start_produce_p_i : in std_logic;  --! indication that wf_engine_control is in prod_watchdog state 
@@ -85,14 +84,14 @@ entity wf_tx is
 
     byte_ready_p_i :    in std_logic;  --! indication that a byte is ready to be delivered   
     last_byte_p_i :     in std_logic;  --! indication that it is the last byte of data
-                                       --  crc bytes follow
+                                       --  CRC bytes follow
 
-    -- Signals from the wf_produced_vars
+    -- Signals from the wf_prod_bytes_to_tx
     byte_i :            in std_logic_vector (7 downto 0);             
                                        --! data byte to be delivered 
 
      -- Signal from the wf_rx_tx_osc    
-    tx_clk_p_buff_i :   in std_logic_vector (C_CLKFCDLENTGTH-1 downto 0);
+    tx_clk_p_buff_i :   in std_logic_vector (C_TXCLKBUFFLENTGTH-1 downto 0);
                                        --! clk for transmission synchronization 
 
   -- OUTPUTS
@@ -115,20 +114,20 @@ end entity wf_tx;
 architecture rtl of wf_tx is
 
 
-  type tx_state_t  is (idle, send_fss, send_data_byte, send_crc_bytes, send_queue);
+  type tx_state_t  is (idle, send_fss, send_data_byte, send_crc_bytes, send_queue, stop_transmission);
 
   signal tx_state, nx_tx_state :               tx_state_t;
   signal s_prepare_to_produce, s_sending_FSS : std_logic;
   signal s_sending_data, s_sending_CRC :       std_logic;    
-  signal s_sending_FRAME_END, s_start_crc_p :  std_logic;
-  signal s_data_bit_to_crc_p :                 std_logic;
-  signal s_bit, s_tx_enable, s_decr_index_p :  std_logic;
+  signal s_sending_QUEUE, s_start_crc_p :  std_logic;
+  signal s_data_bit_to_crc_p :std_logic;
+  signal s_txd, s_decr_index_p :  std_logic;
   signal s_bit_index_load, s_decr_index :      std_logic;
-  signal s_bit_index_is_zero :                 std_logic;
+  signal s_bit_index_is_zero, s_stop_transmission :    std_logic;
   signal s_bit_index, s_bit_index_top :        unsigned(4 downto 0);
   signal s_byte :                              std_logic_vector (7 downto 0);
-  signal s_crc_byte_manch :                    std_logic_vector (31 downto 0);
-  signal s_crc_bytes, s_data_byte_manch : std_logic_vector (15 downto 0);
+  signal s_crc_bytes_manch :                    std_logic_vector (31 downto 0);
+  signal s_crc_bytes,s_data_byte_manch : std_logic_vector (15 downto 0);
 
 
 --=================================================================================================
@@ -137,21 +136,7 @@ architecture rtl of wf_tx is
 begin
 
 ---------------------------------------------------------------------------------------------------
- --!@brief instantiation of the crc calculator unit 
-  crc_generation: wf_crc 
-    generic map( 
-      c_GENERATOR_POLY_length => 16)
-    port map(
-      uclk_i             => uclk_i,
-      nFIP_rst_i         => nFIP_rst_i,
-      start_crc_p_i      => s_start_crc_p,
-      data_bit_ready_p_i => s_data_bit_to_crc_p,
-      data_bit_i         => s_bit,
-      crc_o              => s_crc_bytes,
-      crc_ok_p           => open
-      );
 
----------------------------------------------------------------------------------------------------
 --!@brief Transmitter's state machine: the state machine is divided in three parts (a clocked 
 --! process to store the current state, a combinatorial process to manage state transitions and 
 --! finally a combinatorial process to manage the output signals), which are the 3 processes that
@@ -191,7 +176,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 -- "send_data_byte" state: delivery of manchester encoded bits of data that arrive from the
--- wf_produced_vars unit (byte_i), with the coordination of the wf_engine_control (byte_ready_p_i)
+-- wf_prod_bytes_to_tx unit (byte_i), with the coordination of the wf_engine_control (byte_ready_p_i)
 -- request of a new byte on  tx_clk_p_buff (0) assertion (with s_bit_index = 0)
 -- bit delivery        after tx_clk_p_buff (1) assertion
 -- new byte available  after tx_clk_p_buff (2) assertion (to be sent on the next tx_clk_p_buff (1))
@@ -199,7 +184,7 @@ begin
 --                                                       (between 0 and 16 for each byte, until the
 --                                                                      last_byte_p_i gives a pulse)
 
--- the first data byte from the wf_produced_vars unit is already available after the assertion of the
+-- the first data byte from the wf_prod_bytes_to_tx unit is already available after the assertion of the
 -- start_produce_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
 -- arrives to zero and on the assertion of the tx_clk_p_buff (0). A pulse on the request_byte signal
 -- triggers the wf_control_engine to send a new address to the memory of the produced_vars unit (new
@@ -215,7 +200,7 @@ begin
 -- "send_data_byte" state (16 bits).
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
--- "send_crc_bytes" state: delivery of the two manchester encoded bytes that come out of the crc 
+-- "send_crc_bytes" state: delivery of the two manchester encoded bytes that come out of the CRC 
 -- calculator unit (2 bytes).
 
 -- bit delivery starts after each        tx_clk_p_buff (1) assertion (Bits_Delivery process)
@@ -225,19 +210,14 @@ begin
 -- jump to "send_queue" state after the arrival of the last_byte_p_i pulse (on the tx_clk_p_buff(2)
 -- along with the byte_ready_p_i). As before, the state transition is essential before the update
 -- of the s_bit_index
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
 
-
-
-
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Receiver_FSM_Sync:
 
   Transmitter_FSM_Sync: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_rst_i = '1' then
+      if nFIP_u_rst_i = '1' then
         tx_state <= idle;
       else
         tx_state <= nx_tx_state;
@@ -264,7 +244,7 @@ begin
                            end if;
 
       when send_fss =>
-                           if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1) = '1' then 
+                           if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1) = '1' then 
                              nx_tx_state <= send_data_byte;
                            else
                              nx_tx_state <= send_fss;
@@ -278,18 +258,27 @@ begin
                            end if;
 
       when send_crc_bytes =>
-                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then 
+                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-2) = '1' then 
                              nx_tx_state <= send_queue;
                            else
                              nx_tx_state <= send_crc_bytes;
                            end if;
 
       when send_queue =>
-                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-2) = '1' then 
-                             nx_tx_state <= idle;
+                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-2) = '1' then 
+                             nx_tx_state <= stop_transmission;
                            else
                              nx_tx_state <= send_queue;
-                           end if;      
+                           end if;   
+
+      when stop_transmission =>
+                           if tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-2) = '1' then 
+                             nx_tx_state <= idle;
+                           else
+                             nx_tx_state <= stop_transmission;
+                           end if;  
+
+
 
       when others =>
                            nx_tx_state <= idle;
@@ -308,97 +297,213 @@ begin
 
       when idle => 
                 -- initializations   
-
-                s_decr_index        <= '0';
+                s_decr_index         <= '0';
                 s_prepare_to_produce <= '1';
-                s_sending_FSS       <= '0';
-                s_sending_data      <= '0';
-                s_sending_CRC       <= '0';
-                s_sending_FRAME_END <= '0';
+                s_sending_FSS        <= '0';
+                s_sending_data       <= '0';
+                s_sending_CRC        <= '0';
+                s_sending_QUEUE      <= '0';
+                s_stop_transmission  <= '0';
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
       when send_fss =>
 
-
-                s_prepare_to_produce <= '0'; 
-                s_sending_FSS       <= '1';
-                s_sending_data      <= '0';
-                s_sending_CRC       <= '0';
-                s_sending_FRAME_END <= '0';
-
-                                                           -- 31 predefined manch encoded bits
-
-                -- preparations for the next state
+                s_decr_index         <= '0';
+                s_prepare_to_produce <= '0';
+                s_sending_FSS        <= '1';
+                s_sending_data       <= '0';
+                s_sending_CRC        <= '0';
+                s_sending_QUEUE      <= '0';
+                s_stop_transmission  <= '0';
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
       when send_data_byte  => 
 
-                s_prepare_to_produce <= '0'; 
-                s_sending_FSS       <= '0';
-                s_sending_data      <= '1';
-                s_sending_CRC       <= '0';
-                s_sending_FRAME_END <= '0';
+                s_decr_index         <= '0';
+                s_prepare_to_produce <= '0';
+                s_sending_FSS        <= '0';
+                s_sending_data       <= '1';
+                s_sending_CRC        <= '0';
+                s_sending_QUEUE      <= '0';
+                s_stop_transmission  <= '0';
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
        when send_crc_bytes =>
-                s_prepare_to_produce <= '0'; 
-                s_sending_FSS       <= '0';
-                s_sending_data      <= '0';
-                s_sending_CRC       <= '1';
-                s_sending_FRAME_END <= '0';
+                s_decr_index         <= '0';
+                s_prepare_to_produce <= '0';
+                s_sending_FSS        <= '0';
+                s_sending_data       <= '0';
+                s_sending_CRC        <= '1';
+                s_sending_QUEUE      <= '0';
+                s_stop_transmission  <= '0';
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
       when send_queue =>
-                s_prepare_to_produce <= '0'; 
-                s_sending_FSS       <= '0';
-                s_sending_data      <= '0';
-                s_sending_CRC       <= '0';
-                s_sending_FRAME_END <= '1';
+                s_decr_index         <= '0';
+                s_prepare_to_produce <= '0';
+                s_sending_FSS        <= '0';
+                s_sending_data       <= '0';
+                s_sending_CRC        <= '0';
+                s_sending_QUEUE      <= '1';
+                s_stop_transmission  <= '0';
+
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
+      when stop_transmission =>
+                s_decr_index         <= '0';
+                s_prepare_to_produce <= '0';
+                s_sending_FSS        <= '0';
+                s_sending_data       <= '0';
+                s_sending_CRC        <= '0';
+                s_sending_QUEUE      <= '0';
+                s_stop_transmission  <= '1';
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
       when others => 
-                s_prepare_to_produce <= '1'; 
-                s_sending_FSS       <= '0';
-                s_sending_data      <= '0';
-                s_sending_CRC       <= '0';
-                s_sending_FRAME_END <= '0';
+                s_decr_index         <= '0';
+                s_prepare_to_produce <= '0';
+                s_sending_FSS        <= '0';
+                s_sending_data       <= '0';
+                s_sending_CRC        <= '0';
+                s_sending_QUEUE      <= '0';
+                s_stop_transmission  <= '0';
 
     end case;
   end process;
 
+
 ---------------------------------------------------------------------------------------------------
+--@brief Instantiation of a manchester encoder for a data byte (8 bits long)
+data_byte_manc_encoder: wf_manch_encoder 
+  generic map(word_length  => 8)
+  port map(
+    word_i       => s_byte,
+    word_manch_o => s_data_byte_manch
+      );
 
-  s_decr_index_p      <= s_tx_enable and tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
-  s_start_crc_p       <= s_sending_FSS and s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
-  request_byte_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-4);
-                                                           -- request for a new byte from
-                                                           -- wf_produced_vars (passing from
-                                                           -- wf_engine_control)
-
-  s_tx_enable <= s_sending_FSS or s_sending_data or s_sending_CRC or s_sending_FRAME_END;
-                                                           -- beginning of considering data bits
-                                                           -- for the crc calculation when the 
-                                                           -- 1st bit of data is to be sent 
-                                                           -- (note: the crc calculator uses the
-                                                           -- signal s_bit, not tx_data_o)
-
-  s_data_bit_to_crc_p <= s_sending_data and s_bit_index(0) and tx_clk_p_buff_i(C_CLKFCDLENTGTH-1);
-                                                           -- only the 1st part of the manch
-                                                           -- encoded bit goes to the crc
-                                                           -- calculator 
-
-  s_bit_index_load    <= s_prepare_to_produce or
-                         (s_tx_enable and s_bit_index_is_zero and  tx_clk_p_buff_i(C_CLKFCDLENTGTH-1));
+---------------------------------------------------------------------------------------------------
+--@brief Instantiation of a manchester encoder for the CRC bytes (16 bits long)
+crc_bytes_manc_encoder: wf_manch_encoder 
+  generic map(word_length => 16)
+  port map(
+    word_i       => s_crc_bytes,
+    word_manch_o => s_crc_bytes_manch
+      );
 
 
+---------------------------------------------------------------------------------------------------
+--!@brief CRC calculator
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+-- Instantiation of the CRC unit 
+  crc_generation: wf_crc 
+    generic map( 
+      c_GENERATOR_POLY_length => 16)
+    port map(
+      uclk_i             => uclk_i,
+      nFIP_u_rst_i         => nFIP_u_rst_i,
+      start_CRC_p_i      => s_start_crc_p,
+      data_bit_ready_p_i => s_data_bit_to_crc_p,
+      data_bit_i         => s_txd,
+      CRC_o              => s_crc_bytes,
+      CRC_ok_p           => open);
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+-- concurrent signals assignement for the crc_generator inputs
+
+  s_start_crc_p       <= s_sending_FSS and s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+  -- the CRC calculation starts when at the end of the FSS (beginning of data bytes delivery)
+
+  s_data_bit_to_crc_p <= s_sending_data and s_bit_index(0) and tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+  -- only the 1st part of a manchester encoded bit goes to the CRC calculator 
+
+
+---------------------------------------------------------------------------------------------------
+--@brief Managment of the pointer that indicates which bit of a manchester encoded byte is to be
+--! delivered. According to the state of the FSM, a byte may be a FSS one, or a data byte or a
+--! CRC or a FES byte. 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+-- Instantiation of a bits counter:  
+    Outgoing_Bits_Index: wf_decr_counter
+    generic map(counter_length => 5)
+    port map(
+      uclk_i              => uclk_i,
+      nFIP_u_rst_i          => nFIP_u_rst_i,      
+      counter_top         => s_bit_index_top,
+      counter_load_i      => s_bit_index_load,
+      counter_decr_p_i    => s_decr_index_p,
+      counter_o           => s_bit_index,
+      counter_is_zero_o   => s_bit_index_is_zero);
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+-- Combinatorial process that according to the state of the FSM sets the values to the
+-- Outgoing_Bits_Index inputs
+
+  Bit_Index: process (s_prepare_to_produce,s_sending_FSS, s_sending_data, s_sending_crc,
+                      s_sending_QUEUE, s_bit_index_is_zero,tx_clk_p_buff_i)
+  begin
+
+    if s_prepare_to_produce ='1' then
+      s_bit_index_top  <= to_unsigned (FSS'length - 1, s_bit_index'length);   
+      s_bit_index_load <= '1';
+      s_decr_index_p   <= '0';
+      
+
+    elsif s_sending_FSS = '1' then
+      s_bit_index_top  <= to_unsigned (15, s_bit_index'length);
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+
+    elsif s_sending_data = '1' then
+      s_bit_index_top  <= to_unsigned (15, s_bit_index'length);
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+
+    elsif s_sending_crc = '1' then
+      s_bit_index_top  <= to_unsigned (s_crc_bytes_manch'length-1, s_bit_index'length); 
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+
+    elsif s_sending_QUEUE = '1' then
+      s_bit_index_top  <= to_unsigned (FRAME_END'length - 1, s_bit_index'length); 
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+
+    else
+      s_bit_index_top  <= to_unsigned (FSS'length - 1, s_bit_index'length); 
+      s_bit_index_load <= '0';
+      s_decr_index_p   <= '0';
+    end if;
+  end process;
+
+
+--------------------------------------------------------------------------------------------------
+--!@brief Instantiation of the unit that according to the state of the FSM and the
+--! bits index counter, outputs FSS, data, CRC or FES manchester encoded bits to the txd_o.
+--! The unit also and manages the tx_enable_o signal.
+  bits_to_txd: wf_bits_to_txd
+    port map(
+      uclk_i              => uclk_i,
+      nFIP_u_rst_i          => nFIP_u_rst_i,          
+      txd_bit_index_i     => s_bit_index,
+      data_byte_manch_i   => s_data_byte_manch, 
+      crc_byte_manch_i    => s_crc_bytes_manch, 
+      sending_FSS_i       => s_sending_FSS,
+      sending_data_i      => s_sending_data, 
+      sending_crc_i       => s_sending_crc,
+      sending_QUEUE_i     => s_sending_queue,
+      stop_transmission_i => s_stop_transmission,
+      tx_clk_p_buff_i     => tx_clk_p_buff_i,  
+      txd_o               => s_txd,     
+      tx_enable_o         => tx_enable_o);
+
+--------------------------------------------------------------------------------------------------
 Input_Byte_Sampling: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_rst_i = '1' then
+      if nFIP_u_rst_i = '1' then
         s_byte   <= (others => '0');
 
       else      
@@ -411,121 +516,12 @@ Input_Byte_Sampling: process(uclk_i)
     end if;
   end process;
 
----------------------------------------------------------------------------------------------------
---! @brief combinatorial process Manchester_Encoder_byte: The process takes a byte (8 bits) and
---! creates its manchester encoded equivalent (16 bits). Each bit '1' is replaced by '10' and each
---! bit '0' by '01'. 
-
-  Manchester_Encoder_byte: process(s_byte)
-  begin
-    for I in byte_i'range loop
-      s_data_byte_manch(I*2)   <= not s_byte(I);
-      s_data_byte_manch(I*2+1) <= s_byte(I);
-    end loop;
-  end process;
 
 ---------------------------------------------------------------------------------------------------
---! @brief combinatorial process Manchester_Encoder_crc_byte: The process takes a byte (8 bits) and
---! creates its manchester encoded equivalent (16 bits). Each bit '1' is replaced by '10' and each
---! bit '0' by '01'. 
+  tx_data_o <= s_txd;
 
-  Manchester_Encoder_crc_byte: process(s_crc_bytes)
-  begin
-    for I in s_crc_bytes'range loop
-      s_crc_byte_manch(I*2)   <= not s_crc_bytes(I);
-      s_crc_byte_manch(I*2+1) <= s_crc_bytes(I);
-    end loop;
-  end process;
-
----------------------------------------------------------------------------------------------------
---! @brief combinatorial process tx_Outputs:managment of nanoFIP output signals tx_data and tx_enable 
---! tx_data: placement of bits of data to the output of the unit
---! tx_enable: flip-floped s_tx_enable (s_tx_enable is activated during bits delivery: from the 
---! beginning of tx_state send_fss until the end of send_queue state)  
-
-  Bit_to_be_sent: process(s_sending_FSS, s_sending_data, s_sending_crc, s_sending_frame_end,
-                          s_data_byte_manch, s_crc_byte_manch, s_bit_index)
-  begin
-    if s_sending_FSS = '1' then
-      s_bit           <= FSS (to_integer (s_bit_index));
-      s_bit_index_top <= to_unsigned ( 15, s_bit_index'length );
-                                                           -- initialization according to the
-                                                           -- data that will be sent at the next
-                                                           -- state:1 byte(16 manch encoded bits)
-
-    elsif s_sending_data = '1' then
-      s_bit           <= s_data_byte_manch (to_integer (resize (s_bit_index, 4)));
-      s_bit_index_top <= to_unsigned (15, s_bit_index'length );
-
-    elsif s_sending_crc = '1' then
-      s_bit           <= s_crc_byte_manch (to_integer(s_bit_index)); 
-      s_bit_index_top <= to_unsigned (s_crc_byte_manch'length-1, s_bit_index'length); 
-
-    elsif s_sending_frame_end = '1' then
-      s_bit           <= FRAME_END(to_integer(resize(s_bit_index,4)));
-      s_bit_index_top <= to_unsigned (FRAME_END'length - 1, s_bit_index'length); 
-
-    else
-      s_bit            <= '0'; 
-      s_bit_index_top  <= to_unsigned ( FSS'length - 1, s_bit_index'length );                                                           -- initialize according to
-                                                           -- the data that will be
-                                                           -- sent at the next state: 
-                                                           -- FSS: 31 manchester encoded bits
-
-    end if;
-  end process;
-
-
-
-
----------------------------------------------------------------------------------------------------
---! @brief synchronous process tx_Outputs:managment of nanoFIP output signals tx_data and tx_enable 
---! tx_data: placement of bits of data to the output of the unit
---! tx_enable: flip-floped s_tx_enable (s_tx_enable is activated during bits delivery: from the 
---! beginning of tx_state send_fss until the end of send_queue state)  
-
-  Bits_Delivery: process(uclk_i)
-  begin
-    if rising_edge(uclk_i) then
-      if nFIP_rst_i = '1' then
-        tx_data_o   <= '0';
-        tx_enable_o <= '0';
-      else
-
-        if  tx_clk_p_buff_i(C_CLKFCDLENTGTH-3) = '1' then 
-          tx_data_o <= s_bit;
-        end if;
-
-      tx_enable_o   <= s_tx_enable;
-
-      end if;
-    end if;
-  end process;
-
----------------------------------------------------------------------------------------------------
---! @brief synchronous process Outgoing_Bits_Index: Managment of the pointer that indicates which
---! bit of a manchester encoded byte is to be sent  
-
-  Outgoing_Bits_Index: process(uclk_i)
-  begin
-    if rising_edge(uclk_i) then
-      if nFIP_rst_i = '1' then
-        s_bit_index   <= (others => '0');
-      else
-
-        if s_bit_index_load = '1' then
-          s_bit_index <= s_bit_index_top;
-
-        elsif s_decr_index_p = '1' then
-          s_bit_index <= s_bit_index - 1;
-
-        end if;
-      end if;
-    end if;
-  end process;
-
- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  s_bit_index_is_zero <= '1' when s_bit_index = to_unsigned(0,s_bit_index'length) else '0';
+  request_byte_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-4);
+  -- request for a new byte from the wf_prod_bytes_to_tx unit (passing from wf_engine_control)
 
 
 end architecture rtl;
