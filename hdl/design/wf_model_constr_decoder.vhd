@@ -57,7 +57,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --!     -> 11/09/2009  v0.01  EB  First version \n
 --!     -> 20/08/2010  v0.02  EG  S_ID corrected so that S_ID0 is always the opposite of S_ID1
 --!                               "for" loop replaced with signals concatenation; 
---!                               Counter is of C_RECALC_MID_CID bits; Code cleaned-up \n
+--!                               Counter is of C_RELOAD_MID_CID bits; Code cleaned-up \n
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -77,8 +77,8 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --!                             Entity declaration for wf_model_constr_decoder
 --=================================================================================================
 entity wf_model_constr_decoder is
-  generic (C_RECALC_MID_CID : natural);             --! recalculation of M_ID & C_ID 
-                                                    --! every 2^(C_RECALC_MID_CID-1) uclk ticks
+  generic (C_RELOAD_MID_CID : natural);             --! reloading of model & constructor 
+                                                    --! every 2^(C_RELOAD_MID_CID) uclk ticks
   port (
   -- INPUTS 
     -- User Interface general signal
@@ -113,7 +113,7 @@ architecture rtl of wf_model_constr_decoder is
 
 
   signal s_load_model_constr_p :       std_logic;
-  signal s_counter, s_counter_full :   unsigned (C_RECALC_MID_CID-1 downto 0);
+  signal s_counter, s_counter_full :   unsigned (C_RELOAD_MID_CID-1 downto 0);
   signal s_model_even, s_model_odd :   std_logic_vector (3 downto 0);
   signal s_constr_even, s_constr_odd : std_logic_vector (3 downto 0);
 
@@ -131,9 +131,9 @@ begin
 --! of all the odd bits of M_ID and C_ID are loaded on the registers s_model_odd/ s_constr_odd
 --! and on the second uclk tick, the values of all the even bits are loaded on the registers
 --! s_model_even/ s_constr_even.
---! The signal s_load_model_constr_p signals that the odd and even parts of the model and
---! constructor have been received and can be concatenated to form the m_id_dec_o and c_id_dec_o 
---! decoded outputs (s_load_model_constr_p is activated every 4 uclk periods).
+--! The signal s_load_model_constr_p signals the recalculation of the model and constructor.
+--! It is activated every 2^(C_RELOAD_MID_CID) uclk periods. At those moments, the odd and even
+--! parts are concatenated to form the m_id_dec_o and c_id_dec_o decoded outputs.
 
   Model_Constructor_Decoder: process(uclk_i)
   begin

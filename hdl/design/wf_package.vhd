@@ -24,7 +24,7 @@ package wf_package is
 
   constant C_TXCLKBUFFLENTGTH :  natural := 4;
 
-  constant C_RECALC_MID_CID : natural := 2;
+  constant C_RELOAD_MID_CID : natural := 8;
 
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
@@ -716,7 +716,7 @@ end component wf_bits_to_txd;
 
 ---------------------------------------------------------------------------------------------------
 component wf_model_constr_decoder 
-  generic (C_RECALC_MID_CID : natural); 
+  generic (C_RELOAD_MID_CID : natural); 
   port (
     uclk_i :     in std_logic; 
     nFIP_u_rst_i : in std_logic;
