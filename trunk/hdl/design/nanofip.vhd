@@ -386,7 +386,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 
  model_constr_decoder : wf_model_constr_decoder 
-  generic map (C_RECALC_MID_CID => C_RECALC_MID_CID)
+  generic map (C_RELOAD_MID_CID => C_RELOAD_MID_CID)
   port map(
     uclk_i        => uclk_i,
     nFIP_u_rst_i    => s_rst,
