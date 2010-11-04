@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_prod_bytes_to_tx.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_prod_bytes_to_tx.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,7 +14,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_prod_bytes_to_tx                                              --
+--                                 WF_prod_bytes_to_tx                                           --
 --                                                                                               --
 --                                  CERN, BE/CO/HT                                               --
 --                                                                                               --
@@ -22,7 +22,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --
 --
 --! @brief     After an id_dat frame requesting for a variable to be produced, this unit provides 
---!            to the transmitter (wf_tx) one by one, \n all the bytes of data needed for the  
+--!            to the transmitter (WF_tx) one by one, \n all the bytes of data needed for the  
 --!            rp_dat frame (apart from fss, fcs and fes bytes).
 --
 --
@@ -39,7 +39,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
---!     wf_status_bytes_gen \n
+--!     WF_status_bytes_gen \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -51,8 +51,8 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!     -> egousiou: subs_i is not sent in the rp_dat frames  \n
 --!     -> egousiou: signal s_wb_we includes the wb_stb_r_edge_p_i     \n
 --!     -> egousiou: signal s_mem_byte was not in sensitivity list in v0.01! by adding it,
---!                  changes were essential in the timing of the tx (wf_osc, wf_tx,
---!                  wf_engine_control and the configuration of the memory needed few changes)
+--!                  changes were essential in the timing of the tx (WF_osc, WF_tx,
+--!                  WF_engine_control and the configuration of the memory needed few changes)
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -63,20 +63,20 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_prod_bytes_to_tx
+--!                           Entity declaration for WF_prod_bytes_to_tx
 --=================================================================================================
 
-entity wf_prod_bytes_to_tx is
+entity WF_prod_bytes_to_tx is
 
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :          in std_logic;                      --! 40MHz clock
     slone_i :         in  std_logic;                     --! stand-alone mode 
     nostat_i :        in  std_logic;                     --! if negated, nFIP status is sent
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :      in std_logic;                      --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :      in std_logic;                      --! internal reset
 	
     -- User Interface WISHBONE Slave
 
@@ -105,7 +105,7 @@ entity wf_prod_bytes_to_tx is
                                                          -- (buffered twice with uclk)   
 
 
-   -- Signals from wf_engine_control
+   -- Signals from WF_engine_control
     var_i :           in t_var;                         --! variable received from id_dat   
 
     data_length_i:    in std_logic_vector (7 downto 0);  --! # bytes of Conrol&Data fields of rp_dat
@@ -121,33 +121,33 @@ entity wf_prod_bytes_to_tx is
                                                          -- includes rp_dat.Control and rp_dat.Data
     var3_rdy_i :      in std_logic;
 	
-   -- Signals from wf_status_bytes_gen
+   -- Signals from WF_status_bytes_gen
     nFIP_status_byte_i :   in std_logic_vector (7 downto 0);  --! nanoFIP status byte
     mps_status_byte_i :    in std_logic_vector (7 downto 0);  --! MPS status byte
 
-    -- Signals from the wf_model_constr_decoder unit
+    -- Signals from the WF_model_constr_decoder unit
     m_id_dec_i :      in  std_logic_vector (7 downto 0); --! model identification settings (decoded)
     c_id_dec_i :      in  std_logic_vector (7 downto 0); --! constructor id settings (decoded)
 
 
   -- OUTPUTS
-    -- Signal to wf_status_bytes_gen
+    -- Signal to WF_status_bytes_gen
     sending_mps_o :   out std_logic;                    --!indication: mps byte being sent
 
-    -- Signal to wf_tx
+    -- Signal to WF_tx
     byte_o :          out std_logic_vector (7 downto 0); --! output byte to be serialized and sent
 
     -- nanoFIP output
     wb_ack_prod_p_o : out std_logic                     --! WISHBONE acknowledge
                                                         -- response to master's strobe signal
       );
-end entity wf_prod_bytes_to_tx;
+end entity WF_prod_bytes_to_tx;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_prod_bytes_to_tx is
+architecture rtl of WF_prod_bytes_to_tx is
 
   signal s_wb_ack_prod_p :                   std_logic;
   signal s_base_addr, s_mem_addr_offset :    unsigned(8 downto 0);
@@ -168,9 +168,9 @@ architecture rtl of wf_prod_bytes_to_tx is
 --! on the stand-alone operation. The sampling takes place on the 1st clock cycle after the
 --! VAR3_RDY has been deasserted.
 
-  Slone_Data_Sampler:  wf_slone_DATI_bytes_sampler
+  Slone_Data_Sampler:  WF_slone_DATI_bytes_sampler
     port map( uclk_i       => uclk_i,
-              nFIP_u_rst_i   => nFIP_u_rst_i,
+              nFIP_urst_i   => nFIP_urst_i,
               slone_data_i => slone_data_i,
               var3_rdy_i   => var3_rdy_i,
               byte_index_i => byte_index_i, 
@@ -180,7 +180,7 @@ architecture rtl of wf_prod_bytes_to_tx is
 ---------------------------------------------------------------------------------------------------  
 -- !@brief Instantiation of a "Produced ram"
 
-  production_dpram:  wf_DualClkRAM_clka_rd_clkb_wr 
+  production_dpram:  WF_DualClkRAM_clka_rd_clkb_wr 
   
     generic map (C_RAM_DATA_LGTH => 8,               -- 8 bits: length of data word
                  C_RAM_ADDR_LGTH => 9)               -- 2^9: depth of produced ram
@@ -204,9 +204,9 @@ architecture rtl of wf_prod_bytes_to_tx is
 --!  fields of an rp_dat frame:\n If the variable requested in the id_dat is of "produced" type(id/ 
 --! presence/ var3) the process prepares accordingly, one by one, bytes of data to be sent. \n The
 --! pointer "byte_index_i" indicates which byte of the frame is to be sent. Some of the bytes are
---! defined in the wf_package, the rest come either from the memory (if slone=0) or from the the
---! input bus data_i or from the wf_status_gen or wf_model_constr_decoder units.\n
---! The output byte "byte_o" is sent to the transmitter(wf_tx)for serialization
+--! defined in the WF_package, the rest come either from the memory (if slone=0) or from the the
+--! input bus data_i or from the WF_status_gen or WF_model_constr_decoder units.\n
+--! The output byte "byte_o" is sent to the transmitter(WF_tx)for serialization
    
   Bytes_Generation: process (var_i, s_byte_index, data_length_i, c_id_dec_i, m_id_dec_i,
                              nFIP_status_byte_i, mps_status_byte_i, s_slone_byte, s_length, 
@@ -222,9 +222,9 @@ architecture rtl of wf_prod_bytes_to_tx is
 	-- case: presence variable 
     -- all the bytes for the rp_dat.Control and rp_dat.Data fields of the rp_dat frame to be sent,
     -- are predefined in the c_VARS_ARRAY(0).byte_array matrix
-    when presence_var =>
+    when var_presence =>
 
-      byte_o         <= c_VARS_ARRAY(c_PRESENCE_VAR_INDEX).byte_array(s_byte_index_aux);
+      byte_o         <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).byte_array(s_byte_index_aux);
  
       s_base_addr    <= (others => '0');     
       sending_mps_o  <= '0';                                                         
@@ -234,9 +234,9 @@ architecture rtl of wf_prod_bytes_to_tx is
     
 	--case: identification variable
     -- The Constructor and Model bytes of the identification variable arrive from the decoding unit
-    -- (wf_model_constr_decoder), wereas all the rest are predefined in the c_VARS_ARRAY matrix 
+    -- (WF_model_constr_decoder), wereas all the rest are predefined in the c_VARS_ARRAY matrix 
   
-    when identif_var =>
+    when var_identif =>
 
       if s_byte_index = c_CONSTR_BYTE_INDEX then       
         byte_o       <= c_id_dec_i;       
@@ -245,7 +245,7 @@ architecture rtl of wf_prod_bytes_to_tx is
         byte_o       <= m_id_dec_i;      
 
       else
-        byte_o       <= c_VARS_ARRAY(c_IDENTIF_VAR_INDEX).byte_array(s_byte_index_aux);  	  
+        byte_o       <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).byte_array(s_byte_index_aux);  	  
       end if;
 
       s_base_addr    <= (others => '0'); 
@@ -257,7 +257,7 @@ architecture rtl of wf_prod_bytes_to_tx is
     -- case: variable 3 (06h)
     -- For a var3 there is a separation according to the operational mode (stand-alone or memory)
     -- In general, few of the bytes are predefined in the c_VARS_ARRAY matrix, wereas the rest come
-    -- either from the memory or from the data_i bus or from status_generator unit (wf_status_gen) 
+    -- either from the memory or from the data_i bus or from status_generator unit (WF_status_gen) 
 
     when var_3 =>
 
@@ -269,7 +269,7 @@ architecture rtl of wf_prod_bytes_to_tx is
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
         -- The first (rp_dat.Control) and second (PDU type) bytes to be sent 
-        -- are predefined in the c_VARS_ARRAY matrix of the wf_package 
+        -- are predefined in the c_VARS_ARRAY matrix of the WF_package 
 
         if unsigned(s_byte_index) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then                    
           byte_o        <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_aux);
@@ -312,7 +312,7 @@ architecture rtl of wf_prod_bytes_to_tx is
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --      
         -- The first (rp_dat.Control) and second (PDU type) bytes to be sent 
-        -- are predefined in the c_VARS_ARRAY matrix of the wf_package
+        -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
         if unsigned(s_byte_index) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length then -- less equal than                             
           byte_o        <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_aux);
@@ -377,7 +377,7 @@ architecture rtl of wf_prod_bytes_to_tx is
 --------------------------------------------------------------------------------------------------- 
 -- auxiliary signals generation:
 
-  -- address of the byte to be read from memory: base_address(from wf_package) + byte_index_i - 1
+  -- address of the byte to be read from memory: base_address(from WF_package) + byte_index_i - 1
   -- (the -1 is because when byte_index_i is on the 4th byte (control, pdu and length have
   -- preceeded and a byte from the memory is now requested), the 3rd byte from the memory has to
   -- be retrieved (in cell 00000010) etc)
@@ -416,14 +416,14 @@ architecture rtl of wf_prod_bytes_to_tx is
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   --! synchronous process Delay_index_offset_i: in the combinatorial process Bytes_Generation,
   --! according to the value of the signal s_byte_index, a byte is retrieved either from the memory,
-  --! or from the wf_package or from the wf_status_bytes_gen or dec_m_ids units.
+  --! or from the WF_package or from the WF_status_bytes_gen or dec_m_ids units.
   --! Since the memory needs one clock cycle to output its data the signal s_byte_index has to be a
   --! delayed version of the byte_index_i (byte_index_i is the signal used as address for the mem)
 
   Delay_index_offset_i: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_byte_index <= (others=> '0');          
       else  
 

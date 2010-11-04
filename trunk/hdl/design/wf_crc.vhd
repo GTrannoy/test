@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_crc.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_crc.vhd
+---------------------------------------------------------------------------------------------------
 
 --! Standard library
 library IEEE;
@@ -9,15 +17,16 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
 
+--! specific packages
+use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, constants
+
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                              wf_crc                                           --
---                                                                                               --
---                                           CERN, BE/CO/HT                                      --
+--                                          WF_crc                                               --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   wf_crc
+-- unit name   WF_crc
 --
 --
 --! @brief     The unit includes the modules for the generation of the CRC of serialized data,
@@ -25,7 +34,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 --
 --! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou (evangelia.gousiou@cern.ch)
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
 --! @date      08/2010
@@ -59,14 +68,14 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 
 --=================================================================================================
---!                                 Entity declaration for wf_crc
+--!                                 Entity declaration for WF_crc
 --=================================================================================================
-entity wf_crc is
-generic(c_GENERATOR_POLY_length :  natural := 16);
+entity WF_crc is
+generic(c_GENERATOR_POLY_length :  natural);
 port (
   -- INPUTS 
     uclk_i :             in std_logic; --! 40 MHz clock
-    nFIP_u_rst_i :         in std_logic; --! internal reset
+    nFIP_urst_i :         in std_logic; --! internal reset
     start_CRC_p_i :      in std_logic; --! signaling the beginning of the CRC calculation
     data_bit_i :         in std_logic; --! incoming data bit stream
     data_bit_ready_p_i : in std_logic; --! signaling that data_bit_i can be sampled
@@ -74,24 +83,15 @@ port (
   -- OUTPUTS 
     CRC_ok_p :           out std_logic;            --! signaling of a correct received CRC syndrome
     CRC_o :              out  std_logic_vector (c_GENERATOR_POLY_length-1 downto 0)--!calculated CRC
-                                                                                         -- 2 bytes
      );                                                         
 
-end entity wf_crc;
+end entity WF_crc;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_crc is
-
-
---! shift register xor mask
-constant c_GENERATOR_POLY: std_logic_vector (c_GENERATOR_POLY_length - 1 downto 0) :=
-                                                                                "0001110111001111"; 
---! CRC check mask
-constant c_VERIFICATION_MASK:std_logic_vector (c_GENERATOR_POLY_length-1 downto 0) :=
-                                                                                "0001110001101011";
+architecture rtl of WF_crc is
 
 signal s_crc_bit_ready_p : std_logic;
 signal s_q, s_q_nx, s_q_check_mask  : std_logic_vector (c_GENERATOR_POLY_length - 1 downto 0);
@@ -126,7 +126,7 @@ end generate;
 CRC_calculation: process(uclk_i)
 begin
   if rising_edge(uclk_i) then
-    if nFIP_u_rst_i = '1' then
+    if nFIP_urst_i = '1' then
       s_q <= (others => '1');             -- register initialization
                                           -- (initially preset, according to annex A)
          

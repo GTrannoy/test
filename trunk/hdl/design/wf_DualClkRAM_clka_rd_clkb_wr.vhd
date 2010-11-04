@@ -1,23 +1,29 @@
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
 --------------------------------------------------------------------------------------------------- 
---! @file wf_DualClkRAM_clka_rd_clkb_wr.vhd
+--! @file WF_DualClkRAM_clka_rd_clkb_wr.vhd                                                       |
 --------------------------------------------------------------------------------------------------- 
 
--- Standard library
+--! Standard library
 library IEEE;
 
--- Standard packages
-use IEEE.STD_LOGIC_1164.all;  -- std_logic definitions
-use IEEE.NUMERIC_STD.all;     -- conversion functions
+--! Standard packages
+use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
+use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                              wf_DualClkRAM_clka_rd_clkb_wr                                    --
---                                                                                               --
---                                   CERN, BE/CO/HT                                              --
+--                              WF_DualClkRAM_clka_rd_clkb_wr                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   wf_DualClkRAM_clka_rd_clkb_wr.vhd
+-- unit name   WF_DualClkRAM_clka_rd_clkb_wr.vhd
 --
 --
 --! @brief     The unit provides, transparently to the outside world, the memory triplication.
@@ -27,7 +33,7 @@ use IEEE.NUMERIC_STD.all;     -- conversion functions
 -- 
 -- 
 --! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch) 
 --
 --
 --! @date      08/2010
@@ -58,10 +64,10 @@ use IEEE.NUMERIC_STD.all;     -- conversion functions
 
 
 --=================================================================================================
---!                   Entity declaration for wf_DualClkRAM_clka_rd_clkb_wr
+--!                   Entity declaration for WF_DualClkRAM_clka_rd_clkb_wr
 --=================================================================================================
 
-entity wf_DualClkRAM_clka_rd_clkb_wr is
+entity WF_DualClkRAM_clka_rd_clkb_wr is
   generic (C_RAM_DATA_LGTH : integer;  -- length of data word
            C_RAM_ADDR_LGTH : integer); -- memory depth
 
@@ -77,13 +83,13 @@ entity wf_DualClkRAM_clka_rd_clkb_wr is
  
        data_A_o :      out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
 );
-end wf_DualClkRAM_clka_rd_clkb_wr; 
+end WF_DualClkRAM_clka_rd_clkb_wr; 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture syn of wf_DualClkRAM_clka_rd_clkb_wr is 
+architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief: component DualClkRam declaration

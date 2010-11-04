@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_slone_bytes_to_DATO.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_slone_bytes_to_DATO.vhd                                                              |
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,9 +22,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_slone_bytes_to_DATO                                        --
---                                                                                               --
---                                  CERN, BE/CO/HT                                               --
+--                                 WF_slone_bytes_to_DATO                                        --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -59,40 +65,38 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_slone_bytes_to_DATO
+--!                           Entity declaration for WF_slone_bytes_to_DATO
 --=================================================================================================
 
-entity wf_slone_bytes_to_DATO is
+entity WF_slone_bytes_to_DATO is
 
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :           in std_logic;                     --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :       in std_logic;                     --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :       in std_logic;                    --! internal reset
 
-   -- Signals from wf_cons_bytes_from_rx
+   -- Signals from WF_cons_bytes_from_rx
     transfer_byte_p_i: in std_logic_vector (1 downto 0); --! 01: byte_i transfered to DAT_o(7:0)
                                                          --! 10: byte_i transfered to DAT_o(15:8)
 
-    -- Signals for the receiver wf_rx
+    -- Signals for the receiver WF_rx
 	byte_i :           in std_logic_vector (7 downto 0); --! byte received from the rx unit
 
 
-
-
   -- OUTPUTS
-    -- Signal to wf_prod_bytes_to_tx
+    -- Signal to WF_prod_bytes_to_tx
     slone_data_o :    out std_logic_vector (15 downto 0) --! output bus DAT_O
       );
-end entity wf_slone_bytes_to_DATO;
+end entity WF_slone_bytes_to_DATO;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_slone_bytes_to_DATO is
+architecture rtl of WF_slone_bytes_to_DATO is
 
 
 --=================================================================================================
@@ -109,7 +113,7 @@ architecture rtl of wf_slone_bytes_to_DATO is
 Data_Transfer_To_Dat_o: process (uclk_i) 
 begin
   if rising_edge(uclk_i) then
-    if nFIP_u_rst_i = '1' then
+    if nFIP_urst_i = '1' then
       slone_data_o  <= (others => '0');           -- bus initialization
  
     else

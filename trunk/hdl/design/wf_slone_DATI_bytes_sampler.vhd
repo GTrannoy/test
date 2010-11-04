@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_slone_DATI_bytes_sampler.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_slone_DATI_bytes_sampler.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,7 +14,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_slone_DATI_bytes_sampler                                   --
+--                                 WF_slone_DATI_bytes_sampler                                   --
 --                                                                                               --
 --                                  CERN, BE/CO/HT                                               --
 --                                                                                               --
@@ -57,40 +57,40 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_slone_DATI_bytes_sampler
+--!                           Entity declaration for WF_slone_DATI_bytes_sampler
 --=================================================================================================
 
-entity wf_slone_DATI_bytes_sampler is
+entity WF_slone_DATI_bytes_sampler is
 
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :          in std_logic;                      --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :      in std_logic;                      --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :      in std_logic;                      --! internal reset
 
     -- User Interface Non WISHBONE
     slone_data_i :    in  std_logic_vector (15 downto 0);--! input data bus for slone mode
                                                          -- (triply buffered with uclk)  
-   -- Signals from wf_engine_control
+   -- Signals from WF_engine_control
     var3_rdy_i :      in std_logic;
 
     byte_index_i :    in std_logic_vector (7 downto 0); --! pointer to message bytes
                                                         -- includes rp_dat.Control and rp_dat.Data
 
   -- OUTPUTS
-    -- Signal to wf_prod_bytes_to_tx
+    -- Signal to WF_prod_bytes_to_tx
     slone_byte_o :    out std_logic_vector (7 downto 0)
 
       );
-end entity wf_slone_DATI_bytes_sampler;
+end entity WF_slone_DATI_bytes_sampler;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_slone_DATI_bytes_sampler is
+architecture rtl of WF_slone_DATI_bytes_sampler is
 
   signal s_var3_rdy_d4 :    std_logic_vector (3 downto 0);
   signal s_sampled_data : std_logic_vector (15 downto 0); 
@@ -109,7 +109,7 @@ architecture rtl of wf_slone_DATI_bytes_sampler is
   Sample_Data_i: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then 
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_var3_rdy_d4   <= (others=>'0');
         s_sampled_data <= (others=>'0');
       else 

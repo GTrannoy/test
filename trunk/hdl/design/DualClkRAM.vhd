@@ -1,6 +1,14 @@
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
 --! @file DualClkRAM.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
 
 --! Standard library
 library IEEE;
@@ -20,8 +28,6 @@ use PROASIC3.all;
 --                                                                                               --
 --                                    DualClkRAM                                                 --
 --                                                                                               --
---                                   CERN, BE/CO/HT                                              --
---                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
@@ -31,7 +37,7 @@ use PROASIC3.all;
 -- 
 -- 
 --! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch) 
 --
 --
 --! @date      16/08/2010
@@ -71,14 +77,14 @@ entity DualClkRAM is
   port(
   -- INPUTS 
     -- Inpouts concerning port A 
-    DINA :  in std_logic_vector (7 downto 0);  --! data in A
-    ADDRA : in std_logic_vector (8 downto 0);  --! address A
+    DINA :  in std_logic_vector (7 downto 0); --! data in A
+    ADDRA : in std_logic_vector (8 downto 0); --! address A
     RWA :   in std_logic;                     --! read/ write mode; 1 for reading, 0 for writing 
     CLKA :  in std_logic;                     --! clock A for synchronous read/ write operations
                                               -- may be indipendant of clock B
     -- Inpouts concerning port B
-    DINB :  in std_logic_vector (7 downto 0);  --! data in B
-    ADDRB : in std_logic_vector (8 downto 0);  --! address B
+    DINB :  in std_logic_vector (7 downto 0); --! data in B
+    ADDRB : in std_logic_vector (8 downto 0); --! address B
     RWB :   in std_logic;                     --! read/ write mode; 1 for reading, 0 for writing
     CLKB :  in std_logic;                     --! clock B for synchronous read/ write operations
                                               -- may be indipendant of clock A
@@ -87,10 +93,10 @@ entity DualClkRAM is
 
   -- OUTPUTS
     -- Output concerning port A          
-    DOUTA : out std_logic_vector (7 downto 0); --! data out A
+    DOUTA : out std_logic_vector (7 downto 0);--! data out A
 
     -- Output concerning port B  
-    DOUTB : out std_logic_vector (7 downto 0)  --! data out B
+    DOUTB : out std_logic_vector (7 downto 0) --! data out B
       );
     end DualClkRAM;
 

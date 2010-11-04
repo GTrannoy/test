@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_decr_counter.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_decr_counter.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,21 +22,19 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_manch_code_viol_check                                        --
---                                                                                               --
---                                  CERN, BE/CO/HT                                               --
+--                                 WF_manch_code_viol_check                                      --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit follows the incoming serial signal and outputs a pulse 
+--! @brief     The unit follows an incoming serial signal and outputs a pulse 
 --!            if a manchester 2 code violation is detected.
 --!            It is assumed that a violation happens if after half reception period 
 --!            plus 2 uclck periods, the incoming signal has not had a transition.
 --
 --
---! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
---!            Evangelia Gousiou (evangelia.gousiou@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
 --! @date      06/2010
@@ -58,37 +64,37 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_manch_code_viol_check
+--!                           Entity declaration for WF_manch_code_viol_check
 --=================================================================================================
 
-entity wf_manch_code_viol_check is
+entity WF_manch_code_viol_check is
   port (
   -- INPUTS 
-    -- User Interface general signals 
-    uclk_i :              in std_logic;                     --! 40MHz clock
+    -- User Interface general signals (synchronized) 
+    uclk_i :               in std_logic; --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :          in std_logic;                     --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :          in std_logic; --! internal reset
 
-   -- Signals from wf_rx
-   serial_input_signal_i :   in std_logic;
-   sample_bit_p_i :       in std_logic;
-   sample_manch_bit_p_i : in std_logic;
+   -- Signals from WF_rx
+   serial_input_signal_i : in std_logic; --! input signal
+   sample_bit_p_i :        in std_logic; --! pulse for the sampling of a new bit
+   sample_manch_bit_p_i :  in std_logic; --! pulse for the sampling of a new manch. bit
     
 
   -- OUTPUTS
-    -- Signal to wf_rx
-    manch_code_viol_p_o : out std_logic
+    -- Signal to WF_rx
+    manch_code_viol_p_o : out std_logic  --! pulse indicating a code violation
       );
-end entity wf_manch_code_viol_check;
+end entity WF_manch_code_viol_check;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_manch_code_viol_check is
+architecture rtl of WF_manch_code_viol_check is
 
-signal s_sample_bit_p_d1, s_sample_bit_p_d2, s_check_code_viol_p, s_serial_input_signal_d : std_logic;
+signal s_sample_bit_p_d1,s_sample_bit_p_d2,s_check_code_viol_p,s_serial_input_signal_d : std_logic;
 
 --=================================================================================================
 --                                      architecture begin
@@ -99,9 +105,9 @@ signal s_sample_bit_p_d1, s_sample_bit_p_d2, s_check_code_viol_p, s_serial_input
 
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Check_Code_Violations:in order to check the existance code violations
+--!@brief Synchronous process Check_Code_Violations:in order to check the existance code violations
 --! the input signal is delayed by half reception period.
---! The signal s_check_code_viol_p is a pulse with period the reception period. The pulse occurs
+--! The signal check_code_viol_p is a pulse with period the reception period. The pulse occurs
 --! 2 uclk periods after a manch. transition is expected.
 --! As the following drawing roughly indicates, a violation exists if the signal and its delayed
 --! version are identical on the s_check_code_viol_p moments.
@@ -114,7 +120,7 @@ signal s_sample_bit_p_d1, s_sample_bit_p_d2, s_check_code_viol_p, s_serial_input
   Check_code_violations: process(uclk_i)
     begin
       if rising_edge (uclk_i) then 
-         if nFIP_u_rst_i = '1' then
+         if nFIP_urst_i = '1' then
            s_check_code_viol_p   <='0';
            s_sample_bit_p_d1     <='0';
            s_sample_bit_p_d2     <='0';

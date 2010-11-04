@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_VAR_RDY_generator.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_VAR_RDY_generator.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,15 +14,15 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_VAR_RDY_generator                                       --
+--                                       WF_VAR_RDY_generator                                    --
 --                                                                                               --
---                                  CERN, BE/CO/HT                                               --
+--                                          CERN, BE/CO/HT                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
 --! @brief     Generation of the nanoFIP output signals VAR1_RDY, VAR2_RDY, VAR3_RDY according to
---!            the variable that is being treated (wf_engine_control signal)
+--!            the variable that is being treated (WF_engine_control signal)
 --
 --
 --! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
@@ -46,50 +46,61 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
---
+--     EG treatment of reset vars
 --------------------------------------------------------------------------------------------------- 
 --
 --! @todo 
---!   -> 
+--!   -> rename the unit to include actions for var reset. 
 --
 --------------------------------------------------------------------------------------------------- 
 
 
 --=================================================================================================
---!                           Entity declaration for wf_VAR_RDY_generator
+--!                           Entity declaration for WF_VAR_RDY_generator
 --=================================================================================================
 
-entity wf_VAR_RDY_generator is
+entity WF_VAR_RDY_generator is
 
   port (
   -- INPUTS 
-    -- User Interface general signals 
-    uclk_i :            in std_logic;                    --! 40MHz clock
-    slone_i :           in std_logic;                    --! Stand-alone mode 
+    -- User Interface general signals (synchronized) 
+    uclk_i :                in std_logic;                     --! 40MHz clock
+    slone_i :               in std_logic;                     --! Stand-alone mode 
+    subs_i :                in std_logic_vector (7 downto 0); --! Station address
+ 
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :           in std_logic;                     --! internal reset
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :      in std_logic;                  --! internal reset
+   -- Signals from WF_cons_frame_validator
+    cons_frame_ok_p_i :     in std_logic;                     --!pulse after a valid consumed frame
+    var_i             :     in t_var;                         --! variable that is being treated
 
-   -- Signals from wf_engine_control
-    cons_frame_ok_p_i : in std_logic;                    --! pulse after a valid consumed frame
-    var_i             : in t_var;                        --! variable that is being treated
+  -- Signals from WF_cons_bytes_from_rx
+    rx_var_rst_byte_1_i :   in std_logic_vector (7 downto 0); --! First & second data bytes of a 
+    rx_var_rst_byte_2_i :   in std_logic_vector (7 downto 0); --! reset variable
 
 
   -- OUTPUT
-    -- Signal to wf_engine_control
-    var1_rdy_o :        out std_logic;
-    var2_rdy_o :        out std_logic;
-    var3_rdy_o :        out std_logic
+    -- nanoFIP output signals
+    var1_rdy_o :            out std_logic;
+    var2_rdy_o :            out std_logic;
+    var3_rdy_o :            out std_logic;
+
+    -- Signals for the WF_reset_unit
+    assert_RSTON_p_o :       out std_logic;
+    rst_nFIP_and_FD_p_o : out std_logic
+
       );
-end entity wf_VAR_RDY_generator;
+end entity WF_VAR_RDY_generator;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_VAR_RDY_generator is
+architecture rtl of WF_VAR_RDY_generator is
 
 signal s_var1_received, s_var2_received, cons_frame_ok_p_d1 : std_logic;
+signal s_rst_nFIP_and_FD, s_assert_RSTON :                   std_logic;
 
 --=================================================================================================
 --                                      architecture begin
@@ -130,7 +141,7 @@ signal s_var1_received, s_var2_received, cons_frame_ok_p_d1 : std_logic;
   VAR_RDY_Generation: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         var1_rdy_o         <= '0';
         var2_rdy_o         <= '0';
         var3_rdy_o         <= '0';
@@ -207,13 +218,57 @@ signal s_var1_received, s_var2_received, cons_frame_ok_p_d1 : std_logic;
 Cons_frame_ok_p_delay: process(uclk_i) 
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         cons_frame_ok_p_d1 <= '0';
       else
         cons_frame_ok_p_d1 <= cons_frame_ok_p_i;
       end if;
     end if;
   end process;
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--!@ brief: Generation of the signals s_rst_nFIP_and_FD: signals that the 1st byte of a consumed 
+--!                                                        reset var contains the station address   
+--!                               and s_assert_RSTON:       signals that the 2nd byte of a consumed
+--!                                                        reset var contains the station address 
+
+Reset_Signals: process (uclk_i) 
+  begin
+    if rising_edge(uclk_i) then
+
+      if nFIP_urst_i = '1' then
+        s_rst_nFIP_and_FD <= '0';
+        s_assert_RSTON       <= '0';
+ 
+      else
+
+        if var_i = var_rst then
+ 
+          if rx_var_rst_byte_1_i = subs_i then
+
+            s_rst_nFIP_and_FD <= '1';   -- rst_nFIP_and_FD_o stays asserted until 
+          end if;                       -- the end of the current rp_dat frame
+
+          if rx_var_rst_byte_2_i = subs_i then  
+
+            s_assert_RSTON       <= '1'; -- assert_RSTON_o stays asserted until 
+          end if;                        -- the end of the current rp_dat frame
+        else
+          s_rst_nFIP_and_FD <= '0';
+          s_assert_RSTON       <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
+  rst_nFIP_and_FD_p_o <= '1' when s_rst_nFIP_and_FD = '1' and cons_frame_ok_p_d1= '1'
+                      else '0';
+
+
+  assert_RSTON_p_o       <= '1' when s_assert_RSTON = '1' and cons_frame_ok_p_d1= '1'
+                      else '0';
 
 
 end architecture rtl;
