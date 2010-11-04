@@ -73,9 +73,9 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_data
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:length_specs_ok
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:length_coherent
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_ok
-probe -create -shm -waveform :fieldrive:tx_block:monitor:compare_data
-probe -create -shm -waveform :fieldrive:tx_block:monitor:data_contents_ok
-probe -create -shm -waveform :fieldrive:tx_block:monitor:checking_produced:mismatches
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:compare_data
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:data_contents_ok
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:checking_produced:mismatches
 
 probe -create -shm -waveform :fieldrive:f_clk
 probe -create -shm -waveform :fd_rstn
@@ -106,28 +106,42 @@ probe -create -shm -waveform :adr
 probe -create -shm -waveform :dat_from_fip
 probe -create -shm -waveform :dat_to_fip
 #probe -create -shm -waveform :user_logic:wb_interface:valid_bus_cycle
+probe -create -shm -waveform :user_logic:wb_interface:launch_wb_read
+probe -create -shm -waveform :user_logic:wb_interface:launch_wb_write 
 probe -create -shm -waveform :user_logic:wb_interface:wb_state
+probe -create -shm -waveform :user_logic:wb_interface:nxt_wb_state
+probe -create -shm -waveform :user_logic:wb_interface:clk_i
+
+probe -create -shm -waveform :user_logic:sa_interface:launch_slone_read
+probe -create -shm -waveform :user_logic:sa_interface:launch_slone_write 
+#probe -create -shm -waveform :user_logic:sa_interface:slone_rd
+#probe -create -shm -waveform :user_logic:sa_interface:slone_wr 
+#probe -create -shm -waveform :user_logic:sa_interface:action
+probe -create -shm -waveform :user_logic:sa_interface:slone_access_read
+probe -create -shm -waveform :user_logic:sa_interface:slone_access_write
+#probe -create -shm -waveform :user_logic:slone_output
+#probe -create -shm -waveform :user_logic:memory_output
 
 probe -create -shm -waveform :fieldrive:rx_block:msg_block:nxt_data
 probe -create -shm -waveform :fieldrive:rx_block:msg_block:ind
 probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_consumed
 probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
 
-probe -create -shm -waveform :user_logic:wishbone_monitor:valid_bus_cycle
-probe -create -shm -waveform :user_logic:wishbone_monitor:var_id
-probe -create -shm -waveform :user_logic:wishbone_monitor:adr
-probe -create -shm -waveform :user_logic:wishbone_monitor:in_consumed
-probe -create -shm -waveform :user_logic:wishbone_monitor:in_broadcast
+probe -create -shm -waveform :user_logic:wb_monitor:valid_bus_cycle
+probe -create -shm -waveform :user_logic:wb_monitor:var_id
+probe -create -shm -waveform :user_logic:wb_monitor:adr
+probe -create -shm -waveform :user_logic:wb_monitor:in_consumed
+probe -create -shm -waveform :user_logic:wb_monitor:in_broadcast
 
-probe -create -shm -waveform :user_logic:wishbone_monitor:writing_produced
-probe -create -shm -waveform :user_logic:wishbone_monitor:out_produced
+probe -create -shm -waveform :user_logic:wb_monitor:writing_produced
+probe -create -shm -waveform :user_logic:wb_monitor:out_produced
 
 probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_received
 probe -create -shm -waveform :fieldrive:tx_block:monitor:out_produced
 
-probe -create -shm -waveform :user_logic:user_sequence:var3_fresh
-probe -create -shm -waveform :user_logic:user_sequence:ucacerr
-probe -create -shm -waveform :user_logic:user_sequence:upacerr
+probe -create -shm -waveform :user_logic:user_acc_monitor:var3_fresh
+probe -create -shm -waveform :user_logic:user_acc_monitor:ucacerr
+probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
 
 
 
