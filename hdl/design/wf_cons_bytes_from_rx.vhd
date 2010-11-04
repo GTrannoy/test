@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_cons_bytes_from_rx.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_cons_bytes_from_rx.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -14,15 +14,15 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                       wf_cons_bytes_from_rx                                   --
+--                                       WF_cons_bytes_from_rx                                   --
 --                                                                                               --
 --                                         CERN, BE/CO/HT                                        --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name:  wf_cons_bytes_from_rx
+-- unit name:  WF_cons_bytes_from_rx
 --
---! @brief     Consumption of data bytes, arriving from the wf_rx unit, by registering them in
+--! @brief     Consumption of data bytes, arriving from the WF_rx unit, by registering them in
 --!            the Consumend memory, if the operation is in memory mode, or by transferring them
 --!            to the user interface data bus, if the operation is stand-alone.
 --!            In the case of a consumed reset variable, the 1st and 2nd data byte are registered 
@@ -42,9 +42,9 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>\n
---!          wf_reset_unit  \n
---!          wf_rx           \n
---!          wf_engine_control\n
+--!          WF_reset_unit  \n
+--!          WF_rx           \n
+--!          WF_engine_control\n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -75,18 +75,18 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                            Entity declaration for wf_cons_bytes_from_rx
+--!                            Entity declaration for WF_cons_bytes_from_rx
 --=================================================================================================
-entity wf_cons_bytes_from_rx is
+entity WF_cons_bytes_from_rx is
 
 port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :              in std_logic;                      --! 40MHz clock
     slone_i :             in  std_logic;                     --! stand-alone mode (active high)
 
-    -- Signal from the wf_reset_unit
-    nFIP_u_rst_i :        in std_logic;                      --! internal reset
+    -- Signal from the WF_reset_unit
+    nFIP_urst_i :        in std_logic;                      --! internal reset
 
     -- User Interface WISHBONE Slave
 
@@ -100,11 +100,11 @@ port (
 
     wb_cyc_i :            in std_logic;                      --! WISHBONE cycle
 
-    -- Signals from the receiver wf_rx
+    -- Signals from the receiver WF_rx
     byte_i :              in std_logic_vector (7 downto 0);  --! de-serialized byte
     byte_ready_p_i :      in std_logic;                      --! indication of a valid byte 
 
-    -- Signals from the wf_engine_control
+    -- Signals from the WF_engine_control
     byte_index_i :        in std_logic_vector (7 downto 0);  --! index of a byte inside the frame
     var_i :               in t_var;                          --! variable type            
 
@@ -114,26 +114,23 @@ port (
     data_o :              out std_logic_vector (15 downto 0);--! DAT_O bus 
     wb_ack_cons_p_o :     out std_logic;                     --! WISHBONE acknowledge
 
-    -- OUTPUTS to the wf_VAR_RDY_generator
+    -- OUTPUTS to the WF_VAR_RDY_generator
     rx_Ctrl_byte_o :      out std_logic_vector (7 downto 0); --! received Control byte
     rx_PDU_byte_o :       out std_logic_vector (7 downto 0); --! received PDY_TYPE byte          
     rx_Length_byte_o :    out std_logic_vector (7 downto 0); --! received Length byte
-
-    -- OUTPUTS to the wf_reset_logic
-
-    rst_var_byte_1_o :    out std_logic_vector (7 downto 0); --! content of the 1st data byte of
+    rx_var_rst_byte_1_o : out std_logic_vector (7 downto 0); --! content of the 1st data byte of
                                                              --! a reset variable
-    rst_var_byte_2_o :    out std_logic_vector (7 downto 0)  --! content of the 2nd data byte of
+    rx_var_rst_byte_2_o : out std_logic_vector (7 downto 0)  --! content of the 2nd data byte of
                                                              --! a reset variable
 );
 
-end entity wf_cons_bytes_from_rx;
+end entity WF_cons_bytes_from_rx;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_cons_bytes_from_rx is
+architecture rtl of WF_cons_bytes_from_rx is
 
 signal s_slone_data :                       std_logic_vector (15 downto 0);
 signal s_addr :                             std_logic_vector (8 downto 0);
@@ -154,7 +151,7 @@ begin
 -- !@brief Instantiation of a dual port Consumed RAM
 --! (for both the consumed and consumed broadcast variables)
 
-  Consumption_DPRAM:  wf_DualClkRAM_clka_rd_clkb_wr
+  Consumption_DPRAM:  WF_DualClkRAM_clka_rd_clkb_wr
 
     generic map(C_RAM_DATA_LGTH => 8,     -- 8 bits: length of data word
                 C_RAM_ADDR_LGTH => 9)     -- 2^9: depth of consumed RAM
@@ -204,7 +201,7 @@ begin
 --! bytes are written and which are not (example Ctrl byte, CRC bytes). 
 --! The byte_index_i signal is counting each byte after the FSS and before the FES (therefore,
 --! apart from all the pure data-bytes, it also includes the Ctrl, PDU, Length, MPS and CRC bytes).
---! The Length byte (s_rx_Length_byte) is received from the wf_rx when byte_index_i is equal to 3
+--! The Length byte (s_rx_Length_byte) is received from the WF_rx when byte_index_i is equal to 3
 --! and if it is correct, it indicates the amount of bytes after in the frame the Ctrl, PDU_TYPE
 --! and Length and before the CRC.
 
@@ -230,10 +227,10 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --      
       when var_1 =>
 
-            rst_var_byte_1_o <= (others => '0');
-            rst_var_byte_2_o <= (others => '0'); 
+            rx_var_rst_byte_1_o <= (others => '0');
+            rx_var_rst_byte_2_o <= (others => '0'); 
             s_base_addr      <= c_VARS_ARRAY(c_VAR_1_INDEX).base_addr;      -- base address info
-                                                                            -- from wf_package
+                                                                            -- from WF_package
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then                                          
@@ -280,8 +277,8 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
 
       when var_2 =>
 
-            rst_var_byte_1_o <= (others => '0');
-            rst_var_byte_2_o <= (others => '0'); 
+            rx_var_rst_byte_1_o <= (others => '0');
+            rx_var_rst_byte_2_o <= (others => '0'); 
             s_base_addr      <= c_VARS_ARRAY(c_VAR_2_INDEX).base_addr; 
 
             --  --  --  --  --  --  --  --  --  --  --  --
@@ -327,26 +324,26 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
 
-      when reset_var =>
+      when var_rst =>
 
             s_write_byte_to_mem_p <= '0';
             s_slone_write_byte_p  <= (others => '0');
-            s_base_addr           <= c_VARS_ARRAY(c_RESET_VAR_INDEX).base_addr;  
+            s_base_addr           <= c_VARS_ARRAY(c_VAR_RST_INDEX).base_addr;  
 
             if ((byte_ready_p_i = '1')and(byte_index_i = c_1st_DATA_BYTE_INDEX)) then -- 1st byte
 
-               rst_var_byte_1_o   <= byte_i;
-               rst_var_byte_2_o   <= (others => '0'); 
+               rx_var_rst_byte_1_o   <= byte_i;
+               rx_var_rst_byte_2_o   <= (others => '0'); 
 
 
             elsif ((byte_ready_p_i='1')and(byte_index_i=c_2nd_DATA_BYTE_INDEX)) then  -- 2nd byte
 
-              rst_var_byte_2_o    <= byte_i;
-              rst_var_byte_1_o    <= (others => '0'); 
+              rx_var_rst_byte_2_o    <= byte_i;
+              rx_var_rst_byte_1_o    <= (others => '0'); 
 
             else
-              rst_var_byte_1_o    <= (others => '0');
-              rst_var_byte_2_o    <= (others => '0'); 
+              rx_var_rst_byte_1_o    <= (others => '0');
+              rx_var_rst_byte_2_o    <= (others => '0'); 
 
 
             end if;           
@@ -356,8 +353,8 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
             s_write_byte_to_mem_p <= '0';
             s_base_addr           <= (others => '0');
             s_slone_write_byte_p  <= (others => '0');     
-            rst_var_byte_1_o      <= (others => '0');
-            rst_var_byte_2_o      <= (others => '0');      
+            rx_var_rst_byte_1_o      <= (others => '0');
+            rx_var_rst_byte_2_o      <= (others => '0');      
 
       end case;
 
@@ -368,16 +365,16 @@ end process;
 --! @brief Instantiation of the unit responsible for the transfer of 2 de-serialized data bytes
 --! to DAT_O;
 
-  Bytes_Transfer_To_DATO:  wf_slone_bytes_to_DATO
+  Bytes_Transfer_To_DATO:  WF_slone_bytes_to_DATO
   port map(
     uclk_i            => uclk_i, 
-    nFIP_u_rst_i      => nFIP_u_rst_i, 
+    nFIP_urst_i      => nFIP_urst_i, 
     transfer_byte_p_i => s_slone_write_byte_p,
     byte_i            => byte_i,
     slone_data_o      => s_slone_data);
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- -- --
-  -- in stand-alone mode the 16 bits DAT_O fills up with the output of the wf_slone_bytes_to_DATO
+  -- in stand-alone mode the 16 bits DAT_O fills up with the output of the WF_slone_bytes_to_DATO
   -- unit.
   -- In memory mode, the lsb of DAT_O contains the output of the reading of the consumed memory. 
   data_o <= s_slone_data when slone_i = '1'
@@ -385,14 +382,14 @@ end process;
 
 ---------------------------------------------------------------------------------------------------
 --!@brief synchronous process Buffer_Ctrl_PDU_Length_bytes: Storage of the rp_dat.Control, PDU_TYPE
---! and Length bytes of an incoming rp_dat frame. The bytes are sent to the wf_VAR_RDY_generator
+--! and Length bytes of an incoming rp_dat frame. The bytes are sent to the WF_VAR_RDY_generator
 --! unit that accordingly enables or not the signals VAR1_RDY, VAR2_RDY.
 
 Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)
   begin                                               
 
   if rising_edge(uclk_i) then
-    if nFIP_u_rst_i = '1' then
+    if nFIP_urst_i = '1' then
       rx_Ctrl_byte_o     <= (others=>'0');
       rx_PDU_byte_o      <= (others=>'0');
       s_rx_Length_byte   <= (others=>'0');

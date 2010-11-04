@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_tx.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_tx.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -14,13 +14,13 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                            wf_tx                                              --
+--                                            WF_tx                                              --
 --                                                                                               --
 --                                        CERN, BE/CO/HT                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name:  wf_tx
+-- unit name:  WF_tx
 --
 --
 --! @brief     Serializes the WorldFIP data.
@@ -38,10 +38,10 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>\n
---!     wf_engine           \n
+--!     WF_engine           \n
 --!     tx_engine           \n
 --!     clk_gen             \n
---!     wf_reset_unit         \n
+--!     WF_reset_unit         \n
 --!     consumed_ram        \n
 --
 --
@@ -65,20 +65,20 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                               Entity declaration for wf_tx_rx
+--!                               Entity declaration for WF_tx_rx
 --=================================================================================================
-entity wf_tx is
+entity WF_tx is
   generic(C_TXCLKBUFFLENTGTH: natural);
   port (
   -- INPUTS 
-    -- user interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :            in std_logic;  --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :        in std_logic;  --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :        in std_logic;  --! internal reset
     
-    -- Signals from the wf_engine_control
-    start_produce_p_i : in std_logic;  --! indication that wf_engine_control is in prod_watchdog state 
+    -- Signals from the WF_engine_control
+    start_produce_p_i : in std_logic;  --! indication that WF_engine_control is in prod_watchdog state 
                                        -- a correct id_dat asking for a produced var has been 
                                        -- received and ............ 
 
@@ -86,17 +86,17 @@ entity wf_tx is
     last_byte_p_i :     in std_logic;  --! indication that it is the last byte of data
                                        --  CRC bytes follow
 
-    -- Signals from the wf_prod_bytes_to_tx
+    -- Signals from the WF_prod_bytes_to_tx
     byte_i :            in std_logic_vector (7 downto 0);             
                                        --! data byte to be delivered 
 
-     -- Signal from the wf_rx_tx_osc    
+     -- Signal from the WF_rx_tx_osc    
     tx_clk_p_buff_i :   in std_logic_vector (C_TXCLKBUFFLENTGTH-1 downto 0);
                                        --! clk for transmission synchronization 
 
   -- OUTPUTS
 
-    -- Signal to wf_engine_control
+    -- Signal to WF_engine_control
     request_byte_p_o :  out std_logic;
 
     -- nanoFIP output signals
@@ -104,14 +104,14 @@ entity wf_tx is
     tx_enable_o :       out std_logic  --! transmitter enable
     );
 
-end entity wf_tx;
+end entity WF_tx;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_tx is
+architecture rtl of WF_tx is
 
 
   type tx_state_t  is (idle, send_fss, send_data_byte, send_crc_bytes, send_queue, stop_transmission);
@@ -161,7 +161,7 @@ begin
 -- "idle state": signals initializations
 
 -- jump to "send_fss" state after a pulse on the signal start_produce_p_i (controlled by the
--- wf_engine_control)
+-- WF_engine_control)
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- "send_fss" state: delivery of the manchester encoded bits of the Frame Start Sequence (including
@@ -176,7 +176,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 -- "send_data_byte" state: delivery of manchester encoded bits of data that arrive from the
--- wf_prod_bytes_to_tx unit (byte_i), with the coordination of the wf_engine_control (byte_ready_p_i)
+-- WF_prod_bytes_to_tx unit (byte_i), with the coordination of the WF_engine_control (byte_ready_p_i)
 -- request of a new byte on  tx_clk_p_buff (0) assertion (with s_bit_index = 0)
 -- bit delivery        after tx_clk_p_buff (1) assertion
 -- new byte available  after tx_clk_p_buff (2) assertion (to be sent on the next tx_clk_p_buff (1))
@@ -184,10 +184,10 @@ begin
 --                                                       (between 0 and 16 for each byte, until the
 --                                                                      last_byte_p_i gives a pulse)
 
--- the first data byte from the wf_prod_bytes_to_tx unit is already available after the assertion of the
+-- the first data byte from the WF_prod_bytes_to_tx unit is already available after the assertion of the
 -- start_produce_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
 -- arrives to zero and on the assertion of the tx_clk_p_buff (0). A pulse on the request_byte signal
--- triggers the wf_control_engine to send a new address to the memory of the produced_vars unit (new
+-- triggers the WF_control_engine to send a new address to the memory of the produced_vars unit (new
 -- address available on tx_clk_p_buff (1)), which in turn will give an output one uclk cycle later
 -- (on tx_clk_p_buff (2)), exactly on the assertion of the byte_ready_p_i. Finally the first bit of
 -- this new byte starts being delivered after tx_clk_p_buff (3) assertion.
@@ -217,7 +217,7 @@ begin
   Transmitter_FSM_Sync: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         tx_state <= idle;
       else
         tx_state <= nx_tx_state;
@@ -378,7 +378,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --@brief Instantiation of a manchester encoder for a data byte (8 bits long)
-data_byte_manc_encoder: wf_manch_encoder 
+data_byte_manc_encoder: WF_manch_encoder 
   generic map(word_length  => 8)
   port map(
     word_i       => s_byte,
@@ -387,7 +387,7 @@ data_byte_manc_encoder: wf_manch_encoder
 
 ---------------------------------------------------------------------------------------------------
 --@brief Instantiation of a manchester encoder for the CRC bytes (16 bits long)
-crc_bytes_manc_encoder: wf_manch_encoder 
+crc_bytes_manc_encoder: WF_manch_encoder 
   generic map(word_length => 16)
   port map(
     word_i       => s_crc_bytes,
@@ -399,12 +399,12 @@ crc_bytes_manc_encoder: wf_manch_encoder
 --!@brief CRC calculator
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 -- Instantiation of the CRC unit 
-  crc_generation: wf_crc 
+  crc_generation: WF_crc 
     generic map( 
       c_GENERATOR_POLY_length => 16)
     port map(
       uclk_i             => uclk_i,
-      nFIP_u_rst_i         => nFIP_u_rst_i,
+      nFIP_urst_i         => nFIP_urst_i,
       start_CRC_p_i      => s_start_crc_p,
       data_bit_ready_p_i => s_data_bit_to_crc_p,
       data_bit_i         => s_txd,
@@ -426,11 +426,11 @@ crc_bytes_manc_encoder: wf_manch_encoder
 --! CRC or a FES byte. 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 -- Instantiation of a bits counter:  
-    Outgoing_Bits_Index: wf_decr_counter
+    Outgoing_Bits_Index: WF_decr_counter
     generic map(counter_length => 5)
     port map(
       uclk_i              => uclk_i,
-      nFIP_u_rst_i          => nFIP_u_rst_i,      
+      nFIP_urst_i          => nFIP_urst_i,      
       counter_top         => s_bit_index_top,
       counter_load_i      => s_bit_index_load,
       counter_decr_p_i    => s_decr_index_p,
@@ -483,10 +483,10 @@ crc_bytes_manc_encoder: wf_manch_encoder
 --!@brief Instantiation of the unit that according to the state of the FSM and the
 --! bits index counter, outputs FSS, data, CRC or FES manchester encoded bits to the txd_o.
 --! The unit also and manages the tx_enable_o signal.
-  bits_to_txd: wf_bits_to_txd
+  bits_to_txd: WF_bits_to_txd
     port map(
       uclk_i              => uclk_i,
-      nFIP_u_rst_i          => nFIP_u_rst_i,          
+      nFIP_urst_i         => nFIP_urst_i,          
       txd_bit_index_i     => s_bit_index,
       data_byte_manch_i   => s_data_byte_manch, 
       crc_byte_manch_i    => s_crc_bytes_manch, 
@@ -503,7 +503,7 @@ crc_bytes_manc_encoder: wf_manch_encoder
 Input_Byte_Sampling: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_byte   <= (others => '0');
 
       else      
@@ -521,7 +521,7 @@ Input_Byte_Sampling: process(uclk_i)
   tx_data_o <= s_txd;
 
   request_byte_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-4);
-  -- request for a new byte from the wf_prod_bytes_to_tx unit (passing from wf_engine_control)
+  -- request for a new byte from the WF_prod_bytes_to_tx unit (passing from WF_engine_control)
 
 
 end architecture rtl;

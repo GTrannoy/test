@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_bits_to_txd.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_bits_to_txd.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,7 +14,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_bits_to_txd                                        --
+--                                 WF_bits_to_txd                                        --
 --                                                                                               --
 --                                  CERN, BE/CO/HT                                               --
 --                                                                                               --
@@ -59,20 +59,20 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_bits_to_txd
+--!                           Entity declaration for WF_bits_to_txd
 --=================================================================================================
 
-entity wf_bits_to_txd is
+entity WF_bits_to_txd is
   generic(C_TXCLKBUFFLENTGTH: natural);
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :           in std_logic;                     --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :       in std_logic;                     --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :       in std_logic;                     --! internal reset
 
-   -- Signals from wf_tx
+   -- Signals from WF_tx
     txd_bit_index_i :     in unsigned(4 downto 0);
     data_byte_manch_i :   in std_logic_vector (15 downto 0);
     crc_byte_manch_i :    in std_logic_vector (31 downto 0);
@@ -83,23 +83,23 @@ entity wf_bits_to_txd is
     stop_transmission_i : in std_logic;
     
 
-    -- Signals for the receiver wf_tx_rx_osc
+    -- Signals for the receiver WF_tx_rx_osc
     tx_clk_p_buff_i :   in std_logic_vector (C_TXCLKBUFFLENTGTH-1 downto 0);
                                        --! clk for transmission synchronization 
  
 
   -- OUTPUTS
-    -- Signal to wf_prod_bytes_to_tx
+    -- Signal to WF_prod_bytes_to_tx
     txd_o :               out std_logic;
     tx_enable_o :         out std_logic
       );
-end entity wf_bits_to_txd;
+end entity WF_bits_to_txd;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_bits_to_txd is
+architecture rtl of WF_bits_to_txd is
 
 signal s_start_tx_enable, s_tx_enable : std_logic;
 
@@ -117,7 +117,7 @@ signal s_start_tx_enable, s_tx_enable : std_logic;
   Bits_Delivery: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         txd_o   <= '0';
 
       else
@@ -158,7 +158,7 @@ signal s_start_tx_enable, s_tx_enable : std_logic;
   tx_enable_manager: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         tx_enable_o   <= '0';
         s_start_tx_enable <= '0';
 

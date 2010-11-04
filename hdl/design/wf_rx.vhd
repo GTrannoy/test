@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_rx.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_rx.vhd                                                                               |
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -14,15 +22,13 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                              wf_rx                                            --
---                                                                                               --
---                                         CERN, BE/CO/HT                                        --
+--                                              WF_rx                                            --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
 --! @brief     De-serialization of the input signal fd_rxd and construction of bytes of data
---!            to be provided to the wf_cons_bytes_from_rx unit.
+--!            to be provided to the WF_cons_bytes_from_rx unit.
 --
 --!            Remark: We refer to a significant edge for an edge of a Manchester 2 (manch.) 
 --!            encoded bit (eg: bit0: _|-, bit 1: -|_) and to a transition between adjacent bits
@@ -47,11 +53,11 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! @details \n 
 --
 --!   \n<b>Dependencies:</b>\n
---!     wf_reset_unit     \n
---!     wf_rx_tx_osc       \n
---!     wf_deglitcher       \n
---!     wf_engine_control    \n
---!     wf_inputs_synchronizer\n
+--!     WF_reset_unit     \n
+--!     WF_rx_tx_osc       \n
+--!     WF_deglitcher       \n
+--!     WF_engine_control    \n
+--!     WF_inputs_synchronizer\n
 -- 
 -- 
 --!   \n<b>Modified by:</b>\n
@@ -64,9 +70,10 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 09/2009 v0.01 PS First version \n
 --!     -> 10/2010 v0.02 EG state switch_to_deglitched added;
---!                         output signal wait_rxd_first_f_edge_o added; signals renamed;
+--!                         output signal rst_rx_osc_o added; signals renamed;
 --!                         state machine rewritten (mealy style); 
---!                         units wf_manch_code_viol_check and Incoming_Bits_Index created;
+--!                         units WF_manch_code_viol_check and Incoming_Bits_Index created;
+--!                         each manch bit of FES checked (bf was just each bit, so any D5 was FES) 
 --!                         code cleaned-up + commented.\n
 --      
 ---------------------------------------------------------------------------------------------------
@@ -85,66 +92,66 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                                 Entity declaration for wf_rx
+--!                                 Entity declaration for WF_rx
 --=================================================================================================
 
-entity wf_rx is
+entity WF_rx is
 
   port (
   -- INPUTS 
     -- User interface general signal 
-    uclk_i :                    in std_logic; --! 40MHz clock
+    uclk_i :                  in std_logic; --! 40MHz clock
  
-    -- Signal from the wf_reset_unit
-    nFIP_u_rst_i :              in std_logic; --! internal reset
+    -- Signal from the WF_reset_unit
+    nFIP_urst_i :             in std_logic; --! internal reset
 
-    -- Signal from the wf_engine_control
-    reset_rx_unit_p_i :         in std_logic; --! signals that more bytes than expected are being
-                                              --! received (ex: ID_DAT > 8 bytes etc) and the unit
-                                              --! has to be reset
+    -- Signal from the WF_engine_control
+    rst_rx_unit_p_i :         in std_logic; --! signals that more bytes than expected are being
+                                            --! received (ex: ID_DAT > 8 bytes etc) and the unit
+                                            --! has to be reset
     
-    -- Signals from the wf_rx_tx_osc    
-    signif_edge_window_i :      in std_logic; --! time window where a significant edge is expected 
-    adjac_bits_window_i :       in std_logic; --! time window where a transition between adjacent
-                                              --! bits is expected
+    -- Signals from the WF_rx_tx_osc    
+    signif_edge_window_i :    in std_logic; --! time window where a significant edge is expected 
+    adjac_bits_window_i :     in std_logic; --! time window where a transition between adjacent
+                                            --! bits is expected
 
 
-    -- Signals from wf_inputs_synchronizer
-    rxd_r_edge_i :              in std_logic; --! indicates a rising edge on fd_rxd
-    rxd_f_edge_i :              in std_logic; --! indicates a falling edge on fd_rxd  
+    -- Signals from WF_inputs_synchronizer
+    rxd_r_edge_i :            in std_logic; --! indicates a rising edge on fd_rxd
+    rxd_f_edge_i :            in std_logic; --! indicates a falling edge on fd_rxd  
 
-    -- Signals from the wf_deglitcher
-    rxd_filtered_o :            in std_logic; --! deglitched fd_rxd
-    rxd_filtered_f_edge_p_i :   in std_logic; --! falling edge on the deglitched fd_rxd  
-    sample_manch_bit_p_i :      in std_logic; --! pulse indicating a valid sampling time for a manch. bit 
-    sample_bit_p_i :            in std_logic; --! pulse indicating a valid sampling time for a bit
+    -- Signals from the WF_deglitcher
+    rxd_filtered_o :          in std_logic; --! deglitched fd_rxd
+    rxd_filtered_f_edge_p_i : in std_logic; --! falling edge on the deglitched fd_rxd  
+    sample_manch_bit_p_i :    in std_logic; --! pulse indicating a valid sampling time for a manch. bit 
+    sample_bit_p_i :          in std_logic; --! pulse indicating a valid sampling time for a bit
 
 
   -- OUTPUTS
-    -- Signals to the wf_consumed and wf_engine_control 	
-    byte_o :                    out std_logic_vector (7 downto 0) ;     --! retrieved data byte
-    byte_ready_p_o :            out std_logic; --! pulse indicating a valid retrieved data byte
+    -- Signals to the WF_consumed and WF_engine_control 	
+    byte_o :                  out std_logic_vector (7 downto 0) ;     --! retrieved data byte
+    byte_ready_p_o :          out std_logic; --! pulse indicating a valid retrieved data byte
 
-    -- Signals to the wf_engine_control
-    FSS_CRC_FES_viol_ok_p_o :   out std_logic; --! indication of a frame with a correct FSS,FES,CRC
-                                               --! and with no unexpected manch code violations
-    CRC_wrong_p_o :             out std_logic; --! indication of a wrong CRC reception
-    FSS_received_p_o :          out std_logic; --! indication of a correct FSS reception
+    -- Signals to the WF_engine_control
+    FSS_CRC_FES_viol_ok_p_o : out std_logic; --! indication of a frame with a correct FSS,FES,CRC
+                                             --! and with no unexpected manch code violations
+    CRC_wrong_p_o :           out std_logic; --! indication of a wrong CRC reception
+    FSS_received_p_o :        out std_logic; --! indication of a correct FSS reception
 
-    -- Signal to the wf_rx_tx_osc
-    wait_rxd_first_f_edge_o :   out std_logic--! indication that wf_rx is in idle state
+    -- Signal to the WF_rx_tx_osc
+    rst_rx_osc_o :            out std_logic  --! resets the clock recovery procedure of the rx_osc
 );
 
-end entity wf_rx;
+end entity WF_rx;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_rx is
+architecture rtl of WF_rx is
   
   -- states of the receiver's state machine
-  type rx_st_t  is (idle, preamble_field_first_fe, preamble_field_re, preamble_field_fe,
+  type rx_st_t  is (idle, preamble_field_first_f_edge, preamble_field_r_edge,preamble_field_f_edge,
                     frame_start_field, switch_to_deglitched, data_field_byte);
 
   signal rx_st, nx_rx_st :                                           rx_st_t;
@@ -175,7 +182,7 @@ architecture rtl of wf_rx is
 --! for the detection of the the preamble, FSS and FES of a received id_dat or consumed
 --! rp_dat frame, as well as for the formation of bytes of data.
 --! The main outputs of the unit (byte_o and byte_ready_p_o) are the main inputs of the unit
---! wf_cons_bytes_from_rx.
+--! WF_cons_bytes_from_rx.
   
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM
@@ -183,7 +190,7 @@ architecture rtl of wf_rx is
    Receiver_FSM_Sync: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if nFIP_u_rst_i = '1' then
+        if nFIP_urst_i = '1' then
           rx_st <= idle;
         else
           rx_st <= nx_rx_st;
@@ -201,7 +208,7 @@ architecture rtl of wf_rx is
                                                 s_frame_start_wrong_bit, s_manch_f_edge, rx_st,
                                                 s_frame_end_detected_p, s_frame_end_wrong_bit,
                                                 rxd_f_edge_i, s_edge_outside_manch_window,
-                                                reset_rx_unit_p_i)
+                                                rst_rx_unit_p_i)
   
   begin
   nx_rx_st <= idle;
@@ -213,36 +220,36 @@ architecture rtl of wf_rx is
 
     when idle =>                                                     -- in idle state until falling    
                         if rxd_f_edge_i = '1' then                   -- edge detection
-                          nx_rx_st <= preamble_field_first_fe;
+                          nx_rx_st <= preamble_field_first_f_edge;
                         else
                           nx_rx_st <= idle;
                         end if;	
    
-    when preamble_field_first_fe=>
+    when preamble_field_first_f_edge=>
                         if s_manch_r_edge = '1' then                 -- arrival of a manch.  
-                          nx_rx_st <= preamble_field_re;             -- rising edge
+                          nx_rx_st <= preamble_field_r_edge;         -- rising edge
 
                         elsif s_edge_outside_manch_window = '1' then -- arrival of any other edge 
                           nx_rx_st <= idle;                      
                         else 
-                          nx_rx_st <= preamble_field_first_fe;
+                          nx_rx_st <= preamble_field_first_f_edge;
                         end if;	
   
-    when preamble_field_re =>  
+    when preamble_field_r_edge =>  
                         if s_manch_f_edge = '1' then             -- arrival of a manch. falling edge 
-                          nx_rx_st <= preamble_field_fe;         -- note: several loops between
+                          nx_rx_st <= preamble_field_f_edge;     -- note: several loops between
                                                                  -- a rising and a falling edge are  
                                                                  -- expected for the preamble
 
                         elsif s_edge_outside_manch_window = '1' then -- arrival of any other edge
                            nx_rx_st <= idle;                     
                         else 
-                           nx_rx_st <= preamble_field_re;
+                           nx_rx_st <= preamble_field_r_edge;
                         end if;
 	
-    when preamble_field_fe =>  					
+    when preamble_field_f_edge =>  					
                         if s_manch_r_edge = '1' then             -- arrival of a manch. rising edge
-                          nx_rx_st <= preamble_field_re;                               
+                          nx_rx_st <= preamble_field_r_edge;                               
                         elsif s_bit_r_edge = '1' then            -- arrival of a bit rising edge,                  
                           nx_rx_st <=  switch_to_deglitched;     -- signaling the beginning of the 
                                                                  -- first V+ violation  
@@ -250,11 +257,11 @@ architecture rtl of wf_rx is
                         elsif s_edge_outside_manch_window = '1' then -- arrival of any other edge
                           nx_rx_st <= idle;                         
                         else 
-                          nx_rx_st <= preamble_field_fe;
+                          nx_rx_st <= preamble_field_f_edge;
                          end if;				
 
     -- A small delay is expected between the rxd and the rxd_filtered (output of the
-    -- wf_rx_deglitcher) which means that the last falling edge of the preamble of rxd arrives
+    -- WF_rx_deglitcher) which means that the last falling edge of the preamble of rxd arrives
     -- earlier than the one of the rxd_filtered. The state switch_to_deglitched is used for
     -- this purpose. 
 
@@ -284,7 +291,7 @@ architecture rtl of wf_rx is
 
      
     when data_field_byte =>
-                        if s_frame_end_detected_p = '1' or reset_rx_unit_p_i = '1' then
+                        if s_frame_end_detected_p = '1' or rst_rx_unit_p_i = '1' then
                           nx_rx_st <= idle;
 
                         elsif s_frame_end_wrong_bit = '1' and s_manch_code_viol_p = '1' then
@@ -316,7 +323,7 @@ architecture rtl of wf_rx is
                    s_receiving_bytes         <= '0';
 
                                  
-    when preamble_field_first_fe | preamble_field_re | preamble_field_fe =>
+    when preamble_field_first_f_edge | preamble_field_r_edge | preamble_field_f_edge =>
 
                    s_idle                    <= '0';
                    s_receiving_preamble      <= '1';
@@ -367,11 +374,11 @@ architecture rtl of wf_rx is
 ---------------------------------------------------------------------------------------------------
 --!@brief Instantiation of a counter that manages the position of an incoming deglitched bit
 --! inside a manch encoded byte  (16 bits)  
-    Incoming_Bits_Index: wf_decr_counter
+    Incoming_Bits_Index: WF_decr_counter
     generic map(counter_length => 4)
     port map(
       uclk_i              => uclk_i,
-      nFIP_u_rst_i         => nFIP_u_rst_i,      
+      nFIP_urst_i         => nFIP_urst_i,      
       counter_top         => s_bit_index_top,
       counter_load_i      => s_bit_index_load,
       counter_decr_p_i    => s_decr_bit_index_p,
@@ -441,7 +448,7 @@ architecture rtl of wf_rx is
   Append_Bit_To_Byte: process (uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if nFIP_u_rst_i = '1' then
+        if nFIP_urst_i = '1' then
           byte_ready_p_o <='0'; 
           s_byte         <= (others => '0');
         else
@@ -463,11 +470,11 @@ architecture rtl of wf_rx is
 
 ---------------------------------------------------------------------------------------------------
  --!@brief Instantiation of the CRC calculator unit
-  Check_CRC : wf_crc 
+  Check_CRC : WF_crc 
   generic map(c_GENERATOR_POLY_length => 16) 
   port map(
     uclk_i             => uclk_i,
-    nFIP_u_rst_i       => nFIP_u_rst_i,
+    nFIP_urst_i       => nFIP_urst_i,
     start_CRC_p_i      => s_receiving_FSS,
     data_bit_ready_p_i => s_write_bit_to_byte,
     data_bit_i         => rxd_filtered_o,
@@ -476,10 +483,10 @@ architecture rtl of wf_rx is
 
 ---------------------------------------------------------------------------------------------------
  --!@brief Instantiation of the unit that checks for code violations
-  Check_code_violations: wf_manch_code_viol_check
+  Check_code_violations: WF_manch_code_viol_check
   port map(
     uclk_i                => uclk_i,
-    nFIP_u_rst_i          => nFIP_u_rst_i,
+    nFIP_urst_i          => nFIP_urst_i,
     serial_input_signal_i => rxd_filtered_o,
     sample_bit_p_i        => sample_bit_p_i,
     sample_manch_bit_p_i  => sample_manch_bit_p_i,
@@ -495,7 +502,7 @@ architecture rtl of wf_rx is
   CRC_Code_viol_signals: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if nFIP_u_rst_i = '1' then
+        if nFIP_urst_i = '1' then
           s_CRC_ok                    <= '0';
           s_manch_code_violations     <= '0';	
 
@@ -529,7 +536,7 @@ architecture rtl of wf_rx is
   FES_Detector: process(uclk_i)
     begin
       if rising_edge(uclk_i) then
-        if nFIP_u_rst_i = '1' then
+        if nFIP_urst_i = '1' then
           s_frame_end_detection   <= '1';
 
         else
@@ -555,7 +562,7 @@ architecture rtl of wf_rx is
 ---------------------------------------------------------------------------------------------------
   -- output signals:
   byte_o                  <= s_byte; 
-  wait_rxd_first_f_edge_o <= s_idle;
+  rst_rx_osc_o            <= s_idle;
   FSS_received_p_o        <= s_receiving_FSS and s_frame_start_last_bit;
   CRC_wrong_p_o           <= s_frame_end_detected_p and (not s_CRC_ok);
   FSS_CRC_FES_viol_ok_p_o <= s_frame_end_detected_p and s_CRC_ok and (not s_manch_code_violations);

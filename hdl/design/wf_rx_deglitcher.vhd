@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_rx_deglitcher.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_rx_deglitcher.vhd                                                                    |
+---------------------------------------------------------------------------------------------------
 
 --! Standard library
 library IEEE;
@@ -12,9 +20,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                          wf_rx_deglitcher                                     --
---                                                                                               --
---                                          CERN, BE/CO/HT                                       --
+--                                          WF_rx_deglitcher                                     --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -24,7 +30,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 --
 --! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch) 
 --
 --
 -- @date       08/2010
@@ -36,8 +42,8 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! @details 
 --
 --!   \n<b>Dependencies:</b>\n
---!   wf_osc             \n
---!   wf_reset_unit         \n
+--!   WF_osc             \n
+--!   WF_reset_unit         \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -59,10 +65,10 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 
 --=================================================================================================
---!                             Entity declaration for wf_deglitcher
+--!                             Entity declaration for WF_deglitcher
 --=================================================================================================
 
-entity wf_rx_deglitcher is
+entity WF_rx_deglitcher is
   generic (C_ACULENGTH : integer := 10);
 
   port( 
@@ -70,31 +76,31 @@ entity wf_rx_deglitcher is
     -- User interface general signal   
     uclk_i :                  in std_logic; --! 40 MHz clock
 
-    -- Signal from the wf_reset_unit unit  
-    nFIP_u_rst_i :              in std_logic; --! internal reset
+    -- Signal from the WF_reset_unit unit  
+    nFIP_urst_i :              in std_logic; --! internal reset
 
     -- FIELDRIVE input signal
     rxd_i :                   in std_logic; --! buffered fd_rxd
 
-    -- Signals from the wf_osc unit
+    -- Signals from the WF_osc unit
     sample_bit_p_i :          in std_logic; --! pulsed signal signaling a new bit
     sample_manch_bit_p_i :    in std_logic; --! pulsed signal signaling a new manchestered bit 
 
   -- OUTPUTS  
-    -- Output signals needed for the receiverwf_rx
+    -- Output signals needed for the receiverWF_rx
     sample_bit_p_o :          out std_logic;
     rxd_filtered_o :          out std_logic;
     rxd_filtered_f_edge_p_o : out std_logic;
     sample_manch_bit_p_o :    out std_logic
       );
-end wf_rx_deglitcher;
+end WF_rx_deglitcher;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture Behavioral of wf_rx_deglitcher is
+architecture Behavioral of WF_rx_deglitcher is
 
 signal s_count_ones_c :      signed(C_ACULENGTH - 1 downto 0);
 signal s_rxd_filtered    :   std_logic;
@@ -114,7 +120,7 @@ process(uclk_i)
   begin
   if rising_edge(uclk_i) then
 
-    if nFIP_u_rst_i = '1' then
+    if nFIP_urst_i = '1' then
       s_count_ones_c <= (others =>'0');
     else
 
@@ -136,7 +142,7 @@ process(uclk_i)
   begin
   if rising_edge(uclk_i) then
 
-    if nFIP_u_rst_i = '1' then
+    if nFIP_urst_i = '1' then
       s_rxd_filtered <= '0';
       s_rxd_filtered_d <= '0';
     else
@@ -162,7 +168,7 @@ end process;
   Detect_f_edge_rx_data_filtered: process(uclk_i)
     begin
       if rising_edge(uclk_i) then 
-        if nFIP_u_rst_i = '1' then
+        if nFIP_urst_i = '1' then
           s_rxd_filtered_buff <= (others => '0');
           rxd_filtered_f_edge_p_o <= '0';
         else
@@ -190,32 +196,3 @@ end Behavioral;
 ---------------------------------------------------------------------------------------------------
 --                                    E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

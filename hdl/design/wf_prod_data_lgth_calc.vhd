@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_prod_data_lgth_calc.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_prod_data_lgth_calc.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,7 +14,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_prod_data_lgth_calc                                        --
+--                                 WF_prod_data_lgth_calc                                        --
 --                                                                                               --
 --                                  CERN, BE/CO/HT                                               --
 --                                                                                               --
@@ -57,32 +57,32 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_prod_data_lgth_calc
+--!                           Entity declaration for WF_prod_data_lgth_calc
 --=================================================================================================
 
-entity wf_prod_data_lgth_calc is
+entity WF_prod_data_lgth_calc is
 
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     slone_i :          in std_logic;                    
     nostat_i :         in std_logic;  
     p3_lgth_i :        in std_logic_vector (2 downto 0);
 
-   -- Signals from wf_engine_control
+   -- Signals from WF_engine_control
     var_i:             in t_var;
 
   -- OUTPUT
-    -- Signal to wf_engine_control
+    -- Signal to WF_engine_control
     tx_data_length_o : out std_logic_vector(7 downto 0)
       );
-end entity wf_prod_data_lgth_calc;
+end entity WF_prod_data_lgth_calc;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_prod_data_lgth_calc is
+architecture rtl of WF_prod_data_lgth_calc is
 
 signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
 --=================================================================================================
@@ -93,7 +93,7 @@ signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
 --!@brief:Combinatorial process data_length_calcul: calculation of the total amount of data
 --! bytes that have to be transferreed when a variable is produced, including the rp_dat.Control as
 --! well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes. In the case of the presence 
---! and the identification variables, the data length is predefined in the wf_package.
+--! and the identification variables, the data length is predefined in the WF_package.
 --! In the case of a var_3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation. 
 
   data_length_calcul: process ( var_i, s_p3_length_decoded, slone_i, nostat_i, p3_lgth_i )
@@ -106,15 +106,15 @@ signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-      when presence_var => 
-      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package) 
-        s_tx_data_length <= c_VARS_ARRAY(c_PRESENCE_VAR_INDEX).array_length;
+      when var_presence => 
+      -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
+        s_tx_data_length <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_length;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-      when identif_var => 
-      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package) 
-        s_tx_data_length <= c_VARS_ARRAY(c_IDENTIF_VAR_INDEX).array_length;
+      when var_identif => 
+      -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
+        s_tx_data_length <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_length;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -160,7 +160,7 @@ signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
       when var_2 =>
         s_tx_data_length <= (others => '0');
 
-      when reset_var =>  
+      when var_rst =>  
         s_tx_data_length <= (others => '0');
 
       when others => 

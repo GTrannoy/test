@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_decr_counter.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_decr_counter.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -11,7 +11,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                        wf_decr_counter                                        --
+--                                        WF_decr_counter                                        --
 --                                                                                               --
 --                                        CERN, BE/CO/HT                                         --
 --                                                                                               --
@@ -52,18 +52,18 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 
 --=================================================================================================
---!                           Entity declaration for wf_decr_counter
+--!                           Entity declaration for WF_decr_counter
 --=================================================================================================
 
-entity wf_decr_counter is
+entity WF_decr_counter is
   generic(counter_length : natural);
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :           in std_logic;                             --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :       in std_logic;                             --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :     in std_logic;                             --! internal reset
 
    -- Signals from any unit
    counter_top :       in unsigned (counter_length-1 downto 0);  --! load value
@@ -76,13 +76,13 @@ entity wf_decr_counter is
     counter_o :         out unsigned (counter_length-1 downto 0);--! counter 
     counter_is_zero_o : out std_logic                            --! empty counter indication
       );
-end entity wf_decr_counter;
+end entity WF_decr_counter;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_decr_counter is
+architecture rtl of WF_decr_counter is
 
 signal s_counter : unsigned(counter_length-1 downto 0);
 
@@ -95,7 +95,7 @@ signal s_counter : unsigned(counter_length-1 downto 0);
   Decr_Counter: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_counter   <= (others => '0');
       else
 

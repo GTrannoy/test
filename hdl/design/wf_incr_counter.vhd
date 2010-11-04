@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_incr_counter.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+--------------------------------------------------------------------------------------------------
+--! @file WF_incr_counter.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -11,18 +19,16 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                         wf_incr_counter                                       --
---                                                                                               --
---                                         CERN, BE/CO/HT                                        --
+--                                         WF_incr_counter                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Synchronous increasing counter with a reset and an increase enable signal;
+--! @brief     Fully synchronous increasing counter with a reset, a reinitialise & an enable signal
 --
 --
 --! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
---!            Evangelia Gousiou (evangelia.gousiou@cern.ch)
+--!            Evangelia Gousiou     (evangelia.gousiou@cern.ch)
 --
 --
 --! @date      06/2010
@@ -52,51 +58,53 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 
 --=================================================================================================
---!                           Entity declaration for wf_incr_counter
+--!                           Entity declaration for WF_incr_counter
 --=================================================================================================
 
-entity wf_incr_counter is
+entity WF_incr_counter is
   generic(counter_length : natural);
   port (
   -- INPUTS 
-    -- User Interface general signals 
-    uclk_i :         in std_logic;                           --! 40MHz clock
+    -- User Interface general signals (synchronized) 
+    uclk_i :           in std_logic;                           --! 40MHz clock
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :     in std_logic;                           --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :      in std_logic;                           --! internal reset
 
    -- Signals from any unit
-   reset_counter_i : in std_logic;                           --! resets counter to 0
-   incr_counter_i:   in std_logic;                           --! increment enable
+   reinit_counter_i :  in std_logic;                           --! reinitializes counter to 0
+   incr_counter_i:     in std_logic;                           --! increment enable
 
   -- OUTPUT
     -- Signal to any unit
-   counter_o :       out unsigned(counter_length-1 downto 0) --! counter
+   counter_o :         out unsigned(counter_length-1 downto 0); --! counter
+   counter_is_full_o : out std_logic                            --! all counter bits at '1' 
       );
-end entity wf_incr_counter;
+end entity WF_incr_counter;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_incr_counter is
+architecture rtl of WF_incr_counter is
 
-signal s_counter : unsigned(counter_length-1 downto 0);
+signal s_counter, s_counter_full : unsigned(counter_length-1 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
 --=================================================================================================  
   begin
 
+  s_counter_full <= (others => '1');
 --------------------------------------------------------------------------------------------------- 
   Incr_Counter: process(uclk_i)
   begin
 
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_counter <= (others => '0');
 
-      elsif reset_counter_i = '1' then
+      elsif reinit_counter_i = '1' then
         s_counter <= (others => '0');
 
       elsif incr_counter_i = '1' then
@@ -106,7 +114,9 @@ signal s_counter : unsigned(counter_length-1 downto 0);
     end if;
   end process;
 
-  counter_o <= s_counter;
+  counter_o         <= s_counter;
+  counter_is_full_o <= '1' when s_counter= s_counter_full
+                  else '0';
 
 end architecture rtl;
 --=================================================================================================

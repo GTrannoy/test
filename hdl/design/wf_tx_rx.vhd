@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_tx_rx.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_tx_rx.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -14,13 +14,13 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                              wf_tx_rx                                         --
+--                                              WF_tx_rx                                         --
 --                                                                                               --
 --                                           CERN, BE/CO/HT                                      --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name: wf_tx_rx
+-- unit name: WF_tx_rx
 --
 --! @brief Serializes and deserializes the WorldFIP data.
 --!
@@ -28,7 +28,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! On reception it depacketises the data and only presents the actual data
 --! contents. It also verifies the FCS (Frame Checksum, CRC).\n
 --! On transmission it packetises the data and adds the FCS.
---! The unit wf_rx_tx_osc recovers the carrier clock during 
+--! The unit WF_rx_tx_osc recovers the carrier clock during 
 --!
 --! @author Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --
@@ -39,10 +39,10 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --! @details 
 --!
 --! <b>Dependencies:</b>\n
---! wf_engine           \n
+--! WF_engine           \n
 --! tx_engine           \n
 --! clk_gen             \n
---! wf_reset_unit         \n
+--! WF_reset_unit         \n
 --! consumed_ram        \n
 --!
 --!
@@ -64,14 +64,14 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---! Entity declaration for wf_tx_rx
+--! Entity declaration for WF_tx_rx
 --=================================================================================================
-entity wf_tx_rx is
+entity WF_tx_rx is
 
   port (
     uclk_i :                  in std_logic; --! User Clock
-    nFIP_u_rst_i :              in std_logic;
-    reset_rx_unit_p_i :       in std_logic;
+    nFIP_urst_i :              in std_logic;
+    rst_rx_unit_p_i :       in std_logic;
     start_produce_p_i :       in std_logic;
     byte_ready_p_i :          in std_logic;
     byte_i :                  in std_logic_vector (7 downto 0);
@@ -92,14 +92,14 @@ entity wf_tx_rx is
     FSS_CRC_FES_viol_ok_p_o : out std_logic
     );
 
-end entity wf_tx_rx;
+end entity WF_tx_rx;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_tx_rx is
+architecture rtl of WF_tx_rx is
 
   signal s_d_filtered, s_first_fe :                  std_logic;
   signal s_rx_data_filtered_f_edge_p :               std_logic;   
@@ -114,11 +114,11 @@ architecture rtl of wf_tx_rx is
 
 begin
 ---------------------------------------------------------------------------------------------------
-  tx: wf_tx 
+  tx: WF_tx 
     generic map(C_TXCLKBUFFLENTGTH => C_TXCLKBUFFLENTGTH)
     PORT MAP(
       uclk_i            => uclk_i,
-      nFIP_u_rst_i        => nFIP_u_rst_i,
+      nFIP_urst_i        => nFIP_urst_i,
       start_produce_p_i => start_produce_p_i,
       byte_ready_p_i    => byte_ready_p_i,
       byte_i            => byte_i,
@@ -130,11 +130,11 @@ begin
       );
   
 ---------------------------------------------------------------------------------------------------
-  rx: wf_rx 
+  rx: WF_rx 
     PORT MAP(
       uclk_i                  => uclk_i,
-      nFIP_u_rst_i              => nFIP_u_rst_i,
-      reset_rx_unit_p_i       => reset_rx_unit_p_i,
+      nFIP_urst_i              => nFIP_urst_i,
+      rst_rx_unit_p_i       => rst_rx_unit_p_i,
       sample_bit_p_i          => s_sample_bit_p,
       signif_edge_window_i    => s_signif_edge_window,
       adjac_bits_window_i     => s_adjac_bits_window,
@@ -146,25 +146,25 @@ begin
       byte_ready_p_o          => byte_ready_p_o,
       byte_o                  => byte_o,
       FSS_CRC_FES_viol_ok_p_o => FSS_CRC_FES_viol_ok_p_o,
-      wait_rxd_first_f_edge_o => s_first_fe,
+      rst_rx_osc_o => s_first_fe,
       FSS_received_p_o         => FSS_received_p_o,
       CRC_wrong_p_o           => CRC_wrong_p_o
       );
 
 
 ---------------------------------------------------------------------------------------------------  
-  rx_tx_osc :wf_rx_tx_osc
-    generic map(C_PERIODS_COUNTER_LENGTH => C_PERIODS_COUNTER_LENGTH,
-                C_QUARTZ_PERIOD          => C_QUARTZ_PERIOD,
-                C_TXCLKBUFFLENTGTH       => C_TXCLKBUFFLENTGTH)
+  rx_tx_osc :WF_rx_tx_osc
+    generic map(C_PERIODS_COUNTER_LENGTH => 11,
+                C_QUARTZ_PERIOD          => 24.8,
+                C_TXCLKBUFFLENTGTH       => 4)
 
 
     port map(
       uclk_i                  => uclk_i,
-      nFIP_u_rst_i              => nFIP_u_rst_i, 
+      nFIP_urst_i              => nFIP_urst_i, 
       rxd_edge_i              => fd_rxd_edge_i,      
       rxd_f_edge_i            => fd_rxd_f_edge_i,
-      wait_rxd_first_f_edge_i => s_first_fe, 
+      rst_rx_osc_i => s_first_fe, 
       rate_i                  => rate_i,  
       tx_clk_p_buff_o         => s_clk_fixed_carrier_p_d,
       tx_clk_o                => d_clk_o,
@@ -175,10 +175,10 @@ begin
       );
 
 ---------------------------------------------------------------------------------------------------
-  deglitcher : wf_rx_deglitcher 
+  deglitcher : WF_rx_deglitcher 
     generic map (C_ACULENGTH => 10)
     Port map( uclk_i                  => uclk_i,
-              nFIP_u_rst_i              => nFIP_u_rst_i,
+              nFIP_urst_i              => nFIP_urst_i,
               rxd_i                   => fd_rxd,
               sample_bit_p_i          => s_rx_bit_clk_p,
               sample_manch_bit_p_i    => s_rx_manch_clk_p,

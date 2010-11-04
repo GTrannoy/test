@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_inputs_synchronizer.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_inputs_synchronizer.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,7 +14,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_inputs_synchronizer                                        --
+--                                 WF_inputs_synchronizer                                        --
 --                                                                                               --
 --                                  CERN, BE/CO/HT                                               --
 --                                                                                               --
@@ -56,21 +56,21 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_inputs_synchronizer
+--!                           Entity declaration for WF_inputs_synchronizer
 --=================================================================================================
 
-entity wf_inputs_synchronizer is
+entity WF_inputs_synchronizer is
 
   port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :          in std_logic;                   --! 40MHz clock
     -- User Interface WISHBONE slave 
     wbclk_i :         in std_logic;                   --! WISHBONE clock
     wb_rst_a_i :      in std_logic;                   --! WISHBONE reset
 
-    -- Signal from the wf_reset_unit unit
-    nFIP_u_rst_i :    in std_logic;                   --! internal reset
+    -- Signal from the WF_reset_unit unit
+    nFIP_urst_i :    in std_logic;                   --! internal reset
 
     -- Rest of input signals
     rstin_a_i :       in std_logic;
@@ -95,8 +95,8 @@ entity wf_inputs_synchronizer is
 
   -- OUTPUTS
     -- Signals to nanofip
-    u_rsti_o :        out std_logic; -- rstin_a_i synchronized to uclk
---  wb_rsti_o :       out std_logic; -- rstin_a_i synchronized to wbclk
+    rsti_o :          out std_logic; -- rstin_a_i synchronized to uclk
+    urst_r_edge_o :   out std_logic;
     slone_o :         out std_logic;
     nostat_o :        out std_logic;
     fd_wdgn_o :       out std_logic;
@@ -121,13 +121,13 @@ entity wf_inputs_synchronizer is
     c_id_o :          out std_logic_vector(3 downto 0);
     p3_lgth_o :       out std_logic_vector(2 downto 0)
       );
-end entity wf_inputs_synchronizer;
+end entity WF_inputs_synchronizer;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_inputs_synchronizer is
+architecture rtl of WF_inputs_synchronizer is
 
   signal s_wb_we_d3, s_wb_cyc_d1, s_wb_cyc_d2, s_wb_cyc_d3, s_fd_rxd_f_edge :            std_logic;
   signal s_var1_access_d1, s_var2_access_d1, s_var3_access_d1, s_fd_rxd_r_edge :         std_logic;
@@ -136,8 +136,9 @@ architecture rtl of wf_inputs_synchronizer is
   signal s_wb_stb_d1, s_wb_stb_d2, s_wb_stb_d3, s_wb_stb_d4, s_wb_we_d1, s_wb_we_d2 :    std_logic;
   signal s_mid_d1, s_mid_d2, s_mid_d3, s_cid_d1, s_cid_d2, s_cid_d3 : std_logic_vector(3 downto 0);
   signal s_fd_txer_d3, s_fd_wdgn_d3, s_fd_rxd_d3 :                    std_logic_vector(2 downto 0);
-  signal s_p3_lgth_d1, s_p3_lgth_d2, s_p3_lgth_d3, s_u_rst_d3 :       std_logic_vector(2 downto 0);
-  signal s_nostat_d3, s_slone_d3, s_rsti_w_d3 :                       std_logic_vector(2 downto 0);  
+  signal s_p3_lgth_d1, s_p3_lgth_d2, s_p3_lgth_d3 :                   std_logic_vector(2 downto 0);
+  signal s_u_rst_d3 :                                                 std_logic_vector(3 downto 0);--:= "0000";
+  signal s_nostat_d3, s_slone_d3 :                                    std_logic_vector(2 downto 0);  
   signal s_wb_adr_d1, s_wb_adr_d2, s_wb_adr_d3 :                      std_logic_vector(9 downto 0);
   signal s_rate_d1, s_rate_d2, s_rate_d3 :                            std_logic_vector(1 downto 0);   
   signal s_subs_d1, s_subs_d2, s_subs_d3 :                            std_logic_vector(7 downto 0); 
@@ -157,32 +158,19 @@ architecture rtl of wf_inputs_synchronizer is
   begin
     if rising_edge(uclk_i) then
 
-      s_u_rst_d3  <= s_u_rst_d3 (1 downto 0) & (not rstin_a_i);
+      s_u_rst_d3  <= s_u_rst_d3 (2 downto 0) & (not rstin_a_i);
                                                            
     end if;
   end process;
 
-  u_rsti_o   <= s_u_rst_d3(2); -- active high
-
----------------------------------------------------------------------------------------------------
- 
-  -- rstin_synchronisation_with_wclk: process (wbclk_i)
-  -- begin
-    -- if rising_edge(wbclk_i) then
-
-      -- s_wb_rsti_d3  <= s_wb_rsti_d3 (1 downto 0) & (not rstin_a_i);
-                                                           
-    -- end if;
-  -- end process;
-
-  -- rsti_wb_o   <= s_wb_rsti_d3(2); -- active high
-
+  rsti_o        <= s_u_rst_d3(2); -- active high
+  urst_r_edge_o <= not s_u_rst_d3(3) and s_u_rst_d3(2);
 
 ---------------------------------------------------------------------------------------------------
   User_interf_general_signals_synchronisation: process (uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_slone_d3  <= (others => '0');
         s_nostat_d3 <= (others => '0');
       else
@@ -201,7 +189,7 @@ architecture rtl of wf_inputs_synchronizer is
   fieldrive_inputs_synchronisation: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
        s_fd_rxd_d3  <= (others => '0');
        s_fd_wdgn_d3 <= (others => '0');
        s_fd_txer_d3 <= (others => '0');
@@ -230,7 +218,7 @@ architecture rtl of wf_inputs_synchronizer is
   VAR_ACC_synchronisation: process(uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
         s_var1_access_d1 <= '0';
         s_var1_access_d2 <= '0';
         s_var1_access_d3 <= '0';
@@ -321,7 +309,7 @@ architecture rtl of wf_inputs_synchronizer is
   Slone_dat_i_synchronization: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-      if nFIP_u_rst_i = '1' then 
+      if nFIP_urst_i = '1' then 
         s_slone_dati_d1 <= (others => '0');
         s_slone_dati_d2 <= (others => '0');
         s_slone_dati_d3 <= (others => '0');
@@ -340,7 +328,7 @@ architecture rtl of wf_inputs_synchronizer is
   WFIP_settings_synchronisation: process(uclk_i)
   begin
     if rising_edge(uclk_i) then
-     if nFIP_u_rst_i = '1' then
+     if nFIP_urst_i = '1' then
        s_rate_d1    <= (others => '0');
        s_rate_d2    <= (others => '0');
        s_rate_d3    <= (others => '0');

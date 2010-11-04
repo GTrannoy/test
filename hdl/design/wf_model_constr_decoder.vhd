@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_model_constr_decoder.vhd
---=================================================================================================
+--________________________________________________________________________________________________|
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_model_constr_decoder.vhd                                                             |
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -12,13 +20,11 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                     wf_model_constr_decoder                                   --
---                                                                                               --
---                                        CERN, BE/CO/HT                                         --
+--                                     WF_model_constr_decoder                                   --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   wf_model_constr_decoder
+-- unit name   WF_model_constr_decoder
 --
 --
 --! @brief     Generation of the nanoFIP output S_ID and decoding of the inputs C_ID and M_ID.
@@ -44,7 +50,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>\n
---!    wf_reset_unit\n
+--!    WF_reset_unit\n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -74,9 +80,9 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 
 --=================================================================================================
---!                             Entity declaration for wf_model_constr_decoder
+--!                             Entity declaration for WF_model_constr_decoder
 --=================================================================================================
-entity wf_model_constr_decoder is
+entity WF_model_constr_decoder is
   generic (C_RELOAD_MID_CID : natural);             --! reloading of model & constructor 
                                                     --! every 2^(C_RELOAD_MID_CID) uclk ticks
   port (
@@ -84,8 +90,8 @@ entity wf_model_constr_decoder is
     -- User Interface general signal
     uclk_i :     in std_logic;                      --! 40 Mhz clock
 
-    -- Signal from the wf_reset_unit
-    nFIP_u_rst_i : in std_logic;                    --! nanoFIP internal reset
+    -- Signal from the WF_reset_unit
+    nFIP_urst_i : in std_logic;                    --! nanoFIP internal reset
 
     -- WorldFIP settings
     m_id_i :     in  std_logic_vector (3 downto 0); --! Model identification settings
@@ -96,12 +102,12 @@ entity wf_model_constr_decoder is
     -- WorldFIP settings nanoFIP output
     s_id_o :     out std_logic_vector (1 downto 0); --! Identification selection
 
-    -- Output to wf_prod_bytes_to_tx
+    -- Output to WF_prod_bytes_to_tx
     m_id_dec_o : out std_logic_vector (7 downto 0); --! Model identification decoded
     c_id_dec_o : out std_logic_vector (7 downto 0)  --! Constructor identification decoded
     );
 
-end entity wf_model_constr_decoder;
+end entity WF_model_constr_decoder;
 
 
 
@@ -109,7 +115,7 @@ end entity wf_model_constr_decoder;
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_model_constr_decoder is
+architecture rtl of WF_model_constr_decoder is
 
 
   signal s_load_model_constr_p :       std_logic;
@@ -138,7 +144,7 @@ begin
   Model_Constructor_Decoder: process(uclk_i)
   begin
     if rising_edge(uclk_i) then                            -- initializations
-      if nFIP_u_rst_i = '1' then
+      if nFIP_urst_i = '1' then
        s_counter     <= (others => '0');
        m_id_dec_o    <= (others => '0');
        c_id_dec_o    <= (others => '0');

@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_cons_frame_validator.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_cons_frame_validator.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -14,7 +14,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_cons_frame_validator                                       --
+--                                 WF_cons_frame_validator                                       --
 --                                                                                               --
 --                                  CERN, BE/CO/HT                                               --
 --                                                                                               --
@@ -56,37 +56,37 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
---!                           Entity declaration for wf_cons_frame_validator
+--!                           Entity declaration for WF_cons_frame_validator
 --=================================================================================================
 
-entity wf_cons_frame_validator is
+entity WF_cons_frame_validator is
 
   port (
   -- INPUTS 
-    -- Signals from the wf_cons_bytes_from_rx unit
+    -- Signals from the WF_cons_bytes_from_rx unit
     rx_Ctrl_byte_i :         in std_logic_vector (7 downto 0); --! received Ctrl byte
     rx_PDU_byte_i :          in std_logic_vector (7 downto 0); --! received PDU_TYPE byte          
     rx_Length_byte_i :       in std_logic_vector (7 downto 0); --! received Length byte
 
-    -- Signal from the wf_rx unit
+    -- Signal from the WF_rx unit
     rx_FSS_CRC_FES_viol_ok_p_i : in std_logic; --! indication that CRC and FES have 
 
-   -- Signals from wf_engine_control
+   -- Signals from WF_engine_control
     var_i:                   in t_var;
     rx_byte_index_i :        in unsigned(7 downto 0);
 
 
   -- OUTPUT
-    -- Signal to wf_engine_control
+    -- Signal to WF_engine_control
     cons_frame_ok_p_o :      out std_logic
       );
-end entity wf_cons_frame_validator;
+end entity WF_cons_frame_validator;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_cons_frame_validator is
+architecture rtl of WF_cons_frame_validator is
 
 signal s_rx_ctrl_byte_ok, s_rx_PDU_byte_ok, s_rx_length_byte_ok : std_logic;
 

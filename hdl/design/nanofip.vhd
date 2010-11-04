@@ -1,6 +1,6 @@
---=================================================================================================
+---------------------------------------------------------------------------------------------------
 --! @file nanofip.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -199,19 +199,18 @@ architecture struc of nanofip is
   signal s_cons_byte_we_from_control : std_logic;
   signal s_var_from_control : t_var;
   signal s_add_offset_from_control : std_logic_vector (7 downto 0);
-  signal s_CRC_ok_from_rx : std_logic;
-  signal fss_decoded_p_from_rx : std_logic;
+  signal s_CRC_ok_from_rx, s_urst_r_edge : std_logic;
+  signal fss_decoded_p_from_rx, s_assert_RSTON_p : std_logic;
   signal s_stat : std_logic_vector (7 downto 0);
   signal s_ack_produced, s_ack_consumed, s_ack_o: std_logic;
-  signal s_reset_status_bytes, s_sending_mps: std_logic;
-  signal s_crc_bad_p : std_logic;
+  signal s_rst_status_bytes, s_sending_mps: std_logic;
+  signal s_crc_bad_p, s_reset_nFIP_and_FD_p  : std_logic;
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy : std_logic;
   signal s_mps : std_logic_vector (7 downto 0);
   signal s_m_id_dec_o, s_c_id_dec_o : std_logic_vector (7 downto 0);  
-  signal s_reset_rx_unit_p : std_logic;
+  signal s_rst_rx_unit_p : std_logic;
   signal s_ctrl_byte_received, s_pdu_byte_received, s_length_byte_received : std_logic_vector (7 downto 0);
-  signal s_rst_var_byte_1, s_rst_var_byte_2 : std_logic_vector (7 downto 0);
-  signal s_rsti_synch, s_slone_synch, s_nostat_synch, s_fd_wdgn_synch, s_fd_txer_synch: std_logic;
+  signal s_urst_synch, s_slone_synch, s_nostat_synch, s_fd_wdgn_synch, s_fd_txer_synch: std_logic;
   signal s_fd_rxd_synch, s_fd_rxd_edge, s_rxd_r_edge, s_rxd_f_edge, s_wb_cyc_synch: std_logic;
   signal s_wb_we_synch, s_wb_stb_synch, s_wb_stb_r_edge: std_logic; 
   signal s_wb_dati_synch: std_logic_vector(7 downto 0);
@@ -219,7 +218,7 @@ architecture struc of nanofip is
   signal s_var1_access_synch, s_var2_access_synch, s_var3_access_synch: std_logic;
   signal s_slone_dati_synch: std_logic_vector(15 downto 0);
   signal s_rate_synch: std_logic_vector(1 downto 0);
-  signal s_subs_synch : std_logic_vector(7 downto 0);
+  signal s_subs_synch, s_rx_var_rst_byte_1, s_rx_var_rst_byte_2 : std_logic_vector(7 downto 0);
   signal s_m_id_synch, s_c_id_synch : std_logic_vector(3 downto 0);
   signal s_p3_lgth_synch : std_logic_vector(2 downto 0);
 
@@ -229,52 +228,58 @@ begin
 --=================================================================================================  
 
 ---------------------------------------------------------------------------------------------------
-  reset_unit : wf_reset_unit 
+  reset_unit : WF_reset_unit 
     port map(
-      uclk_i              => uclk_i,
-      rsti_i              => s_rsti_synch,
-      var_i               => s_var_from_control,
-      subs_i              => s_subs_synch,
-      rst_var_byte_1_i    => s_rst_var_byte_1,
-      rst_var_byte_2_i    => s_rst_var_byte_2,
-      rston_o             => rston_o,
-      nFIP_rst_o          => s_rst, 
-      fd_rstn_o           => fd_rstn_o  
+      uclk_i                => uclk_i,
+      urst_i                => s_urst_synch,
+      rate_i                => s_rate_synch,
+      urst_r_edge_i         => s_urst_r_edge,
+      var_i                 => s_var_from_control,
+      subs_i                => s_subs_synch,
+      rst_nFIP_and_FD_p_i   => s_reset_nFIP_and_FD_p,
+      assert_RSTON_p_i      => s_assert_RSTON_p,
+      rston_o               => rston_o,
+      nFIP_rst_o            => s_rst, 
+      fd_rstn_o             => fd_rstn_o  
       );
 ---------------------------------------------------------------------------------------------------
 
-  engine_control : wf_engine_control 
+  engine_control : WF_engine_control 
     generic map( C_QUARTZ_PERIOD => C_QUARTZ_PERIOD)
 
     port map(
-      uclk_i               => uclk_i,
-      nFIP_u_rst_i         => s_rst, 
-      tx_request_byte_p_i  => s_request_byte_from_tx_p, 
+      uclk_i                => uclk_i,
+      nFIP_urst_i           => s_rst, 
+      tx_request_byte_p_i   => s_request_byte_from_tx_p, 
       rx_FSS_received_p_i   => fss_decoded_p_from_rx,   
-      rx_byte_ready_p_i    => s_byte_from_rx_ready_p,
-      rx_byte_i            => s_byte_from_rx, 
-      rx_CRC_FES_ok_p_i    => s_CRC_ok_from_rx,
-      tx_sending_mps_i     => s_sending_mps,
-      rx_Ctrl_byte_i       => s_ctrl_byte_received,
-      rx_PDU_byte_i        => s_pdu_byte_received,  
-      rx_Length_byte_i     => s_length_byte_received,
-      rate_i               => s_rate_synch, 
-      subs_i               => s_subs_synch,
-      p3_lgth_i            => s_p3_lgth_synch, 
-      slone_i              => s_slone_synch, 
-      nostat_i             => s_nostat_synch, 
-      var1_rdy_o           => s_var1_rdy, 
-      var2_rdy_o           => s_var2_rdy, 
-      var3_rdy_o           => s_var3_rdy, 
-      var_o                => s_var_from_control,
-      tx_start_produce_p_o => s_start_send_p , 
-      tx_byte_ready_p_o    => s_byte_to_tx_ready_p, 
-      tx_last_byte_p_o     => s_last_byte_to_tx_p, 
-      tx_rx_byte_index_o   => s_add_offset_from_control,
-      tx_data_length_o     => s_data_length_from_control,
-      rx_byte_ready_p_o  => s_cons_byte_we_from_control,
-      reset_rx_unit_p_o    => s_reset_rx_unit_p,
-      reset_status_bytes_o => s_reset_status_bytes
+      rx_byte_ready_p_i     => s_byte_from_rx_ready_p,
+      rx_byte_i             => s_byte_from_rx, 
+      rx_CRC_FES_ok_p_i     => s_CRC_ok_from_rx,
+      tx_sending_mps_i      => s_sending_mps,
+      rx_Ctrl_byte_i        => s_ctrl_byte_received,
+      rx_PDU_byte_i         => s_pdu_byte_received,  
+      rx_Length_byte_i      => s_length_byte_received,
+      rx_var_rst_byte_1_i   => s_rx_var_rst_byte_1,
+      rx_var_rst_byte_2_i   => s_rx_var_rst_byte_2,
+      rate_i                => s_rate_synch, 
+      subs_i                => s_subs_synch,
+      p3_lgth_i             => s_p3_lgth_synch, 
+      slone_i               => s_slone_synch, 
+      nostat_i              => s_nostat_synch, 
+      var1_rdy_o            => s_var1_rdy, 
+      var2_rdy_o            => s_var2_rdy, 
+      var3_rdy_o            => s_var3_rdy, 
+      var_o                 => s_var_from_control,
+      tx_start_produce_p_o  => s_start_send_p , 
+      tx_byte_ready_p_o     => s_byte_to_tx_ready_p, 
+      tx_last_byte_p_o      => s_last_byte_to_tx_p, 
+      tx_rx_byte_index_o    => s_add_offset_from_control,
+      tx_data_length_o      => s_data_length_from_control,
+      rx_byte_ready_p_o     => s_cons_byte_we_from_control,
+      rst_rx_unit_p_o       => s_rst_rx_unit_p,
+      assert_RSTON_p_o      => s_assert_RSTON_p,
+      rst_nFIP_and_FD_p_o   => s_reset_nFIP_and_FD_p,
+      rst_status_bytes_o    => s_rst_status_bytes
       );
 
       var1_rdy_o <= s_var1_rdy; 
@@ -284,38 +289,38 @@ begin
 
 
 
-    tx_rx : wf_tx_rx 
+    tx_rx : WF_tx_rx 
 
     port map(
-      uclk_i              => uclk_i,
-      nFIP_u_rst_i        => s_rst,
-      reset_rx_unit_p_i   => s_reset_rx_unit_p,
-      start_produce_p_i   => s_start_send_p,
-      request_byte_p_o    => s_request_byte_from_tx_p,
-      byte_ready_p_i      => s_byte_to_tx_ready_p,
-      byte_i              => s_byte_to_tx,
-      last_byte_p_i       => s_last_byte_to_tx_p,
-      tx_data_o           => fx_txd_o,
-      tx_enable_o         => fd_txena_o,
-      d_clk_o             => fd_txck_o,
-      fd_rxd              => s_fd_rxd_synch,
-      fd_rxd_edge_i       => s_fd_rxd_edge,
-      fd_rxd_r_edge_i     => s_rxd_r_edge,
-      fd_rxd_f_edge_i     => s_rxd_f_edge, 
-      rate_i              => s_rate_synch,
-      byte_ready_p_o      => s_byte_from_rx_ready_p,
-      byte_o              => s_byte_from_rx,
-      CRC_wrong_p_o       => s_crc_bad_p,
-      FSS_received_p_o    => fss_decoded_p_from_rx,
+      uclk_i                  => uclk_i,
+      nFIP_urst_i             => s_rst,
+      rst_rx_unit_p_i         => s_rst_rx_unit_p,
+      start_produce_p_i       => s_start_send_p,
+      request_byte_p_o        => s_request_byte_from_tx_p,
+      byte_ready_p_i          => s_byte_to_tx_ready_p,
+      byte_i                  => s_byte_to_tx,
+      last_byte_p_i           => s_last_byte_to_tx_p,
+      tx_data_o               => fx_txd_o,
+      tx_enable_o             => fd_txena_o,
+      d_clk_o                 => fd_txck_o,
+      fd_rxd                  => s_fd_rxd_synch,
+      fd_rxd_edge_i           => s_fd_rxd_edge,
+      fd_rxd_r_edge_i         => s_rxd_r_edge,
+      fd_rxd_f_edge_i         => s_rxd_f_edge, 
+      rate_i                  => s_rate_synch,
+      byte_ready_p_o          => s_byte_from_rx_ready_p,
+      byte_o                  => s_byte_from_rx,
+      CRC_wrong_p_o           => s_crc_bad_p,
+      FSS_received_p_o        => fss_decoded_p_from_rx,
       FSS_CRC_FES_viol_ok_p_o => s_CRC_ok_from_rx 
       );
 ---------------------------------------------------------------------------------------------------
 
-    consumed_vars : wf_cons_bytes_from_rx 
+    consumed_vars : WF_cons_bytes_from_rx 
 
     port map(
       uclk_i              => uclk_i,
-      nFIP_u_rst_i          => s_rst, 
+      nFIP_urst_i         => s_rst, 
       slone_i             => s_slone_synch,
       byte_ready_p_i      => s_cons_byte_we_from_control,
       var_i               => s_var_from_control,
@@ -330,13 +335,13 @@ begin
       rx_Ctrl_byte_o      => s_ctrl_byte_received,
       rx_PDU_byte_o       => s_PDU_byte_received,         
       rx_Length_byte_o    => s_length_byte_received,
-      rst_var_byte_1_o    => s_rst_var_byte_1, 
-      rst_var_byte_2_o    => s_rst_var_byte_2
+      rx_var_rst_byte_1_o => s_rx_var_rst_byte_1, 
+      rx_var_rst_byte_2_o => s_rx_var_rst_byte_2
       );
 ---------------------------------------------------------------------------------------------------
 
 
-    produced_vars : wf_prod_bytes_to_tx
+    produced_vars : WF_prod_bytes_to_tx
 
     port map(
       uclk_i             => uclk_i, 
@@ -344,7 +349,7 @@ begin
       c_id_dec_i         => s_c_id_dec_o,
       slone_i            => s_slone_synch,  
       nostat_i           => s_nostat_synch, 
-      nFIP_u_rst_i       => s_rst,
+      nFIP_urst_i        => s_rst,
       wb_clk_i           => wclk_i,   
       wb_adr_i           => s_wb_adri_synch,   
       wb_stb_r_edge_p_i  => s_wb_stb_r_edge, 
@@ -364,10 +369,10 @@ begin
       );
 ---------------------------------------------------------------------------------------------------
 
-    status_bytes_gen : wf_status_bytes_gen 
+    status_bytes_gen : WF_status_bytes_gen 
     port map(
       uclk_i               => uclk_i,
-      nFIP_u_rst_i           => s_rst,
+      nFIP_urst_i          => s_rst,
       slone_i              => s_slone_synch,
       fd_wdgn_i            => s_fd_wdgn_synch,
       fd_txer_i            => s_fd_txer_synch,
@@ -379,17 +384,17 @@ begin
       var1_acc_i           => s_var1_access_synch,
       var2_acc_i           => s_var2_access_synch,
       var3_acc_i           => s_var3_access_synch,
-      reset_status_bytes_i => s_reset_status_bytes,
+      rst_status_bytes_i   => s_rst_status_bytes,
       nFIP_status_byte_o   => s_stat,
       mps_status_byte_o    => s_mps
       );
 ---------------------------------------------------------------------------------------------------
 
- model_constr_decoder : wf_model_constr_decoder 
+ model_constr_decoder : WF_model_constr_decoder 
   generic map (C_RELOAD_MID_CID => C_RELOAD_MID_CID)
   port map(
     uclk_i        => uclk_i,
-    nFIP_u_rst_i    => s_rst,
+    nFIP_urst_i   => s_rst,
     s_id_o        => s_id_o,
     m_id_dec_o    => s_m_id_dec_o,
     c_id_dec_o    => s_c_id_dec_o,
@@ -400,11 +405,11 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 
-  synchronizer: wf_inputs_synchronizer
+  synchronizer: WF_inputs_synchronizer
   port map(
     uclk_i          => uclk_i,
     wbclk_i         => wclk_i,
-    nFIP_u_rst_i    => s_rst, 
+    nFIP_urst_i     => s_rst, 
     rstin_a_i       => rstin_i,
     wb_rst_a_i      => rst_i,
     slone_a_i       => slone_i,
@@ -425,7 +430,8 @@ begin
     m_id_a_i        => m_id_i,
     c_id_a_i        => c_id_i,
     p3_lgth_a_i     => p3_lgth_i,
-    u_rsti_o        => s_rsti_synch,
+    rsti_o          => s_urst_synch,
+    urst_r_edge_o   => s_urst_r_edge,
     slone_o         => s_slone_synch,
     nostat_o        => s_nostat_synch,
     fd_wdgn_o       => s_fd_wdgn_synch,

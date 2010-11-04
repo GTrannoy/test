@@ -1,6 +1,6 @@
---=================================================================================================
---! @file wf_status_bytes_gen.vhd
---=================================================================================================
+---------------------------------------------------------------------------------------------------
+--! @file WF_status_bytes_gen.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE;
@@ -14,13 +14,13 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                       wf_status_bytes_generator                               --
+--                                       WF_status_bytes_generator                               --
 --                                                                                               --
 --                                           CERN, BE/CO/HT                                      --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   wf_status_bytes_gen
+-- unit name   WF_status_bytes_gen
 --
 --
 --! @brief     Generation of the NanoFIP status, as well as the MPS status bytes. 
@@ -42,7 +42,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n<b>Dependencies:</b>\n
 --!     data_if             \n
 --!     tx_engine           \n
---!     wf_tx_rx            \n
+--!     WF_tx_rx            \n
 --!     reset_logic         \n
 --
 --
@@ -65,18 +65,18 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 
 
 --=================================================================================================
--- Entity declaration for wf_status_bytes_gen
+-- Entity declaration for WF_status_bytes_gen
 --=================================================================================================
-entity wf_status_bytes_gen is
+entity WF_status_bytes_gen is
 
 port (
   -- INPUTS 
-    -- User Interface general signals 
+    -- User Interface general signals (synchronized) 
     uclk_i :               in std_logic;  --! 40 MHz Clock
     slone_i :              in  std_logic; --! Stand-alone mode
 
     -- Signal from the reset_logic unit
-    nFIP_u_rst_i :           in std_logic;  --! internal reset
+    nFIP_urst_i :           in std_logic;  --! internal reset
 
     -- Signals from the fieldrive interface  
     fd_wdgn_i :            in  std_logic; --! Watchdog on transmitter
@@ -87,10 +87,10 @@ port (
     var2_acc_i :          in std_logic; --! Variable 2 access (asynchronous)
     var3_acc_i :          in std_logic; --! Variable 3 access (asynchronous)
 
-    -- Signal from the receiver wf_rx
+    -- Signal from the receiver WF_rx
     crc_wrong_p_i :        in std_logic;
     
-    -- Signals from the central control unit wf_engine_control
+    -- Signals from the central control unit WF_engine_control
     var_i :                in t_var;     --! variable type 
     var1_rdy_i :           in std_logic; --! Variable 1 ready
     var2_rdy_i :           in std_logic; --! Variable 2 ready
@@ -98,20 +98,20 @@ port (
     
 
     -- Signal from nanofip
-    reset_status_bytes_i : in std_logic; --! both status bytes are reinitialized
+    rst_status_bytes_i : in std_logic; --! both status bytes are reinitialized
                                          --! right after having been delivered
 
   -- OUTPUTS 
-    -- Output to wf_prod_bytes_to_tx
+    -- Output to WF_prod_bytes_to_tx
     nFIP_status_byte_o :   out std_logic_vector (7 downto 0);  --! status byte
     mps_status_byte_o :    out std_logic_vector (7 downto 0)   --! mps byte
      ); 
-end entity wf_status_bytes_gen;
+end entity WF_status_bytes_gen;
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_status_bytes_gen is
+architecture rtl of WF_status_bytes_gen is
 
 signal s_refreshment : std_logic; 
 
@@ -131,7 +131,7 @@ begin
 
     if rising_edge(uclk_i) then
   
-      if ((nFIP_u_rst_i = '1') or (reset_status_bytes_i = '1')) then -- the byte is reinitialized
+      if ((nFIP_urst_i = '1') or (rst_status_bytes_i = '1')) then -- the byte is reinitialized
         nFIP_status_byte_o                    <= (others => '0');  -- after having been delivered
 
         else
@@ -182,7 +182,7 @@ end process;
   begin
     if rising_edge(uclk_i) then
 
-      if nFIP_u_rst_i = '1' or reset_status_bytes_i = '1' then -- the bit is reinitialized
+      if nFIP_urst_i = '1' or rst_status_bytes_i = '1' then -- the bit is reinitialized
         s_refreshment   <= '0';                              -- after having been delivered
       else
 
