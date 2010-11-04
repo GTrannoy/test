@@ -7,7 +7,7 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_unsigned.all;
+use work.tb_package.all;
 
 entity nanofip_tb is
 end nanofip_tb;
@@ -69,11 +69,11 @@ architecture archi of nanofip_tb is
 		var3_acc_o			: out std_logic;
 
 		ack_i				: in std_logic;
-		dat_i				: in std_logic_vector(7 downto 0);
+		dat_i				: in std_logic_vector(15 downto 0);
 
 		adr_o				: out std_logic_vector(9 downto 0);
 		cyc_o				: out std_logic;
-		dat_o				: out std_logic_vector(7 downto 0);
+		dat_o				: out std_logic_vector(15 downto 0);
 		rst_o				: out std_logic;
 		stb_o				: out std_logic;
 		wclk_o				: out std_logic;
@@ -145,15 +145,11 @@ architecture archi of nanofip_tb is
 	signal reset		: std_logic;
 
 	signal ack			: std_logic:='0';
-	signal dat_from_fip	: std_logic_vector(7 downto 0);
-	signal slone_dat_o	: std_logic_vector(7 downto 0);
-	signal dat_o		: std_logic_vector(15 downto 0);
+	signal dat_from_fip	: std_logic_vector(15 downto 0);
 
 	signal adr			: std_logic_vector(9 downto 0);
 	signal cyc			: std_logic;
-	signal dat_to_fip	: std_logic_vector(7 downto 0);
-	signal slone_dat_i	: std_logic_vector(7 downto 0);
-	signal dat_i		: std_logic_vector(15 downto 0);
+	signal dat_to_fip	: std_logic_vector(15 downto 0);
 
 	signal rst			: std_logic := '0';
 	signal stb			: std_logic;
@@ -193,8 +189,8 @@ begin
     var3_rdy_o=> var3_rdy,
     var3_acc_i=> var3_acc,
     wclk_i    => wclk,
-    dat_i     => dat_i,
-    dat_o     => dat_o,
+    dat_i     => dat_to_fip,
+    dat_o     => dat_from_fip,
     adr_i     => adr,
     rst_i     => rst,
     stb_i     => stb,
@@ -202,11 +198,6 @@ begin
 	cyc_i     => cyc,
     we_i      => we
     );
-
-    dat_i(7 downto 0)	<= dat_to_fip;
-    dat_i(15 downto 8)	<= slone_dat_i;
-    dat_from_fip		<= dat_o(7 downto 0);
-    slone_dat_o			<= dat_o(15 downto 8);
 
 	board: board_settings
 	port map(

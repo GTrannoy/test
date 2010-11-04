@@ -145,23 +145,20 @@ begin
 	file config_file				: text;
 	variable config_line			: line;
 
-	variable constructor_config	: std_logic_vector(7 downto 0);
-	variable model_config		: std_logic_vector(7 downto 0);
-	variable nostat_config		: std_logic;
-	variable varlength_config	: byte_count_type;
-	
 	begin
 		if report_config_trigger = '1' then
 			file_open(config_file,"data/tmp_board_config.txt",write_mode);
 			
-			write(config_line,length_strg);
-			writeline(config_file,config_line);
-			write(config_line,nostat);
-			writeline(config_file,config_line);
-			hwrite(config_line,std_logic_vector(constructor));
-			writeline(config_file,config_line);
-			hwrite(config_line,std_logic_vector(model));
-			writeline(config_file,config_line);
+			write		(config_line,slone);
+			writeline	(config_file,config_line);
+			write		(config_line,length_strg);
+			writeline	(config_file,config_line);
+			write		(config_line,nostat);
+			writeline	(config_file,config_line);
+			hwrite		(config_line,std_logic_vector(constructor));
+			writeline	(config_file,config_line);
+			hwrite		(config_line,std_logic_vector(model));
+			writeline	(config_file,config_line);
 
 			file_close(config_file);
 		end if;

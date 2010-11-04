@@ -32,13 +32,13 @@ architecture archi of bus_config is
 signal s_gx					: std_logic_vector(crc_l downto 0);
 							-- polynome according to EN-61158-4-7: "10001110111001111";
 signal s_id_control			: std_logic_vector(7 downto 0);
-signal s_mps				: std_logic_vector(7 downto 0);
 signal s_pdu_type			: std_logic_vector(7 downto 0);
 signal s_rp_control			: std_logic_vector(7 downto 0);
+signal s_mps				: std_logic_vector(7 downto 0);
 signal id_control_strg		: string(1 to 2);
-signal mps_strg				: string(1 to 2);
 signal pdu_type_strg		: string(1 to 2);
 signal rp_control_strg		: string(1 to 2);
+signal mps_strg				: string(1 to 2);
 signal bit_rate				: integer;
 signal gx_strg				: string(1 to crc_l+1);
 signal rate_strg			: string(1 to 19);
@@ -101,7 +101,7 @@ begin
 						f_clk_period	<=	32 us	when 0,
 											1 us	when 1,
 											400 ns	when 2,
-											0 us	when others;
+											1 us	when others;
 
 	-- Translation of values for the reporting
 	------------------------------------------

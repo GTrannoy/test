@@ -32,7 +32,9 @@ architecture archi of tx is
 
 	component manchester_decoder
 	port(
-		input			: in std_logic;
+		cfig_clk_period	: in time;
+		txd				: in std_logic;
+		txena			: in std_logic;
 		
 		extracted_bits	: out std_logic;
 		extracted_clk	: out std_logic;
@@ -94,7 +96,15 @@ architecture archi of tx is
 		frame_received		: in std_logic
 	);
 	end component;
-
+	
+	component transmission_meddler
+	port(
+		cfig_clk_period			: out time;
+		txerr					: out std_logic;
+		wdgn					: out std_logic
+	);
+	end component;
+	signal cfig_clk_period		: time;
 	signal extracted_bits		: std_logic;
 	signal extracted_clk		: std_logic;
 	signal fcs_check			: std_logic;
@@ -115,7 +125,9 @@ begin
 
 	decoder: manchester_decoder
 	port map(
-		input				=> txd,
+		cfig_clk_period		=> cfig_clk_period,
+		txd					=> txd,
+		txena				=> txena,
 		
 		extracted_clk		=> extracted_clk,
 		extracted_bits		=> extracted_bits,
@@ -172,8 +184,12 @@ begin
 		fcs_check			=> fcs_check,
 		fcs_ok				=> fcs_ok
 	);
-
-	txerr					<= '0';
-	wdgn					<= '1';
+	
+	meddler: transmission_meddler
+	port map(
+		cfig_clk_period		=> cfig_clk_period,
+		txerr				=> txerr,
+		wdgn				=> wdgn
+	);
 
 end archi;

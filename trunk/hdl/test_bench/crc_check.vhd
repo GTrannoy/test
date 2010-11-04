@@ -11,6 +11,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.std_logic_textio.all;
 use std.textio.all;
+use work.tb_package.all;
 
 entity crc_check is
 	generic(

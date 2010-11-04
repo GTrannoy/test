@@ -8,6 +8,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.tb_package.all;
 
 entity user_interface is
 	port(
@@ -23,11 +24,11 @@ entity user_interface is
 		var3_acc_o			: out std_logic;
 
 		ack_i				: in std_logic;
-		dat_i				: in std_logic_vector(7 downto 0);
+		dat_i				: in std_logic_vector(15 downto 0);
 
 		adr_o				: out std_logic_vector(9 downto 0);
 		cyc_o				: out std_logic;
-		dat_o				: out std_logic_vector(7 downto 0);
+		dat_o				: out std_logic_vector(15 downto 0);
 		rst_o				: out std_logic;
 		stb_o				: out std_logic;
 		wclk_o				: out std_logic;
@@ -37,48 +38,61 @@ end user_interface;
 
 architecture archi of user_interface is
 
-	component wishbone_interface
+	component slone_interface
 	port(
-		block_size			: in std_logic_vector(6 downto 0);
-		launch_wb_read		: in std_logic;
-		launch_wb_write 	: in std_logic;
-		transfer_length		: in std_logic_vector(6 downto 0);
-		transfer_offset		: in std_logic_vector(6 downto 0);
+		launch_slone_read	: in std_logic;
+		launch_slone_write	: in std_logic;
+		uclk				: in std_logic;
+		ureset				: in std_logic;
+
+		dat_o				: out std_logic_vector(15 downto 0);
+		slone_access_read	: out std_logic;
+		slone_access_write	: out std_logic
+	);
+	end component;
+
+	component slone_monitor
+	port(
+		dat_i				: in std_logic_vector(15 downto 0);
+		dat_o				: in std_logic_vector(15 downto 0);
+		slone_access_read	: in std_logic;
+		slone_access_write	: in std_logic;
+		uclk				: in std_logic;
+		ureset				: in std_logic;
+		var_id				: in std_logic_vector(1 downto 0)
+	);
+	end component;
+
+	component user_access_monitor is
+	port(
+		cyc					: in std_logic;
+		slone_access_read	: in std_logic;
+		slone_access_write	: in std_logic;
+		var1_rdy_i			: in std_logic;
+		var2_rdy_i			: in std_logic;
+		var3_rdy_i			: in std_logic;
 		var_id			 	: in std_logic_vector(1 downto 0);
-		
-		valid_wb_cycle		: out std_logic;
 
-		ack_i				: in std_logic;
-		clk_i				: in std_logic;
-		dat_i				: in std_logic_vector(7 downto 0);
-		rst_i				: in std_logic;
-
-		adr_o				: out std_logic_vector(9 downto 0);
-		cyc_o				: out std_logic;
-		dat_o				: out std_logic_vector(7 downto 0);
-		stb_o				: out std_logic;
-		we_o				: out std_logic
+		var1_acc_o			: out std_logic;
+		var2_acc_o			: out std_logic;
+		var3_acc_o			: out std_logic
 	);
 	end component;
 
 	component user_sequencer
 	port(
-		cyc					: in std_logic;
-		uclk_period			: in time;
 		urstn_from_nf		: in std_logic;
-		var1_rdy_i			: in std_logic;
-		var2_rdy_i			: in std_logic;
-		var3_rdy_i			: in std_logic;
+		uclk_period			: in time;
+		wclk_period			: in time;
 
 		block_size			: out std_logic_vector(6 downto 0);
+		launch_slone_read	: out std_logic;
+		launch_slone_write 	: out std_logic;
 		launch_wb_read		: out std_logic;
 		launch_wb_write 	: out std_logic;
 		transfer_length		: out std_logic_vector(6 downto 0);
 		transfer_offset		: out std_logic_vector(6 downto 0);
-		var_id			 	: out std_logic_vector(1 downto 0);
-		var1_acc_o			: out std_logic;
-		var2_acc_o			: out std_logic;
-		var3_acc_o			: out std_logic
+		var_id			 	: out std_logic_vector(1 downto 0)
 	);
 	end component;
 	
@@ -92,7 +106,29 @@ architecture archi of user_interface is
 	);
 	end component;
 	
-	component wb_monitor
+	component wishbone_interface
+	port(
+		block_size			: in std_logic_vector(6 downto 0);
+		launch_wb_read		: in std_logic;
+		launch_wb_write 	: in std_logic;
+		transfer_length		: in std_logic_vector(6 downto 0);
+		transfer_offset		: in std_logic_vector(6 downto 0);
+		var_id			 	: in std_logic_vector(1 downto 0);
+		
+		ack_i				: in std_logic;
+		clk_i				: in std_logic;
+		dat_i				: in std_logic_vector(7 downto 0);
+		rst_i				: in std_logic;
+
+		adr_o				: out std_logic_vector(9 downto 0);
+		cyc_o				: out std_logic;
+		dat_o				: out std_logic_vector(7 downto 0);
+		stb_o				: out std_logic;
+		we_o				: out std_logic
+	);
+	end component;
+
+	component wishbone_monitor
 	port(
 		ack_i					: in std_logic;
 		clk_o					: in std_logic;
@@ -108,13 +144,20 @@ architecture archi of user_interface is
 	end component;
 
 	signal adr					: std_logic_vector(9 downto 0);
-	signal dat_to_nf			: std_logic_vector(7 downto 0);
+	signal data_from_wb			: std_logic_vector(7 downto 0);
 	signal stb					: std_logic;
 	signal we					: std_logic;
 
 	signal block_size			: std_logic_vector(6 downto 0):="000" & x"0";
 	signal config_validity_time	: time;
 	signal cyc					: std_logic;
+	signal data_from_slone		: std_logic_vector(15 downto 0);
+	signal memory_output		: boolean;
+	signal slone_access_read	: std_logic;
+	signal slone_access_write	: std_logic;
+	signal slone_output			: boolean;
+	signal launch_slone_read	: std_logic:='0';
+	signal launch_slone_write 	: std_logic:='0';
 	signal launch_wb_read		: std_logic:='0';
 	signal launch_wb_write 		: std_logic:='0';
 	signal transfer_length		: std_logic_vector(6 downto 0):="000" & x"0";
@@ -124,7 +167,6 @@ architecture archi of user_interface is
 	signal ureset				: std_logic;
 	signal ureset_length		: time;
 	signal var_id		 		: std_logic_vector(1 downto 0):="00";
-	signal valid_wb_cycle		: std_logic;
 	signal wclk					: std_logic:='0';
 	signal wclk_period			: time;
 	signal wreset				: std_logic;
@@ -163,6 +205,64 @@ begin
 		wreset			<= '0';
 		wait for config_validity_time - wreset_length;
 	end process;
+	
+	slone_output_detector: process
+	begin
+		if launch_slone_write ='1' then
+			slone_output		<= TRUE;
+		elsif memory_output then
+			slone_output		<= FALSE;
+		end if;
+		wait until uclk ='1';
+	end process;
+	
+	memory_output_detector: process
+	begin
+		if launch_wb_write ='1' then
+			memory_output		<= TRUE;
+		elsif slone_output then
+			memory_output		<= FALSE;
+		end if;
+		wait until wclk ='1';
+	end process;
+	
+	sa_interface: slone_interface
+	port map(
+		launch_slone_read		=> launch_slone_read,
+		launch_slone_write		=> launch_slone_write,
+		uclk					=> uclk,
+		ureset					=> ureset,
+		
+		dat_o					=> data_from_slone,
+		slone_access_read		=> slone_access_read,
+		slone_access_write		=> slone_access_write
+	);
+	
+	sa_monitor: slone_monitor
+	port map(
+		dat_i					=> dat_i,
+		dat_o					=> data_from_slone,
+		slone_access_read		=> slone_access_read,
+		slone_access_write		=> slone_access_write,
+		uclk					=> uclk,
+		ureset					=> ureset,
+		var_id					=> var_id
+	);
+	
+	user_acc_monitor: user_access_monitor
+	port map(
+		cyc						=> cyc,
+		slone_access_read		=> slone_access_read,
+		slone_access_write		=> slone_access_write,
+		var1_rdy_i				=> var1_rdy_i,
+		var2_rdy_i				=> var2_rdy_i,
+		var3_rdy_i				=> var3_rdy_i,
+		var_id					=> var_id,
+
+		var1_acc_o				=> var1_acc_o,
+		var2_acc_o				=> var2_acc_o,
+		var3_acc_o				=> var3_acc_o
+	);
 
 	user_configuration: user_config
 	port map(
@@ -172,25 +272,21 @@ begin
 		wclk_period				=> wclk_period,
 		wreset_length			=> wreset_length
 	);
-
+	
 	user_sequence: user_sequencer
 	port map(
-		cyc						=> cyc,
-		uclk_period				=> uclk_period,
 		urstn_from_nf			=> urstn_from_nf,
-		var1_rdy_i				=> var1_rdy_i,
-		var2_rdy_i				=> var2_rdy_i,
-		var3_rdy_i				=> var3_rdy_i,
+		uclk_period				=> uclk_period,
+		wclk_period				=> wclk_period,
 		
 		block_size				=> block_size,
+		launch_slone_read		=> launch_slone_read,
+		launch_slone_write 		=> launch_slone_write,
 		launch_wb_read			=> launch_wb_read,
 		launch_wb_write 		=> launch_wb_write,
 		transfer_length			=> transfer_length,
 		transfer_offset			=> transfer_offset,
-		var_id					=> var_id,
-		var1_acc_o				=> var1_acc_o,
-		var2_acc_o				=> var2_acc_o,
-		var3_acc_o				=> var3_acc_o
+		var_id					=> var_id
 	);
 
 	wb_interface:  wishbone_interface
@@ -202,29 +298,27 @@ begin
 		transfer_offset			=> transfer_offset,
 		var_id					=> var_id,
 
-		valid_wb_cycle			=> valid_wb_cycle,
-
 		ack_i					=> ack_i,
 		clk_i					=> wclk,
-		dat_i					=> dat_i,
+		dat_i					=> dat_i(7 downto 0),
 		rst_i					=> wreset,
 
 		adr_o					=> adr,
 		cyc_o					=> cyc,
-		dat_o					=> dat_to_nf,
+		dat_o					=> data_from_wb,
 		stb_o					=> stb,
 		we_o					=> we
 	);
 	
-	wishbone_monitor: wb_monitor
+	wb_monitor: wishbone_monitor
 	port map(
 		ack_i					=> ack_i,
 		clk_o					=> wclk,
-		dat_i					=> dat_i,
+		dat_i					=> dat_i(7 downto 0),
 		rst_o					=> wreset,
 		adr_o					=> adr,
 		cyc_o					=> cyc,
-		dat_o					=> dat_to_nf,
+		dat_o					=> data_from_wb,
 		stb_o					=> stb,
 		we_o					=> we
 	);
@@ -234,11 +328,13 @@ begin
 
 	adr_o				<= adr;
 	cyc_o				<= cyc;
-	dat_o				<= dat_to_nf;
 	rst_o				<= wreset;
 	wclk_o				<= wclk;
 	stb_o				<= stb;
 	we_o				<= we;
 
-
+	dat_o				<=		data_from_slone			when slone_output
+						else	x"00" & data_from_wb	when memory_output
+						else	(others=>'0');
+	
 end archi;

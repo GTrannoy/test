@@ -10,6 +10,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_textio.all;
 use std.textio.all;
+use work.tb_package.all;
 
 entity wishbone_interface is
 	port(
@@ -20,8 +21,6 @@ entity wishbone_interface is
 		transfer_offset		: in std_logic_vector(6 downto 0);
 		var_id			 	: in std_logic_vector(1 downto 0);
 		
-		valid_wb_cycle		: out std_logic;
-
 		ack_i				: in std_logic;
 		clk_i				: in std_logic;
 		dat_i				: in std_logic_vector(7 downto 0);
@@ -198,7 +197,6 @@ begin
 
 -- output signals
 -----------------------
-	valid_wb_cycle		<= valid_bus_cycle;
 	adr_o				<= add_count;
 	cyc_o				<= cyc;
 	dat_o				<= data_for_mem;

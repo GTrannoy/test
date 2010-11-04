@@ -13,7 +13,7 @@ use IEEE.std_logic_textio.all;
 use std.textio.all;
 use work.tb_package.all;
 
-entity wb_monitor is
+entity wishbone_monitor is
 	port(
 		ack_i					: in std_logic;
 		clk_o					: in std_logic;
@@ -26,9 +26,9 @@ entity wb_monitor is
 		stb_o					: in std_logic;
 		we_o					: in std_logic
 	);
-end wb_monitor;
+end wishbone_monitor;
 
-architecture archi of wb_monitor is
+architecture archi of wishbone_monitor is
 
 signal writing_produced					: boolean;
 signal valid_bus_cycle					: boolean;
