@@ -8,6 +8,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.tb_package.all;
 
 entity fieldrive_interface is
 	port(
@@ -141,7 +142,7 @@ begin
 	fd_txer_o				<= txerr;
 	
 	fx_rxa_o				<= not(cd);
-	fx_rxd_o				<= dx;
+	fx_rxd_o				<= dx or (txd and txena);
 
 	rx_block: rx
 	generic map(

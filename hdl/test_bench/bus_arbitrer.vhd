@@ -10,6 +10,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.std_logic_textio.all;
 use std.textio.all;
+use work.tb_package.all;
 
 entity bus_arbitrer is
 	port(
@@ -33,6 +34,8 @@ signal s_var_length				: std_logic_vector(6 downto 0);
 
 begin
 
+	-- process reading the schedule of frame exchange from a text file
+	------------------------------------------------------------------
 	scheduler: process
 	file schedule_file			: text open read_mode is "data/fip_BA_schedule.txt";
 	variable schedule_line		: line;
@@ -49,6 +52,7 @@ begin
 		readline	(schedule_file, schedule_line);
 		readline	(schedule_file, schedule_line);
 		readline	(schedule_file, schedule_line);
+		wait for f_clk_period;
 
 		loop
 			fip_frame_trigger		<= '0';

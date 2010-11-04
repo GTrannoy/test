@@ -9,10 +9,13 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.tb_package.all;
 
 entity manchester_decoder is
 	port(
-		input			: in std_logic;
+		cfig_clk_period	: in time;
+		txd				: in std_logic;
+		txena			: in std_logic;
 		
 		extracted_bits	: out std_logic;
 		extracted_clk	: out std_logic;
@@ -25,7 +28,7 @@ architecture archi of manchester_decoder is
 constant secure_lock	: unsigned(3 downto 0) := x"B";
 constant release_lock	: unsigned(3 downto 0) := x"8";
 
-signal spec_clk_period	: time := 1000 ns;
+--signal cfig_clk_period	: time;--:= 1000 ns;
 
 signal max_jitt			: time := 60 ns;
 
@@ -38,7 +41,8 @@ signal offset2			: time := 0 ns;
 signal b_clk_period		: time := 1 us;
 
 signal last_transition	: time := 0 ns;
-signal input_period		: time := 0 ns;
+signal in_period		: time := 0 ns;
+signal in_signal		: std_logic;
 
 signal clk1_edge		: time := 0 ns;
 signal clk2_edge		: time := 0 ns;
@@ -66,32 +70,36 @@ signal count_period_err	: unsigned(1 downto 0):="00";
 signal count_for_clk3	: unsigned(3 downto 0):=x"0";
 signal count_for_clk4	: unsigned(3 downto 0):=x"0";
 
+signal read_config_trigger	: std_logic;
+
 begin
 
 -- processes for clock period adjustment with the received bit stream
 ----------------------------------------------------------------------
 
-	b_clk_period		<= input_period 
-							when (input_period < (spec_clk_period + max_jitt)
-							and input_period > (spec_clk_period - max_jitt))
+	in_signal			<= txd and txena;
+
+	b_clk_period		<= in_period 
+							when (in_period < (cfig_clk_period + max_jitt)
+							and in_period > (cfig_clk_period - max_jitt))
 						else
-							2 * input_period
-							when (input_period < (spec_clk_period + max_jitt) / 2
-							and input_period > (spec_clk_period - max_jitt) / 2);
+							2 * in_period
+							when (in_period < (cfig_clk_period + max_jitt) / 2
+							and in_period > (cfig_clk_period - max_jitt) / 2);
 
 	extracted_clk			<= b_clk;
 	
-	transition_monitor: process(input)
+	transition_monitor: process(in_signal)
 	begin
-		if rising_edge(input) or falling_edge(input) then
+		if rising_edge(in_signal) or falling_edge(in_signal) then
 			last_transition		<= now;
 		end if;
 	end process;
 	
-	period_monitor: process(input)
+	period_monitor: process(in_signal)
 	begin
-		if rising_edge(input) or falling_edge(input) then
-			input_period		<= now - last_transition;
+		if rising_edge(in_signal) or falling_edge(in_signal) then
+			in_period		<= now - last_transition;
 		end if;
 	end process;
 	
@@ -105,10 +113,10 @@ begin
 		wait for b_clk_period / 2;
 	end process;
 	
-	period_error_condition: process(input_period)
+	period_error_condition: process(in_period)
 	begin
-		if ((input_period > (spec_clk_period + max_jitt) or input_period < (spec_clk_period - max_jitt))
-		and (input_period > (spec_clk_period + max_jitt) / 2 or input_period < (spec_clk_period - max_jitt) / 2)) then
+		if ((in_period > (cfig_clk_period + max_jitt) or in_period < (cfig_clk_period - max_jitt))
+		and (in_period > (cfig_clk_period + max_jitt) / 2 or in_period < (cfig_clk_period - max_jitt) / 2)) then
 
 			if count_period_err = 3 then
 				period_error		<= TRUE;
@@ -178,16 +186,16 @@ begin
 		end if;
 	end process;
 	
-	time0_monitor: process(input)
+	time0_monitor: process(in_signal)
 	begin
-		if rising_edge(input) then
+		if rising_edge(in_signal) then
 			zero_event	<= now;
 		end if;
 	end process;
 	
-	time1_monitor: process(input)
+	time1_monitor: process(in_signal)
 	begin
-		if falling_edge (input) then
+		if falling_edge (in_signal) then
 			one_event	<= now;
 		end if;
 	end process;
@@ -271,7 +279,7 @@ begin
 
 	serial_data: process
 	begin
-		internal_bits	<= input;
+		internal_bits	<= in_signal;
 		wait until b_clk ='1';
 	end process;
 	

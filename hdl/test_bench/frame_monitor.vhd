@@ -141,6 +141,7 @@ begin
 	variable constructor_config	: std_logic_vector(7 downto 0);
 	variable model_config		: std_logic_vector(7 downto 0);
 	variable nostat_config		: std_logic;
+	variable slone_config		: std_logic;
 	variable varlength_config	: byte_count_type;
 	
 	begin
@@ -148,23 +149,30 @@ begin
 			file_open(config_file,"data/tmp_board_config.txt",read_mode);
 		
 			readline	(config_file, config_line);
+			read		(config_line, slone_config);
+			readline	(config_file, config_line);
 			read		(config_line, varlength_config);
-
 			readline	(config_file, config_line);
 			read		(config_line, nostat_config);
-
 			readline	(config_file, config_line);
 			hread		(config_line, constructor_config);
-
 			readline	(config_file, config_line);
 			hread		(config_line, model_config);
 
 			file_close(config_file);
 		
-			if nostat_config = '0' then
-				varlength_specs			<= varlength_config + 6;
+			if slone_config ='1' then
+				if nostat_config = '0' then
+					varlength_specs			<= 8;
+				else
+					varlength_specs			<= 7;
+				end if;
 			else
-				varlength_specs			<= varlength_config + 5;
+				if nostat_config = '0' then
+					varlength_specs			<= varlength_config + 6;
+				else
+					varlength_specs			<= varlength_config + 5;
+				end if;
 			end if;
 			nostat					<= nostat_config;
 			constructor				<= constructor_config;
@@ -362,8 +370,9 @@ begin
 	pdu_type_byte		<= frame_data(0);
 	length_byte			<= frame_data(1);
 	mps_byte			<= frame_data(bytes_total-3) when frame_received ='1';
+	nfip_status			<= frame_data(bytes_total-4) when nostat ='0' and frame_received ='1';
+
 	last_data			<= bytes_total - 4 when nostat ='1' and frame_received = '1'
 						else bytes_total - 5 when nostat = '0' and frame_received = '1';
-	nfip_status			<= frame_data(bytes_total-4) when nostat ='0' and frame_received ='1';
 
 end archi;
