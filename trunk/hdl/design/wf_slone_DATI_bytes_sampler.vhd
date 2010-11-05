@@ -77,7 +77,7 @@ entity WF_slone_DATI_bytes_sampler is
     var3_rdy_i :      in std_logic;
 
     byte_index_i :    in std_logic_vector (7 downto 0); --! pointer to message bytes
-                                                        -- includes rp_dat.Control and rp_dat.Data
+                                                        -- includes RP_DAT.Control and RP_DAT.Data
 
   -- OUTPUTS
     -- Signal to WF_prod_bytes_to_tx

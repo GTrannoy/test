@@ -79,7 +79,7 @@ entity WF_tx is
     
     -- Signals from the WF_engine_control
     start_produce_p_i : in std_logic;  --! indication that WF_engine_control is in prod_watchdog state 
-                                       -- a correct id_dat asking for a produced var has been 
+                                       -- a correct ID_DAT asking for a produced var has been 
                                        -- received and ............ 
 
     byte_ready_p_i :    in std_logic;  --! indication that a byte is ready to be delivered   

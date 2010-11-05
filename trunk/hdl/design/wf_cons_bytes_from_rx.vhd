@@ -381,8 +381,8 @@ end process;
        else "00000000" & s_mem_data_out;  
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Buffer_Ctrl_PDU_Length_bytes: Storage of the rp_dat.Control, PDU_TYPE
---! and Length bytes of an incoming rp_dat frame. The bytes are sent to the WF_VAR_RDY_generator
+--!@brief synchronous process Buffer_Ctrl_PDU_Length_bytes: Storage of the RP_DAT.Control, PDU_TYPE
+--! and Length bytes of an incoming RP_DAT frame. The bytes are sent to the WF_VAR_RDY_generator
 --! unit that accordingly enables or not the signals VAR1_RDY, VAR2_RDY.
 
 Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)

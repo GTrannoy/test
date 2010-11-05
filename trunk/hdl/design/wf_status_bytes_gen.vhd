@@ -55,6 +55,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!     07/07/2009  v0.01  EB  First version \n
 --!        08/2010  v0.02  EG  code violation & CRC errors considered
 --!                            only during a concumed var reception
+--!                            extended var_rdy
 --!                            
 --
 ---------------------------------------------------------------------------------------------------
@@ -113,7 +114,9 @@ end entity WF_status_bytes_gen;
 --=================================================================================================
 architecture rtl of WF_status_bytes_gen is
 
-signal s_refreshment : std_logic; 
+signal s_refreshment, s_VAR1_RDY_incr_c, s_VAR1_RDY_extended                          : std_logic;
+signal s_VAR2_RDY_incr_c, s_VAR2_RDY_extended, s_VAR3_RDY_incr_c, s_VAR3_RDY_extended : std_logic; 
+signal s_VAR1_RDY_c, s_VAR2_RDY_c, s_VAR3_RDY_c :                           unsigned (3 downto 0);
 
 
 --=================================================================================================
@@ -126,22 +129,24 @@ begin
 --! @brief Synchronous process Status_byte_Formation: Formation of the nanoFIP status byte
 --! according to the definitions in Table 8 of specs.
 
-  status_byte_formation: process(uclk_i) 
+  nFIP_status_byte_generation: process(uclk_i) 
   begin
 
     if rising_edge(uclk_i) then
   
-      if ((nFIP_urst_i = '1') or (rst_status_bytes_i = '1')) then -- the byte is reinitialized
-        nFIP_status_byte_o                    <= (others => '0');  -- after having been delivered
+      if ((nFIP_urst_i = '1') or (rst_status_bytes_i = '1')) then -- bytes reinitialized
+        nFIP_status_byte_o                    <= (others => '0'); -- after having been delivered
+
 
         else
 
-        if ((var1_rdy_i = '0' and var1_acc_i = '1') or      -- since the last time the status
-            (var2_rdy_i = '0' and var2_acc_i = '1')) then   -- byte was delivered,
-          nFIP_status_byte_o(c_U_CACER_INDEX) <= '1';             -- the user logic accessed a cosmd
+        if ((s_VAR1_RDY_extended = '0' and var1_acc_i = '1') or   -- since the last time the status
+            (s_VAR2_RDY_extended = '0' and var2_acc_i = '1')) then         -- byte was delivered,
+  
+        nFIP_status_byte_o(c_U_CACER_INDEX) <= '1';             -- the user logic accessed a cosmd
         end if;                                                   -- variable when it was not ready
 
-        if ((var3_rdy_i = '0') and (var3_acc_i = '1')) then -- since the last time the status 
+        if (s_VAR3_RDY_extended = '0' and var3_acc_i = '1') then -- since the last time the status 
           nFIP_status_byte_o(c_U_PACER_INDEX) <= '1';             -- byte was delivered,
         end if;                                                   -- the user logic accessed a prod
                                                                   -- variable when it was not ready
@@ -151,7 +156,7 @@ begin
                                                                   -- byte was delivered, 
         end if;                                                   -- a consumed var arrived for 
                                                                   -- this station with a manch. code
-                                                                  -- violation (on the rp_dat.Data)
+                                                                  -- violation (on the RP_DAT.Data)
 
         if ((var_i = var_1 or var_i = var_2)and(crc_wrong_p_i = '1')) then
           nFIP_status_byte_o(c_R_FCSER_INDEX) <= '1';            -- since the last time the status  
@@ -172,6 +177,60 @@ begin
     end if;
 end process;
 
+---------------------------------------------------------------------------------------------------
+--!@brief Synchronous process 
+ 
+  Extend_VAR1_RDY: WF_incr_counter
+  generic map (counter_length => 4)
+  port map(
+    uclk_i            => uclk_i,
+    nFIP_urst_i       => nFIP_urst_i,
+    reinit_counter_i  => VAR1_RDY_i,
+    incr_counter_i    => s_VAR1_RDY_incr_c,
+    counter_o         => s_VAR1_RDY_c,
+    counter_is_full_o => open);
+
+    s_VAR1_RDY_incr_c   <= '1' when s_VAR1_RDY_c < "1111"
+                      else '0';
+
+    s_VAR1_RDY_extended <= '1' when VAR1_RDY_i= '1' or s_VAR1_RDY_incr_c = '1'
+                      else '0';
+---------------------------------------------------------------------------------------------------
+  Extend_VAR2_RDY: WF_incr_counter
+  generic map (counter_length => 4)
+  port map(
+    uclk_i            => uclk_i,
+    nFIP_urst_i       => nFIP_urst_i,
+    reinit_counter_i  => VAR2_RDY_i,
+    incr_counter_i    => s_VAR2_RDY_incr_c,
+    counter_o         => s_VAR2_RDY_c,
+    counter_is_full_o => open);
+
+    s_VAR2_RDY_incr_c   <= '1' when s_VAR1_RDY_c < "1111"
+                      else '0';
+
+    s_VAR2_RDY_extended <= '1' when VAR2_RDY_i= '1' or s_VAR2_RDY_incr_c = '1'
+                      else '0';
+
+
+---------------------------------------------------------------------------------------------------
+  Extend_VAR3_RDY: WF_incr_counter
+  generic map (counter_length => 4)
+  port map(
+    uclk_i            => uclk_i,
+    nFIP_urst_i       => nFIP_urst_i,
+    reinit_counter_i  => VAR3_RDY_i,
+    incr_counter_i    => s_VAR3_RDY_incr_c,
+    counter_o         => s_VAR3_RDY_c,
+    counter_is_full_o => open);
+
+    s_VAR3_RDY_incr_c   <= '1' when s_VAR3_RDY_c < "1111"
+                      else '0';
+
+    s_VAR3_RDY_extended <= '1' when VAR3_RDY_i= '1' or s_VAR3_RDY_incr_c = '1'
+                      else '0';
+
+
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process Refreshment_bit_Formation: Formation of the refreshment bit (used in
@@ -183,7 +242,7 @@ end process;
     if rising_edge(uclk_i) then
 
       if nFIP_urst_i = '1' or rst_status_bytes_i = '1' then -- the bit is reinitialized
-        s_refreshment   <= '0';                              -- after having been delivered
+        s_refreshment   <= '0';                             -- after having been delivered
       else
 
         if (var3_acc_i = '1') then -- indication that the memory has been accessed
@@ -209,8 +268,9 @@ end process;
 
 
     else
-      mps_status_byte_o                        <= (others => '0');      
-     mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
+      mps_status_byte_o (7 downto 3)           <= (others => '0');      
+      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
+      mps_status_byte_o (1)                    <= '0';
       mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
     end if;
   end process;

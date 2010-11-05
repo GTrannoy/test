@@ -708,7 +708,7 @@ end component WF_bits_to_txd;
     var2_acc_i: in  std_logic; 
     var3_acc_i: in  std_logic; 
     wbclk_i    : in  std_logic; 
-    dat_i     : in  std_logic_vector (15 downto 0);
+    DAT_I     : in  std_logic_vector (15 downto 0);
     adr_i     : in  std_logic_vector ( 9 downto 0); 
     rst_i     : in  std_logic;
     stb_i     : in  std_logic; 
@@ -725,7 +725,7 @@ end component WF_bits_to_txd;
     var2_rdy_o: out std_logic; 
     var3_rdy_o: out std_logic; 
     ack_o     : out std_logic;
-    dat_o     : out std_logic_vector (15 downto 0)
+    DAT_O     : out std_logic_vector (15 downto 0)
        );
   end component nanofip;
 

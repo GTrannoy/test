@@ -147,11 +147,11 @@ end process;
 --!@brief Synchronous process Reset_Outputs: definitions of the three reset outputs: 
 --! rston_o: user interface reset, active low; active when a reset variable is received and the 2nd
 --! byte contains the station address.
---! The signal reset_RSTON stays asserted until the end of the transmission of the rp_dat frame
+--! The signal reset_RSTON stays asserted until the end of the transmission of the RP_DAT frame
 
 --! nFIP_rst_o: nanoFIP internal reset, active high;active when rstin is active or when a reset variable
 --! is received and the 1st byte contains the station address.
---!The signal reset_nFIP_and_FD stays asserted until the end of the transmission of the rp_dat frame
+--!The signal reset_nFIP_and_FD stays asserted until the end of the transmission of the RP_DAT frame
 
 --! fd_rstn_o: fieldrive reset, active low; active when a reset variable is received and the 1st
 --! byte contains the station address.

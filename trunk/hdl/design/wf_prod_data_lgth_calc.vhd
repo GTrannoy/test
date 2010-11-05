@@ -22,8 +22,8 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --
 --
 --! @brief     Calculation of the total amount of data bytes that have to be transferreed when a
---!            variable is produced (including the rp_dat.Control, rp_dat.Data.mps and
---!            rp_dat.Data.nanoFIPstatus bytes)
+--!            variable is produced (including the RP_DAT.Control, RP_DAT.Data.mps and
+--!            RP_DAT.Data.nanoFIPstatus bytes)
 --
 --
 --! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
@@ -91,8 +91,8 @@ signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
   begin
 ---------------------------------------------------------------------------------------------------
 --!@brief:Combinatorial process data_length_calcul: calculation of the total amount of data
---! bytes that have to be transferreed when a variable is produced, including the rp_dat.Control as
---! well as the rp_dat.Data.mps and rp_dat.Data.nanoFIPstatus bytes. In the case of the presence 
+--! bytes that have to be transferreed when a variable is produced, including the RP_DAT.Control as
+--! well as the RP_DAT.Data.mps and RP_DAT.Data.nanoFIPstatus bytes. In the case of the presence 
 --! and the identification variables, the data length is predefined in the WF_package.
 --! In the case of a var_3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation. 
 
@@ -122,14 +122,14 @@ signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
       -- data length calculation according to the operational mode (memory or stand-alone)
 
       -- in slone mode                   2 bytes of user-data are produced
-      -- to these there should be added: 1 byte rp_dat.Control
+      -- to these there should be added: 1 byte RP_DAT.Control
       --                                 1 byte PDU
       --                                 1 byte Length
       --                                 1 byte MPS 
       --                      optionally 1 byte nFIP status
   
       -- in memory mode the signal      "s_p3_length_decoded" indicates the amount of user-data
-      -- to these, there should be added 1 byte rp_dat.Control
+      -- to these, there should be added 1 byte RP_DAT.Control
       --                                 1 byte PDU
       --                                 1 byte Length
       --                                 1 byte MPS 
