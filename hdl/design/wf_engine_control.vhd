@@ -56,10 +56,11 @@ use work.WF_PACKAGE.all;
 --!   \n\n<b>Last changes:</b>\n
 --!     07/2009  v0.01  EB  First version \n
 --!     08/2010  v0.02  EG  E0 added as broadcast \n
---!                         PDU,length,ctrl bytes of rp_dat checked bf VAR1_RDY/ var_2_rdy assertion
---!                         if id_dat>8 bytes or rp_dat>134 (bf reception of a FES) go to idle 
---!                         state consume_wait_FSS, for the correct use of the silence time(time not
---!                         counting when an rp_dat frame has started)
+--!                         PDU,length,ctrl bytes of RP_DAT checked bf VAR1_RDY/ var_2_rdy assertion
+--!                         if ID_DAT>8 bytes or RP_DAT>134 (bf reception of a FES) go to idle 
+--!                         state consume_wait_FSS, for the correct use of the silence time(time
+--!                         stops counting when an RP_DAT frame has started)
+--!                         removed check on slone mode for #bytes>4
 --
 ---------------------------------------------------------------------------------------------------  
 --
@@ -118,8 +119,8 @@ entity WF_engine_control is
     tx_start_produce_p_o :  out std_logic;
 
     -- Output to WF_rx
-    rst_rx_unit_p_o :     out std_logic;--! if an FES has not arrived after 8 bytes of an id_dat,
-                                          --! or after 134 bytes of an rp_dat, the state machine
+    rst_rx_unit_p_o :     out std_logic;--! if an FES has not arrived after 8 bytes of an ID_DAT,
+                                          --! or after 134 bytes of an RP_DAT, the state machine
                                           --! of the WF_rx unit returns to idle state 
 
     -- Output to WF_concumed_vars and WF_prod_bytes_to_tx 
@@ -302,11 +303,11 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
       when consume_wait_FSS =>
 
-        if rx_FSS_received_p_i = '1' then
+        if rx_FSS_received_p_i = '1' then 
           nx_control_st <= consume;
  
-        elsif s_time_c_is_zero = '1' then
-          nx_control_st <= idle;
+        elsif s_time_c_is_zero = '1' then  -- if no consumed RP_DAT frame arrives after the 
+          nx_control_st <= idle;           -- silence time, the engine goes back to idle state
  
         else
           nx_control_st <= consume_wait_FSS;  
@@ -316,12 +317,11 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
       when consume =>
 
-        if (rx_CRC_FES_ok_p_i = '1')  or                   -- if the rp_dat frame finishes as 
-           (s_rx_bytes_c > 130 and slone_i = '0') or    -- expected with a FES, or if no rp_dat 
-           (s_rx_bytes_c > 4   and slone_i = '1') then  -- arrives after the silence_time, or
-                                                           -- if no FES has arrived after the max
-                                                           -- number of bytes expected, the engine
-          nx_control_st <= idle;                           -- goes back to idle state
+        if (rx_CRC_FES_ok_p_i = '1')  or   -- if the RP_DAT frame finishes as 
+           (s_rx_bytes_c > 130) then       -- expected with a FES,
+                                           -- or if no FES has arrived after the max
+                                           -- number of bytes expected, the engine
+          nx_control_st <= idle;           -- goes back to idle state.
 
         else
           nx_control_st <= consume;
@@ -483,33 +483,33 @@ begin
 --------------------------------------------------------------------------------------------------- 
   Cons_Frame_Validator: WF_cons_frame_validator
   port map(
-    rx_Ctrl_byte_i         => rx_Ctrl_byte_i, 
-    rx_PDU_byte_i          => rx_PDU_byte_i,    
-    rx_Length_byte_i       => rx_Length_byte_i,
+    rx_Ctrl_byte_i             => rx_Ctrl_byte_i, 
+    rx_PDU_byte_i              => rx_PDU_byte_i,    
+    rx_Length_byte_i           => rx_Length_byte_i,
     rx_FSS_CRC_FES_viol_ok_p_i => rx_CRC_FES_ok_p_i,
-    var_i                  => s_var,
-    rx_byte_index_i        => s_rx_bytes_c,
-    -------------------------------------------
-    cons_frame_ok_p_o      => s_cons_frame_ok_p
-    -------------------------------------------
+    var_i                      => s_var,
+    rx_byte_index_i            => s_rx_bytes_c,
+    ------------------------------------------------
+    cons_frame_ok_p_o          => s_cons_frame_ok_p
+    ------------------------------------------------
       );
 
 ---------------------------------------------------------------------------------------------------
  VAR_RDY_Signals_Generation: WF_VAR_RDY_generator
   port map (
-    uclk_i                => uclk_i,
-    slone_i               => slone_i,
-    subs_i                => subs_i,
-    nFIP_urst_i           => nFIP_urst_i, 
-    cons_frame_ok_p_i     => s_cons_frame_ok_p,
-    var_i                 => s_var,
-    rx_var_rst_byte_1_i      => rx_var_rst_byte_1_i,
-    rx_var_rst_byte_2_i      => rx_var_rst_byte_2_i,
-    ---------------------------------------
-    var1_rdy_o            => var1_rdy_o,
-    var2_rdy_o            => var2_rdy_o,
-    var3_rdy_o            => var3_rdy_o,
-    assert_RSTON_p_o       => assert_RSTON_p_o,
+    uclk_i              => uclk_i,
+    slone_i             => slone_i,
+    subs_i              => subs_i,
+    nFIP_urst_i         => nFIP_urst_i, 
+    cons_frame_ok_p_i   => s_cons_frame_ok_p,
+    var_i               => s_var,
+    rx_var_rst_byte_1_i => rx_var_rst_byte_1_i,
+    rx_var_rst_byte_2_i => rx_var_rst_byte_2_i,
+    --------------------------------------------
+    var1_rdy_o          => var1_rdy_o,
+    var2_rdy_o          => var2_rdy_o,
+    var3_rdy_o          => var3_rdy_o,
+    assert_RSTON_p_o    => assert_RSTON_p_o,
     rst_nFIP_and_FD_p_o => rst_nFIP_and_FD_p_o
     ---------------------------------------
       );
@@ -534,12 +534,12 @@ begin
  Tx_Bytes_Counter: WF_incr_counter
   generic map(counter_length => 8)
   port map(
-    uclk_i          => uclk_i,
-    nFIP_urst_i     => nFIP_urst_i,
+    uclk_i           => uclk_i,
+    nFIP_urst_i      => nFIP_urst_i,
     reinit_counter_i => s_rst_tx_bytes_counter,
-    incr_counter_i  => s_inc_tx_bytes_counter,
+    incr_counter_i   => s_inc_tx_bytes_counter,
     ---------------------------------------------
-    counter_o       => s_tx_bytes_c  
+    counter_o        => s_tx_bytes_c  
     ---------------------------------------------
       );
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
@@ -572,8 +572,8 @@ begin
 
     elsif s_producing = '1' then
       s_rst_tx_bytes_counter <= '0';
-      s_inc_tx_bytes_counter  <= tx_request_byte_p_i;
-      s_tx_byte_index  <= std_logic_vector (resize(s_tx_bytes_c, s_tx_byte_index'length));
+      s_inc_tx_bytes_counter <= tx_request_byte_p_i;
+      s_tx_byte_index        <= std_logic_vector (resize(s_tx_bytes_c, s_tx_byte_index'length));
 
       s_rst_rx_bytes_counter <= '1';
       s_inc_rx_bytes_counter <= '0';
@@ -585,7 +585,7 @@ begin
       s_rx_byte_index        <= (others => '0'); 
       s_rst_tx_bytes_counter <= '1';
       s_inc_tx_bytes_counter <= '0';
-      s_tx_byte_index  <= (others => '0');
+      s_tx_byte_index        <= (others => '0');
     end if;
   end process;
 
@@ -655,7 +655,7 @@ Response_and_Silence_Time_Counter: WF_decr_counter
 --! s_var_id: is constantly following the incoming byte rx_byte_i 
 --! s_var_aux: locks to the value of s_var_id when the ID_DAT.Identifier.Variable byte
 --! is received (s_load_var_aux = 1)
---! s_var: locks to the value of s_var_aux at the end of the id_dat frame (s_load_var = 1) if the 
+--! s_var: locks to the value of s_var_aux at the end of the ID_DAT frame (s_load_var = 1) if the 
 --! specified station address matches the SUBS configuration.
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   
@@ -702,7 +702,7 @@ Response_and_Silence_Time_Counter: WF_decr_counter
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 
-  var_o <= s_var; -- var_o takes a value at the end of the id_dat
+  var_o <= s_var; -- var_o takes a value at the end of the ID_DAT
 
 ---------------------------------------------------------------------------------------------------
 --!@brief: Combinatorial process Var_Characteristics: managment of the signals
@@ -741,17 +741,17 @@ Response_and_Silence_Time_Counter: WF_decr_counter
   begin
     if rising_edge(uclk_i) then
       if nFIP_urst_i = '1' then
-        tx_last_byte_p_o        <= '0';
-        s_tx_last_byte_p_d      <= '0';
-        s_tx_byte_ready_p_d1    <= '0';
-        s_tx_byte_ready_p_d2    <= '0';
-        s_tx_start_prod_p <= '0';
+        tx_last_byte_p_o     <= '0';
+        s_tx_last_byte_p_d   <= '0';
+        s_tx_byte_ready_p_d1 <= '0';
+        s_tx_byte_ready_p_d2 <= '0';
+        s_tx_start_prod_p    <= '0';
 
       else
-        s_tx_last_byte_p_d      <= s_tx_last_byte_p;
-        tx_last_byte_p_o        <= s_tx_last_byte_p_d;
-        s_tx_byte_ready_p_d1    <= s_tx_byte_ready_p;
-        s_tx_byte_ready_p_d2    <= s_tx_byte_ready_p_d1;
+        s_tx_last_byte_p_d   <= s_tx_last_byte_p;
+        tx_last_byte_p_o     <= s_tx_last_byte_p_d;
+        s_tx_byte_ready_p_d1 <= s_tx_byte_ready_p;
+        s_tx_byte_ready_p_d2 <= s_tx_byte_ready_p_d1;
         s_tx_start_prod_p    <= (s_prod_wait_resp_time and s_time_c_is_zero);
       end if;
     end if;
@@ -765,12 +765,12 @@ Response_and_Silence_Time_Counter: WF_decr_counter
 
   tx_byte_ready_p_o    <= s_tx_byte_ready_p_d2;
 
-  s_tx_last_byte_p           <= s_producing and s_tx_data_length_match and tx_request_byte_p_i;
-  rst_status_bytes_o       <= s_producing and s_tx_byte_ready_p_d2 and tx_sending_mps_i;
+  s_tx_last_byte_p     <= s_producing and s_tx_data_length_match and tx_request_byte_p_i;
+  rst_status_bytes_o   <= s_producing and s_tx_byte_ready_p_d2 and tx_sending_mps_i;
 
-  rx_byte_ready_p_o          <= s_consuming and rx_byte_ready_p_i;
+  rx_byte_ready_p_o    <= s_consuming and rx_byte_ready_p_i;
 
-  rst_rx_unit_p_o          <= s_idle_state and rx_byte_ready_p_i;
+  rst_rx_unit_p_o      <= s_idle_state and rx_byte_ready_p_i;
 ---------------------------------------------------------------------------------------------------
 
 

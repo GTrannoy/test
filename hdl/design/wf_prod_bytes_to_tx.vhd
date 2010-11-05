@@ -21,9 +21,9 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     After an id_dat frame requesting for a variable to be produced, this unit provides 
+--! @brief     After an ID_DAT frame requesting for a variable to be produced, this unit provides 
 --!            to the transmitter (WF_tx) one by one, \n all the bytes of data needed for the  
---!            rp_dat frame (apart from fss, fcs and fes bytes).
+--!            RP_DAT frame (apart from FSS, fcs and FES bytes).
 --
 --
 --! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
@@ -48,7 +48,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> egousiou: subs_i is not sent in the rp_dat frames  \n
+--!     -> egousiou: subs_i is not sent in the RP_DAT frames  \n
 --!     -> egousiou: signal s_wb_we includes the wb_stb_r_edge_p_i     \n
 --!     -> egousiou: signal s_mem_byte was not in sensitivity list in v0.01! by adding it,
 --!                  changes were essential in the timing of the tx (WF_osc, WF_tx,
@@ -106,19 +106,19 @@ entity WF_prod_bytes_to_tx is
 
 
    -- Signals from WF_engine_control
-    var_i :           in t_var;                         --! variable received from id_dat   
+    var_i :           in t_var;                         --! variable received from ID_DAT   
 
-    data_length_i:    in std_logic_vector (7 downto 0);  --! # bytes of Conrol&Data fields of rp_dat
-                                                        -- includes 1 byte for the rp_dat.Control,
-                                                        -- 1 byte for rp_dat.Data.PDU_type,
-                                                        -- 1 byte for rp_dat.Data.LENGTH
-                                                        -- 0-124 bytes of rp_dat.Data,
-                                                        --1 byte for rp_dat.Data.MPS and optionally
-                                                        -- 1 byte for rp_dat.Data.nanoFIP_status 
+    data_length_i:    in std_logic_vector (7 downto 0);  --! # bytes of Conrol&Data fields of RP_DAT
+                                                        -- includes 1 byte for the RP_DAT.Control,
+                                                        -- 1 byte for RP_DAT.Data.PDU_type,
+                                                        -- 1 byte for RP_DAT.Data.LENGTH
+                                                        -- 0-124 bytes of RP_DAT.Data,
+                                                        --1 byte for RP_DAT.Data.MPS and optionally
+                                                        -- 1 byte for RP_DAT.Data.nanoFIP_status 
 
                                                                  
     byte_index_i :    in std_logic_vector (7 downto 0);  --! pointer to message bytes
-                                                         -- includes rp_dat.Control and rp_dat.Data
+                                                         -- includes RP_DAT.Control and RP_DAT.Data
     var3_rdy_i :      in std_logic;
 	
    -- Signals from WF_status_bytes_gen
@@ -201,7 +201,7 @@ architecture rtl of WF_prod_bytes_to_tx is
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial process Bytes_Generation: Generation of bytes for the Control and Data
---!  fields of an rp_dat frame:\n If the variable requested in the id_dat is of "produced" type(id/ 
+--!  fields of an RP_DAT frame:\n If the variable requested in the ID_DAT is of "produced" type(id/ 
 --! presence/ var3) the process prepares accordingly, one by one, bytes of data to be sent. \n The
 --! pointer "byte_index_i" indicates which byte of the frame is to be sent. Some of the bytes are
 --! defined in the WF_package, the rest come either from the memory (if slone=0) or from the the
@@ -220,7 +220,7 @@ architecture rtl of WF_prod_bytes_to_tx is
 
     
 	-- case: presence variable 
-    -- all the bytes for the rp_dat.Control and rp_dat.Data fields of the rp_dat frame to be sent,
+    -- all the bytes for the RP_DAT.Control and RP_DAT.Data fields of the RP_DAT frame to be sent,
     -- are predefined in the c_VARS_ARRAY(0).byte_array matrix
     when var_presence =>
 
@@ -268,7 +268,7 @@ architecture rtl of WF_prod_bytes_to_tx is
         s_base_addr  <= c_VARS_ARRAY(c_VAR_3_INDEX).base_addr; --retreival of info for mem base address 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --         
-        -- The first (rp_dat.Control) and second (PDU type) bytes to be sent 
+        -- The first (RP_DAT.Control) and second (PDU type) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package 
 
         if unsigned(s_byte_index) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then                    
@@ -311,7 +311,7 @@ architecture rtl of WF_prod_bytes_to_tx is
         s_base_addr     <= (others => '0');            -- no access in memory needed
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --      
-        -- The first (rp_dat.Control) and second (PDU type) bytes to be sent 
+        -- The first (RP_DAT.Control) and second (PDU type) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
         if unsigned(s_byte_index) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length then -- less equal than                             
@@ -394,10 +394,10 @@ architecture rtl of WF_prod_bytes_to_tx is
                                                       -- width of 15 bytes
   
   s_length         <= std_logic_vector (resize((unsigned(data_length_i)-2),byte_o'length));   
-                                                      --signal used for the rp_dat.Data.LENGTH byte
+                                                      --signal used for the RP_DAT.Data.LENGTH byte
                                                       -- it represents the # bytes of user-data
-                                                      -- (P3_LGTH) plus 1 byte of rp_dat.Data.MPS
-                                                      -- plus 1 byte of rp_dat.Data.nanoFIP_status,
+                                                      -- (P3_LGTH) plus 1 byte of RP_DAT.Data.MPS
+                                                      -- plus 1 byte of RP_DAT.Data.nanoFIP_status,
                                                       -- if applicable  
 
 

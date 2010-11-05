@@ -146,9 +146,9 @@ entity nanofip is
     cyc_i     : in std_logic;
     we_i      : in  std_logic;  --! Write enable
     adr_i     : in  std_logic_vector ( 9 downto 0); --! Address
-    dat_i     : in  std_logic_vector (15 downto 0); --! Data in
+    DAT_I     : in  std_logic_vector (15 downto 0); --! Data in
 
-    dat_o     : out std_logic_vector (15 downto 0); --! Data out
+    DAT_O     : out std_logic_vector (15 downto 0); --! Data out
     ack_o     : out std_logic --! Acknowledge
 
     );
@@ -331,7 +331,7 @@ begin
       wb_stb_r_edge_p_i   => s_wb_stb_r_edge,   
       wb_cyc_i            => s_wb_cyc_synch, 
       wb_ack_cons_p_o     => s_ack_consumed, 
-      data_o              => dat_o,
+      data_o              => DAT_O,
       rx_Ctrl_byte_o      => s_ctrl_byte_received,
       rx_PDU_byte_o       => s_PDU_byte_received,         
       rx_Length_byte_o    => s_length_byte_received,
@@ -424,7 +424,7 @@ begin
     var1_access_a_i => var1_acc_i,
     var2_access_a_i => var2_acc_i,
     var3_access_a_i => var3_acc_i,
-    dat_a_i         => dat_i,
+    dat_a_i         => DAT_I,
     rate_a_i        => rate_i,
     subs_a_i        => subs_i,
     m_id_a_i        => m_id_i,

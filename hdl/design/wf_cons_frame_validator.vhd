@@ -21,7 +21,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Validation of a received rp_dat frame with respect to: Ctrl, PDU, Length bytes as 
+--! @brief     Validation of a received RP_DAT frame with respect to: Ctrl, PDU, Length bytes as 
 --!            well as CRC and FSS, FES and code violations.
 --
 --
@@ -96,7 +96,7 @@ signal s_rx_ctrl_byte_ok, s_rx_PDU_byte_ok, s_rx_length_byte_ok : std_logic;
   begin
 
 --------------------------------------------------------------------------------------------------- 
---!@brief Combinatorial process Consumed_Frame_Validator: validation of an rp_dat 
+--!@brief Combinatorial process Consumed_Frame_Validator: validation of an RP_DAT 
 --! frame with respect to: Ctrl, PDU, Length bytes as well as CRC and FSS, FES and code violations.
 
  Consumed_Frame_Validator: process ( var_i, rx_FSS_CRC_FES_viol_ok_p_i, rx_byte_index_i, rx_PDU_byte_i,
@@ -120,7 +120,7 @@ signal s_rx_ctrl_byte_ok, s_rx_PDU_byte_ok, s_rx_length_byte_ok : std_logic;
     end if;
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    if rx_FSS_CRC_FES_viol_ok_p_i = '1' then                         -- checking the rp_dat.Data.Length
+    if rx_FSS_CRC_FES_viol_ok_p_i = '1' then                         -- checking the RP_DAT.Data.Length
                                                                  -- byte, when the end of frame
                                                                  -- arrives correctly
       if rx_byte_index_i = (unsigned(rx_Length_byte_i) + 5) then   -- rx_byte_index starts counting 

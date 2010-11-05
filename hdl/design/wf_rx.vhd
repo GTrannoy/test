@@ -179,8 +179,8 @@ architecture rtl of WF_rx is
 --! combinatorial process to manage the output signals), which are the three processes that follow.
 --! The unit, is firstly following the input data stream for monitoring the preamble field, and
 --! then switches to following the deglitched signal for the rest of the data. It is responsible
---! for the detection of the the preamble, FSS and FES of a received id_dat or consumed
---! rp_dat frame, as well as for the formation of bytes of data.
+--! for the detection of the the preamble, FSS and FES of a received ID_DAT or consumed
+--! RP_DAT frame, as well as for the formation of bytes of data.
 --! The main outputs of the unit (byte_o and byte_ready_p_o) are the main inputs of the unit
 --! WF_cons_bytes_from_rx.
   
