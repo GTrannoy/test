@@ -8,7 +8,7 @@ Imported the files:
    C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
    C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
 
-The Import command succeeded ( 00:00:03 )
+The Import command succeeded ( 00:00:04 )
 Info: The design C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb was
       last modified by software version 8.6.1.3.
 Opened an existing Libero design
@@ -43,7 +43,7 @@ Voltage     : 1.58:1.50:1.42
 Keep Existing Physical Constraints : Yes
 Keep Existing Timing Constraints   : Yes
 
-pdc_abort_on_error                 : No
+pdc_abort_on_error                 : Yes
 pdc_eco_display_unmatched_objects  : No
 pdc_eco_max_warnings               : 10000
 
@@ -61,95 +61,95 @@ report_high_fanout_nets_limit      : 10
 Compile starts ...
 
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM_\
-         R0C0 drives no load.
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM_\
-         R0C0_1 drives no load.
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0_1 drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM_\
-         R0C0 drives no load.
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM_\
-         R0C0_1 drives no load.
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0_1 drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM_\
-         R0C0 drives no load.
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
          drives no load.
 Warning: CMP201: Net
-         consumed_vars/consumtion_dpram/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM_\
-         R0C0_1 drives no load.
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0_1 drives no load.
 Warning: CMP201: Net
          produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
          _DOUTA8_0 drives no load.
@@ -250,9 +250,9 @@ Optimized macros:
   - Buffers:                0
   - Inverters:              0
   - Tieoff:                 0
-  - Logic combining:        73
+  - Logic combining:        75
 
-    Total macros optimized  73
+    Total macros optimized  75
 
 There were 0 error(s) and 61 warning(s) in this design.
 =====================================================================
@@ -266,14 +266,266 @@ There were 0 error(s) and 0 warning(s).
 
 Reading user pdc (Physical Design Constraints) file(s) postcompile
 
+Error: PDC01: port name doesn't exist in the netlist or is not connected to an IoCell macro at
+PDC Line : set_io fx_rxa_i -pinname 121 -fixed yes -DIRECTION Inout
 
-There were 0 error(s) and 0 warning(s) in reading the user pdc.
+There were 1 error(s) and 0 warning(s) in reading the user pdc.
+
+Info: There were errors found due to conflicting constraints in the user PDC and previous
+      post-compile physical constraints.
+
+The Compile command failed ( 00:00:00 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
+              C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : -2
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : Yes
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : No
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0 drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0_1 drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0 drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0_1 drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0 drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
+         drives no load.
+Warning: CMP201: Net
+         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
+         _R0C0_1 drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
+         _DOUTA8_0 drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
+         _DOUTB8_0 drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/A9D8DualClkRAM_R0C0\
+         _DOUTA8_1 drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/A9D8DualClkRAM_R0C0\
+         _DOUTB8_1 drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/A9D8DualClkRAM_R0C0\
+         _DOUTA8 drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
+         drives no load.
+Warning: CMP201: Net
+         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/A9D8DualClkRAM_R0C0\
+         _DOUTB8 drives no load.
+Warning: Top level port fx_rxa_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        75
+
+    Total macros optimized  75
+
+There were 0 error(s) and 61 warning(s) in this design.
+=====================================================================
+
+Reading previous post-compile physical placement constraints.
+
+
+There were 0 error(s) and 0 warning(s).
+
+=====================================================================
+
+Reading user pdc (Physical Design Constraints) file(s) postcompile
+
+Warning: PDC01: port name doesn't exist in the netlist or is not connected to an IoCell macro at
+PDC Line : set_io fx_rxa_i -pinname 121 -fixed yes -DIRECTION Inout
+
+There were 0 error(s) and 1 warning(s) in reading the user pdc.
 
 =====================================================================
 Compile report:
 ===============
 
-    CORE                     Used:   3329  Total:   9216   (36.12%)
+    CORE                     Used:   3521  Total:   9216   (38.21%)
     IO (W/ clocks)           Used:     89  Total:    151   (58.94%)
     Differential IO          Used:      0  Total:     34   (0.00%)
     GLOBAL (Chip+Quadrant)   Used:      5  Total:     18   (27.78%)
@@ -294,8 +546,8 @@ Core Information:
 
     Type    | Instances    | Core tiles
     --------|--------------|-----------
-    COMB    | 2039         | 2039
-    SEQ     | 1290         | 1290
+    COMB    | 2132         | 2132
+    SEQ     | 1389         | 1389
 
 I/O Function:
 
@@ -317,11 +569,9 @@ I/O Technology:
 
 I/O Placement:
 
-    Locked  :  88 ( 98.88% )
-    Placed  :   1 (  1.12% )
+    Locked  :  89 ( 100.00% )
+    Placed  :   0
     UnPlaced:   0
-
-Warning: Only some I/Os are locked
 
 Net information report:
 =======================
@@ -329,17 +579,17 @@ Net information report:
 The following nets have been assigned to a chip global resource:
     Fanout  Type          Name
     --------------------------
-    1095    CLK_NET       Net   : uclk_i_c
+    1194    CLK_NET       Net   : uclk_i_c
                           Driver: uclk_i_pad
                           Source: NETLIST
-    321     INT_NET       Net   : s_rst
+    344     INT_NET       Net   : s_rst
                           Driver: reset_unit/nFIP_rst_o_maj_RNI86A2
                           Source: NETLIST
     207     CLK_NET       Net   : wclk_i_c
                           Driver: wclk_i_pad
                           Source: NETLIST
-    77      INT_NET       Net   : tx_rx.rx_tx_osc.s_rx_adjac_bits_window[8]
-                          Driver: I_79
+    77      INT_NET       Net   : tx_rx.rx_tx_osc.un8_s_rxd_signif_edge_window.N_15
+                          Driver: I_90
                           Source: NETLIST
     66      INT_NET       Net   : rst_i_c
                           Driver: rst_i_pad_RNI5Q62
@@ -348,52 +598,52 @@ The following nets have been assigned to a chip global resource:
 High fanout nets in the post compile netlist:
     Fanout  Type          Name
     --------------------------
-    24      INT_NET       Net   : engine_control/N_31
-                          Driver: engine_control/control_st_maj_RNILISI[0]
-    22      INT_NET       Net   : rate_i_c[1]
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Tx_Bytes_Counter/s_countere
+                          Driver: engine_control/Tx_Bytes_Counter/s_counterlde
+    23      INT_NET       Net   : s_slone_synch
+                          Driver: synchronizer/s_slone_d3_maj[2]
+    21      INT_NET       Net   : rate_i_c[1]
                           Driver: rate_i_pad[1]
-    21      INT_NET       Net   : s_byte_from_rx[4]
-                          Driver: tx_rx/rx/s_byte_maj[4]
+    21      INT_NET       Net   : tx_rx/rx/rx_st[2]
+                          Driver: tx_rx/rx/rx_st_maj[2]
+    20      INT_NET       Net   : s_byte_from_rx[2]
+                          Driver: tx_rx/rx/s_byte_maj[2]
+    20      INT_NET       Net   : tx_rx/tx/N_91
+                          Driver: tx_rx/tx/Outgoing_Bits_Index/s_counter_maj_RNI043A1[0]
     19      INT_NET       Net   : s_byte_from_rx[0]
                           Driver: tx_rx/rx/s_byte_maj[0]
-    19      INT_NET       Net   : s_byte_from_rx[1]
-                          Driver: tx_rx/rx/s_byte_maj[1]
-    19      INT_NET       Net   : tx_rx/rx_tx_osc/N_466_0
-                          Driver: tx_rx/rx_tx_osc/un2_s_period_1_0_o2_0
-    19      INT_NET       Net   : engine_control/N_465
-                          Driver: engine_control/control_st_maj_RNISSR3[3]
-    19      INT_NET       Net   : produced_vars/s_byte_index[3]
-                          Driver: produced_vars/s_byte_index_maj[3]
-    18      INT_NET       Net   : consumed_vars.s_addr[0]
-                          Driver: engine_control/s_tx_rx_bytes_c_maj_RNIA2NB[0]
-    18      INT_NET       Net   : engine_control.N_466
-                          Driver: tx_rx/rx_tx_osc/un2_s_period_1_0_o2
+    19      INT_NET       Net   : engine_control/control_st_i[8]
+                          Driver: engine_control/control_st_i_0_maj[8]
+    18      INT_NET       Net   : engine_control.N_283_0
+                          Driver: engine_control/s_time_counter_top_i_o3_0[3]
 
 Nets that are candidates for clock assignment and the resulting fanout:
     Fanout  Type          Name
     --------------------------
-    25      INT_NET       Net   : slone_i_c
-                          Driver: slone_i_pad
-    24      INT_NET       Net   : engine_control/N_31
-                          Driver: engine_control/control_st_maj_RNILISI[0]
-    22      INT_NET       Net   : rate_i_c[1]
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Tx_Bytes_Counter/s_countere
+                          Driver: engine_control/Tx_Bytes_Counter/s_counterlde
+    23      INT_NET       Net   : s_slone_synch
+                          Driver: synchronizer/s_slone_d3_maj[2]
+    21      INT_NET       Net   : rate_i_c[1]
                           Driver: rate_i_pad[1]
-    21      INT_NET       Net   : s_byte_from_rx[4]
-                          Driver: tx_rx/rx/s_byte_maj[4]
+    21      INT_NET       Net   : tx_rx/rx/rx_st[2]
+                          Driver: tx_rx/rx/rx_st_maj[2]
+    20      INT_NET       Net   : s_byte_from_rx[2]
+                          Driver: tx_rx/rx/s_byte_maj[2]
+    20      INT_NET       Net   : tx_rx/tx/N_91
+                          Driver: tx_rx/tx/Outgoing_Bits_Index/s_counter_maj_RNI043A1[0]
     19      INT_NET       Net   : s_byte_from_rx[0]
                           Driver: tx_rx/rx/s_byte_maj[0]
-    19      INT_NET       Net   : s_byte_from_rx[1]
-                          Driver: tx_rx/rx/s_byte_maj[1]
-    19      INT_NET       Net   : tx_rx/rx_tx_osc/N_466_0
-                          Driver: tx_rx/rx_tx_osc/un2_s_period_1_0_o2_0
-    19      INT_NET       Net   : engine_control/N_465
-                          Driver: engine_control/control_st_maj_RNISSR3[3]
-    19      INT_NET       Net   : produced_vars/s_byte_index[3]
-                          Driver: produced_vars/s_byte_index_maj[3]
-    18      INT_NET       Net   : consumed_vars.s_addr[0]
-                          Driver: engine_control/s_tx_rx_bytes_c_maj_RNIA2NB[0]
+    19      INT_NET       Net   : engine_control/control_st_i[8]
+                          Driver: engine_control/control_st_i_0_maj[8]
+    18      INT_NET       Net   : engine_control.N_283_0
+                          Driver: engine_control/s_time_counter_top_i_o3_0[3]
 
-The Compile command succeeded ( 00:00:02 )
+The Compile command succeeded ( 00:00:03 )
 
 Running I/O Bank Assigner.
 
@@ -407,16 +657,16 @@ Global net placement completed successfully.
 
                         o - o - o - o - o - o
 
-Timing-driven Placer Started: Mon Sep 27 18:10:08 2010
+Timing-driven Placer Started: Tue Nov 09 16:39:13 2010
 
-Placer Finished: Mon Sep 27 18:10:41 2010
-Total Placer CPU Time:     00:00:33
+Placer Finished: Tue Nov 09 16:40:01 2010
+Total Placer CPU Time:     00:00:48
 
                         o - o - o - o - o - o
 
 
 Timing-driven Router 
-Design: nanofip                         Started: Mon Sep 27 18:10:44 2010
+Design: nanofip                         Started: Tue Nov 09 16:40:06 2010
 
  
 Iterative improvement...
@@ -424,8 +674,8 @@ Iterative improvement...
 Timing-driven Router completed successfully.
 
 Design: nanofip                         
-Finished: Mon Sep 27 18:11:03 2010
-Total CPU Time:     00:00:18            Total Elapsed Time: 00:00:19
+Finished: Tue Nov 09 16:40:27 2010
+Total CPU Time:     00:00:21            Total Elapsed Time: 00:00:21
                         o - o - o - o - o - o
 
 Loading the Timing data for the design.
@@ -433,11 +683,18 @@ Finished loading the Timing data.
 TIMER: Max delay timing requirements have been met.
 TIMER: Min delay timing requirements have been met.
 
-The Layout command succeeded ( 00:01:04 )
+The Layout command succeeded ( 00:01:24 )
+Warning: The following files already exist:
+         
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+         
+         Do you want to replace the files? [YES]
 
-The Export-map command succeeded ( 00:00:10 )
+The Export-map command succeeded ( 00:00:09 )
+Warning: Overwriting the existing file:
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb.
 Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
-CHECKSUM: 960F
+CHECKSUM: 9C38
 
 The Generate programming file command succeeded ( 00:00:11 )
 Design saved to file C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb.
