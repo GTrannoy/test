@@ -29,8 +29,8 @@ architecture archi of bus_arbitrer is
 signal s_fip_frame_trigger		: std_logic;
 signal s_id_rp					: std_logic;
 signal s_station_adr			: std_logic_vector(7 downto 0);
-signal s_var_adr				: std_logic_vector(7 downto 0);
-signal s_var_length				: std_logic_vector(6 downto 0);
+signal s_var_adr				: std_logic_vector(7 downto 0):=(others =>'0');
+signal s_var_length				: std_logic_vector(6 downto 0):=(others =>'0');
 
 begin
 
@@ -108,7 +108,7 @@ begin
 				when x"06" =>
 					report "            FIP BA sends an ID_DAT identifier for Produced Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"E6" =>
+				when x"E0" =>
 					report "            FIP BA sends an ID_DAT identifier for Reset Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when others =>
@@ -116,11 +116,20 @@ begin
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				end case;
 			else
-				report "            FIP BA sends an RP_DAT frame with " & integer'image(to_integer(unsigned(s_var_length))) 
-						& " bytes of data + MPS for consumption" & LF & LF;
+				if s_var_adr = x"E0" then
+					report "            FIP BA sends an RP_DAT frame for consumption with "
+										& integer'image(to_integer(unsigned(s_station_adr)+x"01")) & " on the first byte and "
+										& integer'image(to_integer(unsigned(s_station_adr)+x"02")) & " on the second byte"
+										& " + the MPS byte" & LF & LF;
+				
+				else
+					report "            FIP BA sends an RP_DAT frame for consumption with "
+										& integer'image(to_integer(unsigned(s_var_length))) & " bytes of data"
+										& " + the MPS byte" & LF & LF;
+				end if;
 			end if;
 		end if;
 	end process;
-		
+	
 end archi;
 		

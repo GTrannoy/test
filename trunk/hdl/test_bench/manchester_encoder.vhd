@@ -14,7 +14,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.tb_package.all;
 
-entity halfer is
+entity manchester_encoder is
 	port(
 		clk				: in std_logic;
 		data_in			: in std_logic;
@@ -27,9 +27,9 @@ entity halfer is
 		cd				: out std_logic;
 		data_out		: out std_logic
 	);
-end halfer;
+end manchester_encoder;
 
-architecture archi of halfer is
+architecture archi of manchester_encoder is
 
 signal next_transition_is_significant	: boolean;
 

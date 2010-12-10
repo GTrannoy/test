@@ -74,12 +74,12 @@ begin
 		if slone_access_read ='0' then
 			if var_id = "01" then
 				assert in_consumed = dat_i
-				report "               The value read from the 16-bit stand-alone bus" &
+				report "               **** check NOT OK ****  The value read from the 16-bit stand-alone bus" &
 				" does not match the one sent from FIP for the consumed variable" & LF
 				severity warning;
 			elsif var_id = "10" then
 				assert in_broadcast = dat_i
-				report "               The value read from the 16-bit stand-alone bus" &
+				report "               **** check NOT OK ****  The value read from the 16-bit stand-alone bus" &
 				" does not match the one sent from FIP for the broadcast variable" & LF
 				severity warning;
 			end if;

@@ -54,14 +54,17 @@ architecture archi of msg_sender is
 	end component;
 
 type mstate_ty				is (idle, ctrl_id, id_high, id_low, 
-								ctrl_rp, pdu_type, length, data, last_byte, mps);
+								ctrl_rp, pdu_type, length, data, 
+								pdu_type_res, length_res, data_res,
+								last_byte, mps);
 signal mstate, nxt_mstate	: mstate_ty;
 
-signal en_count				: std_logic;
+constant length_byte_res	: std_logic_vector(7 downto 0):=x"03";
 
 signal control				: std_logic_vector(7 downto 0);
 signal count				: std_logic_vector(6 downto 0);
 signal count_done			: std_logic;
+signal en_count				: std_logic;
 signal file_data			: std_logic_vector(7 downto 0);
 signal in_broadcast			: vector_type;
 signal in_consumed			: vector_type;
@@ -69,6 +72,8 @@ signal ind					: byte_count_type;
 signal length_byte			: std_logic_vector(7 downto 0);
 signal m_data				: std_logic_vector(7 downto 0);
 signal nxt_data				: std_logic;
+signal res_first			: std_logic_vector(7 downto 0);
+signal res_second			: std_logic_vector(7 downto 0);
 signal reset_count			: std_logic;
 signal running				: std_logic;
 signal start_value			: std_logic_vector(6 downto 0);
@@ -78,7 +83,6 @@ signal xy					: std_logic_vector(7 downto 0);
 
 
 begin
---	file_data		<= "10000000";
 
 -- process reading bytes from random data file
 ---------------------------------------------
@@ -175,9 +179,52 @@ begin
 			running				<= '1';
 	
 			if msg_new_data_req ='1' then
-				nxt_mstate			<= pdu_type;
+				if var_id =x"E0" then
+					nxt_mstate			<= pdu_type_res;
+				else
+					nxt_mstate			<= pdu_type;
+				end if;
 			else
 				nxt_mstate			<= ctrl_rp;
+			end if;
+
+		when pdu_type_res =>
+			en_count			<= '1';
+			msg_complete		<= '0';
+			m_data				<= length_byte_res;
+			reset_count			<= '0';
+			running				<= '1';
+	
+			if msg_new_data_req ='1' then
+				nxt_mstate			<= length_res;
+			else
+				nxt_mstate			<= pdu_type_res;
+			end if;
+
+		when length_res =>
+			en_count			<= '1';
+			msg_complete		<= '0';
+			m_data				<= res_first;
+			reset_count			<= '0';
+			running				<= '1';
+	
+			if msg_new_data_req ='1' then
+				nxt_mstate			<= data_res;
+			else
+				nxt_mstate			<= length_res;
+			end if;
+
+		when data_res =>
+			en_count			<= '1';
+			msg_complete		<= '0';
+			m_data				<= res_second;
+			reset_count			<= '0';
+			running				<= '1';
+	
+			if msg_new_data_req ='1' then
+				nxt_mstate			<= last_byte;
+			else
+				nxt_mstate			<= data_res;
 			end if;
 
 		when pdu_type =>
@@ -265,6 +312,8 @@ begin
 		if reset ='1' then
 			control			<= x"00";
 			length_byte		<= x"00";
+			res_first		<= x"00";
+			res_second		<= x"00";
 			start_value		<= "0000000";
 			un_length		<= "0000000";
 			var_id			<= x"00";
@@ -276,6 +325,8 @@ begin
 				control		<= rp_control_byte;
 			end if;
 			length_byte			<= "0" & std_logic_vector(un_length);
+			res_first			<= std_logic_vector(unsigned(station_adr) + "1");
+			res_second			<= std_logic_vector(unsigned(station_adr) + "10");
 			start_value			<= std_logic_vector(un_length);
 			un_length			<= unsigned(var_length) + "1";
 			var_id				<= var_adr;
@@ -283,6 +334,9 @@ begin
 		end if;
 	end process;
 	
+-- process building up the image of the memory 
+-- corresponding to the consumed and broadcast variables
+--------------------------------------------------------
 	consumed_memory: process
 	begin
 		if control = rp_control_byte and nxt_data ='1' then
@@ -307,6 +361,9 @@ begin
 		wait until clk ='1';
 	end process;
 	
+-- process transcribing the image of the memory
+-- into a file for checking by other modules
+-----------------------------------------------
 	write_incoming: process(running)
 	file data_file			: text;
 	variable data_line		: line;

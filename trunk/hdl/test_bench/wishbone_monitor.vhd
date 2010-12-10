@@ -30,15 +30,15 @@ end wishbone_monitor;
 
 architecture archi of wishbone_monitor is
 
-signal writing_produced					: boolean;
-signal valid_bus_cycle					: boolean;
-
 signal adr								: byte_count_type;
-signal var_id							: integer:=0;
-
-signal in_consumed						: vector_type;
+signal errct							: byte_count_type;
+signal errct_trig						: std_logic:='0';
 signal in_broadcast						: vector_type;
+signal in_consumed						: vector_type;
 signal out_produced						: vector_type;
+signal valid_bus_cycle					: boolean;
+signal var_id							: integer:=0;
+signal writing_produced					: boolean;
 
 begin
 
@@ -88,18 +88,47 @@ begin
 	begin
 		if valid_bus_cycle then
 			if var_id = 1 then
-				assert in_consumed(adr) = dat_i
-				report "               Value retrieved from memory in address " & integer'image(adr) & 
-				" of the consumed variable does not match the one sent from FIP" & LF
-				severity warning;
+				if in_consumed(adr) /= dat_i then
+					report "               **** check NOT OK ****  Value retrieved from memory in address " &
+					integer'image(adr) & " of the consumed variable does not match the one sent from FIP" & LF
+					severity warning;
+					errct_trig	<= '1';
+				else
+					errct_trig	<= '0';
+				end if;
 			elsif var_id = 2 then
-				assert in_broadcast(adr) = dat_i
-				report "               Value retrieved from memory in address " & integer'image(adr) & 
-				" of the broadcast variable does not match the one sent from FIP" & LF
-				severity warning;
+				if in_broadcast(adr) /= dat_i then
+					report "               **** check NOT OK ****  Value retrieved from memory in address " & 
+					integer'image(adr) & " of the broadcast variable does not match the one sent from FIP" & LF
+					severity warning;
+					errct_trig	<= '1';
+				else
+					errct_trig	<= '0';
+				end if;
 			end if;
 		end if;
 		wait until clk_o ='1';
+	end process;
+	
+	count_errors: process
+	begin
+		if cyc_o ='1' then
+			if errct_trig ='1' then
+				errct	<= errct + 1;
+			end if;
+		else
+			errct		<= 0;
+		end if;
+		wait until clk_o ='1';
+	end process;
+	
+	report_errors: process (cyc_o)
+	begin
+		if cyc_o'event and cyc_o ='0' then
+			assert errct /= 0
+			report "               (( check OK ))  All values found in memory match the ones sent from FIP" & LF & LF
+			severity note;
+		end if;
 	end process;
 			
 	-- process building an image of the nanoFIP memory for the produced variable
