@@ -9,6 +9,8 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use IEEE.std_logic_textio.all;
+use std.textio.all;
 use work.tb_package.all;
 
 entity frame_chopper is
@@ -75,6 +77,11 @@ begin
 			byte_nb				<= 0;
 		elsif chop_byte ='1' then
 			byte_nb				<= byte_nb + 1;
+
+			assert byte_nb 		< max_frame_length -1
+			report "               **** check NOT OK **** "
+			& " The frame received from NanoFIP exceeds the maximum specified length"
+			severity warning;
 		end if;
 		wait until clk ='1';
 	end process;

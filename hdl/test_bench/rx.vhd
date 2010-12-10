@@ -155,7 +155,7 @@ architecture archi of rx is
 	);
 	end component;
 
-	component halfer is
+	component manchester_encoder is
 	port(
 		clk				: in std_logic;
 		data_in			: in std_logic;
@@ -317,7 +317,7 @@ begin
 		v_plus					=> v_plus_fes
 	);
 	
-	half_clk_block: halfer
+	encoder: manchester_encoder
 	port map(
 		clk				=> clk,
 		data_in			=> dx_final,

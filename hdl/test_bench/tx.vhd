@@ -17,12 +17,14 @@ entity tx is
 	);
 	port(
 		clk						: in std_logic;
+		f_clk_period			: in time;
 		gx						: in std_logic_vector(crc_l downto 0);
 		reset					: in std_logic;
 		txck					: in std_logic;
 		txd						: in std_logic;
 		txena					: in std_logic;
 		
+		sof_o						: out std_logic;
 		txerr					: out std_logic;
 		wdgn					: out std_logic
 	);
@@ -99,12 +101,10 @@ architecture archi of tx is
 	
 	component transmission_meddler
 	port(
-		cfig_clk_period			: out time;
 		txerr					: out std_logic;
 		wdgn					: out std_logic
 	);
 	end component;
-	signal cfig_clk_period		: time;
 	signal extracted_bits		: std_logic;
 	signal extracted_clk		: std_logic;
 	signal fcs_check			: std_logic;
@@ -125,7 +125,7 @@ begin
 
 	decoder: manchester_decoder
 	port map(
-		cfig_clk_period		=> cfig_clk_period,
+		cfig_clk_period		=> f_clk_period,
 		txd					=> txd,
 		txena				=> txena,
 		
@@ -187,9 +187,10 @@ begin
 	
 	meddler: transmission_meddler
 	port map(
-		cfig_clk_period		=> cfig_clk_period,
 		txerr				=> txerr,
 		wdgn				=> wdgn
 	);
+	
+	sof_o					<= sof;
 
 end archi;

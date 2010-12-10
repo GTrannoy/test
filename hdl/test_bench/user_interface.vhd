@@ -63,22 +63,6 @@ architecture archi of user_interface is
 	);
 	end component;
 
-	component user_access_monitor is
-	port(
-		cyc					: in std_logic;
-		slone_access_read	: in std_logic;
-		slone_access_write	: in std_logic;
-		var1_rdy_i			: in std_logic;
-		var2_rdy_i			: in std_logic;
-		var3_rdy_i			: in std_logic;
-		var_id			 	: in std_logic_vector(1 downto 0);
-
-		var1_acc_o			: out std_logic;
-		var2_acc_o			: out std_logic;
-		var3_acc_o			: out std_logic
-	);
-	end component;
-
 	component user_sequencer
 	port(
 		urstn_from_nf		: in std_logic;
@@ -96,16 +80,22 @@ architecture archi of user_interface is
 	);
 	end component;
 	
-	component user_config is
+	component user_access_monitor is
 	port(
-		config_validity		: out time;
-		uclk_period			: out time;
-		ureset_length		: out time;
-		wclk_period			: out time;
-		wreset_length		: out time
+		cyc					: in std_logic;
+		slone_access_read	: in std_logic;
+		slone_access_write	: in std_logic;
+		var1_rdy_i			: in std_logic;
+		var2_rdy_i			: in std_logic;
+		var3_rdy_i			: in std_logic;
+		var_id			 	: in std_logic_vector(1 downto 0);
+
+		var1_acc_o			: out std_logic;
+		var2_acc_o			: out std_logic;
+		var3_acc_o			: out std_logic
 	);
 	end component;
-	
+
 	component wishbone_interface
 	port(
 		block_size			: in std_logic_vector(6 downto 0);
@@ -143,6 +133,16 @@ architecture archi of user_interface is
 	);
 	end component;
 
+	component user_config is
+	port(
+		config_validity		: out time;
+		uclk_period			: out time;
+		ureset_length		: out time;
+		wclk_period			: out time;
+		wreset_length		: out time
+	);
+	end component;
+	
 	signal adr					: std_logic_vector(9 downto 0);
 	signal data_from_wb			: std_logic_vector(7 downto 0);
 	signal stb					: std_logic;
@@ -249,30 +249,6 @@ begin
 		var_id					=> var_id
 	);
 	
-	user_acc_monitor: user_access_monitor
-	port map(
-		cyc						=> cyc,
-		slone_access_read		=> slone_access_read,
-		slone_access_write		=> slone_access_write,
-		var1_rdy_i				=> var1_rdy_i,
-		var2_rdy_i				=> var2_rdy_i,
-		var3_rdy_i				=> var3_rdy_i,
-		var_id					=> var_id,
-
-		var1_acc_o				=> var1_acc_o,
-		var2_acc_o				=> var2_acc_o,
-		var3_acc_o				=> var3_acc_o
-	);
-
-	user_configuration: user_config
-	port map(
-		config_validity			=> config_validity_time,
-		uclk_period				=> uclk_period,
-		ureset_length			=> ureset_length,
-		wclk_period				=> wclk_period,
-		wreset_length			=> wreset_length
-	);
-	
 	user_sequence: user_sequencer
 	port map(
 		urstn_from_nf			=> urstn_from_nf,
@@ -287,6 +263,21 @@ begin
 		transfer_length			=> transfer_length,
 		transfer_offset			=> transfer_offset,
 		var_id					=> var_id
+	);
+
+	user_acc_monitor: user_access_monitor
+	port map(
+		cyc						=> cyc,
+		slone_access_read		=> slone_access_read,
+		slone_access_write		=> slone_access_write,
+		var1_rdy_i				=> var1_rdy_i,
+		var2_rdy_i				=> var2_rdy_i,
+		var3_rdy_i				=> var3_rdy_i,
+		var_id					=> var_id,
+
+		var1_acc_o				=> var1_acc_o,
+		var2_acc_o				=> var2_acc_o,
+		var3_acc_o				=> var3_acc_o
 	);
 
 	wb_interface:  wishbone_interface
@@ -321,6 +312,15 @@ begin
 		dat_o					=> data_from_wb,
 		stb_o					=> stb,
 		we_o					=> we
+	);
+	
+	user_configuration: user_config
+	port map(
+		config_validity			=> config_validity_time,
+		uclk_period				=> uclk_period,
+		ureset_length			=> ureset_length,
+		wclk_period				=> wclk_period,
+		wreset_length			=> wreset_length
 	);
 	
 	uclk_o				<= uclk;

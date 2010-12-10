@@ -54,13 +54,14 @@ signal ucacerr				: boolean;
 signal upacerr				: boolean;
 signal var_string			: string(1 to 27);
 signal varlength_specs		: byte_count_type;
+signal varlength_board		: byte_count_type;
 signal var3_fresh			: boolean;
 
 begin
 
 	-- process checking the correctness of the frame structure
 	----------------------------------------------------------
-	frame_check: process(bytes_total, control_byte, frame_data, 
+	frame_check: process(control_byte, bytes_total, frame_data, constructor, model,
 						frame_received, data_contents_ok, varlength_specs)
 	begin
 		if frame_received ='1' then
@@ -167,12 +168,14 @@ begin
 				else
 					varlength_specs			<= 7;
 				end if;
+				varlength_board				<= 2;
 			else
 				if nostat_config = '0' then
 					varlength_specs			<= varlength_config + 6;
 				else
 					varlength_specs			<= varlength_config + 5;
 				end if;
+				varlength_board				<= varlength_config;
 			end if;
 			nostat					<= nostat_config;
 			constructor				<= constructor_config;
@@ -180,32 +183,6 @@ begin
 		end if;
 	end process;
 	
-	-- process reading the current error status and variable freshness from a temp file
-	------------------------------------------------------------------------------------
-	read_temp_err_and_fresh: process(frame_received)
-	file data_file			: text;
-	variable data_line		: line;
-	
-	variable ucacerr_temp	: boolean;
-	variable upacerr_temp	: boolean;
-	variable var3fresh_temp	: boolean;
-	begin
-		if frame_received ='1' then
-			file_open(data_file,"data/tmp_err_and_fresh.txt",read_mode);
-			readline		(data_file, data_line);
-			read			(data_line, ucacerr_temp);
-			readline		(data_file, data_line);
-			read			(data_line, upacerr_temp);
-			readline		(data_file, data_line);
-			read			(data_line, var3fresh_temp);
-			file_close(data_file);
-
-			ucacerr			<= ucacerr_temp;
-			upacerr			<= upacerr_temp;
-			var3_fresh		<= var3fresh_temp;
-		end if;
-	end process;
-
 	-- process retrieving the transcription of the data present in the nanoFIP memory for production
 	------------------------------------------------------------------------------------------------
 	read_outgoing_produced: process(frame_received)
@@ -252,6 +229,32 @@ begin
 		end if;
 	end process;
 	
+	-- process reading the current error status and variable freshness from a temp file
+	------------------------------------------------------------------------------------
+	read_temp_err_and_fresh: process(frame_received)
+	file data_file			: text;
+	variable data_line		: line;
+	
+	variable ucacerr_temp	: boolean;
+	variable upacerr_temp	: boolean;
+	variable var3fresh_temp	: boolean;
+	begin
+		if frame_received ='1' then
+			file_open(data_file,"data/tmp_err_and_fresh.txt",read_mode);
+			readline		(data_file, data_line);
+			read			(data_line, ucacerr_temp);
+			readline		(data_file, data_line);
+			read			(data_line, upacerr_temp);
+			readline		(data_file, data_line);
+			read			(data_line, var3fresh_temp);
+			file_close(data_file);
+
+			ucacerr			<= ucacerr_temp;
+			upacerr			<= upacerr_temp;
+			var3_fresh		<= var3fresh_temp;
+		end if;
+	end process;
+
 	trigger_report: process
 	begin
 		report_trigger	<= frame_received;
@@ -262,27 +265,49 @@ begin
 	begin
 		if report_trigger ='1' then
 			if frame_ok then
-				report "            NanoFIP response is an RP_DAT frame of " & var_string
-				& LF & "            the length is according to specs and coherent wiht the Length byte"
-				& LF & "            and the frame contents match the variable expected values";
 				if pdu_type_byte = pdu_produced then
+					report "            (( check OK ))  NanoFIP response is an RP_DAT frame of a " & integer'image(varlength_board) & " bytes " & var_string
+					& LF & "                            which is according to the board configuration and coherent wiht the Length byte"
+					& LF & "                            and the frame contents match the variable expected values";
+
 					if mps_byte = mps_fresh and not(var3_fresh) then
-						report "               Note however that the data are flagged incorrectly as fresh"
+						report "               **** check NOT OK ****  The data are flagged incorrectly as fresh"
 						severity warning;
 					elsif mps_byte = mps_not_fresh and var3_fresh then
-						report "               Note however that the data are flagged incorrectly as not fresh"
+						report "               **** check NOT OK ****  The data are flagged incorrectly as not fresh"
 						severity warning;
 					elsif mps_byte = mps_not_fresh and not(var3_fresh) then
-						report "               Note however that the data are flagged correctly as not fresh"
+						report "               (( check OK ))  The data are flagged correctly as not fresh"
 						severity warning;
 					end if;
 					if nostat ='0' then
-						assert nfip_status(2) ='0'
-						report "               The nanoFIP status byte indicates a user consumed variable access error"
-						severity warning;
-						assert nfip_status(3) ='0'
-						report "               The nanoFIP status byte indicates a user produced variable access error"
-						severity warning;
+						if nfip_status(2) ='1' and ucacerr then
+							report "               (( check OK ))  The nanoFIP status byte correctly indicates" &
+													" a user produced variable access error"
+							severity warning;
+						elsif nfip_status(2) ='0' and ucacerr then
+							report "               **** check NOT OK ****  The nanoFIP status byte does not indicate as it should" &
+													" a user consumed variable access error"
+							severity warning;
+						elsif nfip_status(2) ='1' and not(ucacerr) then
+							report "               **** check NOT OK ****  The nanoFIP status byte wrongly indicates" &
+													" a user consumed variable access error"
+							severity warning;
+						end if;						
+						
+						if nfip_status(3) ='1' and upacerr then
+							report "               (( check OK ))  The nanoFIP status byte correctly indicates" &
+													" a user produced variable access error"
+							severity warning;
+						elsif nfip_status(3) ='0' and upacerr then
+							report "               **** check NOT OK ****  The nanoFIP status byte does not indicate as it should" &
+													" a user produced variable access error"
+							severity warning;
+						elsif nfip_status(3) ='1' and not(upacerr) then
+							report "               **** check NOT OK ****  The nanoFIP status byte wrongly indicates" &
+													" a user produced variable access error"
+							severity warning;
+						end if;						
 						assert nfip_status(4) ='0'
 						report "               The nanoFIP status byte indicates a PDU_type or Length byte error on reception"
 						severity warning;
@@ -296,51 +321,76 @@ begin
 						report "               The nanoFIP status byte reports a Fieldrive watchdog error"
 						severity warning;
 					end if;
+				else
+					report "            (( check OK ))  NanoFIP response is an RP_DAT frame of " & var_string
+					& LF & "                            the length is according to specs and coherent wiht the Length byte"
+					& LF & "                            and the frame contents match the variable expected values";
 				end if;
 			elsif not(control_ok) then
 				if control_byte = control_id then
-					report "               NanoFIP has issued an ID_DAT frame"
+					report "               **** check NOT OK ****  NanoFIP has issued an ID_DAT frame"
 					severity warning;
 				else
-					report "               NanoFIP has issued a frame with an illegal Control byte"
+					report "               **** check NOT OK ****  NanoFIP has issued a frame with an illegal Control byte"
 					severity warning;
 				end if;
 			elsif not(pdu_type_byte = pdu_presence 
 					or pdu_type_byte = pdu_identification 
 					or pdu_type_byte = pdu_produced) then
-				report "               NanoFIP response is an RP_DAT frame"
-				& LF & "               but the PDU type byte corresponds to " & var_string
+				report "               **** check NOT OK ****  NanoFIP response is an RP_DAT frame"
+				& LF & "                                       but the PDU type byte corresponds to " & var_string
 				severity warning;
 			elsif not(length_specs_ok) then
-				report "               NanoFIP response is an RP_DAT frame of " & var_string
-				& LF & "               but the length is not in accordance with the specs"
+				report "               **** check NOT OK ****  NanoFIP response is an RP_DAT frame of " & var_string
+				& LF & "                                       but the length is not in accordance with the specs"
 				severity warning;
 			elsif not(length_coherent) then
-				report "               NanoFIP response is an RP_DAT frame of " & var_string
-				& LF & "               but the Length byte is not coherent with the actual length"
+				report "               **** check NOT OK ****  NanoFIP response is an RP_DAT frame of " & var_string
+				& LF & "                                       but the Length byte is not coherent with the actual length"
 				severity warning;
 			elsif not(contents_ok) then
-				report "               NanoFIP response is an RP_DAT frame of " & var_string
-				& LF & "               but the frame contents don't match the variable expected values"
+				report "               **** check NOT OK ****  NanoFIP response is an RP_DAT frame of " & var_string
+				& LF & "                                       but the frame contents don't match the variable expected values"
 				severity warning;
 				if pdu_type_byte = pdu_produced then
 					for i in 2 to last_data loop
 						assert out_produced(i) = frame_data(i)
-						report "               Data value expected in memory at address " & integer'image(i) 
-						& LF & "               does not match the one sent by nanoFIP " 
-						& LF & "               in the corresponding position of the produced variable"
+						report "               **** check NOT OK ****  Data value expected in memory at address " & integer'image(i) 
+						& LF & "                                       does not match the one sent by nanoFIP " 
+						& LF & "                                       in the corresponding position of the produced variable"
 						severity warning;
 					end loop;
 					assert mps_byte=mps_fresh or mps_byte=mps_not_fresh
-					report "               The mps_byte has an invalid value"
+					report "               **** check NOT OK ****  The mps_byte has an invalid value"
 					severity warning;
 					if nostat ='0' then
-						assert nfip_status(2) ='0'
-						report "               The nanoFIP status byte indicates a user consumed variable access error"
-						severity warning;
-						assert nfip_status(3) ='0'
-						report "               The nanoFIP status byte indicates a user produced variable access error"
-						severity warning;
+						if nfip_status(2) ='1' and ucacerr then
+							report "               (( check OK ))  The nanoFIP status byte correctly indicates" &
+													" a user produced variable access error"
+							severity warning;
+						elsif nfip_status(2) ='0' and ucacerr then
+							report "               **** check NOT OK ****  The nanoFIP status byte does not indicate as it should" &
+													" a user consumed variable access error"
+							severity warning;
+						elsif nfip_status(2) ='1' and not(ucacerr) then
+							report "               **** check NOT OK ****  The nanoFIP status byte wrongly indicates" &
+													" a user consumed variable access error"
+							severity warning;
+						end if;						
+						
+						if nfip_status(3) ='1' and upacerr then
+							report "               (( check OK ))  The nanoFIP status byte correctly indicates" &
+													" a user produced variable access error"
+							severity warning;
+						elsif nfip_status(3) ='0' and upacerr then
+							report "               **** check NOT OK ****  The nanoFIP status byte does not indicate as it should" &
+													" a user produced variable access error"
+							severity warning;
+						elsif nfip_status(3) ='1' and not(upacerr) then
+							report "               **** check NOT OK ****  The nanoFIP status byte wrongly indicates" &
+													" a user produced variable access error"
+							severity warning;
+						end if;						
 						assert nfip_status(4) ='0'
 						report "               The nanoFIP status byte indicates a PDU_type or Length byte error on reception"
 						severity warning;
@@ -362,7 +412,7 @@ begin
 	with pdu_type_byte select
 		var_string		<= 	"a Presence Variable,       "	when pdu_presence,
 							"an Identification Variable,"	when pdu_identification,
-							"a Produced Variable,       "	when pdu_produced,
+							"Produced Variable,         "	when pdu_produced,
 							"no known variable.         "	when others;
 
 	frame_ok			<= control_ok and length_specs_ok and length_coherent and contents_ok;

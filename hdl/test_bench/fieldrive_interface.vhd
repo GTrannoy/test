@@ -56,12 +56,14 @@ architecture archi of fieldrive_interface is
 	);
 	port(
 		clk						: in std_logic;
+		f_clk_period			: in time;
 		gx						: in std_logic_vector(crc_l downto 0);
 		reset					: in std_logic;
 		txck					: in std_logic;
 		txd						: in std_logic;
 		txena					: in std_logic;
 		
+		sof_o					: out std_logic;
 		txerr					: out std_logic;
 		wdgn					: out std_logic
 	);
@@ -93,6 +95,16 @@ architecture archi of fieldrive_interface is
 	);
 	end component;
 
+	component bus_monitor
+	port(
+		cd				: in std_logic;
+		f_clk_period	: in time;
+		id_rp			: in std_logic;
+		sof				: in std_logic;
+		txena			: in std_logic
+	);
+	end component;
+
 constant crc_l				: integer:=16;
 
 signal cd					: std_logic;
@@ -109,6 +121,7 @@ signal mps_byte				: std_logic_vector(7 downto 0);
 signal pdu_type_byte		: std_logic_vector(7 downto 0);
 signal rp_control_byte		: std_logic_vector(7 downto 0);
 signal station_adr			: std_logic_vector(7 downto 0);
+signal sof					: std_logic;
 signal txck					: std_logic;
 signal txd					: std_logic;
 signal txena				: std_logic;
@@ -173,12 +186,14 @@ begin
 	)
 	port map(
 		clk					=> f_clk,
+		f_clk_period		=> f_clk_period,
 		gx					=> gx,
 		reset				=> fd_reset,
 		txck				=> txck,
 		txd					=> txd,
 		txena				=> txena,
 		
+		sof_o				=> sof,
 		txerr				=> txerr,
 		wdgn				=> wdgn
 	);
@@ -207,4 +222,13 @@ begin
 		rp_control_byte		=> rp_control_byte
 	);
 	
+	fip_bus_monitor: bus_monitor
+	port map(
+		cd					=> cd,
+		f_clk_period		=> f_clk_period,
+		id_rp				=> id_rp,
+		sof					=> sof,
+		txena				=> txena
+	);
+
 end archi;
