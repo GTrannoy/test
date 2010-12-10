@@ -130,8 +130,8 @@ probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
 probe -create -shm -waveform :user_logic:wb_monitor:valid_bus_cycle
 probe -create -shm -waveform :user_logic:wb_monitor:var_id
 probe -create -shm -waveform :user_logic:wb_monitor:adr
-probe -create -shm -waveform :user_logic:wb_monitor:in_consumed
-probe -create -shm -waveform :user_logic:wb_monitor:in_broadcast
+#probe -create -shm -waveform :user_logic:wb_monitor:in_consumed
+#probe -create -shm -waveform :user_logic:wb_monitor:in_broadcast
 
 probe -create -shm -waveform :user_logic:wb_monitor:writing_produced
 probe -create -shm -waveform :user_logic:wb_monitor:out_produced
@@ -145,5 +145,5 @@ probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
 
 
 
-run 4000 us
+run 7000 us
 
