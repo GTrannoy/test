@@ -86,31 +86,31 @@ entity WF_var_rdy_generator is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i              : in std_logic;                     --! 40MHz clock
-    slone_i             : in std_logic;                     --! Stand-alone mode 
-    subs_i              : in std_logic_vector (7 downto 0); --! Station address
+    uclk_i                : in std_logic;                     --! 40MHz clock
+    slone_i               : in std_logic;                     --! Stand-alone mode 
+    subs_i                : in std_logic_vector (7 downto 0); --! Station address
  
     -- Signal from the WF_reset_unit
-    nfip_urst_i         : in std_logic;                     --! nanoFIP internal reset
+    nfip_urst_i           : in std_logic;                   --! nanoFIP internal reset
 
     -- Signals from the WF_cons_frame_validator
-    cons_frame_ok_p_i   : in std_logic;                     --! pulse after a correct consumed frame
-    var_i               : in t_var;                         --! variable type that is being treated
+    cons_frame_ok_p_i     : in std_logic;                   --! pulse after a correct cons frame
+    var_i                 : in t_var;                       --! variable type that is being treated
 
     -- Signals from the wf_cons_bytes_processor
-    rx_var_rst_byte_1_i : in std_logic_vector(7 downto 0);  --! first & second data bytes of a 
-    rx_var_rst_byte_2_i : in std_logic_vector(7 downto 0);  --! reset variable
+    cons_var_rst_byte_1_i : in std_logic_vector(7 downto 0);--! first & second data bytes of a 
+    cons_var_rst_byte_2_i : in std_logic_vector(7 downto 0);--! reset variable
 
 
   -- OUTPUT
     -- nanoFIP User Interface, NON-WISHBONE outputs
-    var1_rdy_o          : out std_logic;
-    var2_rdy_o          : out std_logic;
-    var3_rdy_o          : out std_logic;
+    var1_rdy_o            : out std_logic;
+    var2_rdy_o            : out std_logic;
+    var3_rdy_o            : out std_logic;
 
     -- Signals for the WF_reset_unit
-    assert_rston_p_o    : out std_logic;
-    rst_nfip_and_fd_p_o : out std_logic
+    assert_rston_p_o      : out std_logic;
+    rst_nfip_and_fd_p_o   : out std_logic
       );
 end entity WF_var_rdy_generator;
 
@@ -275,12 +275,12 @@ begin
 
         if var_i = var_rst then
  
-          if rx_var_rst_byte_1_i = subs_i then
+          if cons_var_rst_byte_1_i = subs_i then
 
             s_rst_nfip_and_fd <= '1';   -- rst_nFIP_and_FD_o stays asserted until 
           end if;                       -- the end of the current RP_DAT frame
 
-          if rx_var_rst_byte_2_i = subs_i then  
+          if cons_var_rst_byte_2_i = subs_i then  
 
             s_assert_rston    <= '1'; -- assert_RSTON_o stays asserted until 
           end if;                     -- the end of the current RP_DAT frame

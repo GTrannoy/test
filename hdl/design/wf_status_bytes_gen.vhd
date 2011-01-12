@@ -182,6 +182,7 @@ begin
                                                                  -- var. when it was not ready
           end if;  
 
+
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- t_txer
           if (fd_wdgn_i = '0') then                              -- FIELDRIVE transmission error 
@@ -195,36 +196,19 @@ begin
             s_nFIP_status_byte(c_T_WDER_INDEX)  <= '1';
           end if;
 
+
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           --r_tler
           s_nFIP_status_byte(c_R_TLER_INDEX)    <= nfip_status_r_tler_i;
+
 
            --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
           --r_fcser
           s_nFIP_status_byte(c_R_FCSER_INDEX)   <= nfip_status_r_fcser_p_i; 
 
+
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          --r_tler
-          -- if ((var_i = var_1 or var_i = var_2) and (nfip_status_r_tler_i = '1')) then 
-
-            -- s_nFIP_status_byte(c_R_TLER_INDEX)  <= '1';          -- since the last time the status 
-                                                                 -- byte was delivered, 
-                                                                 -- a cons. var. arrived for this 
-                                                                 -- station with wrong PDU_TYPE,
-                                                                 -- Control or Length bytes
-          -- end if; 
-
-           --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          --r_fcser
-          -- if ((var_i = var_1 or var_i = var_2) and (nfip_status_r_fcser_p_i = '1')) then
-
-            -- s_nFIP_status_byte(c_R_FCSER_INDEX) <= '1';          -- since the last time the status  
-                                                                 -- byte was delivered,
-                                                                 -- a cons. var. with a wrong 
-                                                                 -- CRC arrived for this station
-          -- end if; 
-
-
+ 
         end if;
       end if;
     end if;
