@@ -7,7 +7,7 @@
 --!   \n\n<b>Last changes:</b>\n
 --!     -> egousiou: base_addr unsigned(8 downto 0) instead of std_logic_vector (9 downto 0), 
 --!                  to simplify calculations
---! turnaround times
+--! turnaround times!!
 --! broadcast: 91 instead of 04
 --
 --------------------------------------------------------------------------------------------------- 
@@ -159,7 +159,7 @@ package WF_package is
 
   constant c_TIMEOUTS_TABLE : t_timeouts_table(0 to 3) :=
 
-                              (c_31K25_INDEX =>   (turnaround => integer (760000.0  / c_QUARTZ_PERIOD), 
+                              (c_31K25_INDEX =>   (turnaround => integer (480000.0  / c_QUARTZ_PERIOD), 
                                                    silence    => integer (5160000.0 / c_QUARTZ_PERIOD)),
 
                                c_1M_INDEX =>      (turnaround => integer (14000.0   / c_QUARTZ_PERIOD),
@@ -168,7 +168,7 @@ package WF_package is
                                c_2M5_INDEX =>     (turnaround => integer (6000.0   / c_QUARTZ_PERIOD),
                                                    silence    => integer (100000.0 / c_QUARTZ_PERIOD)),
 
-                               c_RESERVE_INDEX => (turnaround => integer (760000.0  /C_QUARTZ_PERIOD),
+                               c_RESERVE_INDEX => (turnaround => integer (480000.0  /C_QUARTZ_PERIOD),
                                                    silence    => integer (5160000.0 /C_QUARTZ_PERIOD))
                                 );
 
