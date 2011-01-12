@@ -1,4 +1,4 @@
---________________________________________________________________________________________________|
+--_________________________________________________________________________________________________
 --                                                                                                |
 --                                        |The nanoFIP|                                           |
 --                                                                                                |
@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_decr_counter.vhd
+--! @file WF_manch_code_viol_check.vhd
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -18,7 +18,7 @@ use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
 use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 --! specific packages
-use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
+use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -27,10 +27,19 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit follows an incoming serial signal and outputs a pulse 
---!            if a manchester 2 code violation is detected.
---!            It is assumed that a violation happens if after half reception period 
---!            plus 2 uclck periods, the incoming signal has not had a transition.
+--! @brief     The unit follows the incoming deglitched serial signal and outputs a pulse if a
+--!            Manchester 2 (manch.) code violation is detected.
+--!            It is assumed that a violation happens if after a half-bit-clock period (plus 2 uclk
+--!            periods), the incoming signal has not had a transition.
+--!            Note: the term sample_manch_bit_p refers to the moments when a manch. encoded bit
+--!            should be sampled (before and after a significant edge), whereas the 
+--!            sample_bit_p includes only the sampling of the 1st part, before the transition. 
+--!            Example:
+--!                    bit                : 0 
+--!                    manch. encoded     : _|-
+--!                    sample_manch_bit_p : ^ ^
+--!                    sample_bit_p       : ^    (this sampling will give the 0)
+
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -54,6 +63,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
+--!     -> 12/12/2010  v0.02  EG  cleaning-up+commenting
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -70,21 +80,21 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 entity WF_manch_code_viol_check is
   port (
   -- INPUTS 
-    -- User Interface general signals (synchronized) 
-    uclk_i :               in std_logic; --! 40MHz clock
+    -- nanoFIP User Interface general signal 
+    uclk_i                : in std_logic; --! 40MHz clock
 
-    -- Signal from the WF_reset_unit unit
-    nFIP_urst_i :          in std_logic; --! internal reset
+    -- Signal from the WF_reset_unit
+    nfip_urst_i           : in std_logic; --! nanoFIP internal reset
 
-   -- Signals from WF_rx
-   serial_input_signal_i : in std_logic; --! input signal
-   sample_bit_p_i :        in std_logic; --! pulse for the sampling of a new bit
-   sample_manch_bit_p_i :  in std_logic; --! pulse for the sampling of a new manch. bit
-    
-
+    -- Signals from the wf_rx_deserializer
+    serial_input_signal_i : in std_logic; --! input signal
+    sample_bit_p_i        : in std_logic; --! pulse for the sampling of a new bit
+    sample_manch_bit_p_i  : in std_logic; --! pulse for the sampling of a new manch. bit
+ 
+   
   -- OUTPUTS
-    -- Signal to WF_rx
-    manch_code_viol_p_o : out std_logic  --! pulse indicating a code violation
+    -- Signal to the wf_rx_deserializer
+    manch_code_viol_p_o  : out std_logic  --! pulse indicating a code violation
       );
 end entity WF_manch_code_viol_check;
 
@@ -99,32 +109,29 @@ signal s_sample_bit_p_d1,s_sample_bit_p_d2,s_check_code_viol_p,s_serial_input_si
 --=================================================================================================
 --                                      architecture begin
 --=================================================================================================  
-  begin
+begin
 
 ---------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------
---!@brief Synchronous process Check_Code_Violations:in order to check the existance code violations
---! the input signal is delayed by half reception period.
---! The signal check_code_viol_p is a pulse with period the reception period. The pulse occurs
---! 2 uclk periods after a manch. transition is expected.
+--!@brief Synchronous process Check_Code_Violations: in order to check for code violations, the
+--! input signal is delayed by half-bit-clock period (serial_input_signal_d).
+--! The signal check_code_viol_p is a pulse occuring 2 uclk periods after a manch. transition is
+--! expected.
 --! As the following drawing roughly indicates, a violation exists if the signal and its delayed
---! version are identical on the s_check_code_viol_p moments.
+--! version are identical on the check_code_viol_p moments.
 
---                                 0    V-    1
---   rxd_filtered_o:         __|--|____|--|__ 
---   s_serial_input_signal_d:       __|--|____|--|__
---   s_check_code_viol_p:             ^    ^     ^
+--                                     0    V-    1
+--   rxd_filtered          :         __|--|____|--|__ 
+--   serial_input_signal_d :           __|--|____|--|__
+--   check_code_viol       :             ^    ^    ^
 
-  Check_code_violations: process(uclk_i)
+  Check_code_violations: process (uclk_i)
     begin
       if rising_edge (uclk_i) then 
-         if nFIP_urst_i = '1' then
-           s_check_code_viol_p   <='0';
-           s_sample_bit_p_d1     <='0';
-           s_sample_bit_p_d2     <='0';
-           s_serial_input_signal_d  <='0';
+         if nfip_urst_i = '1' then
+           s_check_code_viol_p       <= '0';
+           s_sample_bit_p_d1         <= '0';
+           s_sample_bit_p_d2         <= '0';
+           s_serial_input_signal_d   <= '0';
 
          else
 
@@ -132,16 +139,17 @@ signal s_sample_bit_p_d1,s_sample_bit_p_d2,s_check_code_viol_p,s_serial_input_si
              s_serial_input_signal_d <= serial_input_signal_i; 
            end if;
 
-            s_check_code_viol_p   <= s_sample_bit_p_d2; -- small delay
-            s_sample_bit_p_d2     <= s_sample_bit_p_d1;
-            s_sample_bit_p_d1     <= sample_bit_p_i;
+            s_check_code_viol_p      <= s_sample_bit_p_d2; -- 2 uclk ticks delay
+            s_sample_bit_p_d2        <= s_sample_bit_p_d1;
+            s_sample_bit_p_d1        <= sample_bit_p_i;
          end if;
       end if;
   end process; 
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  manch_code_viol_p_o <= s_check_code_viol_p and 
-                        (not (serial_input_signal_i xor s_serial_input_signal_d));
+  -- Concurrent signal assignment
+  manch_code_viol_p_o                <= s_check_code_viol_p and 
+                                        (not (serial_input_signal_i xor s_serial_input_signal_d));
   
 
 end architecture rtl;

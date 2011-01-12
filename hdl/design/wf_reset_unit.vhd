@@ -10,7 +10,7 @@ use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
 use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 --! specific packages
-use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
+use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 
 ---------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --
 --
 --! @author Erik van der Bij (Erik.van.der.Bij@cern.ch)
---!         Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
+--!         Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --!         Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --
@@ -40,12 +40,12 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --
 --! @details 
 --
---!   \n<b>Dependencies:</b>\n
---!     WF_cons_bytes_from_rx\n
+--!   \n<b>Dependencies:</b>    \n
+--!     wf_cons_bytes_processor \n
 -- 
 --
 --!   \n<b>Modified by:</b>\n
---!     Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch) \n
+--!     Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
 --!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)         \n
 --
 ---------------------------------------------------------------------------------------------------
@@ -69,28 +69,28 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 entity WF_reset_unit is
   port (
   -- INPUTS
-    -- User Interface general signals (synchronized) (after synchronization)
-    uclk_i :                in std_logic;                      --! 40 MHz clock
-    urst_i :                in std_logic;                     --! initialisation control, active low
-    urst_r_edge_i :         in std_logic;
-    subs_i :                in std_logic_vector (7 downto 0); --! Subscriber number coding
-    rate_i :                in std_logic_vector (1 downto 0);
+    -- nanoFIP User Interface, General signals (synchronized with uclk) (after synchronization)
+    uclk_i :              in std_logic;                     --! 40 MHz clock
+    urst_i :              in std_logic;                     --! initialisation control, active low
+    urst_r_edge_i :       in std_logic;
+    subs_i :              in std_logic_vector (7 downto 0); --! Subscriber number coding
+    rate_i :              in std_logic_vector (1 downto 0);
 
     -- Signal from the central control unit WF_engine_control
-    var_i :                 in t_var;                         --! variable type 
+    var_i :               in t_var;                         --! variable type that is being treated
     rst_nFIP_and_FD_p_i : in std_logic;
-    assert_RSTON_p_i :       in std_logic;
+    assert_RSTON_p_i :    in std_logic;
 
 
   -- OUTPUTS
     -- nanoFIP internal reset
-    nFIP_rst_o :            out std_logic;                    --! nanoFIP internal reset, active high
+    nFIP_rst_o :          out std_logic;                    --! nanoFIP internal reset, active high
 
-    -- nanoFIP output to the User Interface 
-    rston_o :               out std_logic;                    --! reset output, active low
+    -- nanoFIP User Interface output 
+    rston_o :             out std_logic;                    --! reset output, active low
 
-    -- nanoFIP output to FIELDRIVE
-    fd_rstn_o :             out std_logic                     --! FIELDRIVE reset, active low
+    -- nanoFIP FIELDRIVE output
+    fd_rstn_o :           out std_logic                     --! FIELDRIVE reset, active low
        );
 end entity WF_reset_unit;
 
@@ -108,7 +108,7 @@ architecture rtl of WF_reset_unit is
 --=================================================================================================
 --                                      architecture begin
 --================================================================================================= 
-  begin
+begin
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process s_rst_creation: the process follows the (buffered) input signal rstin 
@@ -117,7 +117,7 @@ architecture rtl of WF_reset_unit is
 
   s_rst_creation: process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
+    if rising_edge (uclk_i) then
  
       if (urst_i = '1')  then                       -- when the rstin in ON
         if (s_rstin_c(s_rstin_c'left) = '0')  then  -- counter counts until 16 (then stays at 16)
@@ -153,13 +153,13 @@ end process;
 --! is received and the 1st byte contains the station address.
 --!The signal reset_nFIP_and_FD stays asserted until the end of the transmission of the RP_DAT frame
 
---! fd_rstn_o: fieldrive reset, active low; active when a reset variable is received and the 1st
+--! fd_rstn_o: FIELDRIVE reset, active low; active when a reset variable is received and the 1st
 --! byte contains the station address.
 --! The signal reset_nFIP_and_FD_i stays asserted until a new variable for this station is received
  
   Reset_Outputs: process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
+    if rising_edge (uclk_i) then
 
       rston_o    <= not assert_RSTON_p_i; 
       nFIP_rst_o <= s_rst or rst_nFIP_and_FD_p_i;

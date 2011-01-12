@@ -1,4 +1,4 @@
---________________________________________________________________________________________________|
+--_________________________________________________________________________________________________
 --                                                                                                |
 --                                        |The nanoFIP|                                           |
 --                                                                                                |
@@ -24,74 +24,85 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   eglitcher
 --
---! @brief     Glitch filter. 1 pulse adapted filter.
+--! @brief     The unit applies a glitch filter; it follows each manchester bit of the input signal
+--!            fd_rxd (synchronized with uclk), counts the number of zeros and ones throughout
+--!            its duration and finally outputs the majority. The output deglitched signal is one
+--!            half-bit-clock period later that the input, synchronised fd_rxd.
+--!            Note: the term sample_manch_bit_p refers to the moments when a manch. encoded bit
+--!            should be sampled (before and after a significant edge), whereas the 
+--!            sample_bit_p includes only the sampling of the 1st part, before the transition. 
+--!            Example:
+--!                    bit                : 0 
+--!                    manch. encoded     : _|-
+--!                    sample_manch_bit_p : ^ ^
+--!                    sample_bit_p       : ^    (this sampling will give the 0)
 --
 --
---! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch) 
+--! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
--- @date       08/2010
+-- @date       23/08/2010
 --
 --
---! @version   v0.03
+--! @version   v0.02
 --
 --
 --! @details 
 --
 --!   \n<b>Dependencies:</b>\n
---!   WF_osc             \n
---!   WF_reset_unit         \n
+--!     WF_osc       \n
+--!     WF_reset_unit \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!   Evangelia Gousiou (Evangelia.Gousiou@cern.ch) 
+--!     Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!     Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n 
 --
 ---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
---!   07/08/2009  v0.02  PAS Entity Ports added, start of architecture content
---!   23/08/2010  v0.03  EG   Signal names changed, delayed signals changed, code cleaned-up
+--!     -> 07/08/2009  v0.01  PAS Entity Ports added, start of architecture content
+--!     -> 23/08/2010  v0.02  EG  code cleaned-up+commented
 --
 ---------------------------------------------------------------------------------------------------
 --
 --! @todo 
---  more comments
+--
 ---------------------------------------------------------------------------------------------------
 
 
 
 --=================================================================================================
---!                             Entity declaration for WF_deglitcher
+--!                             Entity declaration for wf_rx_deglitcher
 --=================================================================================================
 
 entity WF_rx_deglitcher is
-  generic (C_ACULENGTH : integer := 10);
+  generic (c_DEGLITCH_LGTH : integer := 10);
 
   port( 
   -- INPUTS  
-    -- User interface general signal   
-    uclk_i :                  in std_logic; --! 40 MHz clock
+    -- nanoFIP User Interface general signal   
+    uclk_i                  : in std_logic;  --! 40 MHz clock
 
-    -- Signal from the WF_reset_unit unit  
-    nFIP_urst_i :              in std_logic; --! internal reset
+    -- Signal from the WF_reset_unit  
+    nfip_urst_i             : in std_logic;  --! nanoFIP internal reset
 
-    -- FIELDRIVE input signal
-    rxd_i :                   in std_logic; --! buffered fd_rxd
+    -- nanoFIP FIELDRIVE (synchronized with uclk)
+    rxd_i                   : in std_logic;  --!        ____|--------|________|--------|________
 
     -- Signals from the WF_osc unit
-    sample_bit_p_i :          in std_logic; --! pulsed signal signaling a new bit
-    sample_manch_bit_p_i :    in std_logic; --! pulsed signal signaling a new manchestered bit 
+    sample_bit_p_i          : in std_logic;  --!        ____|-|_______________|-|_______________
+    sample_manch_bit_p_i    : in std_logic;  --!        ____|-|______|-|______|-|______|-|______
+
 
   -- OUTPUTS  
-    -- Output signals needed for the receiverWF_rx
-    sample_bit_p_o :          out std_logic;
-    rxd_filtered_o :          out std_logic;
-    rxd_filtered_f_edge_p_o : out std_logic;
-    sample_manch_bit_p_o :    out std_logic
+    -- Signals to the wf_rx_deserializer
+    rxd_filtered_o          : out std_logic; --! filtered output signal
+    rxd_filtered_f_edge_p_o : out std_logic; --! indicates a falling edge on the filtered signal
+    sample_bit_p_o          : out std_logic; --! same as sample_bit_p_i
+    sample_manch_bit_p_o    : out std_logic  --! same as sample_manch_bit_p_i
       );
 end WF_rx_deglitcher;
 
@@ -102,11 +113,10 @@ end WF_rx_deglitcher;
 --=================================================================================================
 architecture Behavioral of WF_rx_deglitcher is
 
-signal s_count_ones_c :      signed(C_ACULENGTH - 1 downto 0);
-signal s_rxd_filtered    :   std_logic;
-signal s_rxd_filtered_d  :   std_logic;
+signal s_rxd_filtered      : std_logic;
+signal s_rxd_filtered_d    : std_logic;
 signal s_rxd_filtered_buff : std_logic_vector (1 downto 0);
-
+signal s_zeros_and_ones_c  : signed (c_DEGLITCH_LGTH - 1 downto 0);
 
 
 --=================================================================================================
@@ -116,21 +126,24 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-process(uclk_i)
-  begin
-  if rising_edge(uclk_i) then
+--! Synchronous process: Zeros_and_Ones_counter: For each manchester bit (between two
+--! sample_manch_bit_p_i pulses) at each uclk tick, the signed counter decreases by one if rxd is
+--! one or increases by one if rxd is zero.
 
-    if nFIP_urst_i = '1' then
-      s_count_ones_c <= (others =>'0');
+Zeros_and_Ones_counter: process (uclk_i)
+  begin
+  if rising_edge (uclk_i) then
+    if nfip_urst_i = '1' then
+      s_zeros_and_ones_c   <= (others =>'0');
     else
 
-      if sample_manch_bit_p_i = '1' then  -- arrival of a new manchester bit
-        s_count_ones_c <= (others =>'0'); -- counter initialized
+      if sample_manch_bit_p_i = '1' then      -- arrival of a new manchester bit
+        s_zeros_and_ones_c <= (others =>'0'); -- counter initialized
 
-      elsif  rxd_i = '1' then             -- counting the number of ones 
-        s_count_ones_c <= s_count_ones_c - 1;
+      elsif  rxd_i = '1' then             
+        s_zeros_and_ones_c <= s_zeros_and_ones_c - 1;
       else
-        s_count_ones_c <= s_count_ones_c + 1;
+        s_zeros_and_ones_c <= s_zeros_and_ones_c + 1;
 
       end if;
     end if;
@@ -138,55 +151,55 @@ process(uclk_i)
 end process;
 
 ---------------------------------------------------------------------------------------------------
-process(uclk_i)
-  begin
-  if rising_edge(uclk_i) then
+--! Synchronous process Filtering: On the arrival of a new manchester bit, if the number of ones 
+--! that has been measured (for the bit that has already passed) is more than the number of zeros,
+--! the filtered output signal is zero (until the new manchester bit), otherwise one. 
+--! The filtered signal is one half-bit-clock cycle (+2 uclk cycles) late with respect to the
+--! synchronized fd_rxd.
 
-    if nFIP_urst_i = '1' then
-      s_rxd_filtered <= '0';
+Filtering: process (uclk_i)
+  begin
+  if rising_edge (uclk_i) then
+    if nfip_urst_i = '1' then
+      s_rxd_filtered   <= '0';
       s_rxd_filtered_d <= '0';
     else
 
 	  if sample_manch_bit_p_i = '1' then 		
-        s_rxd_filtered <= s_count_ones_c (s_count_ones_c'left); -- if the ones are more than
-                                                                -- the zeros, the output is 1
-                                                                -- otherwise, 0	 
-      end if;
+        s_rxd_filtered <= s_zeros_and_ones_c (s_zeros_and_ones_c'left);-- if the ones are more than
+                                                                       -- the zeros, the output is
+      end if;                                                          -- 1 otherwise, 0	 
 
-      s_rxd_filtered_d <= s_rxd_filtered; 
-
-    end if;
+      s_rxd_filtered_d <= s_rxd_filtered;  -- 1 uclk period delay, so that the pulses sample_bit_p
+                                           -- and sample_manch_bit_p arrive 2 uclk periods before
+    end if;                                -- the rxd_filtered edges
   end if;
 end process;
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Detect_f_edge_rx_data_filtered: detection of a falling edge on the 
---! deglitched input signal (rx_data_filtered). A buffer is used to store the last 2 bits of the 
---! signal. A falling edge is detected if the last bit of the buffer (new bit) is a zero and the 
---! first (old) is a one. 
+--!@brief synchronous process Detect_f_edge_rxd_filtered: detection of a falling edge on the 
+--! deglitched input signal(rxd_filtered). A buffer is used to store the last 2 bits of the signal.
 
-  Detect_f_edge_rx_data_filtered: process(uclk_i)
-    begin
-      if rising_edge(uclk_i) then 
-        if nFIP_urst_i = '1' then
-          s_rxd_filtered_buff <= (others => '0');
-          rxd_filtered_f_edge_p_o <= '0';
-        else
+Detect_f_edge_rxd_filtered: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then 
+      if nfip_urst_i = '1' then
+        s_rxd_filtered_buff <= (others => '0');
 
-          -- buffer s_rxd_filtered_buff keeps the last 2 bits of s_rxd_filtered_d
-          s_rxd_filtered_buff <= s_rxd_filtered_buff(0) & s_rxd_filtered_d;
-          -- falling edge detected if last bit is a 0 and previous was a 1
-          rxd_filtered_f_edge_p_o <= s_rxd_filtered_buff(1)and(not s_rxd_filtered_buff(0));
-        end if;
+      else
+        -- buffer s_rxd_filtered_buff keeps the last 2 bits of s_rxd_filtered_d
+        s_rxd_filtered_buff <= s_rxd_filtered_buff(0) & s_rxd_filtered_d;
       end if;
-end process;
+    end if;
+  end process;
 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  -- Concurrent signals assignments
+  rxd_filtered_f_edge_p_o   <= s_rxd_filtered_buff(1) and (not s_rxd_filtered_buff(0));
+  rxd_filtered_o            <= s_rxd_filtered_d;
+  sample_bit_p_o            <= sample_bit_p_i;
+  sample_manch_bit_p_o      <= sample_manch_bit_p_i;  
 
----------------------------------------------------------------------------------------------------
-
-  rxd_filtered_o <= s_rxd_filtered_d;
-  sample_manch_bit_p_o <= sample_manch_bit_p_i;  
-  sample_bit_p_o <= sample_bit_p_i;
 
 end Behavioral;
 

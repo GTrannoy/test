@@ -333,19 +333,19 @@ set_io fd_wdgn_i      \
     -DIRECTION Input
 
 
-set_io fx_rxa_i       \
+set_io fd_rxcdn_i       \
     -pinname 121      \
     -fixed yes        \
     -DIRECTION Input
 
 
-set_io fx_rxd_i       \
+set_io fd_rxd_i       \
     -pinname 127      \
     -fixed yes        \
     -DIRECTION Input
 
 
-set_io fx_txd_o        \
+set_io fd_txd_o        \
     -pinname 131       \
     -fixed yes         \
     -DIRECTION Output
@@ -554,8 +554,25 @@ set_io we_i           \
     -fixed yes        \
     -DIRECTION Input
 
+set_io u_cacer_o      \
+    -pinname 78        \
+    -fixed yes         \
+    -DIRECTION Output
 
+set_io u_pacer_o      \
+    -pinname 79        \
+    -fixed yes         \
+    -DIRECTION Output
 
+set_io r_tler_o      \
+    -pinname 80        \
+    -fixed yes         \
+    -DIRECTION Output
+
+set_io r_fcser_o      \
+    -pinname 85        \
+    -fixed yes         \
+    -DIRECTION Output
 #
 # Non IO constraints
 #
