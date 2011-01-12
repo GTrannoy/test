@@ -1,4 +1,4 @@
---________________________________________________________________________________________________|
+--_________________________________________________________________________________________________
 --                                                                                                |
 --                                        |The nanoFIP|                                           |
 --                                                                                                |
@@ -18,7 +18,7 @@ use IEEE.STD_LOGIC_1164.all; --! std_logic definitions
 use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 --! specific packages
-use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, constants
+use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                          WF_rx_tx_osc                                         --
@@ -27,7 +27,8 @@ use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, co
 --
 -- unit name   WF_rx_tx_osc
 --
---! @brief     Generation the clock signals needed for the receiver(WF_rx)and transmiter(WF_tx)\n
+--! @brief     Generation the clock signals needed for the receiver (wf_rx_deglitcher and
+--!            wf_rx_deserializer)and transmiter(wf_tx_serializer)\n
 --!
 --!            Concerning the reception, even if the bit rate of the communication is known, jitter
 --!            is expected to affect the arriving time of the incoming signal. The main idea of the 
@@ -51,24 +52,24 @@ use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, co
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)         \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
 --
 --
---! @date      07/2010
+--! @date      08/12/2010
 --
 --
---! @version   v0.02
+--! @version   v0.03
 --
 --
 --!   \n<b>Dependencies:</b>\n
---!     WF_reset_unit \n
---!     WF_synchronizer\n
---!     WF_rx           \n
+--!     WF_reset_unit       \n
+--!     WF_synchronizer     \n
+--!     wf_rx_deserializer  \n
 --
 --
 --!   \n<b>Modified by:</b>\n
 --!     Pablo Alvarez Sanchez\n
---!     Evangelia Gousiou     \n
+--!     Evangelia Gousiou    \n
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -76,8 +77,9 @@ use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, co
 --!     -> 08/2009  v0.01  PS Entity Ports added, start of architecture content \n
 --!     -> 07/2010  v0.02  EG  tx, rx counter changed from 20 bits signed, to 11 bits unsigned;
 --!                         rx clk generation depends on edge detection; code cleaned-up+commented
---!                         C_TXCLKBUFFLENTGTH got 1 bit more\n 
+--!                         c_TX_CLK_BUFF_LGTH got 1 bit more\n 
 --!                         rst_rx_osc signal clearified
+--!     -> 12/2010  v0.03  EG  code cleaned-up   
 --         
 ---------------------------------------------------------------------------------------------------
 --
@@ -85,8 +87,8 @@ use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, co
 --
 ---------------------------------------------------------------------------------------------------
 
----/!\----------------------------/!\----------------------------/!\--------------------------/!\--
---                                    Sunplify Premier Warnings                                  --
+---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
+--                               Sunplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -97,47 +99,54 @@ use work.WF_PACKAGE.all;     --! definitions of supplemental types, subtypes, co
 --=================================================================================================
 
 entity WF_rx_tx_osc is
-  generic (C_PERIODS_COUNTER_LENGTH : natural; 
-           C_QUARTZ_PERIOD :          real;
-           C_TXCLKBUFFLENTGTH :       natural);
+  generic (C_PERIODS_COUNTER_LENGTH : natural := 11; -- 2^ c_PERIODS_COUNTER_LENGTH: # uclk ticks
+                                                     -- equivalent to the reception/ transmission
+                                                     -- period. In the slowest bit rate (31.25kbps) 
+                                                     -- the period is 32000ns and can be measured
+                                                     -- after 1280 uclk ticks. Therefore a counter
+                                                     -- of 11 bits is the max needed for counting 
+                                                     -- transmission/ reception periods.
+
+           c_TX_CLK_BUFF_LGTH       : natural := 4); -- length of tx_clk_p_buff_o (default 4)
 
   port (
   -- INPUTS
-    -- User interface general signals
-    uclk_i :                  in std_logic;                      --! 40 MHz clock
-    rate_i :                  in  std_logic_vector (1 downto 0); --! bit rate  
+    -- nanoFIP User Interface, General signals
+    uclk_i                  : in std_logic;                      --! 40 MHz clock
+    rate_i                  : in  std_logic_vector (1 downto 0); --! bit rate  
 
-    -- Signal from the WF_reset_unit unit  
-    nFIP_urst_i :             in std_logic;   --! nanoFIP internal reset
+    -- Signal from the WF_reset_unit  
+    nfip_urst_i             : in std_logic;   --! nanoFIP internal reset
 
-    -- Signals from the WF_synchronizer    
-    rxd_edge_i :              in std_logic;   --! indication of an edge on rxd_i
-    rxd_f_edge_i :            in std_logic;   --! indication of a falling edge on rxd_i
+    -- Signal from the WF_synchronizer    
+    rxd_edge_i              : in std_logic;   --! indication of an edge on fd_rxd
 
-    -- Signal from WF_rx   
-    rst_rx_osc_i : in std_logic;              --! resets the clock recovery procedure of the rx_osc
+    -- Signal from wf_rx_deserializer   
+    rst_rx_osc_i            : in std_logic;   --! resets the clock recovery procedure of the rx_osc
 
   -- OUTPUTS  
     -- Output signals needed in the reception
-    -- Outputs to WF_rx and WF_rx_deglitcher
-    rx_manch_clk_p_o :        out std_logic;  --! signal with uclk-wide pulses
+    -- Signals to the wf_rx_deserializer and the wf_rx_deglitcher
+    rx_manch_clk_p_o        : out std_logic;  --! signal with uclk-wide pulses
                                               --! 1) on a significant edge 
                                               --! 2) between adjacent bits
                                               --! ____|-|___|-|___|-|___
-    rx_bit_clk_p_o :          out std_logic;  --! signal with uclk-wide pulses
+
+    rx_bit_clk_p_o          : out std_logic;  --! signal with uclk-wide pulses
                                               --! between adjacent bits
                                               --! __________|-|_________
 
     rx_signif_edge_window_o : out std_logic;  --! time window where a significant edge is expected
     
-    rx_adjac_bits_window_o :  out std_logic;  --! time window where a transition between adjacent
+    rx_adjac_bits_window_o  : out std_logic;  --! time window where a transition between adjacent
                                               --! bits is expected
     
     -- Output signals needed in the transmission
-    -- nanoFIP output
-    tx_clk_o :                out std_logic;  --! line driver half bit clock
-    -- Output to the WF_tx
-    tx_clk_p_buff_o :         out std_logic_vector (C_TXCLKBUFFLENTGTH -1 downto 0)
+    -- nanoFIP FIELDRIVE output
+    tx_clk_o                : out std_logic;  --! line driver half bit clock
+    -- Signal to the wf_tx_serializer
+    tx_clk_p_buff_o         : out std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0) 
+                                              --! buffer keeping the last values of tx_clk_o                                       
     );
 
 end entity WF_rx_tx_osc;
@@ -149,20 +158,18 @@ end entity WF_rx_tx_osc;
 --=================================================================================================
 architecture rtl of WF_rx_tx_osc is
 
-  signal s_counter :            unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
-
-  signal s_rx_counter, s_tx_counter :            unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_period, s_jitter :                    unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_counter_full, s_half_period :         unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_one_forth_period :                    unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_tx_clk_p_buff :                       std_logic_vector (C_TXCLKBUFFLENTGTH -1 downto 0);
-  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p :     std_logic;
-  signal s_rx_bit_clk, s_rx_manch_clk_d1 :       std_logic;
-  signal s_rx_bit_clk_d1, s_rx_manch_clk :       std_logic;
-  signal s_adjac_bits_edge_found :               std_logic;
-  signal s_signif_edge_found :                   std_logic;
-  signal s_rxd_signif_edge_window :              std_logic;
-  signal s_rx_adjac_bits_window :                std_logic;
+  signal s_rx_counter, s_tx_counter        : unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
+  signal s_period, s_jitter                : unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
+  signal s_counter_full, s_half_period     : unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
+  signal s_one_forth_period                : unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
+  signal s_tx_clk_p_buff                   : std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0);
+  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p : std_logic;
+  signal s_rx_bit_clk, s_rx_manch_clk_d1   : std_logic;
+  signal s_rx_bit_clk_d1, s_rx_manch_clk   : std_logic;
+  signal s_adjac_bits_edge_found           : std_logic;
+  signal s_signif_edge_found               : std_logic;
+  signal s_rxd_signif_edge_window          : std_logic;
+  signal s_rx_adjac_bits_window            : std_logic;
 
  
 --=================================================================================================
@@ -170,7 +177,9 @@ architecture rtl of WF_rx_tx_osc is
 --=================================================================================================
 begin
   
-  s_period <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));   -- # uclock ticks for a period
+  s_period           <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));
+                                                                     -- # uclock ticks for a period
+
   s_half_period      <= s_period srl 1;                              -- s_period shifted 1 bit
   s_one_forth_period <= s_period srl 2;                              -- s_period shifted 2 bits
   s_jitter           <= s_period srl 3;                              -- jitter defined as 1/8 of
@@ -182,20 +191,21 @@ begin
 -- rx_osc
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process rx_periods_count:
--- in this process the rx_counter stops being initialized after a falling edge of the rxd
--- (according to the signal rst_rx_osc_i from the WF_rx_unit); this edge should be representing
--- the 1st Manchester (manch.) encoded bit '1' of the preamble.
+-- the rx_counter starts counting after a falling edge on the fd_rxd (indicated by the signal
+-- rst_rx_osc_i from the wf_rx_deserializer unit); this edge should be representing the 1st
+-- Manchester (manch.) encoded bit '1' of the preamble.
 -- Starting from this edge, other falling or rising significant edges, are expected around one
 -- period later. A time window around the expected arrival time is set and its length is defined
 -- as 1/4th of the period (1/8th before and 1/8th after the expected time). When the actual edge
--- arrives, the counter resets.
--- If on the other hand, that edge is proven not to belong to a valid preambe, the signal
--- rst_rx_osc_i is re-enabled from the rx unit.
+-- arrives, the counter is reset.
+-- If that first falling edge of fd_rxd is finally proven not to belong to a valid preambe
+-- (the state machine of the wf_rx_deserializer unit is checking that and generating the
+-- rst_rx_osc_i), the counter is reinitialialized.
 
-  rx_periods_count: process(uclk_i) 
+  rx_periods_count: process (uclk_i) 
   begin
-    if rising_edge(uclk_i) then                                                  
-      if nFIP_urst_i = '1' then
+    if rising_edge (uclk_i) then                                                  
+      if nfip_urst_i = '1' then
         s_rx_counter     <= (others => '0');
 
       else 
@@ -209,13 +219,13 @@ begin
         -- counter counting 
         else
 
-          if (s_rxd_signif_edge_window = '1') and (rxd_edge_i ='1') then 
-            s_rx_counter <= (others => '0');     -- when an edge appears inside
-                                                 -- the expected window, the   
-                                                 -- counter is reinitialized
+          if (s_rxd_signif_edge_window = '1') and (rxd_edge_i = '1') then 
+            s_rx_counter <= (others => '0');         -- when an edge appears inside
+                                                     -- the expected window, the   
+                                                     -- counter is reinitialized
 
-          elsif (s_rx_counter=s_counter_full) then -- otherwise, it continues counting
-            s_rx_counter <= (others => '0');       -- complete nominal periods
+          elsif (s_rx_counter = s_counter_full) then -- otherwise, it continues counting
+            s_rx_counter <= (others => '0');         -- complete nominal periods
           else
             s_rx_counter <= s_rx_counter + 1 ;  
   
@@ -227,37 +237,35 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Concurrent signal assignments concerning the receiver:
---creation of the windows where significant edges and adjacent bits transitions are expected on the
--- input signal
--- reminder:in principle, s_rx_counter is initialized after the detection of a significant edge and
--- it is counting a complete period, according to the bit rate. 
+-- creation of the windows where "significant edges" and "adjacent bits transitions" are expected
+-- on the input signal.
     
--- s_rxd_signif_edge_window extends s_jitter uclk ticks before and s_jitter uclk ticks after the 
--- completion of a period, where significant edges are expected
--- s_rx_adjac_bits_window extends s_jitter uclk ticks before and s_jitter uclk ticks after the 
--- middle of a period, where transitions between adjacent bits are expected   
+-- s_rxd_signif_edge_window: extends s_jitter uclk ticks before and s_jitter uclk ticks after the 
+-- completion of a period, where significant edges are expected.
+-- s_rx_adjac_bits_window  : extends s_jitter uclk ticks before and s_jitter uclk ticks after the 
+-- middle of a period, where transitions between adjacent bits are expected.   
 
   s_rxd_signif_edge_window <= '1' when ((s_rx_counter < s_jitter) or
-                                       (s_rx_counter > s_counter_full - s_jitter-1))
-                        else '0';
+                                        (s_rx_counter  > s_counter_full - s_jitter-1))
+                         else '0';
 
-  s_rx_adjac_bits_window <= '1' when ((s_rx_counter >= s_half_period-s_jitter-1) and
-                                      (s_rx_counter < s_half_period+s_jitter))
+  s_rx_adjac_bits_window   <= '1' when ((s_rx_counter >= s_half_period-s_jitter-1) and
+                                        (s_rx_counter <  s_half_period+s_jitter))
 
-                        else '0';
+                         else '0';
 
 
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process rx_clk:
--- the process rx_clk is following the edges that appear on the input signal and constructs two
--- clock signals: rx_manch_clk and rx_bit_clk.
+-- the process rx_clk is following the edges that appear on the input signal fd_rxd and constructs
+-- two clock signals: rx_manch_clk and rx_bit_clk.
 
 -- In detail, the process is looking for moments:
   -- 1) of significant edges 
   -- 2) between boundary bits
     
-  -- the signal rx_manch_clk is inverted on each significant edge,as well as between adjacent bits
-  -- the signal rx_bit_clk is inverted only between adjacent bits
+  -- the signal rx_manch_clk: is inverted on each significant edge,as well as between adjacent bits
+  -- the signal rx_bit_clk  : is inverted only between adjacent bits
 
   -- The significant edges are normally expected inside the signif_edge_window. In the cases of a
   -- code violation (V+ or V-) no edge will arrive in this window. In this situation rx_manch_clk
@@ -270,9 +278,9 @@ begin
  rx_clk: process (uclk_i)
   
     begin
-      if rising_edge(uclk_i) then
+      if rising_edge (uclk_i) then
         -- initializations:  
-        if (nFIP_urst_i = '1') then
+        if (nfip_urst_i = '1') then
           s_rx_manch_clk          <='0';
           s_rx_bit_clk            <='0';
           s_rx_bit_clk_d1         <='0';
@@ -282,42 +290,49 @@ begin
 
 
         else
+          --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
           -- regarding significant edges:
-          if (s_rxd_signif_edge_window='1') then   -- looking for a significant edge  
-            if (rxd_edge_i='1') then               -- inside the corresponding window
-              s_rx_manch_clk          <= not s_rx_manch_clk;
-              s_signif_edge_found     <= '1';      -- indication that the edge was found
+
+          -- looking for a significant edge inside the corresponding window 
+          if (s_rxd_signif_edge_window = '1') and (rxd_edge_i = '1') then   
+                                                   
+              s_rx_manch_clk          <= not s_rx_manch_clk; -- inversion of rx_manch_clk 
+              s_signif_edge_found     <= '1';                -- indication that the edge was found
               s_adjac_bits_edge_found <= '0';
-            end if;
 
-          elsif (s_signif_edge_found='0')and(s_rx_counter=s_jitter) then
+          -- if a significant edge is not found where expected (code violation), the rx_manch_clk
+          -- is inverted right after the end of the signif_edge_window.
+          elsif (s_signif_edge_found = '0') and (s_rx_counter = s_jitter) then
+
             s_rx_manch_clk            <= not s_rx_manch_clk; 
-                                                  --if a significant edge is not found where               
-                                                  -- expected (code violation), the
-                                                  -- rx_manch_clk is inverted right after the
-                                                  -- end of the signif_edge_window
+            s_adjac_bits_edge_found   <= '0';                -- re-initialization before the
+                                                             -- next cycle
 
-            s_adjac_bits_edge_found   <= '0';     -- re-initialization before the next cycle
 
+          --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
           -- regarding edges between adjacent bits:
-          elsif (s_rx_adjac_bits_window='1') then           -- looking for an edge inside 
-            if (rxd_edge_i='1') then                        -- the corresponding window
+
+          -- looking for an edge inside the corresponding window
+          elsif (s_rx_adjac_bits_window = '1') and (rxd_edge_i = '1') then 
+
              s_rx_manch_clk           <= not s_rx_manch_clk;-- inversion of rx_manch_clk
              s_rx_bit_clk             <= not s_rx_bit_clk;  -- inversion of rx_bit_clk
              s_adjac_bits_edge_found  <= '1';               -- indication that an edge was found
 
              s_signif_edge_found      <= '0';               -- re-initialization before next cycle
-            end if;
 
-          elsif (s_adjac_bits_edge_found='0')and(s_rx_counter=s_half_period+s_jitter) then 
-            s_rx_manch_clk            <= not s_rx_manch_clk; -- if no edge occurs inside the 
-            s_rx_bit_clk              <= not s_rx_bit_clk;   --adjac_bits_edge_window,both clks are  
-                                                             -- inverted right after the end of it
-           
+
+          -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
+          -- after the end of it
+          elsif (s_adjac_bits_edge_found = '0') and (s_rx_counter = s_half_period + s_jitter) then 
+
+            s_rx_manch_clk            <= not s_rx_manch_clk;
+            s_rx_bit_clk              <= not s_rx_bit_clk;        
            
             s_signif_edge_found       <= '0';                -- re-initialization before next cycle
           end if;
 
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         s_rx_manch_clk_d1             <= s_rx_manch_clk;    
                                                   -- s_rx_manch_clk:    ____|-----|_____|-----|____
                                                   -- s_rx_manch_clk_d1: ______|-----|_____|-----|__
@@ -338,43 +353,53 @@ begin
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process tx_periods_count: implementation of a counter counting transmission periods.
 
- tx_periods_count: process(uclk_i) 
+ tx_periods_count: process (uclk_i) 
   begin
-    if rising_edge(uclk_i) then                                                  
-      if nFIP_urst_i = '1' then
+    if rising_edge (uclk_i) then                                                  
+      if nfip_urst_i = '1' then
         s_tx_counter    <= (others => '0');
-        s_tx_clk_d1     <= '0';
         s_tx_clk_p_buff <= (others => '0');
+        s_tx_clk_d1     <= '0';
 
       else 
         -- free counter measuring transmission periods
-        if (s_tx_counter = s_counter_full) then                         
+        if (s_tx_counter = s_counter_full) then
+                         
           s_tx_counter  <= (others => '0');
+
         else
+
           s_tx_counter  <= s_tx_counter + 1 ;                      
+
         end if;
      
         -- clk signals:
         s_tx_clk_d1     <= s_tx_clk;
-        s_tx_clk_p_buff <= s_tx_clk_p_buff (s_tx_clk_p_buff'left -1 downto 0) & s_tx_clk_p;--buffer
+        s_tx_clk_p_buff <= s_tx_clk_p_buff (s_tx_clk_p_buff'left -1 downto 0) & s_tx_clk_p;
+                                              -- buffering the s_tx_clk_p pulses
       end if;
     end if;
   end process;
 
 ---------------------------------------------------------------------------------------------------
--- concurrent signal assignments concerning the transmitter:
+-- Concurrent signal assignments concerning the transmitter:
 
--- creation of the clock for the transmitter with period: 1/2 transmission period 
-  s_tx_clk <= '1' when ((s_tx_counter < s_one_forth_period) or
-               ((s_tx_counter > (2*s_one_forth_period)-1) and (s_tx_counter < 3*s_one_forth_period)))
-         else '0';
+  -- creation of the clock for the transmitter with period: 1/2 transmission period 
+  s_tx_clk         <= '1' when ((s_tx_counter < s_one_forth_period) or
+                                ((s_tx_counter > (2*s_one_forth_period)-1) and
+                                 (s_tx_counter < 3*s_one_forth_period)))
+                 else '0';
+                                              -- transm. period        : _|----------|__________|--
+                                              -- tx_counter            :  0   1/4   1/2   3/4    1
+                                              -- s_tx_clk              : _|----|_____|----|_____|--
 
--- creation of a pulse starting 1 uclk period before s_tx_clk_o (s_tx_clk_d1)
-  s_tx_clk_p <= s_tx_clk and (not s_tx_clk_d1); 
-                                                -- s_tx_clk:          __|-----|_____|-----|_____
-                                                -- s_tx_clk_o:        ____|-----|_____|-----|___
-                                                -- not s_tx_clk_d1:   ----|_____|-----|_____|---
-                                                -- s_tx_clk_p:        __|-|___|-|___|-|___|-|___
+
+  -- creation of a pulse starting 1 uclk period before tx_clk_o
+  s_tx_clk_p       <= s_tx_clk and (not s_tx_clk_d1); 
+                                              -- s_tx_clk              : __|-----|_____|-----|_____
+                                              -- tx_clk_o/ s_tx_clk_d1 : ____|-----|_____|-----|___
+                                              -- not s_tx_clk_d1       : ----|_____|-----|_____|---
+                                              -- s_tx_clk_p            : __|-|___|-|___|-|___|-|___
 
 ---------------------------------------------------------------------------------------------------
 -- Output signals construction:

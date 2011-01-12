@@ -1,4 +1,4 @@
---________________________________________________________________________________________________|
+--_________________________________________________________________________________________________
 --                                                                                                |
 --                                        |The nanoFIP|                                           |
 --                                                                                                |
@@ -19,7 +19,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                              WF_DualClkRAM_clka_rd_clkb_wr                                    --
+--                                  WF_DualClkRAM_clka_rd_clkb_wr                                --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -30,16 +30,17 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --!            The component DualClkRam (512 bytes) is triplicated; each incoming byte is written 
 --!            at the same position in the three memories, whereas each outgoing byte is the 
 --!            outcome of a majority voter.
+--!            The memory is dual port; port A is used for reading only, port B for writing only.
 -- 
 -- 
---! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch) 
+--! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
---! @date      08/2010
+--! @date      10/12/2010
 --
 --
---! @version   v0.1
+--! @version   v0.02
 --
 --
 --! @details\n
@@ -54,13 +55,19 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes: </b>\n
---!     -> code cleaned-up and commented 
+--!     -> 12/2010  v0.02  EG  code cleaned-up+commented \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
 --! @todo 
 --
 --------------------------------------------------------------------------------------------------- 
+
+---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
+--                               Sunplify Premier D-2009.12 Warnings                             --
+-- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
+--                                         No Warnings                                           --
+---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -69,19 +76,19 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 entity WF_DualClkRAM_clka_rd_clkb_wr is
   generic (C_RAM_DATA_LGTH : integer;  -- length of data word
-           C_RAM_ADDR_LGTH : integer); -- memory depth
+           c_RAM_ADDR_LGTH : integer); -- memory depth
 
 
   port (
-        clk_A_i  :     in std_logic;
-        addr_A_i :     in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
+        clk_porta_i      : in std_logic;
+        addr_porta_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
         
-        clk_B_i :      in std_logic;
-        addr_B_i :     in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
-        data_B_i :     in std_logic_vector (C_RAM_DATA_LGTH - 1 downto 0);
-        write_en_B_i : in std_logic;
+        clk_portb_i      : in std_logic;
+        addr_portb_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
+        data_portb_i     : in std_logic_vector (C_RAM_DATA_LGTH - 1 downto 0);
+        write_en_portb_i : in std_logic;
  
-       data_A_o :      out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
+        data_porta_o     : out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
 );
 end WF_DualClkRAM_clka_rd_clkb_wr; 
 
@@ -95,28 +102,28 @@ architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is
 --!@brief: component DualClkRam declaration
   component DualClkRam is 
     port(
-    DINA :   in std_logic_vector (7 downto 0);  
-    ADDRA :  in std_logic_vector (8 downto 0);
-    RWA :    in std_logic;                   
-    CLKA :   in std_logic;                 
+    DINA   : in std_logic_vector (7 downto 0);  
+    ADDRA  : in std_logic_vector (8 downto 0);
+    RWA    : in std_logic;                   
+    CLKA   : in std_logic;                 
 
-    DINB :   in std_logic_vector (7 downto 0);  
-    ADDRB :  in std_logic_vector (8 downto 0); 
-    RWB :    in std_logic;                   
-    CLKB :   in std_logic;                   
+    DINB   : in std_logic_vector (7 downto 0);  
+    ADDRB  : in std_logic_vector (8 downto 0); 
+    RWB    : in std_logic;                   
+    CLKB   : in std_logic;                   
     RESETn : in std_logic;                  
     
-    DOUTA :  out std_logic_vector (7 downto 0); 
-    DOUTB :  out std_logic_vector (7 downto 0)  
+    DOUTA  : out std_logic_vector (7 downto 0); 
+    DOUTB  : out std_logic_vector (7 downto 0)  
     );
   end component DualClkRam;
 ---------------------------------------------------------------------------------------------------
 
 type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
 
-signal data_o_A_array :   t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
+signal data_o_A_array   : t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
 signal zero, one, s_rwB : std_logic;
-signal s_zeros :          std_logic_vector (7 downto 0);
+signal s_zeros          : std_logic_vector (7 downto 0);
 
 
 --=================================================================================================
@@ -127,7 +134,7 @@ begin
 zero    <= '0';
 one     <= '1';
 s_zeros <= (others => '0');
-s_rwB   <= not write_en_B_i;
+s_rwB   <= not write_en_portb_i;
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief: memory triplication
@@ -140,14 +147,14 @@ G_memory_triplication: for I in 0 to 2 generate
 
 UDualClkRam : DualClkRam  
    port map ( DINA   => s_zeros,
-              ADDRA  => addr_A_i,
+              ADDRA  => addr_porta_i,
               RWA    => one, 
-              CLKA   => clk_A_i, 
+              CLKA   => clk_porta_i, 
 
-              DINB   => data_B_i,
-              ADDRB  => addr_B_i, 
+              DINB   => data_portb_i,
+              ADDRB  => addr_portb_i, 
               RWB    => s_rwB, 
-              CLKB   => clk_B_i, 
+              CLKB   => clk_portb_i, 
 
               RESETn => one,
 
@@ -161,7 +168,7 @@ end generate;
 --! output of the majority voter. The majority voter considers the outputs of the three memories
 --! and "calculates" their majority with combinatorial logic.
 
-majority_voter: data_A_o <= (data_o_A_array(0) and data_o_A_array(1)) or
+majority_voter: data_porta_o <= (data_o_A_array(0) and data_o_A_array(1)) or
                             (data_o_A_array(1) and data_o_A_array(2)) or
                             (data_o_A_array(2) and data_o_A_array(0));
 

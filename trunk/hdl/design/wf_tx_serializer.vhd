@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
---! @file WF_tx.vhd
+--! @file wf_tx_serializer.vhd
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -10,17 +10,17 @@ use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
 use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 --! specific packages
-use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
+use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                            WF_tx                                              --
+--                                        wf_tx_serializer                                       --
 --                                                                                               --
 --                                        CERN, BE/CO/HT                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name:  WF_tx
+-- unit name:  wf_tx_serializer
 --
 --
 --! @brief     Serializes the WorldFIP data.
@@ -55,7 +55,8 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n\n<b>Last changes:</b>\n
 --!     -> v0.02  PAS Entity Ports added, start of architecture content
 --!     -> v0.03  EG  timing changes; tx_clk_p_buff_i got 1 more bit
---!                      briefly byte_index_i needed to arrive 1 clock tick earlier       
+--!                      briefly byte_index_i needed to arrive 1 clock tick earlier  
+--!                   renamed from tx to tx_serializer     
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -67,18 +68,18 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --=================================================================================================
 --!                               Entity declaration for WF_tx_rx
 --=================================================================================================
-entity WF_tx is
-  generic(C_TXCLKBUFFLENTGTH: natural);
+entity wf_tx_serializer is
+  generic (c_TX_CLK_BUFF_LGTH: natural);
   port (
   -- INPUTS 
-    -- User Interface general signals (synchronized) 
+    -- nanoFIP User Interface, General signals (synchronized with uclk) 
     uclk_i :            in std_logic;  --! 40MHz clock
 
     -- Signal from the WF_reset_unit unit
-    nFIP_urst_i :        in std_logic;  --! internal reset
+    nfip_urst_i :        in std_logic;  --! nanoFIP internal reset
     
     -- Signals from the WF_engine_control
-    start_produce_p_i : in std_logic;  --! indication that WF_engine_control is in prod_watchdog state 
+    start_prod_p_i     : in std_logic;  --! indication that WF_engine_control is in prod_watchdog state 
                                        -- a correct ID_DAT asking for a produced var has been 
                                        -- received and ............ 
 
@@ -86,32 +87,32 @@ entity WF_tx is
     last_byte_p_i :     in std_logic;  --! indication that it is the last byte of data
                                        --  CRC bytes follow
 
-    -- Signals from the WF_prod_bytes_to_tx
+    -- Signals from the wf_prod_bytes_retriever
     byte_i :            in std_logic_vector (7 downto 0);             
                                        --! data byte to be delivered 
 
      -- Signal from the WF_rx_tx_osc    
-    tx_clk_p_buff_i :   in std_logic_vector (C_TXCLKBUFFLENTGTH-1 downto 0);
+    tx_clk_p_buff_i :   in std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
                                        --! clk for transmission synchronization 
 
   -- OUTPUTS
 
-    -- Signal to WF_engine_control
+    -- Signal to the WF_engine_control
     request_byte_p_o :  out std_logic;
 
-    -- nanoFIP output signals
+    -- nanoFIP FIELDRIVE outputs
     tx_data_o :         out std_logic; --! transmitter serial data
     tx_enable_o :       out std_logic  --! transmitter enable
     );
 
-end entity WF_tx;
+end entity wf_tx_serializer;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of WF_tx is
+architecture rtl of wf_tx_serializer is
 
 
   type tx_state_t  is (idle, send_fss, send_data_byte, send_crc_bytes, send_queue, stop_transmission);
@@ -137,7 +138,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 
---!@brief Transmitter's state machine: the state machine is divided in three parts (a clocked 
+--!@brief Serializer's state machine: the state machine is divided in three parts (a clocked 
 --! process to store the current state, a combinatorial process to manage state transitions and 
 --! finally a combinatorial process to manage the output signals), which are the 3 processes that
 --! follow. 
@@ -160,7 +161,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- "idle state": signals initializations
 
--- jump to "send_fss" state after a pulse on the signal start_produce_p_i (controlled by the
+-- jump to "send_fss" state after a pulse on the signal start_prod_p_i (controlled by the
 -- WF_engine_control)
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -176,7 +177,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 -- "send_data_byte" state: delivery of manchester encoded bits of data that arrive from the
--- WF_prod_bytes_to_tx unit (byte_i), with the coordination of the WF_engine_control (byte_ready_p_i)
+-- wf_prod_bytes_retriever unit (byte_i), with the coordination of the WF_engine_control (byte_ready_p_i)
 -- request of a new byte on  tx_clk_p_buff (0) assertion (with s_bit_index = 0)
 -- bit delivery        after tx_clk_p_buff (1) assertion
 -- new byte available  after tx_clk_p_buff (2) assertion (to be sent on the next tx_clk_p_buff (1))
@@ -184,8 +185,8 @@ begin
 --                                                       (between 0 and 16 for each byte, until the
 --                                                                      last_byte_p_i gives a pulse)
 
--- the first data byte from the WF_prod_bytes_to_tx unit is already available after the assertion of the
--- start_produce_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
+-- the first data byte from the wf_prod_bytes_retriever unit is already available after the assertion of the
+-- start_prod_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
 -- arrives to zero and on the assertion of the tx_clk_p_buff (0). A pulse on the request_byte signal
 -- triggers the WF_control_engine to send a new address to the memory of the produced_vars unit (new
 -- address available on tx_clk_p_buff (1)), which in turn will give an output one uclk cycle later
@@ -214,10 +215,10 @@ begin
 
 --!@brief synchronous process Receiver_FSM_Sync:
 
-  Transmitter_FSM_Sync: process(uclk_i)
+  Transmitter_FSM_Sync: process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
-      if nFIP_urst_i = '1' then
+    if rising_edge (uclk_i) then
+      if nfip_urst_i = '1' then
         tx_state <= idle;
       else
         tx_state <= nx_tx_state;
@@ -230,21 +231,21 @@ begin
 --! definition of the state transitions of the FSM
 
   Transmitter_FSM_Comb_State_Transitions: process (tx_state, last_byte_p_i, s_bit_index_is_zero,
-                                                             start_produce_p_i,  tx_clk_p_buff_i)
+                                                             start_prod_p_i,  tx_clk_p_buff_i)
   begin
     nx_tx_state <= idle;
 
     case tx_state is 
 
       when idle =>
-                           if start_produce_p_i = '1' then
+                           if start_prod_p_i = '1' then
                              nx_tx_state <= send_fss;
                            else
                              nx_tx_state <= idle;
                            end if;
 
       when send_fss =>
-                           if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1) = '1' then 
+                           if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1) = '1' then 
                              nx_tx_state <= send_data_byte;
                            else
                              nx_tx_state <= send_fss;
@@ -258,21 +259,21 @@ begin
                            end if;
 
       when send_crc_bytes =>
-                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-2) = '1' then 
+                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= send_queue;
                            else
                              nx_tx_state <= send_crc_bytes;
                            end if;
 
       when send_queue =>
-                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-2) = '1' then 
+                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= stop_transmission;
                            else
                              nx_tx_state <= send_queue;
                            end if;   
 
       when stop_transmission =>
-                           if tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-2) = '1' then 
+                           if tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= idle;
                            else
                              nx_tx_state <= stop_transmission;
@@ -404,19 +405,19 @@ crc_bytes_manc_encoder: WF_manch_encoder
       c_GENERATOR_POLY_length => 16)
     port map(
       uclk_i             => uclk_i,
-      nFIP_urst_i         => nFIP_urst_i,
-      start_CRC_p_i      => s_start_crc_p,
+      nfip_urst_i        => nfip_urst_i,
+      start_crc_p_i      => s_start_crc_p,
       data_bit_ready_p_i => s_data_bit_to_crc_p,
       data_bit_i         => s_txd,
-      CRC_o              => s_crc_bytes,
-      CRC_ok_p           => open);
+      crc_o              => s_crc_bytes,
+      crc_ok_p           => open);
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 -- concurrent signals assignement for the crc_generator inputs
 
-  s_start_crc_p       <= s_sending_FSS and s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+  s_start_crc_p       <= s_sending_FSS and s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
   -- the CRC calculation starts when at the end of the FSS (beginning of data bytes delivery)
 
-  s_data_bit_to_crc_p <= s_sending_data and s_bit_index(0) and tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+  s_data_bit_to_crc_p <= s_sending_data and s_bit_index(0) and tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
   -- only the 1st part of a manchester encoded bit goes to the CRC calculator 
 
 
@@ -427,10 +428,10 @@ crc_bytes_manc_encoder: WF_manch_encoder
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 -- Instantiation of a bits counter:  
     Outgoing_Bits_Index: WF_decr_counter
-    generic map(counter_length => 5)
+    generic map(g_counter_lgth => 5)
     port map(
       uclk_i              => uclk_i,
-      nFIP_urst_i          => nFIP_urst_i,      
+      nfip_urst_i         => nfip_urst_i,      
       counter_top         => s_bit_index_top,
       counter_load_i      => s_bit_index_load,
       counter_decr_p_i    => s_decr_index_p,
@@ -453,23 +454,23 @@ crc_bytes_manc_encoder: WF_manch_encoder
 
     elsif s_sending_FSS = '1' then
       s_bit_index_top  <= to_unsigned (15, s_bit_index'length);
-      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
-      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
 
     elsif s_sending_data = '1' then
       s_bit_index_top  <= to_unsigned (15, s_bit_index'length);
-      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
-      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
 
     elsif s_sending_crc = '1' then
       s_bit_index_top  <= to_unsigned (s_crc_bytes_manch'length-1, s_bit_index'length); 
-      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
-      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
 
     elsif s_sending_QUEUE = '1' then
-      s_bit_index_top  <= to_unsigned (FRAME_END'length - 1, s_bit_index'length); 
-      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
-      s_decr_index_p   <= tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-1);
+      s_bit_index_top  <= to_unsigned (FES'length - 1, s_bit_index'length); 
+      s_bit_index_load <= s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
+      s_decr_index_p   <= tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1);
 
     else
       s_bit_index_top  <= to_unsigned (FSS'length - 1, s_bit_index'length); 
@@ -486,24 +487,24 @@ crc_bytes_manc_encoder: WF_manch_encoder
   bits_to_txd: WF_bits_to_txd
     port map(
       uclk_i              => uclk_i,
-      nFIP_urst_i         => nFIP_urst_i,          
+      nfip_urst_i         => nfip_urst_i,          
       txd_bit_index_i     => s_bit_index,
       data_byte_manch_i   => s_data_byte_manch, 
       crc_byte_manch_i    => s_crc_bytes_manch, 
-      sending_FSS_i       => s_sending_FSS,
+      sending_fss_i       => s_sending_FSS,
       sending_data_i      => s_sending_data, 
       sending_crc_i       => s_sending_crc,
-      sending_QUEUE_i     => s_sending_queue,
+      sending_fes_i       => s_sending_queue,
       stop_transmission_i => s_stop_transmission,
-      tx_clk_p_buff_i     => tx_clk_p_buff_i,  
+      tx_clk_p_i          => tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-3),  
       txd_o               => s_txd,     
       tx_enable_o         => tx_enable_o);
 
 --------------------------------------------------------------------------------------------------
-Input_Byte_Sampling: process(uclk_i)
+Input_Byte_Sampling: process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
-      if nFIP_urst_i = '1' then
+    if rising_edge (uclk_i) then
+      if nfip_urst_i = '1' then
         s_byte   <= (others => '0');
 
       else      
@@ -520,8 +521,8 @@ Input_Byte_Sampling: process(uclk_i)
 ---------------------------------------------------------------------------------------------------
   tx_data_o <= s_txd;
 
-  request_byte_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(C_TXCLKBUFFLENTGTH-4);
-  -- request for a new byte from the WF_prod_bytes_to_tx unit (passing from WF_engine_control)
+  request_byte_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4);
+  -- request for a new byte from the wf_prod_bytes_retriever unit (passing from WF_engine_control)
 
 
 end architecture rtl;

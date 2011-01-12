@@ -1,6 +1,14 @@
---=================================================================================================
---! @file wf_manch_encoder.vhd
---=================================================================================================
+--_________________________________________________________________________________________________
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
+
+---------------------------------------------------------------------------------------------------
+--! @file WF_manch_encoder.vhd
+---------------------------------------------------------------------------------------------------
 
 --! standard library
 library IEEE; 
@@ -9,26 +17,25 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
 use IEEE.NUMERIC_STD.all;     --! conversion functions
 
---! specific packages
-use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, constants
-
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 wf_manch_encoder                                        --
---                                                                                               --
---                                  CERN, BE/CO/HT                                               --
+--                                       WF_manch_encoder                                        --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief      
+--! @brief     Encoding of a word to its Manchester 2 (manch.) equivalent.
+--!            This code ensures that there is one transition for each bit.
+--!            bit            :    "0"           "1"
+--!            manch. encoded :   "0 1"         "1 0"
+--!            scheme         :    _|-           -|_
 --
 --
---! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
---!            Evangelia Gousiou (evangelia.gousiou@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
 --
 --
---! @date      06/2010
+--! @date      10/12/2010
 --
 --
 --! @version   v0.02
@@ -39,12 +46,15 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --!   \n<b>Dependencies:</b>\n
 --
 --
---!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--!   \n<b>Modified by:</b>   \n
+--!     Evangelia Gousiou     \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
+--!     -> 11/2010  v0.01  EG  1st version           \n
+--!     -> 12/2010  v0.02  EG  cleaned-up, commented \n
+--! 
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -53,21 +63,26 @@ use work.WF_PACKAGE.all;      --! definitions of supplemental types, subtypes, c
 --
 --------------------------------------------------------------------------------------------------- 
 
+---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
+--                               Sunplify Premier D-2009.12 Warnings                             --
+-- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
+--                                         No Warnings                                           --
+---------------------------------------------------------------------------------------------------
+
 
 --=================================================================================================
 --!                           Entity declaration for wf_manch_encoder
 --=================================================================================================
 
 entity wf_manch_encoder is
-generic(word_length :  natural);
+
+  generic (word_length : natural := 8);                                --! default length: 8
   port (
   -- INPUT 
-
-    word_i :       in std_logic_vector(word_length-1 downto 0);          
+    word_i       : in  std_logic_vector(word_length-1 downto 0);      --! input word        
 
   -- OUTPUT
-
-    word_manch_o : out std_logic_vector((2*word_length)-1 downto 0)
+    word_manch_o : out std_logic_vector((2*word_length)-1 downto 0)   --! output encoded word
       );
 end entity wf_manch_encoder;
 
@@ -79,20 +94,24 @@ architecture rtl of wf_manch_encoder is
 
 
 --=================================================================================================
---                                      architecture begin
+--                                       architecture begin
 --=================================================================================================  
-  begin
+begin
 
 ---------------------------------------------------------------------------------------------------
---! @brief combinatorial process Manchester_Encoder_byte: The process takes a byte (8 bits) and
---! creates its manchester encoded equivalent (16 bits). Each bit '1' is replaced by '10' and each
---! bit '0' by '01'. 
+--! @brief Combinatorial process Manchester_Encoder: The process takes a word (ex. 8 bits) and
+--! creates its manchester encoded equivalent (ex. 16 bits).
+--! Each bit '1' is replaced by '10' and each bit '0' by '01'. 
 
-  Manchester_Encoder_byte: process(word_i)
+  Manchester_Encoder: process (word_i)
   begin
+
     for I in word_i'range loop
+
       word_manch_o(I*2)   <= not word_i(I);
+
       word_manch_o(I*2+1) <= word_i(I);
+
     end loop;
   end process;
 

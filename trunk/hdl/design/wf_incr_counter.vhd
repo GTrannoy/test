@@ -1,4 +1,4 @@
---________________________________________________________________________________________________|
+--_________________________________________________________________________________________________
 --                                                                                                |
 --                                        |The nanoFIP|                                           |
 --                                                                                                |
@@ -24,17 +24,18 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Fully synchronous increasing counter with a reset, a reinitialise & an enable signal
+--! @brief     Synchronous increasing counter with a reset, a reinitialise and an increase
+--!            enable signal.
 --
 --
---! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
---!            Evangelia Gousiou     (evangelia.gousiou@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      06/2010
+--! @date      10/2010
 --
 --
---! @version   v0.02
+--! @version   v0.01
 --
 --
 --! @details \n  
@@ -43,7 +44,6 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -62,24 +62,25 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --=================================================================================================
 
 entity WF_incr_counter is
-  generic(counter_length : natural);
+  generic (g_counter_lgth : natural := 4);                      --! default length 
   port (
   -- INPUTS 
-    -- User Interface general signals (synchronized) 
-    uclk_i :           in std_logic;                           --! 40MHz clock
+    -- nanoFIP User Interface general signal
+    uclk_i           : in std_logic;                            --! 40MHz clock
 
-    -- Signal from the WF_reset_unit unit
-    nFIP_urst_i :      in std_logic;                           --! internal reset
+    -- Signal from the WF_reset_unit
+    nfip_urst_i      : in std_logic;                            --! nanoFIP internal reset
 
    -- Signals from any unit
-   reinit_counter_i :  in std_logic;                           --! reinitializes counter to 0
-   incr_counter_i:     in std_logic;                           --! increment enable
+   reinit_counter_i  : in std_logic;                            --! reinitializes counter to 0
+   incr_counter_i    : in std_logic;                            --! increment enable
 
   -- OUTPUT
     -- Signal to any unit
-   counter_o :         out unsigned(counter_length-1 downto 0); --! counter
-   counter_is_full_o : out std_logic                            --! all counter bits at '1' 
-      );
+   counter_o         : out unsigned(g_counter_lgth-1 downto 0); --! counter
+   counter_is_full_o : out std_logic                            --! counter full indication
+      );                                                        --! (all bits to '1') 
+
 end entity WF_incr_counter;
 
 
@@ -88,35 +89,39 @@ end entity WF_incr_counter;
 --=================================================================================================
 architecture rtl of WF_incr_counter is
 
-signal s_counter, s_counter_full : unsigned(counter_length-1 downto 0);
+signal c_COUNTER_FULL : unsigned(g_counter_lgth-1 downto 0);
+signal s_counter      : unsigned(g_counter_lgth-1 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
 --=================================================================================================  
-  begin
+begin
 
-  s_counter_full <= (others => '1');
+  c_COUNTER_FULL    <= (others => '1');
+
 --------------------------------------------------------------------------------------------------- 
-  Incr_Counter: process(uclk_i)
+  -- Synchronous process Incr_Counter
+  Incr_Counter: process (uclk_i)
   begin
+    if rising_edge (uclk_i) then
 
-    if rising_edge(uclk_i) then
-      if nFIP_urst_i = '1' then
-        s_counter <= (others => '0');
+      if nfip_urst_i = '1' then
+        s_counter    <= (others => '0');
 
       elsif reinit_counter_i = '1' then
-        s_counter <= (others => '0');
+        s_counter    <= (others => '0');
 
       elsif incr_counter_i = '1' then
-        s_counter <= s_counter + 1;
+        s_counter    <= s_counter + 1;
 
       end if;
     end if;
   end process;
 
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  -- Concurrent assignments for output signals
   counter_o         <= s_counter;
-  counter_is_full_o <= '1' when s_counter= s_counter_full
-                  else '0';
+  counter_is_full_o <= '1' when s_counter = c_COUNTER_FULL else '0';
 
 end architecture rtl;
 --=================================================================================================

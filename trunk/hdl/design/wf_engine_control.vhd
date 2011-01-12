@@ -27,7 +27,7 @@ use work.WF_PACKAGE.all;
 --!
 --
 --
---! @author    Pablo Alvarez Sanchez (pablo.alvarez.sanchez@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --
@@ -60,7 +60,9 @@ use work.WF_PACKAGE.all;
 --!                         if ID_DAT>8 bytes or RP_DAT>134 (bf reception of a FES) go to idle 
 --!                         state consume_wait_FSS, for the correct use of the silence time(time
 --!                         stops counting when an RP_DAT frame has started)
---!                         removed check on slone mode for #bytes>4
+--!                         
+--!     12/2010  v0.02  EG  removed check on slone mode for #bytes>4
+--!                         in slone no broadcast
 --
 ---------------------------------------------------------------------------------------------------  
 --
@@ -74,74 +76,81 @@ use work.WF_PACKAGE.all;
 --=================================================================================================
 entity WF_engine_control is
 
-  generic( C_QUARTZ_PERIOD : real);
+  generic ( c_QUARTZ_PERIOD : real);
 
   port (
   -- INPUTS 
-    -- User Interface general signals (synchronized) 
-    uclk_i :                 in std_logic;                    --! 40MHz clock
-    slone_i :                in std_logic;                    --! Stand-alone mode
-    nostat_i :               in std_logic;                    --! no NanoFIP status transmission
-    rate_i :                 in std_logic_vector (1 downto 0); --! Worldfip bit rate
-    subs_i :                 in std_logic_vector (7 downto 0); --! Subscriber number coding.
-    p3_lgth_i :              in std_logic_vector (2 downto 0); --! Produced variable data length
+    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    uclk_i                  : in std_logic;                    --! 40MHz clock
+    slone_i                 : in std_logic;                    --! Stand-alone mode
+    nostat_i                : in std_logic;                    --! no NanoFIP status transmission
+    rate_i                  : in std_logic_vector (1 downto 0); --! Worldfip bit rate
+    subs_i                  : in std_logic_vector (7 downto 0); --! Subscriber number coding.
+    p3_lgth_i               : in std_logic_vector (2 downto 0); --! Produced variable data length
 
-    -- Signal from the WF_reset_unit unit
-    nFIP_urst_i :            in std_logic;                    --! internal reset
+    -- Signal from the WF_reset_unit
+    nfip_urst_i             : in std_logic;                    --! nanoFIP internal reset
 
-    -- Signal from the WF_tx unit
-    tx_request_byte_p_i :    in std_logic;                    --!
+    -- Signal from the wf_tx_serializer unit
+    tx_request_byte_p_i     : in std_logic;                    --!
 
-    -- Signals from the WF_rx unit
-    rx_FSS_received_p_i :    in std_logic;                      --! correct FSS detected by WF_rx 
-    rx_byte_ready_p_i :      in std_logic;                      --! new byte from the receiver on rx_byte_i
-    rx_byte_i :              in std_logic_vector (7 downto 0);  -- Decoded byte
-    rx_CRC_FES_ok_p_i :      in std_logic;   
+    -- Signals from the wf_rx_deserializer unit
+    rx_FSS_received_p_i     : in std_logic;                      --! correct FSS detected by wf_rx_deserializer 
+    rx_byte_ready_p_i       : in std_logic;                      --! new byte from the receiver on rx_byte_i
+    rx_byte_i               : in std_logic_vector (7 downto 0);  -- Decoded byte
+    rx_CRC_FES_ok_p_i       : in std_logic;  
+    rx_crc_wrong_p_i        : in std_logic; --! indication of a wrong CRC reception 
 
-    -- Signal from the WF_prod_bytes_to_tx 
-    tx_sending_mps_i :       in std_logic;
+    -- Signal from the wf_prod_bytes_retriever 
+    tx_sending_mps_i        : in std_logic;
 
-    -- Signal from the WF_prod_bytes_to_tx  
-    rx_Ctrl_byte_i :        in std_logic_vector (7 downto 0);
-    rx_PDU_byte_i :         in std_logic_vector (7 downto 0);           
-    rx_Length_byte_i :      in std_logic_vector (7 downto 0);    
-    rx_var_rst_byte_1_i :   in std_logic_vector (7 downto 0);
-    rx_var_rst_byte_2_i :   in std_logic_vector (7 downto 0);
+    -- Signal from the wf_prod_bytes_retriever  
+    rx_ctrl_byte_i          : in std_logic_vector (7 downto 0);
+    rx_pdu_byte_i           : in std_logic_vector (7 downto 0);           
+    rx_length_byte_i        : in std_logic_vector (7 downto 0);    
+    rx_var_rst_byte_1_i     : in std_logic_vector (7 downto 0);
+    rx_var_rst_byte_2_i     : in std_logic_vector (7 downto 0);
+
 
   -- OUTPUTS
-    -- User interface, non-WISHBONE nanoFIP outputs
-    var1_rdy_o :            out std_logic; --! signals new data received and can safely be read
-    var2_rdy_o :            out std_logic; --! signals new data received and can safely be read
-    var3_rdy_o :            out std_logic; --! signals that data can safely be written in the memory
+    -- nanoFIP User Interface, NON-WISHBONE nanoFIP outputs
+    var1_rdy_o              : out std_logic; --! signals new data received and can safely be read
+    var2_rdy_o              : out std_logic; --! signals new data received and can safely be read
+    var3_rdy_o              : out std_logic; --! signals that data can safely be written in the memory
 
-    -- Outputs to the WF_tx unit
-    tx_last_byte_p_o :      out std_logic;
-    tx_start_produce_p_o :  out std_logic;
+    -- Signal to the wf_tx_serializer unit
+    tx_last_byte_p_o        : out std_logic;
+    tx_start_produce_p_o    : out std_logic;
 
-    -- Output to WF_rx
-    rst_rx_unit_p_o :     out std_logic;--! if an FES has not arrived after 8 bytes of an ID_DAT,
+    -- Signal to the wf_rx_deserializer
+    rst_rx_unit_p_o         : out std_logic;--! if an FES has not arrived after 8 bytes of an ID_DAT,
                                           --! or after 134 bytes of an RP_DAT, the state machine
-                                          --! of the WF_rx unit returns to idle state 
+                                          --! of the wf_rx_deserializer unit returns to idle state 
 
-    -- Output to WF_concumed_vars and WF_prod_bytes_to_tx 
-    var_o :                 out t_var;
-    tx_rx_byte_index_o :    out std_logic_vector (7 downto 0);
+    -- Signal to the wf_cons_bytes_processor, wf_prod_bytes_retriever, WF_reset_unit, WF_status_bytes_gen,
+    -- wf_var_rdy_generator, wf_prod_data_lgth_calc, wf_cons_frame_validator 
+    var_o                   : out t_var;
 
-    -- Output to WF_prod_bytes_to_tx
-    tx_data_length_o :      out std_logic_vector (7 downto 0);
+    -- Signal to the wf_cons_bytes_processor, wf_prod_bytes_retriever
+    tx_rx_byte_index_o      : out std_logic_vector (7 downto 0);
 
-    -- Output to WF_tx
-    tx_byte_ready_p_o :     out std_logic;
+    -- Signal to the wf_prod_bytes_retriever
+    tx_data_length_o        : out std_logic_vector (7 downto 0);
 
-    -- output to WF_cons_bytes_from_rx
-    rx_byte_ready_p_o :     out std_logic;
+    -- Signal to the wf_tx_serializer
+    tx_byte_ready_p_o       : out std_logic;
 
-    -- Output to WF_reset_unit
-    assert_RSTON_p_o :       out std_logic;
-    rst_nFIP_and_FD_p_o : out std_logic;
+    -- Signal to the wf_cons_bytes_processor
+    rx_byte_ready_p_o       : out std_logic;
 
-    -- output to the WF_status_bytes_gen
-    rst_status_bytes_o :  out std_logic
+    -- Signal to the WF_reset_unit
+    assert_rston_p_o        : out std_logic;
+    rst_nfip_and_fd_p_o     : out std_logic;
+
+    -- Signal to the WF_status_bytes_gen
+    nfip_status_r_fcser_p_o : out std_logic; --! indication of a wrong CRC reception 
+    rst_status_bytes_o      : out std_logic;
+    nfip_status_r_tler_o    : out std_logic
 
     );
 end entity WF_engine_control;
@@ -170,7 +179,7 @@ architecture rtl of WF_engine_control is
   signal s_rx_bytes_c, s_tx_bytes_c :  unsigned(7 downto 0);
   signal s_tx_data_length :      std_logic_vector(7 downto 0);
   signal s_time_counter_top, s_time_c:                                 unsigned(14 downto 0); 
-  signal s_response_time, s_silence_time :                             unsigned(14 downto 0);
+  signal s_turnaround_time, s_silence_time :                             unsigned(14 downto 0);
   signal s_produce_or_consume :                                        std_logic_vector (1 downto 0);
   signal s_id_dat_subs_byte, s_id_dat_frame_ok : std_logic;
   signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_cons_wait_FSS: std_logic;
@@ -196,10 +205,10 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief synchronous process Receiver_FSM_Sync: storage of the current state of the FSM 
   
-  Central_Control_FSM_Sync: process(uclk_i)
+  Central_Control_FSM_Sync: process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
-      if nFIP_urst_i = '1' then
+    if rising_edge (uclk_i) then
+      if nfip_urst_i = '1' then
         control_st <= idle;
       else
         control_st <= nx_control_st;
@@ -213,9 +222,9 @@ begin
 
 
   Central_Control_FSM_Comb_State_Transitions:process (control_st, rx_FSS_received_p_i, s_tx_last_byte_p,
-                                                     s_var_id, rx_byte_ready_p_i,rx_byte_i, subs_i,
-                                                     s_time_c_is_zero,s_produce_or_consume, slone_i,
-                                                     rx_CRC_FES_ok_p_i, s_broadcast_var, s_rx_bytes_c)
+                                                     s_var_id, rx_byte_ready_p_i,rx_byte_i, s_rx_bytes_c,
+                                                     s_time_c_is_zero,s_produce_or_consume,subs_i, 
+                                                     rx_CRC_FES_ok_p_i, s_broadcast_var)
   begin
 
 
@@ -262,9 +271,10 @@ begin
         if (rx_byte_ready_p_i = '1') and (rx_byte_i = subs_i) then
           nx_control_st <= id_dat_frame_ok;
 
-        elsif (rx_byte_ready_p_i = '1') and (s_broadcast_var = '1') then
-          nx_control_st <= id_dat_frame_ok;
-
+        elsif (rx_byte_ready_p_i = '1') and (s_broadcast_var = '1') then-- at this moment we do not
+          nx_control_st <= id_dat_frame_ok;                             -- check if slone=1, as the
+                                                                        -- rst var which is broad-
+                                                                        -- cast is treaded in slone
         elsif (rx_byte_ready_p_i = '1') then
           nx_control_st <= idle;
 
@@ -453,7 +463,7 @@ begin
 
 
       when others =>  
-                  s_idle_state          <= '0';
+                  s_idle_state          <= '1';
                   s_id_dat_ctrl_byte    <= '0';
                   s_id_dat_var_byte     <= '0';
                   s_id_dat_subs_byte    <= '0';
@@ -483,24 +493,26 @@ begin
 --------------------------------------------------------------------------------------------------- 
   Cons_Frame_Validator: WF_cons_frame_validator
   port map(
-    rx_Ctrl_byte_i             => rx_Ctrl_byte_i, 
-    rx_PDU_byte_i              => rx_PDU_byte_i,    
-    rx_Length_byte_i           => rx_Length_byte_i,
-    rx_FSS_CRC_FES_viol_ok_p_i => rx_CRC_FES_ok_p_i,
+    rx_ctrl_byte_i             => rx_ctrl_byte_i, 
+    rx_pdu_byte_i              => rx_pdu_byte_i,    
+    rx_length_byte_i           => rx_length_byte_i,
+    rx_fss_crc_fes_viol_ok_p_i => rx_CRC_FES_ok_p_i,
+    rx_crc_wrong_p_i           => rx_crc_wrong_p_i,
     var_i                      => s_var,
     rx_byte_index_i            => s_rx_bytes_c,
-    ------------------------------------------------
-    cons_frame_ok_p_o          => s_cons_frame_ok_p
-    ------------------------------------------------
-      );
+    ----------------------------------------------------
+    nfip_status_r_fcser_p_o    => nfip_status_r_fcser_p_o,
+    nfip_status_r_tler_o       => nfip_status_r_tler_o, 
+    cons_frame_ok_p_o          => s_cons_frame_ok_p);
+    ----------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
- VAR_RDY_Signals_Generation: WF_VAR_RDY_generator
+ VAR_RDY_Signals_Generation: WF_var_rdy_generator
   port map (
     uclk_i              => uclk_i,
     slone_i             => slone_i,
     subs_i              => subs_i,
-    nFIP_urst_i         => nFIP_urst_i, 
+    nfip_urst_i         => nfip_urst_i, 
     cons_frame_ok_p_i   => s_cons_frame_ok_p,
     var_i               => s_var,
     rx_var_rst_byte_1_i => rx_var_rst_byte_1_i,
@@ -509,18 +521,18 @@ begin
     var1_rdy_o          => var1_rdy_o,
     var2_rdy_o          => var2_rdy_o,
     var3_rdy_o          => var3_rdy_o,
-    assert_RSTON_p_o    => assert_RSTON_p_o,
-    rst_nFIP_and_FD_p_o => rst_nFIP_and_FD_p_o
+    assert_rston_p_o    => assert_rston_p_o,
+    rst_nfip_and_fd_p_o => rst_nfip_and_fd_p_o
     ---------------------------------------
       );
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief Counter that counts the number of produced or consumed bytes of data. 
  Rx_Bytes_Counter: WF_incr_counter
-  generic map(counter_length => 8)
+  generic map(g_counter_lgth => 8)
   port map(
     uclk_i            => uclk_i,
-    nFIP_urst_i       => nFIP_urst_i,
+    nfip_urst_i       => nfip_urst_i,
     reinit_counter_i  => s_rst_rx_bytes_counter,
     incr_counter_i    => s_inc_rx_bytes_counter,
     ---------------------------------------------
@@ -532,14 +544,15 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Counter that counts the number of produced or consumed bytes of data. 
  Tx_Bytes_Counter: WF_incr_counter
-  generic map(counter_length => 8)
+  generic map(g_counter_lgth => 8)
   port map(
     uclk_i           => uclk_i,
-    nFIP_urst_i      => nFIP_urst_i,
+    nfip_urst_i      => nfip_urst_i,
     reinit_counter_i => s_rst_tx_bytes_counter,
     incr_counter_i   => s_inc_tx_bytes_counter,
     ---------------------------------------------
-    counter_o        => s_tx_bytes_c  
+    counter_o        => s_tx_bytes_c,
+    counter_is_full_o => open  
     ---------------------------------------------
       );
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
@@ -593,14 +606,14 @@ begin
                    else s_rx_byte_index;
 
 ---------------------------------------------------------------------------------------------------
--- Managing the counter that counts either response or silence times in uclk ticks.
+-- Managing the counter that counts either turnaround or silence times in uclk ticks.
 -- The same counter is used in both cases. The signal s_time_counter_top initializes the counter
--- to either the response or the silence time.
+-- to either the turnaround or the silence time.
 Response_and_Silence_Time_Counter: WF_decr_counter
-  generic map(counter_length => 15)
+  generic map(g_counter_lgth => 15)
   port map(
     uclk_i            => uclk_i,
-    nFIP_urst_i        => nFIP_urst_i,
+    nfip_urst_i        => nfip_urst_i,
     counter_top       => s_time_counter_top,
     counter_load_i    => s_load_time_c,
     counter_decr_p_i  => '1',
@@ -611,22 +624,22 @@ Response_and_Silence_Time_Counter: WF_decr_counter
       );
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
--- retrieval of response and silence times information (in equivalent number of uclk ticks) from
+-- retrieval of turnaround and silence times information (in equivalent number of uclk ticks) from
 -- the c_TIMEOUTS_TABLE declared in the WF_package unit. 
 
-  s_response_time <= to_unsigned((c_TIMEOUTS_TABLE(to_integer(unsigned(rate_i))).response),
-                                                                           s_response_time'length);
+  s_turnaround_time <= to_unsigned((c_TIMEOUTS_TABLE(to_integer(unsigned(rate_i))).turnaround),
+                                                                           s_turnaround_time'length);
   s_silence_time <= to_unsigned((c_TIMEOUTS_TABLE(to_integer(unsigned(rate_i))).silence),
-                                                                           s_response_time'length);
+                                                                           s_turnaround_time'length);
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  Response_and_Silence_Time_Counter_Arg: process(s_prod_wait_resp_time, s_response_time, s_cons_wait_FSS,
+  Response_and_Silence_Time_Counter_Arg: process (s_prod_wait_resp_time, s_turnaround_time, s_cons_wait_FSS,
                                                  s_silence_time, s_id_dat_frame_ok, s_produce_or_consume)
   begin
 
     if s_id_dat_frame_ok = '1'  and s_produce_or_consume = "10" then
       s_load_time_c      <= '1'; -- counter loads
-      s_time_counter_top <= s_response_time;
+      s_time_counter_top <= s_turnaround_time;
 
     elsif s_id_dat_frame_ok = '1'  and s_produce_or_consume = "01" then
       s_load_time_c      <= '1'; -- counter loads
@@ -659,7 +672,7 @@ Response_and_Silence_Time_Counter: WF_decr_counter
 --! specified station address matches the SUBS configuration.
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   
-  id_dat_var_identifier: process(rx_byte_i)
+  id_dat_var_identifier: process (rx_byte_i)
   begin
     s_var_id <= var_whatever;
     for I in c_VARS_ARRAY'range loop
@@ -675,12 +688,12 @@ Response_and_Silence_Time_Counter: WF_decr_counter
   s_load_var     <= s_prod_wait_resp_time or s_consuming;
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 
-  id_dat_var: process(uclk_i)
+  id_dat_var: process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
-      if nFIP_urst_i = '1' then 
-        s_var <= var_whatever;
-        s_var_aux <= var_whatever;
+    if rising_edge (uclk_i) then
+      if nfip_urst_i = '1' then 
+        s_var       <= var_whatever;
+        s_var_aux   <= var_whatever;
       else
         
         if s_idle_state = '1' then 
@@ -691,10 +704,10 @@ Response_and_Silence_Time_Counter: WF_decr_counter
         end if;
         
         if s_idle_state = '1' then 
-          s_var <= var_whatever;
+          s_var     <= var_whatever;
 
         elsif s_load_var = '1' then
-          s_var <= s_var_aux;
+          s_var     <= s_var_aux;
         end if;
       end if;
     end if;
@@ -708,7 +721,7 @@ Response_and_Silence_Time_Counter: WF_decr_counter
 --!@brief: Combinatorial process Var_Characteristics: managment of the signals
 --! s_produce_or_consume and s_broadcast_var, accroding to the value of s_var_aux.
 
-  Var_Characteristics: process(s_var_aux)
+  Var_Characteristics: process (s_var_aux)
   begin
     s_produce_or_consume <= "00";
     s_broadcast_var <= '0';
@@ -737,10 +750,10 @@ Response_and_Silence_Time_Counter: WF_decr_counter
 ---------------------------------------------------------------------------------------------------
 --!@brief: essential buffering of output signals tx_last_byte_p_o, tx_byte_ready_p_o, tx_start_produce_p_o
 
-  process(uclk_i)
+  process (uclk_i)
   begin
-    if rising_edge(uclk_i) then
-      if nFIP_urst_i = '1' then
+    if rising_edge (uclk_i) then
+      if nfip_urst_i = '1' then
         tx_last_byte_p_o     <= '0';
         s_tx_last_byte_p_d   <= '0';
         s_tx_byte_ready_p_d1 <= '0';
@@ -757,20 +770,19 @@ Response_and_Silence_Time_Counter: WF_decr_counter
     end if;
   end process;
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --   
+   
+  tx_start_produce_p_o    <= s_tx_start_prod_p;
 
+  s_tx_byte_ready_p       <= s_producing and (tx_request_byte_p_i or s_tx_start_prod_p);
 
-  tx_start_produce_p_o <= s_tx_start_prod_p;
+  tx_byte_ready_p_o       <= s_tx_byte_ready_p_d2;
 
-  s_tx_byte_ready_p    <= s_producing and (tx_request_byte_p_i or s_tx_start_prod_p);
+  s_tx_last_byte_p        <= s_producing and s_tx_data_length_match and tx_request_byte_p_i;
+  rst_status_bytes_o      <= s_producing and s_tx_byte_ready_p_d2 and tx_sending_mps_i;
 
-  tx_byte_ready_p_o    <= s_tx_byte_ready_p_d2;
+  rx_byte_ready_p_o       <= s_consuming and rx_byte_ready_p_i;
 
-  s_tx_last_byte_p     <= s_producing and s_tx_data_length_match and tx_request_byte_p_i;
-  rst_status_bytes_o   <= s_producing and s_tx_byte_ready_p_d2 and tx_sending_mps_i;
-
-  rx_byte_ready_p_o    <= s_consuming and rx_byte_ready_p_i;
-
-  rst_rx_unit_p_o      <= s_idle_state and rx_byte_ready_p_i;
+  rst_rx_unit_p_o         <= s_idle_state and rx_byte_ready_p_i;
 ---------------------------------------------------------------------------------------------------
 
 
