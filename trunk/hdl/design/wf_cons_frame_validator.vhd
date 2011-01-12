@@ -86,9 +86,9 @@ entity WF_cons_frame_validator is
   port (
   -- INPUTS 
     -- Signals from the wf_cons_bytes_processor unit
-    rx_ctrl_byte_i             : in std_logic_vector (7 downto 0);  --! received Ctrl byte
-    rx_pdu_byte_i              : in std_logic_vector (7 downto 0);  --! received PDU_TYPE byte          
-    rx_length_byte_i           : in std_logic_vector (7 downto 0);  --! received Length byte
+    cons_ctrl_byte_i           : in std_logic_vector (7 downto 0);  --! received Ctrl byte
+    cons_pdu_byte_i            : in std_logic_vector (7 downto 0);  --! received PDU_TYPE byte          
+    cons_lgth_byte_i           : in std_logic_vector (7 downto 0);  --! received Length byte
 
     -- Signal from the wf_rx_deserializer unit
     rx_crc_wrong_p_i           : in std_logic; --! indication of a frame with a wrong CRC
@@ -116,7 +116,7 @@ end entity WF_cons_frame_validator;
 --=================================================================================================
 architecture rtl of WF_cons_frame_validator is
 
-signal s_rx_ctrl_byte_ok, s_rx_pdu_byte_ok, s_rx_length_byte_ok : std_logic;
+signal s_cons_ctrl_byte_ok, s_cons_pdu_byte_ok, s_cons_lgth_byte_ok : std_logic;
 
 --=================================================================================================
 --                                      architecture begin
@@ -126,13 +126,13 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Combinatorial process Consumed_Frame_Validator: validation of an RP_DAT 
 --! frame with respect to: Ctrl, PDU, Length bytes as well as CRC, FSS, FES and code violations.
---! The bytes rx_ctrl_byte_i, rx_pdu_byte_i, rx_length_byte_i that arrive at the beginning of a
+--! The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that arrive at the beginning of a
 --! frame, have been registered and keep their values until the end of a frame.
 --! The signal rx_fss_crc_fes_viol_ok_p_i, is a pulse at the end of the FES that combines
 --! the check of the FSS, CRC, FES and the code violations. 
 
- Consumed_Frame_Validator: process (var_i, rx_ctrl_byte_i, rx_byte_index_i, rx_pdu_byte_i,
-                                    rx_fss_crc_fes_viol_ok_p_i, rx_length_byte_i, rx_crc_wrong_p_i)
+ Consumed_Frame_Validator: process (var_i, cons_ctrl_byte_i, rx_byte_index_i, cons_pdu_byte_i,
+                                    rx_fss_crc_fes_viol_ok_p_i, cons_lgth_byte_i, rx_crc_wrong_p_i)
   begin
   
   case var_i is
@@ -141,18 +141,18 @@ begin
   when var_1 | var_2 | var_rst =>                                -- only for consumed RP_DAT frames
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    if rx_ctrl_byte_i = c_RP_DAT_CTRL_BYTE then                  -- comparison with the expected
-      s_rx_ctrl_byte_ok     <= '1';                              -- RP_DAT.CTRL byte
+    if cons_ctrl_byte_i = c_RP_DAT_CTRL_BYTE then                  -- comparison with the expected
+      s_cons_ctrl_byte_ok   <= '1';                                -- RP_DAT.CTRL byte
     else
-      s_rx_ctrl_byte_ok     <= '0';
+      s_cons_ctrl_byte_ok   <= '0';
     end if; 
 
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    if rx_pdu_byte_i = c_PROD_CONS_PDU_TYPE_BYTE then             -- comparison with the expected
-      s_rx_pdu_byte_ok      <= '1';                               -- PDU_TYPE byte
+    if cons_pdu_byte_i = c_PROD_CONS_PDU_TYPE_BYTE then             -- comparison with the expected
+      s_cons_pdu_byte_ok    <= '1';                                 -- PDU_TYPE byte
     else 
-      s_rx_pdu_byte_ok      <= '0' ;
+      s_cons_pdu_byte_ok    <= '0' ;
     end if;
 
 
@@ -160,17 +160,17 @@ begin
     if rx_fss_crc_fes_viol_ok_p_i = '1' then                     -- checking the RP_DAT.Data.Length
                                                                  -- byte, when the end of frame
                                                                  -- arrives correctly.
-      if rx_byte_index_i = (unsigned(rx_length_byte_i) + 5) then -- rx_byte_index starts counting 
-        s_rx_length_byte_ok <= '1';                              -- from 0 and apart from the 
+      if rx_byte_index_i = (unsigned(cons_lgth_byte_i) + 5) then -- rx_byte_index starts counting 
+        s_cons_lgth_byte_ok <= '1';                              -- from 0 and apart from the 
                                                                  -- user-data bytes, also counts the
       else                                                       -- Control, PDU_TYPE, Length,
                                                                  -- the 2 CRC and the FES bytes 
-        s_rx_length_byte_ok <= '0';
+        s_cons_lgth_byte_ok <= '0';
       end if;                                                          
 
   
     else 
-      s_rx_length_byte_ok   <= '0';
+      s_cons_lgth_byte_ok   <= '0';
     end if;   
 
 
@@ -181,17 +181,17 @@ begin
   -----------------------------------------------------------------------------------------------
   -- when var_presence | var_identif | var_3 | var_whatever =>
 
-    -- s_rx_ctrl_byte_ok       <= '0';
-    -- s_rx_pdu_byte_ok        <= '0';
-    -- s_rx_length_byte_ok     <= '0';
+    -- s_cons_ctrl_byte_ok     <= '0';
+    -- s_cons_pdu_byte_ok      <= '0';
+    -- s_cons_lgth_byte_ok     <= '0';
 
 
   -------------------------------------------------------------------------------------------------
   when others =>
 
-    s_rx_ctrl_byte_ok       <= '0';
-    s_rx_pdu_byte_ok        <= '0';
-    s_rx_length_byte_ok     <= '0';
+    s_cons_ctrl_byte_ok     <= '0';
+    s_cons_pdu_byte_ok      <= '0';
+    s_cons_lgth_byte_ok     <= '0';
     nfip_status_r_fcser_p_o <= '0';
 
   end case;
@@ -201,13 +201,13 @@ end process;
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- -
   -- Concurrent signal assignment for the output signals
   cons_frame_ok_p_o          <= rx_fss_crc_fes_viol_ok_p_i and
-                                s_rx_length_byte_ok        and
-                                s_rx_ctrl_byte_ok          and
-                                s_rx_pdu_byte_ok;
+                                s_cons_lgth_byte_ok        and
+                                s_cons_ctrl_byte_ok        and
+                                s_cons_pdu_byte_ok;
 
-  nfip_status_r_tler_o       <= s_rx_length_byte_ok        and
-                                s_rx_ctrl_byte_ok          and
-                                s_rx_pdu_byte_ok;
+  nfip_status_r_tler_o       <= s_cons_lgth_byte_ok        and
+                                s_cons_ctrl_byte_ok        and
+                                s_cons_pdu_byte_ok;
 
 end architecture rtl;
 --=================================================================================================

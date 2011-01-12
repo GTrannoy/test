@@ -1,36 +1,81 @@
---	Package File Template
---
---	Purpose: This package defines supplemental types, subtypes, constants, and functions 
+--_________________________________________________________________________________________________
+--                                                                                                |
+--                                        |The nanoFIP|                                           |
+--                                                                                                |
+--                                        CERN,BE/CO-HT                                           |
+--________________________________________________________________________________________________|
+--________________________________________________________________________________________________|
 
---------------------------------------------------------------------------------------------------- 
---
---!   \n\n<b>Last changes:</b>\n
---!     -> egousiou: base_addr unsigned(8 downto 0) instead of std_logic_vector (9 downto 0), 
---!                  to simplify calculations
---! turnaround times!!
---! broadcast: 91 instead of 04
---
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
+--! @file WF_package.vhd                                                                          |
+---------------------------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 
+---------------------------------------------------------------------------------------------------
+--                                                                                               --
+--                                           WF_package                                          --
+--                                                                                               --
+---------------------------------------------------------------------------------------------------
+--
+--
+--! @brief     Definitions of constants, types, entities
+--
+--
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
+--
+--
+--! @date      11/01/2011
+--
+--
+--! @version   v0.03
+--
+--
+--! @details \n  
+--
+--!   \n<b>Dependencies:</b>\n
+--
+--
+--!   \n<b>Modified by:</b>   \n
+--!     Evangelia Gousiou     \n
+--
+--------------------------------------------------------------------------------------------------- 
+--
+--!   \n\n<b>Last changes:</b>\n
+--!     ->    8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed) \n
+--!     ->   10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of 
+--!                              std_logic_vector(9 downto 0) to simplify calculations; cleaning-up
+--!     -> 11/1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs 
+--
+--------------------------------------------------------------------------------------------------- 
+--
+--! @todo 
+--!   -> 
+--
+--------------------------------------------------------------------------------------------------- 
+
+
+--=================================================================================================
+--!                              Package declaration for WF_package
+--=================================================================================================
+
 package WF_package is
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
+---------------------------------------------------------------------------------------------------
+--                                Constant regarding the user clock                              --
+---------------------------------------------------------------------------------------------------
 
-  constant c_QUARTZ_PERIOD    : real    := 25.0;
+  constant c_QUARTZ_PERIOD : real    := 25.0;
 
-  constant c_TX_CLK_BUFF_LGTH : natural := 4;
 
-  constant c_RELOAD_MID_CID   : natural := 8;
-
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
-
-  -- Constants regarding the CRC calculator
+---------------------------------------------------------------------------------------------------
+--                               Constants regarding the CRC calculator                          --
+---------------------------------------------------------------------------------------------------
 
   constant c_GENERATOR_POLY_length :  natural := 16;
   -- Shift register xor mask
@@ -39,36 +84,41 @@ package WF_package is
   -- CRC check mask
   constant c_VERIFICATION_MASK     : std_logic_vector (c_GENERATOR_POLY_length-1 downto 0) :=
                                                                                 "0001110001101011";
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
 
-  -- Constants regarding the Manchester 2 coding
+
+---------------------------------------------------------------------------------------------------
+--                             Constants regarding the Manchester 2 coding                       --
+---------------------------------------------------------------------------------------------------
+
   constant VP   : std_logic_vector (1 downto 0) := "11";
   constant VN   : std_logic_vector (1 downto 0) := "00";
   constant ONE  : std_logic_vector (1 downto 0) := "10";
   constant ZERO : std_logic_vector (1 downto 0) := "01";
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
+---------------------------------------------------------------------------------------------------
+--                     Constants regarding the the ID_DAT and RP_DAT frame structure             --
+---------------------------------------------------------------------------------------------------
 
-  -- Constants regarding the ID_DAT and RP_DAT frame structure
   constant PRE : std_logic_vector (15 downto 0) :=  ONE & ZERO & ONE & ZERO & ONE & ZERO & ONE & ZERO;
   constant FSD : std_logic_vector (15 downto 0) :=  ONE & VP & VN & ONE & ZERO & VN & VP & ZERO;
   constant FES : std_logic_vector (15 downto 0) :=  ONE & VP & VN & VP & VN & ONE & ZERO & ONE; 
   constant FSS : std_logic_vector (31 downto 0) :=  PRE & FSD;
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
+---------------------------------------------------------------------------------------------------
+--       Constants regarding the Control and PDU_TYPE bytes of ID_DAT and RP_DAT frames          --
+---------------------------------------------------------------------------------------------------
 
-  -- Constants concerning the control byte of an ID_DAT and RP_DAT frames and the PDU_TYPE byte of
-  -- a consumed or produced variable
   constant c_ID_DAT_CTRL_BYTE        : std_logic_vector (7 downto 0) := "00000011";
   constant c_RP_DAT_CTRL_BYTE        : std_logic_vector (7 downto 0) := "00000010";
   constant c_PROD_CONS_PDU_TYPE_BYTE : std_logic_vector (7 downto 0) := "01000000";
 
+ 
+---------------------------------------------------------------------------------------------------
+--                          Constants regarding the nanoFIP status bits                         --
+---------------------------------------------------------------------------------------------------
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
-
-  -- Constants concerning the nanoFIP status bits
   constant c_U_CACER_INDEX : integer := 2; 
   constant c_U_PACER_INDEX : integer := 3; 
   constant c_R_TLER_INDEX  : integer := 4; 
@@ -77,16 +127,18 @@ package WF_package is
   constant c_T_WDER_INDEX  : integer := 7; 
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
+---------------------------------------------------------------------------------------------------
+--                             Constants regarding the MPS status bits                           --
+---------------------------------------------------------------------------------------------------
 
-  -- Constants concerning the MPS status bits
   constant c_REFRESHMENT_INDEX  : integer := 0; 
   constant c_SIGNIFICANCE_INDEX : integer := 2; 
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
+---------------------------------------------------------------------------------------------------
+--                 Constants regarding the position of bytes in the frame structure              --
+---------------------------------------------------------------------------------------------------
 
-  -- Constants concerning the position of certain bytes in the frame structure
   constant c_CTRL_BYTE_INDEX     : std_logic_vector (7 downto 0) := "00000000"; -- 0
   constant c_PDU_BYTE_INDEX      : std_logic_vector (7 downto 0) := "00000001"; -- 1
   constant c_LENGTH_BYTE_INDEX   : std_logic_vector (7 downto 0) := "00000010"; -- 2
@@ -97,8 +149,9 @@ package WF_package is
   constant c_MODEL_BYTE_INDEX    : std_logic_vector (7 downto 0) := "00000111"; -- 7
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
-
+---------------------------------------------------------------------------------------------------
+--                      Constants & Types regarding the P3_LGTH[2:0] settings                    --
+---------------------------------------------------------------------------------------------------
   -- Construction of a table for the P3_LGTH[2:0] settings
   type t_unsigned_array is array (natural range <>) of unsigned(7 downto 0);
 
@@ -113,9 +166,11 @@ package WF_package is
      );  
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
-
+---------------------------------------------------------------------------------------------------
+--                           Constants & Types regarding the bit rate                            --
+---------------------------------------------------------------------------------------------------
   -- Calculation of the number of uclk ticks equivalent to the reception/ transmission period
+
   constant c_PERIODS_COUNTER_LENGTH : natural := 11; -- in the slowest bit rate (31.25kbps), the 
                                                      -- period is 32000 ns and can be measured after
                                                      -- 1280 uclk ticks. Therefore a counter of 11
@@ -139,10 +194,12 @@ package WF_package is
                            3 => (c_BIT_RATE_UCLK_TICKS_2_5_Mbit));
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- 
-
+---------------------------------------------------------------------------------------------------
+--                     Constants & Types regarding the turnaround and silence times              --
+---------------------------------------------------------------------------------------------------
   -- Construction of a table with the turnaround and silence times for each bit rate.
   -- The table contains the number of uclk ticks corresponding to the turnaround/ silence times.
+
   type t_timeouts is 
   record
     turnaround : integer;
@@ -173,10 +230,12 @@ package WF_package is
                                 );
 
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-
+---------------------------------------------------------------------------------------------------
+--                    Constants & Types regarding the consumed & produced variables              --
+---------------------------------------------------------------------------------------------------
   -- Construction of a table that gathers main information for all the variables
-   type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_whatever);
+
+  type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_whatever);
 
   type t_byte_array is array (natural range <>) of std_logic_vector (7 downto 0);
 
@@ -265,9 +324,23 @@ package WF_package is
                                                others => x"ff")));
 
 
+---------------------------------------------------------------------------------------------------
+--                Constant regarding the transmitters (wf_tx_serializer) clock                   --
+---------------------------------------------------------------------------------------------------
+
+  constant c_TX_CLK_BUFF_LGTH : natural := 4;
+
 
 ---------------------------------------------------------------------------------------------------
---                                      Components Declaration:                                  --
+--                        Constant regarding the Model & Constructor decoding                    --
+---------------------------------------------------------------------------------------------------
+
+  constant c_RELOAD_MID_CID   : natural := 8;
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                      Components Declarations:                                 --
 ---------------------------------------------------------------------------------------------------
 
   component WF_inputs_synchronizer is
@@ -587,23 +660,23 @@ end component wf_production;
     rx_crc_wrong_p_i        : in std_logic;
     rx_byte_ready_p_i       : in std_logic;
     rx_byte_i               : in std_logic_vector (7 downto 0);  
-    rx_CRC_FES_ok_p_i       : in std_logic;  
-    rx_var_rst_byte_1_i     : in std_logic_vector (7 downto 0);
-    rx_var_rst_byte_2_i     : in std_logic_vector (7 downto 0); 
-    tx_sending_mps_i        : in std_logic;
-    rx_ctrl_byte_i          : in std_logic_vector (7 downto 0);
-    rx_pdu_byte_i           : in std_logic_vector (7 downto 0);           
-    rx_length_byte_i        : in std_logic_vector (7 downto 0);
+    produce_wait_turnar_time       : in std_logic;  
+    cons_var_rst_byte_1_i   : in std_logic_vector (7 downto 0);
+    cons_var_rst_byte_2_i   : in std_logic_vector (7 downto 0); 
+    prod_sending_mps_i      : in std_logic;
+    cons_ctrl_byte_i        : in std_logic_vector (7 downto 0);
+    cons_pdu_byte_i         : in std_logic_vector (7 downto 0);           
+    cons_lgth_byte_i        : in std_logic_vector (7 downto 0);
     ---------------------------------------------------------------
     var1_rdy_o              : out std_logic; 
     var2_rdy_o              : out std_logic; 
     var3_rdy_o              : out std_logic; 
     tx_byte_ready_p_o       : out std_logic;
     tx_last_byte_p_o        : out std_logic;
-    tx_start_produce_p_o    : out std_logic;
-    tx_rx_byte_index_o      : out std_logic_vector (7 downto 0);
-    tx_data_length_o        : out std_logic_vector (7 downto 0);
-    rx_byte_ready_p_o       : out std_logic;
+    tx_start_prod_p_o       : out std_logic;
+    prod_cons_byte_index_o  : out std_logic_vector (7 downto 0);
+    prod_data_length_o      : out std_logic_vector (7 downto 0);
+    cons_byte_ready_p_o     : out std_logic;
     rst_status_bytes_o      : out std_logic;
     rst_rx_unit_p_o         : out std_logic;
     var_o                   : out t_var;
@@ -868,12 +941,12 @@ end component wf_production;
 ---------------------------------------------------------------------------------------------------
   component WF_prod_data_lgth_calc is
   port (
-    slone_i          : in std_logic;                    
-    nostat_i         : in std_logic;  
-    p3_lgth_i        : in std_logic_vector (2 downto 0);
-    var_i            : in t_var;
+    slone_i            : in std_logic;                    
+    nostat_i           : in std_logic;  
+    p3_lgth_i          : in std_logic_vector (2 downto 0);
+    var_i              : in t_var;
     ---------------------------------------------------------------
-    tx_data_length_o : out std_logic_vector(7 downto 0) 
+    prod_data_length_o : out std_logic_vector(7 downto 0) 
     ---------------------------------------------------------------
         );
   end component WF_prod_data_lgth_calc;
@@ -882,9 +955,9 @@ end component wf_production;
 ---------------------------------------------------------------------------------------------------
   component WF_cons_frame_validator is
   port (
-    rx_ctrl_byte_i             : in std_logic_vector (7 downto 0);
-    rx_pdu_byte_i              : in std_logic_vector (7 downto 0);           
-    rx_length_byte_i           : in std_logic_vector (7 downto 0); 
+    cons_ctrl_byte_i           : in std_logic_vector (7 downto 0);
+    cons_pdu_byte_i            : in std_logic_vector (7 downto 0);           
+    cons_lgth_byte_i           : in std_logic_vector (7 downto 0); 
     rx_crc_wrong_p_i           : in std_logic;
     rx_fss_crc_fes_viol_ok_p_i : in std_logic;
     var_i                      : in t_var;
@@ -901,20 +974,20 @@ end component wf_production;
 ---------------------------------------------------------------------------------------------------
   component WF_var_rdy_generator is
   port (
-    uclk_i              : in std_logic; 
-    slone_i             : in std_logic;
-    subs_i              : in std_logic_vector (7 downto 0);
-    nfip_urst_i         : in std_logic;  
-    cons_frame_ok_p_i   : in std_logic;
-    var_i               : in t_var;
-    rx_var_rst_byte_1_i : in std_logic_vector (7 downto 0);
-    rx_var_rst_byte_2_i : in std_logic_vector (7 downto 0);
+    uclk_i                : in std_logic; 
+    slone_i               : in std_logic;
+    subs_i                : in std_logic_vector (7 downto 0);
+    nfip_urst_i           : in std_logic;  
+    cons_frame_ok_p_i     : in std_logic;
+    var_i                 : in t_var;
+    cons_var_rst_byte_1_i : in std_logic_vector (7 downto 0);
+    cons_var_rst_byte_2_i : in std_logic_vector (7 downto 0);
     ---------------------------------------------------------------
-    var1_rdy_o          : out std_logic;
-    var2_rdy_o          : out std_logic;
-    var3_rdy_o          : out std_logic;
-    assert_rston_p_o    : out std_logic;
-    rst_nfip_and_fd_p_o : out std_logic 
+    var1_rdy_o            : out std_logic;
+    var2_rdy_o            : out std_logic;
+    var3_rdy_o            : out std_logic;
+    assert_rston_p_o      : out std_logic;
+    rst_nfip_and_fd_p_o   : out std_logic 
     ---------------------------------------------------------------
        );
   end component WF_var_rdy_generator;

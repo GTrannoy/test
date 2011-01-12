@@ -145,7 +145,7 @@ architecture rtl of wf_cons_bytes_processor is
 
 signal s_slone_data                     : std_logic_vector (15 downto 0);
 signal s_addr                           : std_logic_vector (8 downto 0);
-signal s_mem_data_out, s_rx_Length_byte : std_logic_vector (7 downto 0);
+signal s_mem_data_out, s_cons_lgth_byte : std_logic_vector (7 downto 0);
 signal s_slone_write_byte_p             : std_logic_vector (1 downto 0);
 signal two                              : unsigned(7 downto 0);
 signal s_base_addr                      : unsigned(8 downto 0);
@@ -207,14 +207,14 @@ begin
 --! In memory mode, the incoming bytes (byte_i) after the Control byte and before the CRC bytes,
 --! are written in the memory one by one as they arrive, on the moments when the signal
 --! byte_ready_p_i is active.
---! The signals byte_index_i and Length (s_rx_Length_byte) are used to coordinate which bytes are
+--! The signals byte_index_i and Length (s_cons_lgth_byte) are used to coordinate which bytes are
 --! written and which are not:
 --! the Control byte, that arrives when byte_index_i = 0, is not written
 --! and the CRC bytes are not written by checking the amount of bytes indicated by the Length byte.
  
 --! The byte_index_i signal is counting each byte after the FSS and before the FES (therefore,
 --! apart from all the pure data-bytes,it also includes the Control, PDU, Length, MPS & CRC bytes).
---! The Length byte (s_rx_Length_byte) is received from the wf_rx_deserializer when byte_index_i is equal to 3
+--! The Length byte (s_cons_lgth_byte) is received from the wf_rx_deserializer when byte_index_i is equal to 3
 --! and indicates the amount of bytes in the frame after the Control, PDU_TYPE and itself and
 --! before the CRC.
 
@@ -225,7 +225,7 @@ begin
 --! If the consumed variable is the reset one the process latches the first and second data bytes.
 
 Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
-                            byte_ready_p_i, s_base_addr, s_rx_Length_byte)
+                            byte_ready_p_i, s_base_addr, s_cons_lgth_byte)
   
   begin
 
@@ -255,7 +255,7 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
 
                 if byte_index_i > c_LENGTH_BYTE_INDEX then                  -- after the reception
                                                                             -- of the Length byte
-                  if unsigned(byte_index_i) <= unsigned(s_rx_Length_byte) + two  then -- less or eq
+                  if unsigned(byte_index_i) <= unsigned(s_cons_lgth_byte) + two  then -- less or eq
                     s_write_byte_to_mem_p <= byte_ready_p_i;                -- "Length" amount of
                                                                             -- bytes are written
                   else                                   
@@ -305,7 +305,7 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
  
                 if byte_index_i > c_LENGTH_BYTE_INDEX then                 
                                                                             
-                  if unsigned(byte_index_i) <= unsigned(s_rx_Length_byte) + two  then
+                  if unsigned(byte_index_i) <= unsigned(s_cons_lgth_byte) + two  then
                     s_write_byte_to_mem_p <= byte_ready_p_i;
 
                   else                                   
@@ -409,7 +409,7 @@ Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)
     if nfip_urst_i = '1' then
       cons_ctrl_byte_o     <= (others => '0');
       cons_pdu_byte_o      <= (others => '0');
-      s_rx_Length_byte     <= (others => '0');
+      s_cons_lgth_byte     <= (others => '0');
     else
 
       if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) then  -- only for consumed vars
@@ -421,20 +421,20 @@ Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)
           cons_pdu_byte_o  <= byte_i;
 
         elsif ((byte_index_i = c_LENGTH_BYTE_INDEX) and (byte_ready_p_i ='1')) then 
-          s_rx_Length_byte <= byte_i;
+          s_cons_lgth_byte <= byte_i;
         end if;
 
       else
         cons_ctrl_byte_o   <= (others => '0');
         cons_pdu_byte_o    <= (others => '0');
-        s_rx_Length_byte   <= (others => '0');
+        s_cons_lgth_byte   <= (others => '0');
       end if;
     end if;
   end if;
   end process;
 
 --  --  --  --  --  --  --  --  --  --  --  --  
-  cons_lgth_byte_o         <= s_rx_Length_byte;
+  cons_lgth_byte_o         <= s_cons_lgth_byte;
 
 end architecture rtl;
 --=================================================================================================

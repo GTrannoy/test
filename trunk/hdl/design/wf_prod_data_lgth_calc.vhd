@@ -81,16 +81,16 @@ entity WF_prod_data_lgth_calc is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    slone_i          : in std_logic;                    
-    nostat_i         : in std_logic;  
-    p3_lgth_i        : in std_logic_vector (2 downto 0);
+    slone_i            : in std_logic;                    
+    nostat_i           : in std_logic;  
+    p3_lgth_i          : in std_logic_vector (2 downto 0);
 
    -- Signal from the WF_engine_control
-    var_i            : in t_var; --! variable type that is being treated
+    var_i              : in t_var; --! variable type that is being treated
 
   -- OUTPUT
     -- Signal to the WF_engine_control
-    tx_data_length_o : out std_logic_vector(7 downto 0)
+    prod_data_length_o : out std_logic_vector(7 downto 0)
       );
 end entity WF_prod_data_lgth_calc;
 
@@ -100,7 +100,7 @@ end entity WF_prod_data_lgth_calc;
 --=================================================================================================
 architecture rtl of WF_prod_data_lgth_calc is
 
-signal s_tx_data_length, s_p3_length_decoded : unsigned(7 downto 0);
+signal s_prod_data_length, s_p3_length_decoded : unsigned(7 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
@@ -124,13 +124,13 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_presence => 
       -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
-        s_tx_data_length <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_length;
+        s_prod_data_length <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_length;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_identif => 
       -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
-        s_tx_data_length <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_length;
+        s_prod_data_length <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_length;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -154,35 +154,35 @@ begin
         if slone_i = '1' then
 
           if nostat_i = '1' then                              -- 6 bytes (counting starts from 0)
-            s_tx_data_length <= to_unsigned(5, s_tx_data_length'length); 
+            s_prod_data_length <= to_unsigned(5, s_prod_data_length'length); 
 
           else                                                -- 7 bytes (counting starts from 0)
-            s_tx_data_length <= to_unsigned(6, s_tx_data_length'length); 
+            s_prod_data_length <= to_unsigned(6, s_prod_data_length'length); 
           end if;
 
 
         else
           if nostat_i = '0' then
-            s_tx_data_length <= s_p3_length_decoded + 4;      -- (counting starts from 0)
+            s_prod_data_length <= s_p3_length_decoded + 4;      -- (counting starts from 0)
 
            else
-            s_tx_data_length <= s_p3_length_decoded + 3;      -- (counting starts from 0)
+            s_prod_data_length <= s_p3_length_decoded + 3;      -- (counting starts from 0)
            end if;          
           end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 
       when var_1 | var_2 | var_rst =>                         -- to avoid Warnings from Synthesiser
-        s_tx_data_length     <= (others => '0');
+        s_prod_data_length     <= (others => '0');
 
       when others => 
-        s_tx_data_length     <= (others => '0');
+        s_prod_data_length     <= (others => '0');
 
     end case;
   end process;
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent signal assignment for the output
-  tx_data_length_o           <= std_logic_vector (s_tx_data_length);
+  prod_data_length_o           <= std_logic_vector (s_prod_data_length);
 
 
 end architecture rtl;
