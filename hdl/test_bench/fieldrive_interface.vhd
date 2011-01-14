@@ -14,11 +14,11 @@ entity fieldrive_interface is
 	port(
 		fd_rstn_i		: in std_logic;
 		fd_txck_i		: in std_logic;
-		fx_txd_i		: in std_logic;
+		fd_txd_i		: in std_logic;
 		fd_txena_i		: in std_logic;
 
-		fx_rxa_o		: out std_logic;
-		fx_rxd_o		: out std_logic;
+		fd_rxcdn_o		: out std_logic;
+		fd_rxd_o		: out std_logic;
 		fd_txer_o		: out std_logic;
 		fd_wdgn_o		: out std_logic
 	);
@@ -147,15 +147,15 @@ begin
 	end process;
 
 	fd_reset				<= not(fd_rstn_i);
-	txd						<= fx_txd_i;
+	txd						<= fd_txd_i;
 	txck					<= fd_txck_i;
 	txena					<= fd_txena_i;
 	
 	fd_wdgn_o				<= wdgn;
 	fd_txer_o				<= txerr;
 	
-	fx_rxa_o				<= not(cd);
-	fx_rxd_o				<= dx or (txd and txena);
+	fd_rxcdn_o				<= not(cd);
+	fd_rxd_o				<= dx or (txd and txena);
 
 	rx_block: rx
 	generic map(

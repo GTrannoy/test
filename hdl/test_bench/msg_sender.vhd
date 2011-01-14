@@ -6,6 +6,9 @@
 -- Modification Date: September 2010
 -- Modification consisted on: Addition of PDU_type byte and Length_byte 
 --								on consumed variable frame.
+-- Modified by: Penacoba
+-- Modification Date: December 2010
+-- Modification consisted on: Addition of states in FSM for reset
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -60,6 +63,13 @@ type mstate_ty				is (idle, ctrl_id, id_high, id_low,
 signal mstate, nxt_mstate	: mstate_ty;
 
 constant length_byte_res	: std_logic_vector(7 downto 0):=x"03";
+
+constant presence_var_adr		: std_logic_vector(7 downto 0):=x"14";
+constant identification_var_adr	: std_logic_vector(7 downto 0):=x"10";
+constant broadcast_var_adr		: std_logic_vector(7 downto 0):=x"91";
+constant consumed_var_adr		: std_logic_vector(7 downto 0):=x"05";
+constant produced_var_adr		: std_logic_vector(7 downto 0):=x"06";
+constant reset_var_adr			: std_logic_vector(7 downto 0):=x"E0";
 
 signal control				: std_logic_vector(7 downto 0);
 signal count				: std_logic_vector(6 downto 0);
@@ -179,7 +189,7 @@ begin
 			running				<= '1';
 	
 			if msg_new_data_req ='1' then
-				if var_id =x"E0" then
+				if var_id = reset_var_adr then
 					nxt_mstate			<= pdu_type_res;
 				else
 					nxt_mstate			<= pdu_type;
@@ -340,9 +350,9 @@ begin
 	consumed_memory: process
 	begin
 		if control = rp_control_byte and nxt_data ='1' then
-			if var_id = x"05" then
+			if var_id = consumed_var_adr then
 				in_consumed(ind)		<= m_data;
-			elsif var_id = x"04" then
+			elsif var_id = broadcast_var_adr then
 				in_broadcast(ind)		<= m_data;
 			end if;
 		end if;
@@ -371,14 +381,14 @@ begin
 	begin
 		if running'event and running ='0' then
 			if control = rp_control_byte then
-				if var_id = x"05" then
+				if var_id = consumed_var_adr then
 					file_open(data_file,"data/tmp_var1_mem.txt",write_mode);
 					for i in 0 to max_frame_length-1 loop
 						write		(data_line, in_consumed(i));
 						writeline	(data_file, data_line);
 					end loop;
 					file_close(data_file);
-				elsif var_id = x"04" then
+				elsif var_id = broadcast_var_adr then
 					file_open(data_file,"data/tmp_var2_mem.txt",write_mode);
 					for i in 0 to max_frame_length-1 loop
 						write		(data_line, in_broadcast(i));

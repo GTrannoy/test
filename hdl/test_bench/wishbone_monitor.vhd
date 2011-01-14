@@ -124,10 +124,11 @@ begin
 	
 	report_errors: process (cyc_o)
 	begin
-		if cyc_o'event and cyc_o ='0' then
-			assert errct /= 0
-			report "               (( check OK ))  All values found in memory match the ones sent from FIP" & LF & LF
-			severity note;
+		if cyc_o'event and cyc_o= '0' then
+			if errct = 0 and we_o = '0' then
+				report "               (( check OK ))  All values found in memory match the ones sent from FIP" & LF & LF
+				severity note;
+			end if;
 		end if;
 	end process;
 			
