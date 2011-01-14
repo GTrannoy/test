@@ -1,28 +1,26 @@
 ## Schedules the different frames to be sent by the Bus Arbitrer separated by stand-by times. The frame parameters must be separated by comas, without spaces.
 ## The order and values must be as follows: id_rp: (1) for ID_DAT frame / (0) for RP_DAT frame, station adress: 8-bit in hexadecimal format,
-## variable adress: Identification(10h)/ Presence(14h)/ Broadcast(04h)/ Consumed(05h)/ Produced(06h)/ Reset (E0h), variable data length: integer from 2 to 124
+## variable adress: Identification(10h)/ Presence(14h)/ Broadcast(91h)/ Consumed(05h)/ Produced(06h)/ Reset (E0h), variable data length: integer from 2 to 124
 200 us		-- stand-by time
+1,01,91,0	-- ID_DAT for Broadcast variable
+164 us		-- stand-by time
+0,01,91,17	-- RP_DAT for Broadcast variable
+308 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,11	-- RP_DAT for Consumed variable
+338 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+464 us		-- stand-by time
 1,5A,14,0	-- ID_DAT for Presence variable
-369 us		-- stand-by time
+370 us		-- stand-by time
 1,5A,10,0	-- ID_DAT for Identification variable
-394 us		-- stand-by time
-1,5A,05,0	-- ID_DAT for Consumed variable
-164 us		-- stand-by time
-0,5A,05,2	-- RP_DAT for Consumed variable
-313 us		-- stand-by time
-1,5A,05,0	-- ID_DAT for Consumed variable
-164 us		-- stand-by time
-0,5A,05,16	-- RP_DAT for Consumed variable
-425 us		-- stand-by time
-1,5A,05,0	-- ID_DAT for Consumed variable
-164 us		-- stand-by time
-0,5A,05,124	-- RP_DAT for Consumed variable
-1414 us		-- stand-by time
+446 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-1328 us		-- stand-by time
+516 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-1328 us		-- stand-by time
-1,01,04,0	-- ID_DAT for Broadcast variable
-164 us		-- stand-by time
-0,01,04,32	-- RP_DAT for Broadcast variable
+490 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+378 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
 2000 ms		-- final stand-by time to end the simulation
