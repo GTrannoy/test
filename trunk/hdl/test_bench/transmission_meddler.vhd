@@ -24,6 +24,8 @@ architecture archi of transmission_meddler is
 
 begin
 
+-- full functionality yet to be implemented
+-------------------------------------------
 	txerr					<= '0';
 	wdgn					<= '1';
 

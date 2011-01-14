@@ -102,7 +102,7 @@ begin
 				when x"05" =>
 					report "            FIP BA sends an ID_DAT identifier for Consumed Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"04" =>
+				when x"91" =>
 					report "            FIP BA sends an ID_DAT identifier for Consumed Broadcast Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
 				when x"06" =>
