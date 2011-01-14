@@ -54,6 +54,10 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:vx
 probe -create -shm -waveform :fieldrive:tx_block:chopper:sof
 probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
 
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:ba_responded
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:nanofip_responded
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:silence_time_reached
+
 probe -create -shm -waveform :fieldrive:tx_block:fcs_check
 probe -create -shm -waveform :fieldrive:tx_block:fcs_ok
 
@@ -79,10 +83,10 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_data
 
 probe -create -shm -waveform :fieldrive:f_clk
 probe -create -shm -waveform :fd_rstn
-probe -create -shm -waveform :fx_rxa
-probe -create -shm -waveform :fx_rxd
+probe -create -shm -waveform :fd_rxcdn
+probe -create -shm -waveform :fd_rxd
 probe -create -shm -waveform :fd_txena
-probe -create -shm -waveform :fx_txd
+probe -create -shm -waveform :fd_txd
 probe -create -shm -waveform :fd_txck
 probe -create -shm -waveform :fd_wdgn
 probe -create -shm -waveform :fd_txer
