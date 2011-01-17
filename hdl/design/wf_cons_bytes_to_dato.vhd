@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file wf_cons_bytes_to_dato.vhd                                                               |
+--! @file WF_cons_bytes_to_dato.vhd                                                               |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -22,17 +22,20 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                      wf_cons_bytes_to_dato                                    --
+--                                      WF_cons_bytes_to_dato                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     In stand-alone mode, if a consumed or consumed broadcast variable has been received,
---!            the unit is responsible for transering the two desirialized data-bytes from the
---!            filedbus to the 2-bytes long bus DAT_O. The bytes are put in the bus one by one as
---!            they arrive, as signal transfer_byte_p_i indicates.
---!            Note: After the reception of a correct FCS and the FES the signal VAR1_RDY/ VAR2_RDY
---!            is asserted and that signals the user that the data in DAT_O are valid and stable.  
+--! @brief     In stand-alone mode, after the reception of a consumed or consumed broadcast
+--!            variable, the unit is responsible for transering the two data-bytes of the variable
+--!            to the 2-bytes long bus DAT_O.
+--!            The bytes are put in the bus one by one as they arrive, as the signal 
+--!            transfer_byte_p_i indicates.
+--!
+--!            Note: The validity of these transfered bytes is indicated by the "nanoFIP
+--!            User Interface, NON_WISHBONE" signals VAR1_RDY/ VAR2_RDY which arrive after
+--!            the reception of the FCS and FES bytes.  
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -49,7 +52,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n<b>Dependencies:</b>    \n
 --!     WF_reset_unit           \n
---!     wf_cons_bytes_processor \n
+--!     WF_cons_bytes_processor \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -59,8 +62,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 11/2010   v0.01  EG  unit created
---!     -> 10/1/2011 v0.02  EG  unit renamed from wf_slone_cons_bytes_to_dato to
---!                             wf_cons_bytes_to_dato; cleaning-up + commenting
+--!     -> 10/1/2011 v0.02  EG  unit renamed from WF_slone_cons_bytes_to_dato to
+--!                             WF_cons_bytes_to_dato; cleaning-up + commenting
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -77,10 +80,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 
 --=================================================================================================
---!                           Entity declaration for wf_cons_bytes_to_dato
+--!                           Entity declaration for WF_cons_bytes_to_dato
 --=================================================================================================
 
-entity wf_cons_bytes_to_dato is
+entity WF_cons_bytes_to_dato is
 
   port (
   -- INPUTS 
@@ -90,24 +93,24 @@ entity wf_cons_bytes_to_dato is
     -- Signal from the WF_reset_unit unit
     nfip_urst_i       : in std_logic;                     --! nanoFIP internal reset
 
-    -- Signals from the wf_cons_bytes_processor
+    -- Signals from the WF_cons_bytes_processor
+    byte_i            : in std_logic_vector (7 downto 0); --! de-serialised byte
+
     transfer_byte_p_i : in std_logic_vector (1 downto 0); --! 01: byte_i transfered to DAT_O(7:0)
                                                           --! 10: byte_i transfered to DAT_O(15:8)
 
-    byte_i            : in std_logic_vector (7 downto 0); --! de-serialised byte
-
 
   -- OUTPUTS
-    -- Signal to the wf_prod_bytes_retriever
+    -- Signal to the WF_prod_bytes_retriever
     slone_data_o      : out std_logic_vector (15 downto 0) --! output bus DAT_O
       );
-end entity wf_cons_bytes_to_dato;
+end entity WF_cons_bytes_to_dato;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_cons_bytes_to_dato is
+architecture rtl of WF_cons_bytes_to_dato is
 
 
 --=================================================================================================

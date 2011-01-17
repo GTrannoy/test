@@ -325,7 +325,7 @@ package WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
---                Constant regarding the transmitters (wf_tx_serializer) clock                   --
+--                Constant regarding the transmitters (WF_tx_serializer) clock                   --
 ---------------------------------------------------------------------------------------------------
 
   constant c_TX_CLK_BUFF_LGTH : natural := 4;
@@ -346,7 +346,7 @@ package WF_package is
   component WF_inputs_synchronizer is
   port (
     uclk_i            : in std_logic; 
-    clk_wb_i          : in std_logic;
+    wb_clk_i          : in std_logic;
     nfip_urst_i       : in std_logic;
     rstin_a_i         : in std_logic;
     wb_rst_a_i        : in std_logic;
@@ -401,33 +401,33 @@ end component WF_inputs_synchronizer;
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_rx_deserializer 
+  component WF_rx_deserializer 
   port (
-    uclk_i                  : in std_logic;
-    nfip_urst_i             : in std_logic;
-    rst_rx_unit_p_i         : in std_logic;
-    signif_edge_window_i    : in std_logic;
-    adjac_bits_window_i     : in std_logic;
-    rxd_r_edge_p_i          : in std_logic;
-    rxd_f_edge_p_i          : in std_logic;
-    rxd_filtered_i          : in std_logic;
-    rxd_filtered_f_edge_p_i : in std_logic;
-    sample_manch_bit_p_i    : in std_logic; 
-    sample_bit_p_i          : in std_logic;    
+    uclk_i                   : in std_logic;
+    nfip_urst_i              : in std_logic;
+    rst_rx_unit_p_i          : in std_logic;
+    signif_edge_window_i     : in std_logic;
+    adjac_bits_window_i      : in std_logic;
+    rxd_r_edge_p_i           : in std_logic;
+    rxd_f_edge_p_i           : in std_logic;
+    rxd_filtered_i           : in std_logic;
+    rxd_filtered_f_edge_p_i  : in std_logic;
+    sample_manch_bit_p_i     : in std_logic; 
+    sample_bit_p_i           : in std_logic;    
     -----------------------------------------------------------------
-    byte_ready_p_o          : out std_logic;
-    byte_o                  : out std_logic_vector (7 downto 0);
-    crc_wrong_p_o           : out std_logic;
-    fss_crc_fes_viol_ok_p_o : out std_logic;
-    fss_received_p_o        : out std_logic;
-    rst_rx_osc_o            : out std_logic	
+    byte_ready_p_o           : out std_logic;
+    byte_o                   : out std_logic_vector (7 downto 0);
+    crc_wrong_p_o            : out std_logic;
+    fss_crc_fes_manch_ok_p_o : out std_logic;
+    fss_received_p_o         : out std_logic;
+    rst_rx_osc_o             : out std_logic	
     -----------------------------------------------------------------
        );
-  end component wf_rx_deserializer;
+  end component WF_rx_deserializer;
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_tx_serializer 
+  component WF_tx_serializer 
   generic (c_TX_CLK_BUFF_LGTH : natural);
   port (
     uclk_i            : in std_logic;
@@ -443,7 +443,7 @@ end component WF_inputs_synchronizer;
     tx_enable_o       : out std_logic
     -------------------------------------------------------------------------    
        );
-  end component wf_tx_serializer;
+  end component WF_tx_serializer;
 
 
 ---------------------------------------------------------------------------------------------------  
@@ -469,12 +469,12 @@ end component WF_inputs_synchronizer;
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_cons_bytes_processor 
+  component WF_cons_bytes_processor 
   port (
     uclk_i                : in std_logic;
     slone_i               : in std_logic; 
     nfip_urst_i           : in std_logic;
-    clk_wb_i              : in std_logic;
+    wb_clk_i              : in std_logic;
     wb_adr_i              : in std_logic_vector (9 downto 0); 
     wb_stb_r_edge_p_i     : in std_logic; 
     wb_cyc_i              : in std_logic; 
@@ -492,11 +492,11 @@ end component WF_inputs_synchronizer;
     cons_var_rst_byte_2_o : out std_logic_vector (7 downto 0)
       ---------------------------------------------------------------
        );
-  end component wf_cons_bytes_processor;
+  end component WF_cons_bytes_processor;
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_cons_bytes_to_dato is
+  component WF_cons_bytes_to_dato is
   port (
     uclk_i            : in std_logic;                   
     nfip_urst_i       : in std_logic;                    
@@ -506,57 +506,58 @@ end component WF_inputs_synchronizer;
     slone_data_o      : out std_logic_vector(15 downto 0)
       ---------------------------------------------------------------
        );
-  end component wf_cons_bytes_to_dato;
+  end component WF_cons_bytes_to_dato;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_consumption is
+  component WF_consumption is
   port (
-    uclk_i                  : in std_logic;
-    slone_i                 : in std_logic;
-    nfip_urst_i             : in std_logic;
-    fd_rxd_i                : in std_logic;
-    fd_rxd_r_edge_p_i       : in std_logic;
-    fd_rxd_f_edge_p_i       : in std_logic; 
-    clk_wb_i                : in std_logic;                    
-    wb_adr_i                : in std_logic_vector(9 downto 0);
-    wb_stb_r_edge_p_i       : in std_logic;
-    wb_cyc_i                : in std_logic;
-    var_i                   : in t_var;
-    byte_ready_p_i          : in std_logic;
-    byte_index_i            : in std_logic_vector (7 downto 0);
-    rst_rx_unit_p_i         : in std_logic;
-    signif_edge_window_i    : in std_logic;
-    adjac_bits_window_i     : in std_logic;
-    sample_bit_p_i          : in std_logic;
-    sample_manch_bit_p_i    : in std_logic;
+    uclk_i                   : in std_logic;
+    slone_i                  : in std_logic;
+    subs_i                   : in std_logic_vector (7 downto 0); 
+    nfip_urst_i              : in std_logic;
+    fd_rxd_i                 : in std_logic;
+    fd_rxd_r_edge_p_i        : in std_logic;
+    fd_rxd_f_edge_p_i        : in std_logic; 
+    wb_clk_i                 : in std_logic;                    
+    wb_adr_i                 : in std_logic_vector(9 downto 0);
+    wb_stb_r_edge_p_i        : in std_logic;
+    wb_cyc_i                 : in std_logic;
+    var_i                    : in t_var;
+    byte_index_i             : in std_logic_vector (7 downto 0);
+    rst_rx_unit_p_i          : in std_logic;
+    signif_edge_window_i     : in std_logic;
+    adjac_bits_window_i      : in std_logic;
+    sample_bit_p_i           : in std_logic;
+    sample_manch_bit_p_i     : in std_logic;
     ---------------------------------------------------------------
-    data_o                  : out std_logic_vector (15 downto 0);
-    wb_ack_cons_p_o         : out std_logic;                     
-    byte_o                  : out std_logic_vector (7 downto 0);
-    byte_ready_p_o          : out std_logic;
-    fss_received_p_o        : out std_logic;
-    crc_wrong_p_o           : out std_logic;
-    fss_crc_fes_viol_ok_p_o : out std_logic;
-    cons_var_rst_byte_1_o   : out std_logic_vector (7 downto 0); 
-    cons_var_rst_byte_2_o   : out std_logic_vector (7 downto 0);
-    cons_ctrl_byte_o        : out std_logic_vector (7 downto 0);
-    cons_pdu_byte_o         : out std_logic_vector (7 downto 0);        
-    cons_lgth_byte_o        : out std_logic_vector (7 downto 0); 
-    rst_rx_osc_o            : out std_logic
+    var1_rdy_o               : out std_logic;
+    var2_rdy_o               : out std_logic;
+    data_o                   : out std_logic_vector (15 downto 0);
+    wb_ack_cons_p_o          : out std_logic;                     
+    byte_o                   : out std_logic_vector (7 downto 0);
+    byte_ready_p_o           : out std_logic;
+    fss_received_p_o         : out std_logic;
+    nfip_status_r_tler_o     : out std_logic;
+    crc_wrong_p_o            : out std_logic;
+    assert_rston_p_o         : out std_logic;
+    rst_nfip_and_fd_p_o      : out std_logic;
+    fss_crc_fes_manch_ok_p_o : out std_logic;
+    rst_rx_osc_o             : out std_logic
     ---------------------------------------------------------------
        );
-  end component wf_consumption;
+
+  end component WF_consumption;
 
 ---------------------------------------------------------------------------------------------------
-  component wf_production is
+  component WF_production is
   port (
     uclk_i                  : in std_logic;
     slone_i                 : in std_logic;
     nostat_i                : in std_logic;
     nfip_urst_i             : in std_logic;
-    clk_wb_i                : in std_logic;                    
+    wb_clk_i                : in std_logic;                    
     wb_data_i               : in std_logic_vector(7 downto 0);
     wb_adr_i                : in std_logic_vector(9 downto 0);
     wb_stb_r_edge_p_i       : in std_logic;
@@ -574,63 +575,62 @@ end component WF_inputs_synchronizer;
     start_prod_p_i          : in std_logic;
     byte_ready_p_i          : in std_logic;
     last_byte_p_i           : in std_logic;
-    rst_status_bytes_i      : in std_logic; 
     nfip_status_r_tler_i    : in std_logic;
     nfip_status_r_fcser_p_i : in std_logic;
     var1_rdy_i              : in std_logic;
     var2_rdy_i              : in std_logic;
-    var3_rdy_i              : in std_logic;
     tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
     model_id_dec_i          : in  std_logic_vector (7 downto 0);
     constr_id_dec_i         : in  std_logic_vector (7 downto 0);
     --------------------------------------------------------------------------
     request_byte_p_o        : out std_logic;
-    sending_mps_o           : out std_logic;
     tx_data_o               : out std_logic;
     tx_enable_o             : out std_logic;
     u_cacer_o               : out std_logic;
     u_pacer_o               : out std_logic;
     r_tler_o                : out std_logic;
     r_fcser_o               : out std_logic; 
+    var3_rdy_o              : out std_logic; 
     wb_ack_prod_p_o         : out std_logic  
     --------------------------------------------------------------------------
        );
-end component wf_production;
+end component WF_production;
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_prod_bytes_retriever is
+  component WF_prod_bytes_retriever is
   port (
-    uclk_i             : in std_logic; 
-    slone_i            : in std_logic; 
-    nostat_i           : in std_logic; 
-    nfip_urst_i        : in std_logic;
-    model_id_dec_i     : in std_logic_vector (7 downto 0); 
-    constr_id_dec_i    : in std_logic_vector (7 downto 0); 
-    clk_wb_i           : in std_logic; 
-    wb_data_i          : in std_logic_vector (7 downto 0); 
-    wb_adr_i           : in std_logic_vector (9 downto 0); 
-    wb_stb_r_edge_p_i  : in std_logic; 
-    wb_we_i            : in std_logic;  
-    wb_cyc_i           : in std_logic;
-    slone_data_i       : in std_logic_vector (15 downto 0);
-    nFIP_status_byte_i : in std_logic_vector (7 downto 0);
-    mps_status_byte_i  : in std_logic_vector (7 downto 0);
-    var_i              : in t_var;
-    data_length_i      : in std_logic_vector (7 downto 0);
-    byte_index_i       : in std_logic_vector (7 downto 0);
-    var3_rdy_i         : in std_logic;
+    uclk_i               : in std_logic; 
+    slone_i              : in std_logic; 
+    nostat_i             : in std_logic; 
+    nfip_urst_i          : in std_logic;
+    model_id_dec_i       : in std_logic_vector (7 downto 0); 
+    constr_id_dec_i      : in std_logic_vector (7 downto 0); 
+    wb_clk_i             : in std_logic; 
+    wb_data_i            : in std_logic_vector (7 downto 0); 
+    wb_adr_i             : in std_logic_vector (9 downto 0); 
+    wb_stb_r_edge_p_i    : in std_logic; 
+    wb_we_i              : in std_logic;  
+    wb_cyc_i             : in std_logic;
+    slone_data_i         : in std_logic_vector (15 downto 0);
+    nFIP_status_byte_i   : in std_logic_vector (7 downto 0);
+    mps_status_byte_i    : in std_logic_vector (7 downto 0);
+    var_i                : in t_var;
+    data_length_i        : in std_logic_vector (7 downto 0);
+    byte_index_i         : in std_logic_vector (7 downto 0);
+    byte_ready_p_i       : in std_logic;
+    var3_rdy_i           : in std_logic;
     ---------------------------------------------------------------       
-    sending_mps_o      : out std_logic; 
-    byte_o             : out std_logic_vector (7 downto 0);
-    wb_ack_prod_p_o    : out std_logic        
+    rst_status_bytes_p_o : out std_logic; 
+    byte_o               : out std_logic_vector (7 downto 0);
+    wb_ack_prod_p_o      : out std_logic        
     ---------------------------------------------------------------          
        );
-  end component wf_prod_bytes_retriever;
+  end component WF_prod_bytes_retriever;
 
 
 ---------------------------------------------------------------------------------------------------
-  component wf_prod_bytes_from_dati is
+  component WF_prod_bytes_from_dati is
   port (
     uclk_i       : in std_logic;
     nfip_urst_i  : in std_logic; 
@@ -641,49 +641,34 @@ end component wf_production;
     slone_byte_o : out std_logic_vector (7 downto 0)
     ---------------------------------------------------------------
        );
-  end component wf_prod_bytes_from_dati;
+  end component WF_prod_bytes_from_dati;
 
 
 ---------------------------------------------------------------------------------------------------  
   component WF_engine_control 
   generic ( c_QUARTZ_PERIOD : real);
   port (
-    uclk_i                  : in std_logic; 
-    nfip_urst_i             : in std_logic;
-    rate_i                  : in std_logic_vector (1 downto 0);
-    subs_i                  : in std_logic_vector (7 downto 0); 
-    p3_lgth_i               : in std_logic_vector (2 downto 0); 
-    slone_i                 : in std_logic; 
-    nostat_i                : in std_logic; 
-    tx_request_byte_p_i     : in std_logic;
-    rx_FSS_received_p_i     : in std_logic; 
-    rx_crc_wrong_p_i        : in std_logic;
-    rx_byte_ready_p_i       : in std_logic;
-    rx_byte_i               : in std_logic_vector (7 downto 0);  
-    produce_wait_turnar_time       : in std_logic;  
-    cons_var_rst_byte_1_i   : in std_logic_vector (7 downto 0);
-    cons_var_rst_byte_2_i   : in std_logic_vector (7 downto 0); 
-    prod_sending_mps_i      : in std_logic;
-    cons_ctrl_byte_i        : in std_logic_vector (7 downto 0);
-    cons_pdu_byte_i         : in std_logic_vector (7 downto 0);           
-    cons_lgth_byte_i        : in std_logic_vector (7 downto 0);
+    uclk_i                      : in std_logic; 
+    nfip_urst_i                 : in std_logic;
+    rate_i                      : in std_logic_vector (1 downto 0);
+    subs_i                      : in std_logic_vector (7 downto 0); 
+    p3_lgth_i                   : in std_logic_vector (2 downto 0); 
+    slone_i                     : in std_logic; 
+    nostat_i                    : in std_logic; 
+    tx_request_byte_p_i         : in std_logic;
+    rx_fss_received_p_i         : in std_logic; 
+    rx_crc_wrong_p_i            : in std_logic;
+    rx_byte_i                   : in std_logic_vector (7 downto 0);  
+    rx_byte_ready_p_i           : in std_logic;
+    rx_fss_crc_fes_manch_ok_p_i : in std_logic;  
     ---------------------------------------------------------------
-    var1_rdy_o              : out std_logic; 
-    var2_rdy_o              : out std_logic; 
-    var3_rdy_o              : out std_logic; 
-    tx_byte_ready_p_o       : out std_logic;
-    tx_last_byte_p_o        : out std_logic;
-    tx_start_prod_p_o       : out std_logic;
-    prod_cons_byte_index_o  : out std_logic_vector (7 downto 0);
-    prod_data_length_o      : out std_logic_vector (7 downto 0);
-    cons_byte_ready_p_o     : out std_logic;
-    rst_status_bytes_o      : out std_logic;
-    rst_rx_unit_p_o         : out std_logic;
-    var_o                   : out t_var;
-    assert_rston_p_o        : out std_logic;
-    rst_nfip_and_fd_p_o     : out std_logic;
-    nfip_status_r_fcser_p_o : out std_logic;
-    nfip_status_r_tler_o    : out std_logic
+    tx_byte_ready_p_o           : out std_logic;
+    tx_last_byte_p_o            : out std_logic;
+    tx_start_prod_p_o           : out std_logic;
+    prod_cons_byte_index_o      : out std_logic_vector (7 downto 0);
+    prod_data_length_o          : out std_logic_vector (7 downto 0);
+    rst_rx_unit_p_o             : out std_logic;
+    var_o                       : out t_var
     ---------------------------------------------------------------
        );
   end component WF_engine_control;
@@ -757,7 +742,7 @@ end component wf_production;
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_manch_code_viol_check is
+  component WF_rx_manch_code_check is
   port (
     uclk_i                : in std_logic;
     nfip_urst_i           : in std_logic;   
@@ -768,7 +753,7 @@ end component wf_production;
     manch_code_viol_p_o   : out std_logic 
     ---------------------------------------------------------------
        );
-  end component WF_manch_code_viol_check;
+  end component WF_rx_manch_code_check;
 
 
 ---------------------------------------------------------------------------------------------------
@@ -793,27 +778,27 @@ end component wf_production;
 ---------------------------------------------------------------------------------------------------
   component WF_status_bytes_gen 
   port (
-    uclk_i               : in std_logic; 
-    slone_i              : in std_logic; 
-    nfip_urst_i          : in std_logic;
-    fd_wdgn_i            : in std_logic; 
-    fd_txer_i            : in std_logic; 
-    var1_acc_i           : in std_logic; 
-    var2_acc_i           : in std_logic; 
-    var3_acc_i           : in std_logic; 
-    var1_rdy_i           : in std_logic; 
-    var2_rdy_i           : in std_logic; 
-    var3_rdy_i           : in std_logic; 
-    nfip_status_r_tler_i : in std_logic; 
-    nfip_status_r_fcser_p_i        : in std_logic;
-    rst_status_bytes_i   : in std_logic;
+    uclk_i                  : in std_logic; 
+    slone_i                 : in std_logic; 
+    nfip_urst_i             : in std_logic;
+    fd_wdgn_i               : in std_logic; 
+    fd_txer_i               : in std_logic; 
+    var1_acc_i              : in std_logic; 
+    var2_acc_i              : in std_logic; 
+    var3_acc_i              : in std_logic; 
+    var1_rdy_i              : in std_logic; 
+    var2_rdy_i              : in std_logic; 
+    var3_rdy_i              : in std_logic; 
+    nfip_status_r_tler_i    : in std_logic; 
+    nfip_status_r_fcser_p_i : in std_logic;
+    rst_status_bytes_p_i    : in std_logic;
     ---------------------------------------------------------------     
-    u_cacer_o            : out std_logic;
-    u_pacer_o            : out std_logic;
-    r_tler_o             : out std_logic;
-    r_fcser_o            : out std_logic;
-    nFIP_status_byte_o   : out std_logic_vector (7 downto 0); 
-    mps_status_byte_o    : out std_logic_vector (7 downto 0)
+    u_cacer_o               : out std_logic;
+    u_pacer_o               : out std_logic;
+    r_tler_o                : out std_logic;
+    r_fcser_o               : out std_logic;
+    nFIP_status_byte_o      : out std_logic_vector (7 downto 0); 
+    mps_status_byte_o       : out std_logic_vector (7 downto 0)
     ---------------------------------------------------------------
        );
   end component WF_status_bytes_gen;
@@ -861,7 +846,7 @@ end component wf_production;
     var1_acc_i : in  std_logic;
     var2_acc_i : in  std_logic; 
     var3_acc_i : in  std_logic; 
-    clk_wb_i   : in  std_logic; 
+    wb_clk_i   : in  std_logic; 
     dat_i      : in  std_logic_vector (15 downto 0);
     adr_i      : in  std_logic_vector ( 9 downto 0); 
     rst_i      : in  std_logic;
@@ -955,24 +940,22 @@ end component wf_production;
 ---------------------------------------------------------------------------------------------------
   component WF_cons_frame_validator is
   port (
-    cons_ctrl_byte_i           : in std_logic_vector (7 downto 0);
-    cons_pdu_byte_i            : in std_logic_vector (7 downto 0);           
-    cons_lgth_byte_i           : in std_logic_vector (7 downto 0); 
-    rx_crc_wrong_p_i           : in std_logic;
-    rx_fss_crc_fes_viol_ok_p_i : in std_logic;
-    var_i                      : in t_var;
-    rx_byte_index_i            : in unsigned(7 downto 0);
+    cons_ctrl_byte_i            : in std_logic_vector (7 downto 0);
+    cons_pdu_byte_i             : in std_logic_vector (7 downto 0);           
+    cons_lgth_byte_i            : in std_logic_vector (7 downto 0); 
+    rx_fss_crc_fes_manch_ok_p_i : in std_logic;
+    var_i                       : in t_var;
+    rx_byte_index_i             : in std_logic_vector (7 downto 0);
     ---------------------------------------------------------------
-    cons_frame_ok_p_o          : out std_logic;
-    nfip_status_r_fcser_p_o    : out std_logic;
-    nfip_status_r_tler_o       : out std_logic 
+    cons_frame_ok_p_o           : out std_logic;
+    nfip_status_r_tler_o        : out std_logic
     ---------------------------------------------------------------
        );
   end component WF_cons_frame_validator;
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_var_rdy_generator is
+  component WF_cons_outcome is
   port (
     uclk_i                : in std_logic; 
     slone_i               : in std_logic;
@@ -985,12 +968,22 @@ end component wf_production;
     ---------------------------------------------------------------
     var1_rdy_o            : out std_logic;
     var2_rdy_o            : out std_logic;
-    var3_rdy_o            : out std_logic;
     assert_rston_p_o      : out std_logic;
     rst_nfip_and_fd_p_o   : out std_logic 
     ---------------------------------------------------------------
        );
-  end component WF_var_rdy_generator;
+  end component WF_cons_outcome;
+
+---------------------------------------------------------------------------------------------------
+component WF_prod_permit is
+
+  port (
+    uclk_i                : in std_logic; 
+    nfip_urst_i           : in std_logic;
+    var_i                 : in t_var; 
+    var3_rdy_o            : out std_logic
+      );
+end component WF_prod_permit;
 
 
 ---------------------------------------------------------------------------------------------------

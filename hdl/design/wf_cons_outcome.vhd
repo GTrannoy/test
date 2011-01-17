@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_var_rdy_generator.vhd
+--! @file WF_cons_outcome.vhd                                                                     |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -22,27 +22,30 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                       WF_var_rdy_generator                                    --
+--                                         WF_cons_outcome                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Generation of the nanoFIP output signals VAR1_RDY, VAR2_RDY, VAR3_RDY according to
---!            the variable that is being treated (var_i) and to the "correct frame" indicator,
---!            cons_frame_ok_p_i.
---!            If the received variable is the var_rst, the unit generates the signals
---!            rst_nFIP_and_FD_p and assert_RSTON_p, according to the data bytes received and to
---!            the "correct frame" indicator, cons_frame_ok_p_i.    
+--! @brief     According to the consumed variable that has been received (var_1, var_2, var_rst)
+--!            the unit generates the signals:
+--!
+--!              o "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY and VAR2_RDY,
+--!                according to the variable that is being treated (var_i) and to the
+--!                "correct frame" indicator, cons_frame_ok_p_i.
+--!
+--!              o rst_nFIP_and_FD_p and assert_RSTON_p, according to the data bytes received and to
+--!                the "correct frame" indicator, cons_frame_ok_p_i.    
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
---! @date      10/12/2010
+--! @date      14/01/2011
 --
 --
---! @version   v0.03
+--! @version   v0.04
 --
 --
 --! @details \n  
@@ -60,6 +63,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 11/2010  v0.02  EG  Treatment of reset vars added to the unit
 --!                            Correction on var1_rdy, var2_rdy for slone
 --!     -> 12/2010  v0.03  EG  Finally no broadcast in slone, cleanning-up+commenting
+--!     -> 01/2010  v0.04  EG  Unit WF_var_rdy_generator separated in WF_cons_outcome
+--!                            (for var1_rdy,var2_rdy+var_rst outcome) & WF_prod_permit (for var3)
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -71,54 +76,62 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
 --                               Sunplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL246  Input port bits 0, 5, 6 of var_i(0 to 6) are unused"                             --
+-- "W CL246  Input port bits 0, 5, 6 of var_i(0 to 6) are unused"                                --
 -- var_i is one-hot encoded and has 7 values.                                                    -- 
--- The unit is treating only the variables var_1, var_2, var_3 and var_rst.                    --
+-- The unit is treating only the variables var_1, var_2 and var_rst.                             --
 ---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
---!                           Entity declaration for WF_var_rdy_generator
+--!                           Entity declaration for WF_cons_outcome
 --=================================================================================================
 
-entity WF_var_rdy_generator is
+entity WF_cons_outcome is
 
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i                : in std_logic;                     --! 40MHz clock
-    slone_i               : in std_logic;                     --! Stand-alone mode 
-    subs_i                : in std_logic_vector (7 downto 0); --! Station address
+    uclk_i                : in std_logic;                   --! 40MHz clock
+    slone_i               : in std_logic;                   --! stand-alone mode 
+
+    -- nanoFIP WorldFIP Settings (synchronized with uclk) 
+    subs_i                : in std_logic_vector (7 downto 0); --! subscriber number coding
  
     -- Signal from the WF_reset_unit
     nfip_urst_i           : in std_logic;                   --! nanoFIP internal reset
 
     -- Signals from the WF_cons_frame_validator
     cons_frame_ok_p_i     : in std_logic;                   --! pulse after a correct cons frame
+
+    -- Signal from the WF_engine_control unit
     var_i                 : in t_var;                       --! variable type that is being treated
 
-    -- Signals from the wf_cons_bytes_processor
-    cons_var_rst_byte_1_i : in std_logic_vector(7 downto 0);--! first & second data bytes of a 
-    cons_var_rst_byte_2_i : in std_logic_vector(7 downto 0);--! reset variable
+    -- Signals from the WF_cons_bytes_processor
+    cons_var_rst_byte_1_i : in std_logic_vector(7 downto 0);--! 1st data-byte of a received var_rst
+    cons_var_rst_byte_2_i : in std_logic_vector(7 downto 0);--! 2nd data-byte of a received var_rst
 
 
   -- OUTPUT
     -- nanoFIP User Interface, NON-WISHBONE outputs
-    var1_rdy_o            : out std_logic;
-    var2_rdy_o            : out std_logic;
-    var3_rdy_o            : out std_logic;
+    var1_rdy_o            : out std_logic; --! signals new data is received and can safely be read
+    var2_rdy_o            : out std_logic; --! signals new data is received and can safely be read
 
-    -- Signals for the WF_reset_unit
-    assert_rston_p_o      : out std_logic;
-    rst_nfip_and_fd_p_o   : out std_logic
+    -- Signals to the WF_reset_unit
+    assert_rston_p_o      : out std_logic;  --! indicates that a var_rst with its 2nd data-byte
+                                            --! containing the station's address has been
+                                            --! correctly received
+
+    rst_nfip_and_fd_p_o   : out std_logic   --! indicates that a var_rst with its 1st data-byte
+                                            --! containing the station's address has been
+                                            --! correctly received
       );
-end entity WF_var_rdy_generator;
+end entity WF_cons_outcome;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of WF_var_rdy_generator is
+architecture rtl of WF_cons_outcome is
 
 signal s_var1_received, s_var2_received, cons_frame_ok_p_d1 : std_logic;
 signal s_rst_nfip_and_fd, s_assert_rston                    : std_logic;
@@ -132,9 +145,9 @@ begin
 --!@brief Synchronous process VAR_RDY_Generation: 
 
 --! Memory Mode:
-  --! In memory mode, since the three memories (consumed, consumed broadcast, produced) are
-  --! independant, when a produced var is being sent, the user can read form the consumed memories;
-  --! similarly,when a consumed variable is being received the user can write to the produced momory.
+  --! Since the three memories (consumed, consumed broadcast, produced) are independant, when a
+  --! produced var is being sent, the user can read form the consumed memories; similarly, when a
+  --! consumed variable is being received the user can write to the produced momory.
 
   --! VAR1_RDY (for consumed vars): signals that the user can safely read from the consumed
   --! variable memory. The signal is asserted only after the reception of a correct RP_DAT frame.
@@ -145,10 +158,6 @@ begin
   --! correct consumed broadcast RP_DAT frame. It is de-asserted after the reception of a correct
   --! var2 ID_DAT frame. 
 
-  --! VAR3_RDY (for produced vars): signals that the user can safely write to the produced variable
-  --! memory. It is deasserted right after the end of the reception of a correct var3 ID_DAT frame
-  --! and stays de-asserted until the end of the transmission of the corresponding RP_DAT from
-  --! nanoFIP.
 
 --! Stand-alone Mode:
   --! In stand-alone mode, the DAT_I and DAT_O buses for the produced and the consumed bytes 
@@ -160,16 +169,9 @@ begin
 
   --! VAR2_RDY (for broadcast consumed vars): stays always deasserted.
 
-  --! VAR3_RDY (for produced vars): signals that the user can safely access the DAT_I bus
-  --! (same as in memory mode).
 
 --! Note: A correct consumed RP_DAT frame is signaled by the cons_frame_ok_p_i, whereas a correct
 --! ID_DAT frame along with the variable it contained is signaled by the var_i.
---! For produced variables, the signal var_i gets its value (var3, var_presence, var_identif)
---! after the reception of a correct ID_DAT frame (with correct FSS, Control, PDU_TYPE, Length, CRC
---! and FES bytes and without unexpected code violations) and retains it until the end of the
---! transmission of the corresponding RP_DAT (in detail, until the end of the transmission of the
---! RP_DAT.data field;var_i becomes var_whatever during the RP_DAT.FCS and RP_DAT.FES transmission).
 --! For consumed variables, var_i gets its value (var1, var2, var_rst) after the reception of a
 --! correct ID_DAT frame and of a correct FSS of the corresponding RP_DAT frame and it retains it
 --! unitl the end of the reception.
@@ -181,7 +183,6 @@ begin
       if nfip_urst_i = '1' then
         var1_rdy_o          <= '0';
         var2_rdy_o          <= '0';
-        var3_rdy_o          <= '0';
         s_var1_received     <= '0';
         s_var2_received     <= '0';
 
@@ -192,7 +193,6 @@ begin
         when var_1 =>                              -- nanoFIP consuming
                                                    --------------------   
           var1_rdy_o        <= '0';                -- while consuming a var1, VAR1_RDY is 0
-          var3_rdy_o        <= '1';                -- VAR3_RDY is independant of var1
           var2_rdy_o        <= s_var2_received;    -- VAR2_RDY retains its value
 
 
@@ -204,11 +204,11 @@ begin
           end if;
 
 
+
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
         when var_2 =>                             -- nanoFIP consuming broadcast     
                                                   ------------------------------ 
           var2_rdy_o        <= '0';               -- while consuming a var2, VAR2_RDY is 0
-          var3_rdy_o        <= '1';               -- VAR3_RDY independant of var2
           var1_rdy_o        <= s_var1_received;   -- VAR1_RDY retains its value
 
           if slone_i = '0' and cons_frame_ok_p_d1 = '1' then        
@@ -218,13 +218,7 @@ begin
                                                   -- note:the signal s_var2_received remains asser-
           end if;                                 -- ted after the end of the cons_frame_ok_p pulse 
 
-      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
-
-        when var_3 =>                             -- nanoFIP producing 
-                                                  --------------------
-          var3_rdy_o        <= '0';               -- while producing VAR3_RDY is 0
-          var1_rdy_o        <= s_var1_received;          
-          var2_rdy_o        <= s_var2_received;           
+    
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
 
@@ -232,7 +226,7 @@ begin
 
           var1_rdy_o        <= s_var1_received;
           var2_rdy_o        <= s_var2_received; 
-          var3_rdy_o        <= '1';               
+           
       
         end case;	 	 
       end if;

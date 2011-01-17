@@ -27,8 +27,8 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --
 -- unit name   WF_rx_tx_osc
 --
---! @brief     Generation the clock signals needed for the receiver (wf_rx_deglitcher and
---!            wf_rx_deserializer)and transmiter(wf_tx_serializer)\n
+--! @brief     Generation the clock signals needed for the receiver (WF_rx_deglitcher and
+--!            WF_rx_deserializer)and transmiter(WF_tx_serializer)\n
 --!
 --!            Concerning the reception, even if the bit rate of the communication is known, jitter
 --!            is expected to affect the arriving time of the incoming signal. The main idea of the 
@@ -64,7 +64,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!   \n<b>Dependencies:</b>\n
 --!     WF_reset_unit       \n
 --!     WF_synchronizer     \n
---!     wf_rx_deserializer  \n
+--!     WF_rx_deserializer  \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -113,20 +113,21 @@ entity WF_rx_tx_osc is
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;                      --! 40 MHz clock
-    rate_i                  : in  std_logic_vector (1 downto 0); --! bit rate  
+    rate_i                  : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate 
 
     -- Signal from the WF_reset_unit  
     nfip_urst_i             : in std_logic;   --! nanoFIP internal reset
 
-    -- Signal from the WF_synchronizer    
+    -- Signal from the WF_synchronizer unit    
     rxd_edge_i              : in std_logic;   --! indication of an edge on fd_rxd
 
-    -- Signal from wf_rx_deserializer   
+    -- Signal from WF_rx_deserializer unit  
     rst_rx_osc_i            : in std_logic;   --! resets the clock recovery procedure of the rx_osc
+
 
   -- OUTPUTS  
     -- Output signals needed in the reception
-    -- Signals to the wf_rx_deserializer and the wf_rx_deglitcher
+    -- Signals to the WF_rx_deserializer and the WF_rx_deglitcher
     rx_manch_clk_p_o        : out std_logic;  --! signal with uclk-wide pulses
                                               --! 1) on a significant edge 
                                               --! 2) between adjacent bits
@@ -144,7 +145,8 @@ entity WF_rx_tx_osc is
     -- Output signals needed in the transmission
     -- nanoFIP FIELDRIVE output
     tx_clk_o                : out std_logic;  --! line driver half bit clock
-    -- Signal to the wf_tx_serializer
+
+    -- Signal to the WF_tx_serializer unit
     tx_clk_p_buff_o         : out std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0) 
                                               --! buffer keeping the last values of tx_clk_o                                       
     );
@@ -188,18 +190,18 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
--- rx_osc
+--                                              rx_osc                                           --
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process rx_periods_count:
 -- the rx_counter starts counting after a falling edge on the fd_rxd (indicated by the signal
--- rst_rx_osc_i from the wf_rx_deserializer unit); this edge should be representing the 1st
+-- rst_rx_osc_i from the WF_rx_deserializer unit); this edge should be representing the 1st
 -- Manchester (manch.) encoded bit '1' of the preamble.
 -- Starting from this edge, other falling or rising significant edges, are expected around one
 -- period later. A time window around the expected arrival time is set and its length is defined
 -- as 1/4th of the period (1/8th before and 1/8th after the expected time). When the actual edge
 -- arrives, the counter is reset.
 -- If that first falling edge of fd_rxd is finally proven not to belong to a valid preambe
--- (the state machine of the wf_rx_deserializer unit is checking that and generating the
+-- (the state machine of the WF_rx_deserializer unit is checking that and generating the
 -- rst_rx_osc_i), the counter is reinitialialized.
 
   rx_periods_count: process (uclk_i) 
@@ -348,8 +350,9 @@ begin
     end process;  
 
 
+
 ---------------------------------------------------------------------------------------------------
--- tx_osc
+--                                              tx_osc                                           --
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process tx_periods_count: implementation of a counter counting transmission periods.
 

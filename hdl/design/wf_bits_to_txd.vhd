@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_bits_to_txd.vhd
+--! @file WF_bits_to_txd.vhd                                                                      |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -27,7 +27,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     According to the state of the FSM of the wf_tx_serializer, the unit is responsible
+--! @brief     According to the state of the FSM of the WF_tx_serializer, the unit is responsible
 --!            for putting in nanoFIP's output FD_TXD one by one all the bits required for the
 --!            formation of the RP_DAT frame (that is: manch. encoded FSS, data, CRC and FES bits).
 --!            The unit also manages the output FD_TXENA.
@@ -48,7 +48,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n<b>Dependencies:</b>\n
 --!     WF_reset_unit       \n
 --!     WF_tx_rx_osc        \n
---!     wf_tx_serializer    \n
+--!     WF_tx_serializer    \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -82,7 +82,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --=================================================================================================
 
 entity WF_bits_to_txd is
-  generic (c_TX_CLK_BUFF_LGTH: natural := 4);               -- default
+  generic (c_TX_CLK_BUFF_LGTH: natural := 4);               --! length of the clk buffer used for
+                                                            --! the transmission synchronization      
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals
@@ -91,20 +92,20 @@ entity WF_bits_to_txd is
     -- Signal from the WF_reset_unit
     nfip_urst_i         : in std_logic;                     --! nanoFIP internal reset
 
-   -- Signals from the wf_tx_serializer
-    txd_bit_index_i     : in unsigned(4 downto 0);          --! index of bit inside a byte
-    data_byte_manch_i   : in std_logic_vector (15 downto 0);--! manch. encoded data byte to be sent
+   -- Signals from the WF_tx_serializer unit
     crc_byte_manch_i    : in std_logic_vector (31 downto 0);--! manch. encoded CRC bytes to be sent
-    sending_fss_i       : in std_logic;                     --! wf_tx_serializer FSM states
-    sending_data_i      : in std_logic;                     --! -----"----"-----
-    sending_crc_i       : in std_logic;                     --! -----"----"-----
-    sending_fes_i       : in std_logic;                     --! -----"----"-----
-    stop_transmission_i : in std_logic;                     --! -----"----"-----
+    data_byte_manch_i   : in std_logic_vector (15 downto 0);--! manch. encoded data byte to be sent
+    sending_fss_i       : in std_logic;                     --! WF_tx_serializer FSM states
+    sending_data_i      : in std_logic;                     --! -------"----"-----"--------
+    sending_crc_i       : in std_logic;                     --! -------"----"-----"--------
+    sending_fes_i       : in std_logic;                     --! -------"----"-----"--------
+    stop_transmission_i : in std_logic;                     --! -------"----"-----"--------
+    txd_bit_index_i     : in unsigned(4 downto 0);          --! index of a bit inside a byte
     
 
-    -- Signals for the receiver WF_tx_rx_osc
-    tx_clk_p_i          : in std_logic;
-                                                            --!clk for transmission synchronization 
+    -- Signals from the WF_tx_rx_osc unit
+    tx_clk_p_i          : in std_logic;                     --!clk for transmission synchronization 
+                                                            
  
   -- OUTPUTS
     -- nanoFIP FIELDRIVE outputs
@@ -126,7 +127,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --! @brief Synchronous process Bits_Delivery: managment of nanoFIP output signal FD_TXD by
---! placing bits of data according to the state of wf_tx_serializer's state machine (sending_fss,
+--! placing bits of data according to the state of WF_tx_serializer's state machine (sending_fss,
 --! sending_data, sending_crc, sending_fes, stop_transmission) and to the counter txd_bit_index.
 --! The delivery is synchronised by the tx_clk_p_buff(1) signal.
 

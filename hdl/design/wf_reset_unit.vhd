@@ -41,7 +41,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details 
 --
 --!   \n<b>Dependencies:</b>    \n
---!     wf_cons_bytes_processor \n
+--!     WF_cons_bytes_processor \n
 -- 
 --
 --!   \n<b>Modified by:</b>\n
@@ -73,10 +73,12 @@ entity WF_reset_unit is
     uclk_i :              in std_logic;                     --! 40 MHz clock
     urst_i :              in std_logic;                     --! initialisation control, active low
     urst_r_edge_i :       in std_logic;
-    subs_i :              in std_logic_vector (7 downto 0); --! Subscriber number coding
-    rate_i :              in std_logic_vector (1 downto 0);
 
-    -- Signal from the central control unit WF_engine_control
+    -- nanoFIP WorldFIP Settings (synchronized with uclk) 
+    subs_i :              in std_logic_vector (7 downto 0); --! subscriber number coding
+    rate_i :              in std_logic_vector (1 downto 0); --! WorldFIP bit rate
+
+    -- Signal from the WF_engine_control unit
     var_i :               in t_var;                         --! variable type that is being treated
     rst_nFIP_and_FD_p_i : in std_logic;
     assert_RSTON_p_i :    in std_logic;

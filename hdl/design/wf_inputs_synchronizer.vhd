@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_inputs_synchronizer.vhd
+--! @file WF_inputs_synchronizer.vhd                                                              |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -85,28 +85,28 @@ entity WF_inputs_synchronizer is
   -- INPUTS 
     -- nanoFIP User Interface, General signals
     uclk_i            : in std_logic;                   --! 40MHz clock
+    nostat_a_i        : in std_logic;
     rstin_a_i         : in std_logic;
     slone_a_i         : in std_logic;
-    nostat_a_i        : in std_logic;
 
     -- Signal from the WF_reset_unit
     nfip_urst_i       : in std_logic;                   --! nanoFIP internal reset
 
     -- nanoFIP WorldFIP Settings
+    c_id_a_i          : in std_logic_vector(3 downto 0);
+    m_id_a_i          : in std_logic_vector(3 downto 0);
+    p3_lgth_a_i       : in std_logic_vector(2 downto 0);
     rate_a_i          : in std_logic_vector(1 downto 0);
     subs_a_i          : in std_logic_vector(7 downto 0);
-    m_id_a_i          : in std_logic_vector(3 downto 0);
-    c_id_a_i          : in std_logic_vector(3 downto 0);
-    p3_lgth_a_i       : in std_logic_vector(2 downto 0);
 
     -- nanoFIP User Interface, WISHBONE Slave 
-    clk_wb_i          : in std_logic;                   --! WISHBONE clock
-    wb_rst_a_i        : in std_logic;                   --! WISHBONE reset
-    wb_cyc_a_i        : in std_logic;
-    wb_we_a_i         : in std_logic;
-    wb_stb_a_i        : in std_logic; 
-    wb_adr_a_i        : in std_logic_vector(9 downto 0);
+    wb_clk_i          : in std_logic;                   --! WISHBONE clock
     dat_a_i           : in std_logic_vector(15 downto 0);
+    wb_adr_a_i        : in std_logic_vector(9 downto 0);
+    wb_cyc_a_i        : in std_logic;
+    wb_rst_a_i        : in std_logic;                   --! WISHBONE reset
+    wb_stb_a_i        : in std_logic; 
+    wb_we_a_i         : in std_logic;
 
     -- nanoFIP User Interface, non WISHBONE 
     var1_access_a_i   : in std_logic;
@@ -114,48 +114,48 @@ entity WF_inputs_synchronizer is
     var3_access_a_i   : in std_logic;
 
     -- nanoFIP FIELDRIVE
-    fd_wdgn_a_i       : in std_logic;
-    fd_txer_a_i       : in std_logic; 
-    fd_rxd_a_i        : in std_logic;  
     fd_rxcdn_a_i      : in std_logic; 
+    fd_rxd_a_i        : in std_logic; 
+    fd_txer_a_i       : in std_logic; 
+    fd_wdgn_a_i       : in std_logic; 
 
 
   -- OUTPUTS
     -- nanoFIP User Interface, General signals
-    rsti_o            : out std_logic;
-    urst_r_edge_o     : out std_logic;
-    slone_o           : out std_logic;
     nostat_o          : out std_logic;
+    rsti_o            : out std_logic;
+    slone_o           : out std_logic;
+    urst_r_edge_o     : out std_logic;
 
     -- nanoFIP WorldFIP Settings
+    c_id_o            : out std_logic_vector(3 downto 0);
+    m_id_o            : out std_logic_vector(3 downto 0);
+    p3_lgth_o         : out std_logic_vector(2 downto 0);
     rate_o            : out std_logic_vector(1 downto 0);
     subs_o            : out std_logic_vector(7 downto 0);
-    m_id_o            : out std_logic_vector(3 downto 0);
-    c_id_o            : out std_logic_vector(3 downto 0);
-    p3_lgth_o         : out std_logic_vector(2 downto 0);
 
     -- nanoFIP User Interface, WISHBONE Slave 
+    wb_adri_o         : out std_logic_vector(9 downto 0);
     wb_cyc_o          : out std_logic;
-    wb_we_o           : out std_logic;
+    wb_dati_o         : out std_logic_vector(7 downto 0);
     wb_stb_o          : out std_logic; 
     wb_stb_r_edge_o   : out std_logic;
-    wb_dati_o         : out std_logic_vector(7 downto 0);
-    wb_adri_o         : out std_logic_vector(9 downto 0);
+    wb_we_o           : out std_logic;
+
 
     -- nanoFIP User Interface, non WISHBONE 
+    slone_dati_o      : out std_logic_vector(15 downto 0);
     var1_access_o     : out std_logic;
     var2_access_o     : out std_logic;
     var3_access_o     : out std_logic;
-    slone_dati_o      : out std_logic_vector(15 downto 0);
 
     -- nanoFIP FIELDRIVE
-    fd_wdgn_o         : out std_logic;
-    fd_txer_o         : out std_logic; 
-    fd_rxd_o          : out std_logic; 
+    fd_rxd_o          : out std_logic;
     fd_rxd_edge_p_o   : out std_logic; 
+    fd_rxd_f_edge_p_o : out std_logic;
     fd_rxd_r_edge_p_o : out std_logic; 
-    fd_rxd_f_edge_p_o : out std_logic
-
+    fd_txer_o         : out std_logic; 
+    fd_wdgn_o         : out std_logic
       );
 end entity WF_inputs_synchronizer;
 
@@ -289,9 +289,9 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-  WISHBONE_inputs_synchronisation: process (clk_wb_i)
+  WISHBONE_inputs_synchronisation: process (wb_clk_i)
   begin
-   if rising_edge (clk_wb_i) then
+   if rising_edge (wb_clk_i) then
      if wb_rst_a_i = '1' then          -- wb_rst is not buffered to comply with WISHBONE rule 3.15
        s_wb_dati_d1  <= (others => '0');
        s_wb_dati_d2  <= (others => '0');

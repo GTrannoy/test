@@ -6,8 +6,8 @@
 --________________________________________________________________________________________________|
 --________________________________________________________________________________________________|
 
---------------------------------------------------------------------------------------------------
---! @file WF_incr_counter.vhd
+---------------------------------------------------------------------------------------------------
+--! @file WF_incr_counter.vhd                                                                     |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -72,8 +72,9 @@ entity WF_incr_counter is
     nfip_urst_i      : in std_logic;                            --! nanoFIP internal reset
 
    -- Signals from any unit
-   reinit_counter_i  : in std_logic;                            --! reinitializes counter to 0
    incr_counter_i    : in std_logic;                            --! increment enable
+   reinit_counter_i  : in std_logic;                            --! reinitializes counter to 0
+
 
   -- OUTPUT
     -- Signal to any unit

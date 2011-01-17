@@ -97,17 +97,17 @@ entity WF_model_constr_decoder is
     nfip_urst_i     : in std_logic;                      --! nanoFIP internal reset
 
     -- nanoFIP WorldFIP Settings (synchronised with uclk_i)
-    model_id_i      : in  std_logic_vector (3 downto 0); --! Model identification settings
     constr_id_i     : in  std_logic_vector (3 downto 0); --! Constructor identification settings
+    model_id_i      : in  std_logic_vector (3 downto 0); --! Model identification settings
 
 
   -- OUTPUTS
     -- nanoFIP WorldFIP Settings output
     select_id_o     : out std_logic_vector (1 downto 0); --! Identification selection
 
-    -- Signal to the wf_prod_bytes_retriever
-    model_id_dec_o  : out std_logic_vector (7 downto 0); --! Model identification decoded
-    constr_id_dec_o : out std_logic_vector (7 downto 0)  --! Constructor identification decoded
+    -- Signal to the WF_prod_bytes_retriever unit
+    constr_id_dec_o : out std_logic_vector (7 downto 0); --! Constructor identification decoded
+    model_id_dec_o  : out std_logic_vector (7 downto 0)  --! Model identification decoded
     );
 
 end entity WF_model_constr_decoder;

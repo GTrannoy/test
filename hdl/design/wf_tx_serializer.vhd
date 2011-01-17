@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
---! @file wf_tx_serializer.vhd
+--! @file WF_tx_serializer.vhd
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -14,13 +14,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                        wf_tx_serializer                                       --
+--                                        WF_tx_serializer                                       --
 --                                                                                               --
 --                                        CERN, BE/CO/HT                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name:  wf_tx_serializer
+-- unit name:  WF_tx_serializer
 --
 --
 --! @brief     Serializes the WorldFIP data.
@@ -66,9 +66,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 
 --=================================================================================================
---!                               Entity declaration for WF_tx_rx
+--!                               Entity declaration for WF_tx_serializer
 --=================================================================================================
-entity wf_tx_serializer is
+entity WF_tx_serializer is
   generic (c_TX_CLK_BUFF_LGTH: natural);
   port (
   -- INPUTS 
@@ -87,7 +87,7 @@ entity wf_tx_serializer is
     last_byte_p_i :     in std_logic;  --! indication that it is the last byte of data
                                        --  CRC bytes follow
 
-    -- Signals from the wf_prod_bytes_retriever
+    -- Signals from the WF_prod_bytes_retriever
     byte_i :            in std_logic_vector (7 downto 0);             
                                        --! data byte to be delivered 
 
@@ -105,14 +105,14 @@ entity wf_tx_serializer is
     tx_enable_o :       out std_logic  --! transmitter enable
     );
 
-end entity wf_tx_serializer;
+end entity WF_tx_serializer;
 
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_tx_serializer is
+architecture rtl of WF_tx_serializer is
 
 
   type tx_state_t  is (idle, send_fss, send_data_byte, send_crc_bytes, send_queue, stop_transmission);
@@ -177,7 +177,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 -- "send_data_byte" state: delivery of manchester encoded bits of data that arrive from the
--- wf_prod_bytes_retriever unit (byte_i), with the coordination of the WF_engine_control (byte_ready_p_i)
+-- WF_prod_bytes_retriever unit (byte_i), with the coordination of the WF_engine_control (byte_ready_p_i)
 -- request of a new byte on  tx_clk_p_buff (0) assertion (with s_bit_index = 0)
 -- bit delivery        after tx_clk_p_buff (1) assertion
 -- new byte available  after tx_clk_p_buff (2) assertion (to be sent on the next tx_clk_p_buff (1))
@@ -185,7 +185,7 @@ begin
 --                                                       (between 0 and 16 for each byte, until the
 --                                                                      last_byte_p_i gives a pulse)
 
--- the first data byte from the wf_prod_bytes_retriever unit is already available after the assertion of the
+-- the first data byte from the WF_prod_bytes_retriever unit is already available after the assertion of the
 -- start_prod_p_i signal; for the rest, there is a request of a new byte when the s_bit_index
 -- arrives to zero and on the assertion of the tx_clk_p_buff (0). A pulse on the request_byte signal
 -- triggers the WF_control_engine to send a new address to the memory of the produced_vars unit (new
@@ -522,7 +522,7 @@ Input_Byte_Sampling: process (uclk_i)
   tx_data_o <= s_txd;
 
   request_byte_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4);
-  -- request for a new byte from the wf_prod_bytes_retriever unit (passing from WF_engine_control)
+  -- request for a new byte from the WF_prod_bytes_retriever unit (passing from WF_engine_control)
 
 
 end architecture rtl;
@@ -531,4 +531,6 @@ end architecture rtl;
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
 --                                    E N D   O F   F I L E
----------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------===============================================================================================
+--                                      architecture end
+--=======================================================

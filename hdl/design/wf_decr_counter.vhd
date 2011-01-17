@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_decr_counter.vhd
+--! @file WF_decr_counter.vhd                                                                     |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -78,9 +78,9 @@ entity WF_decr_counter is
     nfip_urst_i       : in std_logic;                             --! nanoFIP internal reset
 
     -- Signals from any unit
-    counter_top       : in unsigned (g_counter_lgth-1 downto 0);  --! load value
-    counter_load_i    : in std_logic;                             --! load enable
     counter_decr_p_i  : in std_logic;                             --! decrement enable
+    counter_load_i    : in std_logic;                             --! load enable
+    counter_top       : in unsigned (g_counter_lgth-1 downto 0);  --! load value
      
 
   -- OUTPUTS
