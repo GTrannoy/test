@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_manch_encoder.vhd
+--! @file WF_manch_encoder.vhd                                                                    |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -71,26 +71,27 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 
 
 --=================================================================================================
---!                           Entity declaration for wf_manch_encoder
+--!                           Entity declaration for WF_manch_encoder
 --=================================================================================================
 
-entity wf_manch_encoder is
+entity WF_manch_encoder is
 
-  generic (word_length : natural := 8);                                --! default length: 8
+  generic (word_length : natural := 8);                               --! default word length: 8
   port (
   -- INPUT 
     word_i       : in  std_logic_vector(word_length-1 downto 0);      --! input word        
 
+
   -- OUTPUT
     word_manch_o : out std_logic_vector((2*word_length)-1 downto 0)   --! output encoded word
       );
-end entity wf_manch_encoder;
+end entity WF_manch_encoder;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_manch_encoder is
+architecture rtl of WF_manch_encoder is
 
 
 --=================================================================================================

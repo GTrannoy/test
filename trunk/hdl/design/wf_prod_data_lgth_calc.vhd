@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_prod_data_lgth_calc.vhd
+--! @file WF_prod_data_lgth_calc.vhd                                                              |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -80,17 +80,21 @@ entity WF_prod_data_lgth_calc is
 
   port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    slone_i            : in std_logic;                    
-    nostat_i           : in std_logic;  
-    p3_lgth_i          : in std_logic_vector (2 downto 0);
+    -- nanoFIP WorldFIP Settings (synchronized with uclk) 
+    p3_lgth_i          : in std_logic_vector (2 downto 0); --! produced var user-data length
 
-   -- Signal from the WF_engine_control
-    var_i              : in t_var; --! variable type that is being treated
+    -- User Interface, General signals (synchronized with uclk) 
+    nostat_i           : in std_logic;                     --! if negated, nFIP status is sent
+    slone_i            : in std_logic;                     --! stand-alone mode
+
+    -- Signal from the WF_engine_control unit
+    var_i              : in t_var;                         --! variable type that is being treated
+
 
   -- OUTPUT
-    -- Signal to the WF_engine_control
+    -- Signal to the WF_engine_control and WF_production units
     prod_data_length_o : out std_logic_vector(7 downto 0)
+
       );
 end entity WF_prod_data_lgth_calc;
 

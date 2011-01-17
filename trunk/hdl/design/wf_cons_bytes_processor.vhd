@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file wf_cons_bytes_processor.vhd
+--! @file WF_cons_bytes_processor.vhd                                                             |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -22,17 +22,39 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                     wf_cons_bytes_processor                                   --
+--                                     WF_cons_bytes_processor                                   --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name:  wf_cons_bytes_processor
+-- unit name:  WF_cons_bytes_processor
 --
---! @brief     Consumption of data bytes, arriving from the wf_rx_deserializer unit, by registering
---!            them in the Consumend memory, if the operation is in memory mode, or by transferring
---!            them to the user interface data bus DAT_O, if the operation is in stand-alone.
---!            In the case of a consumed reset variable, the two data bytes are registered 
---!            and sent to the reset unit.
+--! @brief     The unit is consuming the data bytes that are arriving from the WF_rx_deserializer,
+--!            according to the following rules:
+--!
+--!            o If the consumed variable had been a var_1 or a var_2:
+--!
+--!                o If the operation is in memory mode    : the unit is registering the pure-data
+--!                  bytes along with the PDU_TYPE, Length and MPS bytes in the Consumed memories
+--!
+--!                o If the operation is in standalone mode: the unit is transferring the 2 
+--!                  pure-data bytes to the "nanoFIP User Interface, NON_WISHBONE" data bus DAT_O.
+--!
+--!            o If the consumed variable had been a var_rst, the 2 pure-data bytes are just
+--!              identified and sent to the WF_reset_unit.
+--!
+--!            ------------------------------------------------------------------------------------
+--!            Small Reminder:
+--!
+--!            Consumed RP_DAT frame structure :
+--!             ___________ ______  _______ ________ ________________ _______  ___________ _______
+--!            |____FSS____|_Ctrl_||__PDU__|__LGTH__|__..PureData..__|__MPS__||____FCS____|__FES__|
+--!
+--!                                                 |-------LGTH bytes-------|
+--!                                |--------write to Consumed memory---------|
+--!                                                 |----to DAT_O----|
+--!                                                 |--to ResetUnit--|
+--!
+--!            ------------------------------------------------------------------------------------
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -49,7 +71,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n<b>Dependencies:</b>    \n
 --!          WF_reset_unit      \n
---!          wf_rx_deserializer \n
+--!          WF_rx_deserializer \n
 --!          WF_engine_control  \n
 --
 --
@@ -64,8 +86,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                               creation for simplification; Signals renamed;
 --!                               Ctrl, PDU_TYPE, Length bytes registered;
 --!                               Code cleaned-up & commented.\n
---!     -> 15/12/2010  v0.03  EG  Unit renamed from wf_cons_bytes_from_rx to wf_cons_bytes_processor
---!                               Code cleaned-up & commented (more!) \n
+--!     -> 15/12/2010  v0.03  EG  Unit renamed from WF_cons_bytes_from_rx to WF_cons_bytes_processor
+--!                               byte_ready_p comes from the rx_deserializer (no need to pass from
+--!                               the engine) Code cleaned-up & commented (more!) \n
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -83,9 +106,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 
 --=================================================================================================
---!                            Entity declaration for wf_cons_bytes_processor
+--!                            Entity declaration for WF_cons_bytes_processor
 --=================================================================================================
-entity wf_cons_bytes_processor is
+entity WF_cons_bytes_processor is
 
 port (
   -- INPUTS 
@@ -97,19 +120,16 @@ port (
     nfip_urst_i           : in std_logic;                      --! nanoFIP internal reset
 
     -- nanoFIP User Interface, WISHBONE Slave
-    clk_wb_i              : in std_logic;                      --! WISHBONE clock
-                                                               -- note: may be independent of uclk
-            
-
+    wb_clk_i              : in std_logic;                      --! WISHBONE clock
     wb_adr_i              : in  std_logic_vector (9 downto 0); --! WISHBONE address to memory
-    wb_stb_r_edge_p_i     : in  std_logic;                     --! pulse on the rising edge of stb_i
     wb_cyc_i              : in std_logic;                      --! WISHBONE cycle
+    wb_stb_r_edge_p_i     : in  std_logic;                     --! pulse on the rising edge of stb_i
 
-    -- Signals from the wf_rx_deserializer
+    -- Signals from the WF_rx_deserializer unit
     byte_i                : in std_logic_vector (7 downto 0);  --! input byte
-    byte_ready_p_i        : in std_logic;                      --! indication of a valid input byte 
+    byte_ready_p_i        : in std_logic;                      --! indication of a new input byte
 
-    -- Signals from the WF_engine_control
+    -- Signals from the WF_engine_control unit
     byte_index_i          : in std_logic_vector (7 downto 0);  --! index of a byte inside the frame
                                                                -- starting from 0, it counts all the
                                                                -- bytes after the FSS&before the FES
@@ -122,12 +142,12 @@ port (
     data_o                : out std_logic_vector (15 downto 0);--! data out bus 
     wb_ack_cons_p_o       : out std_logic;                     --! WISHBONE acknowledge
 
-    -- Signals to the WF_cons_frame_validator
-    cons_ctrl_byte_o      : out std_logic_vector (7 downto 0); --! received Control byte
-    cons_pdu_byte_o       : out std_logic_vector (7 downto 0); --! received PDY_TYPE byte          
-    cons_lgth_byte_o      : out std_logic_vector (7 downto 0); --! received Length byte
+    -- Signals to the WF_cons_frame_validator unit
+    cons_ctrl_byte_o      : out std_logic_vector (7 downto 0); --! received RP_DAT Control byte
+    cons_lgth_byte_o      : out std_logic_vector (7 downto 0); --! received RP_DAT Length byte
+    cons_pdu_byte_o       : out std_logic_vector (7 downto 0); --! received RP_DAT PDY_TYPE byte  
 
-    -- Signals to the WF_var_rdy_generator
+    -- Signals to the WF_cons_outcome unit
     cons_var_rst_byte_1_o : out std_logic_vector (7 downto 0); --! content of the 1st data byte of
                                                                --! a reset variable
 
@@ -135,13 +155,13 @@ port (
                                                                --! a reset variable
 );
 
-end entity wf_cons_bytes_processor;
+end entity WF_cons_bytes_processor;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of wf_cons_bytes_processor is
+architecture rtl of WF_cons_bytes_processor is
 
 signal s_slone_data                     : std_logic_vector (15 downto 0);
 signal s_addr                           : std_logic_vector (8 downto 0);
@@ -170,7 +190,7 @@ begin
                                 -- remaining 7 bits: address of a byte inside the block 
     -- port A: WISHBONE that reads from the Consumed RAM; port B: nanoFIP that writes
     port map(
-      clk_porta_i      => clk_wb_i,	               -- WISHBONE clock
+      clk_porta_i      => wb_clk_i,	               -- WISHBONE clock
       addr_porta_i     => wb_adr_i(8 downto 0),    -- address of byte to be read
       -----------------------------------------------------------------------------
       data_porta_o     => s_mem_data_out,          -- output byte read
@@ -200,8 +220,8 @@ begin
 --! In memory mode the treatment of a var1 is identical to the one of a var2; only the base address
 --! of the memory differs.
  
---! Bytes are consumed even if the Control, PDU_TYPE, Length, CRC, FES bytes are incorrect or if
---! code violations have been detected;
+--! Bytes are consumed even if the Control, PDU_TYPE, Length, CRC & FES bytes or the manch.
+--! encoding of the consumed frame are incorrect.
 --! It is the VAR_RDY signal that signals the user for the validity of the consumed data.
 
 --! In memory mode, the incoming bytes (byte_i) after the Control byte and before the CRC bytes,
@@ -214,7 +234,7 @@ begin
  
 --! The byte_index_i signal is counting each byte after the FSS and before the FES (therefore,
 --! apart from all the pure data-bytes,it also includes the Control, PDU, Length, MPS & CRC bytes).
---! The Length byte (s_cons_lgth_byte) is received from the wf_rx_deserializer when byte_index_i is equal to 3
+--! The Length byte (s_cons_lgth_byte) is received from the WF_rx_deserializer when byte_index_i is equal to 3
 --! and indicates the amount of bytes in the frame after the Control, PDU_TYPE and itself and
 --! before the CRC.
 
@@ -380,7 +400,7 @@ end process;
 --! @brief Instantiation of the unit responsible for the transfering of 2 de-serialized data bytes
 --! to DAT_O;
 
-  Consumed_Bytes_To_DATO: wf_cons_bytes_to_dato
+  Consumed_Bytes_To_DATO: WF_cons_bytes_to_dato
   port map(
     uclk_i            => uclk_i, 
     nfip_urst_i       => nfip_urst_i, 
@@ -391,14 +411,14 @@ end process;
     ------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- -- --
-  -- In stand-alone mode the 16 bits DAT_O fills up with the output of the wf_cons_bytes_to_dato
+  -- In stand-alone mode the 16 bits DAT_O fills up with the output of the WF_cons_bytes_to_dato
   -- unit.In memory mode,the lsb of DAT_O contains the output of the reading of the consumed memory 
    data_o <= s_slone_data when slone_i = '1'
         else "00000000" & s_mem_data_out;  
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process Buffer_Ctrl_PDU_Length_bytes: Storage of the Control, PDU_TYPE
---! and Length bytes of an incoming RP_DAT frame. The bytes are sent to the WF_var_rdy_generator
+--! and Length bytes of an incoming RP_DAT frame. The bytes are sent to the WF_cons_outcome
 --! unit that accordingly enables or not the signals VAR1_RDY (for a var1), VAR2_RDY (for a var2),
 --! assert_rston_p and rst_nfip_and_fd_p (for a var_rst).
 

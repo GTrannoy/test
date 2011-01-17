@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_manch_code_viol_check.vhd
+--! @file WF_rx_manch_code_check.vhd                                                            |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -22,7 +22,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                 WF_manch_code_viol_check                                      --
+--                                       WF_rx_manch_code_check                                  --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -55,6 +55,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
+--!     WF_reset_unit       \n
+--!     WF_rx_deglitcher    \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -74,10 +76,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 
 --=================================================================================================
---!                           Entity declaration for WF_manch_code_viol_check
+--!                           Entity declaration for WF_rx_manch_code_check
 --=================================================================================================
 
-entity WF_manch_code_viol_check is
+entity WF_rx_manch_code_check is
   port (
   -- INPUTS 
     -- nanoFIP User Interface general signal 
@@ -86,23 +88,23 @@ entity WF_manch_code_viol_check is
     -- Signal from the WF_reset_unit
     nfip_urst_i           : in std_logic; --! nanoFIP internal reset
 
-    -- Signals from the wf_rx_deserializer
-    serial_input_signal_i : in std_logic; --! input signal
+    -- Signals from the WF_rx_deglitcher unit
     sample_bit_p_i        : in std_logic; --! pulse for the sampling of a new bit
     sample_manch_bit_p_i  : in std_logic; --! pulse for the sampling of a new manch. bit
+    serial_input_signal_i : in std_logic; --! input signal 
+  
  
-   
   -- OUTPUTS
-    -- Signal to the wf_rx_deserializer
+    -- Signal to the WF_rx_deserializer unit
     manch_code_viol_p_o  : out std_logic  --! pulse indicating a code violation
       );
-end entity WF_manch_code_viol_check;
+end entity WF_rx_manch_code_check;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of WF_manch_code_viol_check is
+architecture rtl of WF_rx_manch_code_check is
 
 signal s_sample_bit_p_d1,s_sample_bit_p_d2,s_check_code_viol_p,s_serial_input_signal_d : std_logic;
 

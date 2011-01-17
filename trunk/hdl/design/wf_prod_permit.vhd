@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_prod_bytes_from_dati.vhd
+--! @file WF_prod_permit.vhd                                                                      |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -22,31 +22,30 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                    WF_prod_bytes_from_dati                                    --
+--                                          WF_prod_permit                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Unit responsible for the sampling of the DAT_I bus in stand-alone operation.
---!            Following to the functional specs page 15, in stand-alone mode, the nanoFIP
---!            samples the data on the first clock cycle after the deassertion of VAR3_RDY.
+--! @brief     Generation of the "nanoFIP User Interface, NON_WISHBONE" output signal VAR3_RDY,
+--!            according to the variable (var_i) that is being treated.   
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)         \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
---! @date      04/01/2011
+--! @date      14/1/2011
 --
 --
---! @version   v0.02
+--! @version   v0.01
 --
 --
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
---!      WF_reset_unit     \n
---!      WF_engine_control \n
+--!      WF_engine_control  \n
+--!      WF_reset_unit      \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -55,96 +54,100 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> 11/2010  v0.01  EG  unit created
---!     -> 4/1/2011 v0.02  EG  unit renamed from WF_slone_prod_dati_bytes_sampler to
---!                            WF_prod_bytes_from_dati; cleaning-up + commenting
---!                             
+--!     -> 1/2011  v0.01  EG  First version \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
 --! @todo 
---!   -> 
 --
 --------------------------------------------------------------------------------------------------- 
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
 --                               Sunplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings!                                          --
+-- "W CL246  Input port bits 0, 5, 6 of var_i(0 to 6) are unused"                                --
+-- var_i is one-hot encoded and has 7 values.                                                    -- 
+-- The unit is treating only the variables var_1, var_2, var_3 and var_rst.                      --
 ---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
---!                           Entity declaration for WF_prod_bytes_from_dati
+--!                           Entity declaration for WF_prod_permit
 --=================================================================================================
 
-entity WF_prod_bytes_from_dati is
+entity WF_prod_permit is
 
   port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals
-    uclk_i       : in std_logic;                       --! 40MHz clock
+    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    uclk_i                : in std_logic;      --! 40MHz clock
 
-    -- Signal from the WF_reset_unit unit
-    nfip_urst_i  : in std_logic;                       --! nanoFIP internal reset
+    -- Signal from the WF_reset_unit
+    nfip_urst_i           : in std_logic;      --! nanoFIP internal reset
 
-    -- nanoFIP User Interface, NON-WISHBONE
-    slone_data_i : in  std_logic_vector (15 downto 0); --! input data bus for stand-alone mode
-                                                       -- (synchronised with uclk)  
-   -- Signals from the WF_engine_control 
-    byte_index_i : in std_logic_vector (7 downto 0);   --! pointer to message bytes
+    -- Signals from the WF_engine_control
+    var_i                 : in t_var;          --! variable type that is being treated
 
-   -- Signals from the WF_prod_permit
-    var3_rdy_i   : in std_logic;                       --! nanoFIP output VAR3_RDY
 
-  -- OUTPUTS
-    -- Signal to the WF_prod_bytes_retriever
-    slone_byte_o : out std_logic_vector (7 downto 0)   --! byte to be sent
+  -- OUTPUT
+    -- nanoFIP User Interface, NON-WISHBONE outputs
+    var3_rdy_o            : out std_logic      --! signals the user that data can safely be written
       );
-end entity WF_prod_bytes_from_dati;
+end entity WF_prod_permit;
 
 
 --=================================================================================================
 --!                                  architecture declaration
 --=================================================================================================
-architecture rtl of WF_prod_bytes_from_dati is
+architecture rtl of WF_prod_permit is
 
-  signal s_var3_rdy_d4  : std_logic_vector (3 downto 0);
-  signal s_sampled_data : std_logic_vector (15 downto 0); 
 
 --=================================================================================================
 --                                      architecture begin
 --=================================================================================================  
 begin
 
---------------------------------------------------------------------------------------------------- 
---!@brief Synchronous process Sample_DAT_I_bus: the sampling of the DAT_I bus in stand-alone mode
---! has to take place on the first clock cycle after the de-assertion of VAR3_RDY.
---! Note: Since slone_data_i is the triply buffered version of the bus DAT_I (for synchronisation),
---! the signal VAR3_RDY has to be (internally) delayed for 3 uclk cycles too, before the sampling;
---! the 4th delay is added in order to achieve the sampling 1 uclk AFTER the de-assertion.
+---------------------------------------------------------------------------------------------------
+--!@brief Synchronous process VAR3_RDY_Generation: 
 
-Sample_DAT_I_bus: process (uclk_i) 
+--! VAR3_RDY (for produced vars): signals that the user can safely write to the produced variable
+--! memory or access the DAT_I bus. It is deasserted right after the end of the reception of a
+--! correct var3 ID_DAT frame and stays de-asserted until the end of the transmission of the
+--! corresponding RP_DAT from nanoFIP.
+
+--! Note: A correct ID_DAT frame along with the variable it contained is signaled by the var_i.
+--! For produced variables, the signal var_i gets its value (var3, var_presence, var_identif)
+--! after the reception of a correct ID_DAT frame (with correct FSS, Control, PDU_TYPE, Length, CRC
+--! and FES bytes and with a correct manch. encoding) and retains it until the end of the
+--! transmission of the corresponding RP_DAT (in detail, until the end of the transmission of the
+--! RP_DAT.data field;var_i becomes var_whatever during the RP_DAT.FCS and RP_DAT.FES transmission).
+
+  VAR_RDY_Generation: process (uclk_i) 
   begin
-    if rising_edge (uclk_i) then 
+    if rising_edge (uclk_i) then
       if nfip_urst_i = '1' then
-        s_var3_rdy_d4    <= (others=>'0');
-        s_sampled_data   <= (others=>'0');
- 
-     else 
-        s_var3_rdy_d4    <= s_var3_rdy_d4(2 downto 0) & var3_rdy_i;
+        var3_rdy_o   <= '0';
 
-        if s_var3_rdy_d4(3) = '1' then   -- data latching
-          s_sampled_data <= slone_data_i; 
-        end if;
+      else
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
+        case var_i is
 
-      end if;                                 
-    end if;  
+         when var_3 =>                     -- nanoFIP is producing 
+                                              ---------------------
+          var3_rdy_o <= '0';               -- while producing, VAR3_RDY is 0
+     
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
+        when others =>
+
+          var3_rdy_o <= '1';               
+      
+        end case;	 	 
+      end if;
+    end if;
   end process;
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  slone_byte_o           <= s_sampled_data(7 downto 0) when byte_index_i = c_1st_DATA_BYTE_INDEX
-                       else s_sampled_data(15 downto 8); 
+
 
 end architecture rtl;
 --=================================================================================================

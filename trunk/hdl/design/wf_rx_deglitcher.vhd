@@ -25,10 +25,10 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit applies a glitch filter; it follows each manchester bit of the input signal
---!            fd_rxd (synchronized with uclk), counts the number of zeros and ones throughout
---!            its duration and finally outputs the majority. The output deglitched signal is one
---!            half-bit-clock period later that the input, synchronised fd_rxd.
+--! @brief     The unit applies a glitch filter; it follows each manchester bit of the "nanoFIP
+--!            FIELDRIVE" input signal fd_rxd (synchronized with uclk), counts the number of zeros
+--!            and ones throughout its duration and finally outputs the majority. The output
+--!            deglitched signal is one half-bit-clock period later than the input.
 --!            Note: the term sample_manch_bit_p refers to the moments when a manch. encoded bit
 --!            should be sampled (before and after a significant edge), whereas the 
 --!            sample_bit_p includes only the sampling of the 1st part, before the transition. 
@@ -52,8 +52,8 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! @details 
 --
 --!   \n<b>Dependencies:</b>\n
---!     WF_osc       \n
---!     WF_reset_unit \n
+--!     WF_tx-_rx_osc       \n
+--!     WF_reset_unit       \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -75,7 +75,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 
 
 --=================================================================================================
---!                             Entity declaration for wf_rx_deglitcher
+--!                             Entity declaration for WF_rx_deglitcher
 --=================================================================================================
 
 entity WF_rx_deglitcher is
@@ -92,13 +92,13 @@ entity WF_rx_deglitcher is
     -- nanoFIP FIELDRIVE (synchronized with uclk)
     rxd_i                   : in std_logic;  --!        ____|--------|________|--------|________
 
-    -- Signals from the WF_osc unit
+    -- Signals from the WF_tx_rx_osc unit
     sample_bit_p_i          : in std_logic;  --!        ____|-|_______________|-|_______________
     sample_manch_bit_p_i    : in std_logic;  --!        ____|-|______|-|______|-|______|-|______
 
 
   -- OUTPUTS  
-    -- Signals to the wf_rx_deserializer
+    -- Signals to the WF_rx_deserializer unit
     rxd_filtered_o          : out std_logic; --! filtered output signal
     rxd_filtered_f_edge_p_o : out std_logic; --! indicates a falling edge on the filtered signal
     sample_bit_p_o          : out std_logic; --! same as sample_bit_p_i

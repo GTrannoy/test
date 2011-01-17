@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_crc.vhd
+--! @file WF_crc.vhd                                                                              |
 ---------------------------------------------------------------------------------------------------
 
 --! Standard library
@@ -44,6 +44,9 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @details \n 
 --
 --!   \n<b>Dependencies:</b>\n
+--!     WF_reset_unit       \n
+--!     WF_rx_deserializer  \n
+--!     WF_tx_serializer    \n
 --
 --
 --!   \n<b>Modified by:</b>   \n
@@ -78,18 +81,23 @@ entity WF_crc is
 generic (c_GENERATOR_POLY_length : natural := 16);   --! default value
 port (
   -- INPUTS 
-    -- Inputs from the wf_rx_deserializer/ wf_tx_serializer
+    -- nanoFIP User Interface, General signals
     uclk_i             : in std_logic;              --! 40 MHz clock
+
+    -- Signal from the WF_reset_unit  
     nfip_urst_i        : in std_logic;              --! nanoFIP internal reset
-    start_crc_p_i      : in std_logic;              --! beginning of the CRC calculation
+
+    -- Signals from the WF_rx_deserializer/ WF_tx_serializer units
     data_bit_i         : in std_logic;              --! incoming data bit stream
     data_bit_ready_p_i : in std_logic;              --! indicator of sampling time for data_bit_i
+    start_crc_p_i      : in std_logic;              --! beginning of the CRC calculation
 
     
   -- OUTPUTS 
-    -- Signal to the wf_rx_deserializer
+    -- Signal to the WF_rx_deserializer unit
     crc_ok_p           : out std_logic;             --! signaling of a correct received CRC syndrome
-    -- Signal to the wf_tx_serializer
+
+    -- Signal to the WF_tx_serializer unit
     crc_o              : out  std_logic_vector (c_GENERATOR_POLY_length-1 downto 0)--!calculated CRC
      );                                                         
 

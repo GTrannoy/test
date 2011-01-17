@@ -77,18 +77,22 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 entity WF_DualClkRAM_clka_rd_clkb_wr is
   generic (C_RAM_DATA_LGTH : integer;  -- length of data word
            c_RAM_ADDR_LGTH : integer); -- memory depth
-
-
   port (
-        clk_porta_i      : in std_logic;
-        addr_porta_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
-        
-        clk_portb_i      : in std_logic;
-        addr_portb_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
-        data_portb_i     : in std_logic_vector (C_RAM_DATA_LGTH - 1 downto 0);
-        write_en_portb_i : in std_logic;
- 
-        data_porta_o     : out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
+  -- INPUTS 
+    -- Inputs concerning port A
+    clk_porta_i      : in std_logic;
+    addr_porta_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
+
+    -- Inputs concerning port B        
+    clk_portb_i      : in std_logic;
+    addr_portb_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
+    data_portb_i     : in std_logic_vector (C_RAM_DATA_LGTH - 1 downto 0);
+    write_en_portb_i : in std_logic;
+
+
+  -- OUTPUT 
+    -- Output concerning port A
+    data_porta_o     : out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
 );
 end WF_DualClkRAM_clka_rd_clkb_wr; 
 
@@ -102,15 +106,15 @@ architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is
 --!@brief: component DualClkRam declaration
   component DualClkRam is 
     port(
-    DINA   : in std_logic_vector (7 downto 0);  
+    CLKA   : in std_logic; 
     ADDRA  : in std_logic_vector (8 downto 0);
+    DINA   : in std_logic_vector (7 downto 0);  
     RWA    : in std_logic;                   
-    CLKA   : in std_logic;                 
 
-    DINB   : in std_logic_vector (7 downto 0);  
+    CLKB   : in std_logic; 
     ADDRB  : in std_logic_vector (8 downto 0); 
+    DINB   : in std_logic_vector (7 downto 0);  
     RWB    : in std_logic;                   
-    CLKB   : in std_logic;                   
     RESETn : in std_logic;                  
     
     DOUTA  : out std_logic_vector (7 downto 0); 
