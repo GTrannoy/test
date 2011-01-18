@@ -131,7 +131,7 @@ entity WF_rx_deserializer is
     uclk_i                  : in std_logic; --! 40MHz clock
  
     -- Signal from the WF_reset_unit
-    nfip_urst_i             : in std_logic; --! nanoFIP internal reset
+    nfip_rst_i              : in std_logic; --! nanoFIP internal reset
 
     -- Signal from the WF_engine_control unit
     rst_rx_unit_p_i         : in std_logic; --! reset of the unit
@@ -225,7 +225,7 @@ architecture rtl of WF_rx_deserializer is
    Deserializer_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_urst_i = '1' then
+        if nfip_rst_i = '1' then
           rx_st <= idle;
         else
           rx_st <= nx_rx_st;
@@ -444,7 +444,7 @@ architecture rtl of WF_rx_deserializer is
   Append_Bit_To_Byte: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_urst_i = '1' then
+        if nfip_rst_i = '1' then
           byte_ready_p_o <='0'; 
           s_byte         <= (others => '0');
         else
@@ -476,7 +476,7 @@ architecture rtl of WF_rx_deserializer is
   generic map(g_counter_lgth => 4)
   port map(
     uclk_i              => uclk_i,
-    nfip_urst_i         => nfip_urst_i,      
+    nfip_rst_i          => nfip_rst_i,      
     counter_top         => s_manch_bit_index_top,
     counter_load_i      => s_manch_bit_index_load,
     counter_decr_p_i    => s_decr_manch_bit_index_p,
@@ -546,7 +546,7 @@ architecture rtl of WF_rx_deserializer is
   FES_Detector: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_urst_i = '1' then
+        if nfip_rst_i = '1' then
           s_fes_detection_window   <= '1';
 
         else
@@ -573,7 +573,7 @@ architecture rtl of WF_rx_deserializer is
   generic map(c_GENERATOR_POLY_length => 16) 
   port map(
     uclk_i             => uclk_i,
-    nfip_urst_i        => nfip_urst_i,
+    nfip_rst_i         => nfip_rst_i,
     start_crc_p_i      => s_receiving_fsd,
     data_bit_ready_p_i => s_write_bit_to_byte,
     data_bit_i         => rxd_filtered_i,
@@ -588,7 +588,7 @@ architecture rtl of WF_rx_deserializer is
   Manch_Encoding_Verification: WF_rx_manch_code_check
   port map(
     uclk_i                => uclk_i,
-    nfip_urst_i           => nfip_urst_i,
+    nfip_rst_i            => nfip_rst_i,
     serial_input_signal_i => rxd_filtered_i,
     sample_bit_p_i        => sample_bit_p_i,
     sample_manch_bit_p_i  => sample_manch_bit_p_i,
@@ -604,7 +604,7 @@ architecture rtl of WF_rx_deserializer is
   Code_viol: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_urst_i = '1' then
+        if nfip_rst_i = '1' then
           s_manch_not_ok     <= '0';	
 
         else
@@ -633,7 +633,7 @@ architecture rtl of WF_rx_deserializer is
   CRC_OK_pulse_delay: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_urst_i = '1' then
+        if nfip_rst_i = '1' then
           s_CRC_ok_p_buff         <= (others => '0');
           s_sample_manch_bit_p_d1 <= '0';
 

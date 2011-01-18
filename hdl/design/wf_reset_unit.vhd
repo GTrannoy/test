@@ -35,15 +35,51 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                  station's address. In those cases, the signal stays active for 2 uclk cycles.
 --!                  After the activation of the "nanoFIP User Interface General signal" RSTPON.
 --!                  In this case the signal stays active for as long as the RSTPON is active.
+--!                  The nanoFIP internal reset (nFIP_rst) resets all nanoFIP's flip-flops, apart
+--!                  from those of the WISHBONE logic.
+--!                                          __________
+--!                                  RSTIN  |          |       \ \
+--!                                 ________|   FSM    |_______ \ \
+--!                                         |  RSTIN   |         \  \
+--!                                         |__________|          \  \
+--!                                          __________            |  \
+--!                      rst_nFIP_and_FD_p  |          |           |   |      nFIP_rst
+--!                                 ________|   FSM    |________   |OR |  _______________ 
+--!                                         |  var_rst |           |   |
+--!                                         |__________|           |  /
+--!                                                               /  /
+--!                                 RSTPON                       /  /
+--!                                 __________________________  / /
+--!                                                            / / 
+--!
 --!
 --!              o FIELDRIVE reset (nanoFIP FIELDRIVE output FD_RSTN)
 --!                  after the activation of the "nanoFIP User Interface General signal" RSTIN, or
 --!                  after the reception of a valid var_rst with its 1st data byte containing the
 --!                  station's address. The signal stays active for 4 FD_TXCK cycles.
+--!                                          __________
+--!                                  RSTIN  |          |       \ \
+--!                                 ________|   FSM    |_______ \  \
+--!                                         |  RSTIN   |         \  \
+--!                                         |__________|          \   \
+--!                                                                |   \     FD_RSTN
+--!                                          __________            |   |  _______________    
+--!                      rst_nFIP_and_FD_p  |          |           |OR |     
+--!                                 ________|   FSM    |________   |   |   
+--!                                         |  var_rst |          /   /
+--!                                         |__________|         /  /
+--!                                                             /  /
+--!                                                            / / 
 --!
 --!              o reset to the external logic (nanoFIP User Interface, General signal RSTON) 
 --!                  after the reception of a valid var_rst with its 2nd data byte containing the
 --!                  station's address. The signal stays active for 8 uclk cycles.
+--!                                         __________            
+--!                          assert_RSTON  |          |                       RSTON   
+--!                                ________|   FSM    |_________________________________   
+--!                                        |  var_rst |          
+--!                                        |__________| 
+--! 
 --!
 --!            The input signal RSTIN is considered only if it has been active for > 8 uclk cycles.
 --!            The input signals rst_nFIP_and_FD_p and assert_RSTON_p come from the
@@ -54,42 +90,12 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!
 --!            The unit implements 2 state machines: one for resets coming from RSTIN
 --!                                                  and one for resets coming from a var_rst.
---!                       __________
---!               RSTIN  |          |       \ \
---!              ________|   FSM    |_______ \ \
---!                      |  RSTIN   |         \  \
---!                      |__________|          \  \
---!                       __________            |  \
---!   rst_nFIP_and_FD_p  |          |           |   |      nFIP_rst
---!              ________|   FSM    |________   |OR |  _______________ 
---!                      |  var_rst |           |   |
---!                      |__________|           |  /
---!                                            /  /
---!              RSTPON                       /  /
---!              __________________________  / /
---!                                         / / 
+
 --!
 --!
---!                       __________
---!               RSTIN  |          |       \ \
---!              ________|   FSM    |_______ \  \
---!                      |  RSTIN   |         \  \
---!                      |__________|          \   \
---!                                             |   \     FD_RSTN
---!                       __________            |   |  _______________    
---!   rst_nFIP_and_FD_p  |          |           |OR |     
---!              ________|   FSM    |________   |   |   
---!                      |  var_rst |          /   /
---!                      |__________|         /  /
---!                                          /  /
---!                                         / / 
+
 --!
---!                       __________            
---!        assert_RSTON  |          |                       RSTON   
---!              ________|   FSM    |_________________________________   
---!                      |  var_rst |          
---!                      |__________| 
---!
+
 --
 --
 --! @author    Erik van der Bij      (Erik.van.der.Bij@cern.ch)      \n
@@ -140,7 +146,7 @@ entity WF_reset_unit is
     uclk_i              : in std_logic;     --! 40 MHz clock
     rstin_i             : in std_logic;     --! initialisation control, active low
     rstpon_i            : in std_logic;     --! Power On Reset, active low
-    urst_r_edge_i       : in std_logic;     --! rising edge on RSTIN
+    rstin_f_edge_i      : in std_logic;     --! rising edge on RSTIN
     rate_i              : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate 
 
     -- Signal from the WF_engine_control unit
@@ -159,6 +165,8 @@ entity WF_reset_unit is
   -- OUTPUTS
     -- nanoFIP internal reset, to all the units
     nFIP_rst_o          : out std_logic;    --! nanoFIP internal reset, active high
+                                            --! resets all nanoFIP DFFs, apart from those
+                                            --! of the WISHBONE logic
 
     -- nanoFIP User Interface General signal output 
     rston_o             : out std_logic;    --! reset output, active low
@@ -244,7 +252,7 @@ begin
 --!@brief Combinatorial process RSTIN_FSM_Comb_State_Transitions: definition of the state
 --! transitions of the FSM.
   
-  RSTIN_FSM_Comb_State_Transitions: process (rstin_st,urst_r_edge_i,
+  RSTIN_FSM_Comb_State_Transitions: process (rstin_st,rstin_f_edge_i,
                                              s_counter_is_ten,rstin_i,s_counter_is_four,
                                              s_counter_is_full)
   
@@ -253,15 +261,15 @@ begin
   case rstin_st is 
 
     when idle =>                                                        
-                        if urst_r_edge_i = '1' then       -- rising edges of RSTIN move the FSM to
-                          nx_rstin_st   <= rstin_eval;    -- the next state, so as not to be getting
-                                                          -- stuck if the RSTIN is stuck
+                        if rstin_i = '0' then             -- RSTIN active
+                          nx_rstin_st   <= rstin_eval;  
+
                         else 
                           nx_rstin_st   <= idle;
                         end if;
    
     when rstin_eval => 
-                        if rstin_i = '0' then             -- RSTIN deactivated before the 8 cycles
+                        if rstin_i = '1' then             -- RSTIN deactivated before the 8 cycles
                           nx_rstin_st   <= idle;
 
                         else
@@ -313,14 +321,14 @@ begin
     case rstin_st is 
   
     when idle =>           
-                  s_reinit_counter        <= '1';    -- counter initialized
+                  s_reinit_counter        <= '1';    -- counter initialized 
 
                   s_intern_rst_from_RSTIN <= '0'; 
                   s_FD_rst_from_RSTIN     <= '0';  
  
                                 
     when rstin_eval => 
-                  s_reinit_counter        <= '0';    -- counting until 4
+                  s_reinit_counter        <= '0';    -- counting until 4 
                                                      -- if rstin_i is active
                   s_intern_rst_from_RSTIN <= '0';  
                   s_FD_rst_from_RSTIN     <= '0';
@@ -362,7 +370,7 @@ RSTIN_free_counter: WF_incr_counter
   generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LENGTH)
   port map(
     uclk_i            => uclk_i,        
-    nfip_urst_i       => s_por, --or rst_nFIP_and_FD_p_i,
+    nfip_rst_i        => '0',
     reinit_counter_i  => s_reinit_counter,
     incr_counter_i    => '1',
     counter_o         => s_c,
@@ -580,7 +588,7 @@ free_counter: WF_incr_counter
   generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LENGTH)
   port map(
     uclk_i            => uclk_i,        
-    nfip_urst_i       => s_por,-- or s_intern_rst_from_RSTIN,
+    nfip_rst_i        => '0',
     reinit_counter_i  => s_var_rst_reinit_counter,
     incr_counter_i    => '1',
     counter_o         => s_var_rst_c,
@@ -597,18 +605,18 @@ free_counter: WF_incr_counter
 --                                         Output Signals                                        --
 ---------------------------------------------------------------------------------------------------
 
-  nFIP_rst_o <= s_intern_rst_from_RSTIN or s_intern_rst_from_var_rst or s_por;
+  nFIP_rst_o <= s_intern_rst_from_RSTIN or s_intern_rst_from_var_rst or s_por; -- nanoFIP internal
+                                                                               -- reset; resets
+  fd_rstn_o  <= not (s_FD_rst_from_RSTIN or s_FD_rst_from_var_rst or s_por);  
 
   Outputs_Buffering: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if (s_por = '1') or (s_intern_rst_from_RSTIN = '1') or (s_intern_rst_from_var_rst = '1') then     
-        fd_rstn_o  <= '1'; -- active low     
         rston_o    <= '1'; -- active low   
 
       else
-        fd_rstn_o  <= (not s_FD_rst_from_RSTIN) or (not s_FD_rst_from_var_rst);      
-        rston_o    <=  not s_rston; 
+        rston_o    <= not s_rston; 
                                                
       end if;
     end if;

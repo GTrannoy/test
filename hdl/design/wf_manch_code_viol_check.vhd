@@ -93,7 +93,7 @@ entity WF_rx_manch_code_check is
     uclk_i                : in std_logic; --! 40MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i           : in std_logic; --! nanoFIP internal reset
+    nfip_rst_i            : in std_logic; --! nanoFIP internal reset
 
     -- Signals from the WF_rx_deglitcher unit
     sample_bit_p_i        : in std_logic; --! pulse for the sampling of a new bit
@@ -135,7 +135,7 @@ begin
   Check_code_violations: process (uclk_i)
     begin
       if rising_edge (uclk_i) then 
-         if nfip_urst_i = '1' then
+         if nfip_rst_i = '1' then
            s_check_code_viol_p       <= '0';
            s_sample_bit_p_d1         <= '0';
            s_sample_bit_p_d2         <= '0';

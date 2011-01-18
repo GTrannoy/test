@@ -75,7 +75,7 @@ entity WF_decr_counter is
     uclk_i            : in std_logic;                             --! 40MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i       : in std_logic;                             --! nanoFIP internal reset
+    nfip_rst_i        : in std_logic;                             --! nanoFIP internal reset
 
     -- Signals from any unit
     counter_decr_p_i  : in std_logic;                             --! decrement enable
@@ -110,7 +110,7 @@ begin
   begin
     if rising_edge (uclk_i) then
 
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_counter   <= (others => '0');
       else
 

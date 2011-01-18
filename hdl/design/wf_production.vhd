@@ -27,7 +27,42 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     
+--! @brief     The unit gathers the main actions that regard data production.
+--!            It instantiates the units:
+--!
+--!              o WF_tx_serializerr       : that receives bytes from the WF_prod_bytes_retriever,
+--!                                          encodes them (Manchester 2), adds the FSS, FCS & FES
+--!                                          fields and puts one by one the encoded bits to the 
+--!                                          FIELDRIVE output FD_TXD.   
+--!              o WF_prod_bytes_retriever : that retreives user-data bytes from the Produced RAM 
+--!                                          or the "nanoFIP User Interface, NON-WISHBONE" data bus
+--!                                          DAT_I, and other bytes(PDU,LGTH,Ctrl,MPS,nFIP status)
+--!                                          from the WF_package, WF_status_bytes_gen,
+--!                                          WF_prod_data_lgth_calc units.
+--!              o WF_status_bytes_gen     : that receives information from the WF_consumption
+--!                                          
+--!              o WF_prod_permit          : that handles the"nanoFIP User Interface, NON-WISHBONE"
+--!                                          signal VAR3_RDY
+--!
+--!                                __       _________________________________
+--!                               |        |                                 | 
+--!                            Level 2     |          WF_prod_permit         | 
+--!                               |__      |_________________________________|
+--!                                                         ^
+--!                                __       _________________________________     ________________
+--!                               |        |                                 |   |                |
+--!                           Level 1      |      WF_prod_bytes_retriever    | < | WF_status_bytes|
+--!                               |        |                                 |   |      _gen      |
+--!                               |__      |_________________________________|   |________________|
+--!                                                         ^
+--!                                __       _________________________________
+--!                               |        |                                 | 
+--!                            Level 0     |         WF_tx_serializerr       |
+--!                               |__      |_________________________________|
+--! 
+--!                          _______________________________________________________________
+--!                         0__________________________FIELDBUS____________________________O    
+
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -92,7 +127,7 @@ entity WF_production is
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_reset_unit unit
-      nfip_urst_i             : in std_logic;
+      nfip_rst_i              : in std_logic;
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk)
@@ -199,28 +234,25 @@ architecture struc of WF_production is
 --=================================================================================================  
 begin
 
----------------------------------------------------------------------------------------------------
---!@brief Instantiation of the WF_tx_serializer unit
 
-    production_level_0: WF_tx_serializer 
-    generic map(c_TX_CLK_BUFF_LGTH => c_TX_CLK_BUFF_LGTH)
-    PORT MAP(
-      uclk_i            => uclk_i,
-      nfip_urst_i       => nfip_urst_i,
-      start_prod_p_i    => start_prod_p_i,
-      byte_ready_p_i    => byte_ready_p_i,
-      byte_i            => s_byte_to_tx,
-      last_byte_p_i     => last_byte_p_i,
-      tx_clk_p_buff_i   => tx_clk_p_buff_i,
+---------------------------------------------------------------------------------------------------
+--                             Production Level 3 : VAR3_RDY generator                           --
+--------------------------------------------------------------------------------------------------- 
+  VAR3_RDY_generation: WF_prod_permit
+  port map(
+    uclk_i      => uclk_i,
+    nfip_rst_i  => nfip_rst_i,
+    var_i       => var_i,
       -----------------------------------------------
-      tx_data_o         => tx_data_o,
-      request_byte_p_o  => request_byte_p_o,
-      tx_enable_o       => tx_enable_o
+    var3_rdy_o  => s_var3_rdy
       -----------------------------------------------
       );
 
 
+
 ---------------------------------------------------------------------------------------------------
+--                               Production Level 1 : Bytes Retreival                            --
+--------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_prod_bytes_retriever unit
 
     production_level_1 : WF_prod_bytes_retriever
@@ -230,7 +262,7 @@ begin
       constr_id_dec_i      => constr_id_dec_i,
       slone_i              => slone_i,  
       nostat_i             => nostat_i, 
-      nfip_urst_i          => nfip_urst_i,
+      nfip_rst_i           => nfip_rst_i,
       wb_clk_i             => wb_clk_i,   
       wb_adr_i             => wb_adr_i,   
       wb_stb_r_edge_p_i    => wb_stb_r_edge_p_i, 
@@ -252,13 +284,17 @@ begin
       -----------------------------------------------
       );
 
+
+
 ---------------------------------------------------------------------------------------------------
+--                           Production Level 1 : Status Byte generation                         --
+--------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_status_bytes_gen unit
 
     status_bytes_gen : WF_status_bytes_gen 
     port map(
       uclk_i                  => uclk_i,
-      nfip_urst_i             => nfip_urst_i,
+      nfip_rst_i              => nfip_rst_i,
       slone_i                 => slone_i,
       fd_wdgn_i               => fd_wdgn_i,
       fd_txer_i               => fd_txer_i,
@@ -281,14 +317,27 @@ begin
       -----------------------------------------------
       );
 
+
+
 ---------------------------------------------------------------------------------------------------
-  VAR3_RDY_generation: WF_prod_permit
-  port map(
-    uclk_i      => uclk_i,
-    nfip_urst_i => nfip_urst_i,
-    var_i       => var_i,
+--                                Production Level 0 : Serializer                                --
+--------------------------------------------------------------------------------------------------- 
+--!@brief Instantiation of the WF_tx_serializer unit
+
+    production_level_0: WF_tx_serializer 
+    generic map(c_TX_CLK_BUFF_LGTH => c_TX_CLK_BUFF_LGTH)
+    PORT MAP(
+      uclk_i            => uclk_i,
+      nfip_rst_i        => nfip_rst_i,
+      start_prod_p_i    => start_prod_p_i,
+      byte_ready_p_i    => byte_ready_p_i,
+      byte_i            => s_byte_to_tx,
+      last_byte_p_i     => last_byte_p_i,
+      tx_clk_p_buff_i   => tx_clk_p_buff_i,
       -----------------------------------------------
-    var3_rdy_o  => s_var3_rdy
+      tx_data_o         => tx_data_o,
+      request_byte_p_o  => request_byte_p_o,
+      tx_enable_o       => tx_enable_o
       -----------------------------------------------
       );
 

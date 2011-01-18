@@ -94,7 +94,7 @@ entity WF_model_constr_decoder is
     uclk_i          : in std_logic;                      --! 40 Mhz clock
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i     : in std_logic;                      --! nanoFIP internal reset
+    nfip_rst_i      : in std_logic;                      --! nanoFIP internal reset
 
     -- nanoFIP WorldFIP Settings (synchronised with uclk_i)
     constr_id_i     : in  std_logic_vector (3 downto 0); --! Constructor identification settings
@@ -144,7 +144,7 @@ begin
   Model_Constructor_Decoder: process (uclk_i)
   begin
     if rising_edge (uclk_i) then                    -- initializations
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
        model_id_dec_o  <= (others => '0');
        constr_id_dec_o <= (others => '0');
        s_model_stage1  <= (others => '0');
@@ -185,7 +185,7 @@ begin
   generic map(g_counter_lgth => 2)
   port map(
     uclk_i            => uclk_i,
-    nfip_urst_i       => nfip_urst_i,
+    nfip_rst_i       => nfip_rst_i,
     reinit_counter_i  => '0',
     incr_counter_i    => '1',
     -----------------------------------------

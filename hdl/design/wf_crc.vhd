@@ -86,7 +86,7 @@ port (
     uclk_i             : in std_logic;              --! 40 MHz clock
 
     -- Signal from the WF_reset_unit  
-    nfip_urst_i        : in std_logic;              --! nanoFIP internal reset
+    nfip_rst_i         : in std_logic;              --! nanoFIP internal reset
 
     -- Signals from the WF_rx_deserializer/ WF_tx_serializer units
     data_bit_i         : in std_logic;              --! incoming data bit stream
@@ -146,7 +146,7 @@ CRC_calculation: process (uclk_i)
 begin
   if rising_edge (uclk_i) then
 
-    if nfip_urst_i = '1' then
+    if nfip_rst_i = '1' then
       s_q <= (others => '0');
          
     else

@@ -30,6 +30,38 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @brief     After an ID_DAT frame requesting for a variable to be produced, the unit provides 
 --!            to the WF_tx_serializer unit one by one, \n all the bytes of data needed for the  
 --!            RP_DAT frame (apart from the  FSS, FCS and FES bytes).
+--!
+--!            General structure of a produced RP_DAT frame :
+--!    ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
+--!   |____FSS____|_Ctrl_||__PDU__|_LGTH_|_...User-Data..._|_nstat_|__MPS__||____FCS____|__FES__|
+--!
+--!            Data provided by the this unit (nstat & MPS, only if applicable) :
+--!                ______  _______ ______ ________________________________________ _______ _______  
+--!               |_Ctrl_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||
+--!
+--!            If the variable to be produced is the
+--!              o presence       : the unit retreives the bytes from the WF_package.
+--!                                 Note: No MPS & no nanoFIP status associated with this variable.
+--!                ______  _______ ______ ______ ______ ______ ______ ______ 
+--!               |_Ctrl_||__PDU__|__05__|__80__|__03__|__00__|__F0__|__00__||
+--!
+--!                               
+--!              o identification : the unit retreives the Constructor & Model bytes from the
+--!                                 WF_model_constr_decoder, and all the rest from the WF_package.
+--!                                 Note: No MPS & no nanoFIP status associated with this variable.
+--!                ______  _______ ______ ______ ______ ______ ______ _______ ______ ______ ______
+--!               |_Ctrl_||__PDU__|__08__|__01__|__00__|__00__|_cons_|__mod__|__00__|__00__|__00__||
+--!
+--!
+--!              o var_3          : if the operation is in stand-alone mode, the unit retreives the
+--!                                 user-data bytes from the "nanoFIP User Interface, NON_WISHBONE"
+--!                                 bus DAT_I. If the operation is in memory mode, it retreives them
+--!                                 from the Produced RAM. The unit retreives the MPS and nanoFIP
+--!                                 status bytes from the WF_status_bytes_gen, and the LGTH byte
+--!                                 from the WF_prod_data_lgth_calc (in the WF_engine_control). The
+--!                                 rest of the bytes (Ctrl & PDU) come from the WF_package.
+--!                ______  _______ ______ ________________________________________ _______ _______  
+--!               |_Ctrl_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -94,18 +126,16 @@ entity WF_prod_bytes_retriever is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i               : in std_logic;                     --! 40MHz clock
-    nostat_i             : in std_logic;                     --! if negated, nFIP status is sent
-    slone_i              : in std_logic;                     --! stand-alone mode 
+    uclk_i               : in std_logic;                    --! 40MHz clock
+    nostat_i             : in std_logic;                    --! if negated, nFIP status is sent
+    slone_i              : in std_logic;                    --! stand-alone mode 
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i          : in std_logic;                     --! nanoFIP internal reset
+    nfip_rst_i           : in std_logic;                    --! nanoFIP internal reset
 	
     -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk)
 
     wb_clk_i             : in std_logic;                    --! WISHBONE clock
-                                                            -- note: may be indipendant of uclk
-
     wb_adr_i             : in std_logic_vector(9 downto 0); --! WISHBONE address to memory
     wb_data_i            : in std_logic_vector(7 downto 0); --! WISHBONE data bus
     wb_cyc_i             : in std_logic;                    --! WISHBONE cycle
@@ -183,24 +213,11 @@ architecture rtl of WF_prod_bytes_retriever is
 --=================================================================================================  
 begin
 
+
 ---------------------------------------------------------------------------------------------------
---!@brief Instantiation of the unit that in stand-alone mode is responsible for the sampling of the
---! input data bus DAT_I(15:0). The sampling takes place on the 1st clock cycle after the VAR3_RDY
---! has been de-asserted.
-
-    Produced_Bytes_From_DATI: WF_prod_bytes_from_dati
-    port map(
-      uclk_i       => uclk_i,
-      nfip_urst_i  => nfip_urst_i,
-      slone_data_i => slone_data_i,
-      var3_rdy_i   => var3_rdy_i,
-      byte_index_i => byte_index_i, 
-      ------------------------------
-      slone_byte_o => s_slone_byte);
-      ------------------------------
-
-
----------------------------------------------------------------------------------------------------  
+--                                          Produced RAM                                         --
+--                    Storage (by the user) & retreival (by the unit) of produced bytes          --
+--------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of a Produced Dual Port RAM
 
     Produced_Bytes_From_RAM:  WF_DualClkRAM_clka_rd_clkb_wr 
@@ -221,8 +238,58 @@ begin
       data_portb_i     => wb_data_i,            -- byte to be written
       write_en_portb_i => s_mem_wr_en_B_d3(2)); -- WISHBONE write enable
              
-             
 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
+--!@brief Synchronous process Delay_mem_wr_en: since the input buses wb_data_i and wb_addr_i are
+--! the triply buffered versions of the DAT_I and ADR_I, the signal write_en_portb_i has to be delayed
+--! too. As write_en_portb_i we use the wb_ack_prod_p signal.
+
+  Delay_mem_wr_en: process (wb_clk_i) 
+  begin
+    if rising_edge (wb_clk_i) then
+      s_mem_wr_en_B_d3 <= s_mem_wr_en_B_d3(1 downto 0) & s_wb_ack_prod_p ;
+    end if;
+  end process;
+
+ 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@brief Generate_wb_ack_prod_p_o: Generation of the wb_ack_prod_p_o signal
+--! (acknowledgement from WISHBONE Slave of the write cycle, as a response to the master's storbe).
+--! wb_ack_prod_p_o is 1 wclk-wide pulse if the wb_cyc and wb_we are asserted and the WISHBONE 
+--! input address corresponds to an address in the Produced memory block.
+  
+  Generate_wb_ack_prod_p_o: s_wb_ack_prod_p <= '1' when ((wb_stb_r_edge_p_i = '1')      and 
+                                                         (wb_adr_i(9 downto 7) = "010") and
+                                                         (wb_we_i = '1')                and 
+                                                         (wb_cyc_i = '1'))
+                                          else '0';
+
+  wb_ack_prod_p_o <= s_wb_ack_prod_p;            
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                   Produced bytes from DAT_I                                   --
+---------------------------------------------------------------------------------------------------
+--!@brief Instantiation of the unit that in stand-alone mode is responsible for the sampling of the
+--! input data bus DAT_I(15:0). The sampling takes place on the 1st clock cycle after the VAR3_RDY
+--! has been de-asserted.
+
+    Produced_Bytes_From_DATI: WF_prod_bytes_from_dati
+    port map(
+      uclk_i       => uclk_i,
+      nfip_rst_i   => nfip_rst_i,
+      slone_data_i => slone_data_i,
+      var3_rdy_i   => var3_rdy_i,
+      byte_index_i => byte_index_i, 
+      ------------------------------
+      slone_byte_o => s_slone_byte);
+      ------------------------------
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                          Bytes Retreival                                      --
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial process Bytes_Generation: Generation of bytes for the Control and Data
 --! fields of an RP_DAT frame:\n If the variable requested in the ID_DAT is of "produced" type 
@@ -397,24 +464,32 @@ begin
   end process;
 
 
---------------------------------------------------------------------------------------------------- 
---!@brief Generate_wb_ack_prod_p_o: Generation of the wb_ack_prod_p_o signal
---! (acknowledgement from WISHBONE Slave of the write cycle, as a response to the master's storbe).
---! wb_ack_prod_p_o is 1 wclk-wide pulse asserted 3 wclk cycles after the assertion of the 
---! asynchronous strobe signal, if the wb_cyc and wb_we are asserted and the WISHBONE input address 
---! corresponds to an address in the Produced memory block.
-  
-  Generate_wb_ack_prod_p_o: s_wb_ack_prod_p <= '1' when ((wb_stb_r_edge_p_i = '1')      and 
-                                                         (wb_adr_i(9 downto 7) = "010") and
-                                                         (wb_we_i = '1')                and 
-                                                         (wb_cyc_i = '1'))
-                                          else '0';
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--!@briedf Synchronous process Delay_byte_index_i: in the combinatorial process Bytes_Generation,
+--! according to the value of the signal s_byte_index, a byte is retrieved either from the memory,
+--! or from the WF_package or from the WF_status_bytes_gen or WF_model_constr_decoder units.
+--! Since the memory needs one clock cycle to output its data (as opposed to the other units that
+--! have them ready) the signal s_byte_index has to be a delayed version of the byte_index_i
+--! (byte_index_i is the signal used as address for the mem; s_byte_index is the delayed one
+--! used for the other units).
 
-  wb_ack_prod_p_o <= s_wb_ack_prod_p;
+  Delay_byte_index_i: process (uclk_i) 
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then
+        s_byte_index <= (others => '0');          
+      else  
+
+        s_byte_index <= byte_index_i;   -- index of byte to be sent                
+      end if;
+    end if;
+  end process;
 
 
---------------------------------------------------------------------------------------------------- 
--- auxiliary signals generation:
+
+---------------------------------------------------------------------------------------------------
+--                                         Auxiliary signals                                     --
+---------------------------------------------------------------------------------------------------
 
   s_mem_addr_A      <= std_logic_vector (s_base_addr + s_mem_addr_offset - 1);
   -- address of the byte to be read from memory: base_address(from WF_package) + byte_index_i - 1
@@ -424,8 +499,6 @@ begin
   -- 2 (00000010) has to be retrieved).
                                                                                   
   s_mem_addr_offset <= (resize((unsigned(byte_index_i)), s_mem_addr_offset'length));
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
 
   s_byte_index_aux  <= (to_integer(unsigned(s_byte_index(3 downto 0))));
                                                       -- index of byte to be sent(range restricted)
@@ -441,41 +514,6 @@ begin
                                                       -- applicable. It does not include the
                                                       -- Control byte and itself.
 
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
-
---!@brief Synchronous process Delay_mem_wr_en: since the input buses wb_data_i and wb_addr_i are
---! the triply buffered versions of the DAT_I and ADR_I, the signal write_en_portb_i has to be delayed
---! too. As write_en_portb_i we use the wb_ack_prod_p signal.
-
-  Delay_mem_wr_en: process (wb_clk_i) 
-  begin
-    if rising_edge (wb_clk_i) then
-      s_mem_wr_en_B_d3 <= s_mem_wr_en_B_d3(1 downto 0) & s_wb_ack_prod_p ;
-    end if;
-  end process;
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@briedf Synchronous process Delay_byte_index_i: in the combinatorial process Bytes_Generation,
---! according to the value of the signal s_byte_index, a byte is retrieved either from the memory,
---! or from the WF_package or from the WF_status_bytes_gen or WF_model_constr_decoder units.
---! Since the memory needs one clock cycle to output its data (as opposed to the other units that
---! have them ready) the signal s_byte_index has to be a delayed version of the byte_index_i
---! (byte_index_i is the signal used as address for the mem; s_byte_index is the delayed one
---! used for the other units).
-
-  Delay_byte_index_i: process (uclk_i) 
-  begin
-    if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
-        s_byte_index <= (others => '0');          
-      else  
-
-        s_byte_index <= byte_index_i;   -- index of byte to be sent                
-      end if;
-    end if;
-  end process;
----------------------------------------------------------------------------------------------------
 
 end architecture rtl;
 --=================================================================================================

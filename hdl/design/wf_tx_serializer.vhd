@@ -76,7 +76,7 @@ entity WF_tx_serializer is
     uclk_i :            in std_logic;  --! 40MHz clock
 
     -- Signal from the WF_reset_unit unit
-    nfip_urst_i :        in std_logic;  --! nanoFIP internal reset
+    nfip_rst_i :        in std_logic;  --! nanoFIP internal reset
     
     -- Signals from the WF_engine_control
     start_prod_p_i     : in std_logic;  --! indication that WF_engine_control is in prod_watchdog state 
@@ -218,7 +218,7 @@ begin
   Transmitter_FSM_Sync: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         tx_state <= idle;
       else
         tx_state <= nx_tx_state;
@@ -405,7 +405,7 @@ crc_bytes_manc_encoder: WF_manch_encoder
       c_GENERATOR_POLY_length => 16)
     port map(
       uclk_i             => uclk_i,
-      nfip_urst_i        => nfip_urst_i,
+      nfip_rst_i        => nfip_rst_i,
       start_crc_p_i      => s_start_crc_p,
       data_bit_ready_p_i => s_data_bit_to_crc_p,
       data_bit_i         => s_txd,
@@ -431,7 +431,7 @@ crc_bytes_manc_encoder: WF_manch_encoder
     generic map(g_counter_lgth => 5)
     port map(
       uclk_i              => uclk_i,
-      nfip_urst_i         => nfip_urst_i,      
+      nfip_rst_i         => nfip_rst_i,      
       counter_top         => s_bit_index_top,
       counter_load_i      => s_bit_index_load,
       counter_decr_p_i    => s_decr_index_p,
@@ -487,7 +487,7 @@ crc_bytes_manc_encoder: WF_manch_encoder
   bits_to_txd: WF_bits_to_txd
     port map(
       uclk_i              => uclk_i,
-      nfip_urst_i         => nfip_urst_i,          
+      nfip_rst_i         => nfip_rst_i,          
       txd_bit_index_i     => s_bit_index,
       data_byte_manch_i   => s_data_byte_manch, 
       crc_byte_manch_i    => s_crc_bytes_manch, 
@@ -504,7 +504,7 @@ crc_bytes_manc_encoder: WF_manch_encoder
 Input_Byte_Sampling: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_byte   <= (others => '0');
 
       else      

@@ -116,7 +116,7 @@ entity WF_rx_tx_osc is
     rate_i                  : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate 
 
     -- Signal from the WF_reset_unit  
-    nfip_urst_i             : in std_logic;   --! nanoFIP internal reset
+    nfip_rst_i              : in std_logic;   --! nanoFIP internal reset
 
     -- Signal from the WF_synchronizer unit    
     rxd_edge_i              : in std_logic;   --! indication of an edge on fd_rxd
@@ -207,7 +207,7 @@ begin
   rx_periods_count: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then                                                  
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_rx_counter     <= (others => '0');
 
       else 
@@ -282,7 +282,7 @@ begin
     begin
       if rising_edge (uclk_i) then
         -- initializations:  
-        if (nfip_urst_i = '1') then
+        if (nfip_rst_i = '1') then
           s_rx_manch_clk          <='0';
           s_rx_bit_clk            <='0';
           s_rx_bit_clk_d1         <='0';
@@ -359,7 +359,7 @@ begin
  tx_periods_count: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then                                                  
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_tx_counter    <= (others => '0');
         s_tx_clk_p_buff <= (others => '0');
         s_tx_clk_d1     <= '0';

@@ -83,7 +83,7 @@ entity WF_prod_permit is
     uclk_i                : in std_logic;      --! 40MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i           : in std_logic;      --! nanoFIP internal reset
+    nfip_rst_i            : in std_logic;      --! nanoFIP internal reset
 
     -- Signals from the WF_engine_control
     var_i                 : in t_var;          --! variable type that is being treated
@@ -125,7 +125,7 @@ begin
   VAR_RDY_Generation: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         var3_rdy_o   <= '0';
 
       else

@@ -117,7 +117,7 @@ port (
     slone_i               : in  std_logic;                     --! stand-alone mode (active high)
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i           : in std_logic;                      --! nanoFIP internal reset
+    nfip_rst_i            : in std_logic;                      --! nanoFIP internal reset
 
     -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk)
     wb_clk_i              : in std_logic;                      --! WISHBONE clock
@@ -226,7 +226,7 @@ begin
   Consumed_Bytes_To_DATO: WF_cons_bytes_to_dato
   port map(
     uclk_i            => uclk_i, 
-    nfip_urst_i       => nfip_urst_i, 
+    nfip_rst_i        => nfip_rst_i, 
     transfer_byte_p_i => s_slone_write_byte_p,
     byte_i            => byte_i,
     ------------------------------------------
@@ -438,7 +438,7 @@ Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)
   begin                                               
 
   if rising_edge (uclk_i) then
-    if nfip_urst_i = '1' then
+    if nfip_rst_i = '1' then
       cons_ctrl_byte_o     <= (others => '0');
       cons_pdu_byte_o      <= (others => '0');
       s_cons_lgth_byte     <= (others => '0');

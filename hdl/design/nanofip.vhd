@@ -319,8 +319,8 @@ architecture struc of nanofip is
 
 
   signal s_rst, s_rx_byte_ready, s_start_prod_p, s_rst_rx_osc, s_prod_request_byte_p   : std_logic;
-  signal s_prod_byte_ready_p, s_prod_last_byte_p, s_urst_r_edge, s_wb_we_synch         : std_logic;
-  signal s_urst_synch, s_slone_synch, s_nostat_synch, s_fd_wdgn_synch, s_fd_txer_synch : std_logic;
+  signal s_prod_byte_ready_p, s_prod_last_byte_p, s_rstin_f_edge, s_wb_we_synch        : std_logic;
+  signal s_rstin_synch, s_slone_synch, s_nostat_synch, s_fd_wdgn_synch, s_fd_txer_synch: std_logic;
   signal s_fss_crc_fes_manch_ok_p, s_cons_fss_decoded_p, s_prod_ack, s_wb_ack_cons     : std_logic;
   signal s_crc_wrong_p, s_reset_nFIP_and_FD_p, s_rx_manch_clk_p, s_rx_bit_clk_p        : std_logic;
   signal s_var1_access_synch, s_var2_access_synch, s_var3_access_synch, s_wb_stb_synch : std_logic;
@@ -353,7 +353,7 @@ begin
   port map(
     uclk_i            => uclk_i,
     wb_clk_i          => wclk_i,
-    nfip_urst_i       => s_rst, 
+    nfip_rst_i        => s_rst, 
     rstin_a_i         => rstin_i,
     wb_rst_a_i        => rst_i,
     slone_a_i         => slone_i,
@@ -376,8 +376,8 @@ begin
     c_id_a_i          => c_id_i,
     p3_lgth_a_i       => p3_lgth_i,
     ---------------------------------------------------------
-    rsti_o            => s_urst_synch,
-    urst_r_edge_o     => s_urst_r_edge,
+    rstin_o           => s_rstin_synch,
+    rstin_f_edge_o    => s_rstin_f_edge,
     slone_o           => s_slone_synch,
     nostat_o          => s_nostat_synch,
     fd_wdgn_o         => s_fd_wdgn_synch,
@@ -412,8 +412,8 @@ begin
   reset_unit : WF_reset_unit 
     port map(
       uclk_i                => uclk_i,
-      rstin_i               => s_urst_synch,
-      urst_r_edge_i         => s_urst_r_edge,
+      rstin_i               => s_rstin_synch,
+      rstin_f_edge_i        => s_rstin_f_edge,
       rstpon_i              => rstpon_i,
       rate_i                => s_rate_synch,
       var_i                 => s_var_from_control,
@@ -436,7 +436,7 @@ begin
                 c_TX_CLK_BUFF_LGTH       => 4)
     port map(
       uclk_i                  => uclk_i,
-      nfip_urst_i             => s_rst, 
+      nfip_rst_i              => s_rst, 
       rxd_edge_i              => s_fd_rxd_edge_p,      
       rst_rx_osc_i            => s_rst_rx_osc, 
       rate_i                  => s_rate_synch,  
@@ -459,7 +459,7 @@ begin
   port map(
     uclk_i                  => uclk_i,
     slone_i                 => slone_i,
-    nfip_urst_i             => s_rst,
+    nfip_rst_i              => s_rst,
     subs_i                  => s_subs_synch,
     fd_rxd_i                => s_fd_rxd_synch,
     fd_rxd_r_edge_p_i       => s_fd_rxd_r_edge_p,
@@ -502,7 +502,7 @@ begin
     uclk_i                  => uclk_i,
     slone_i                 => slone_i,
     nostat_i                => nostat_i,
-    nfip_urst_i             => s_rst,
+    nfip_rst_i              => s_rst,
     wb_clk_i                => wclk_i,
     wb_data_i               => s_wb_dati_synch,
     wb_adr_i                => s_wb_adri_synch,
@@ -552,7 +552,7 @@ begin
 
     port map(
       uclk_i                  => uclk_i,
-      nfip_urst_i             => s_rst, 
+      nfip_rst_i              => s_rst, 
       tx_request_byte_p_i     => s_prod_request_byte_p, 
       rx_fss_received_p_i     => s_cons_fss_decoded_p,   
       rx_byte_i               => s_rx_byte, 
@@ -587,7 +587,7 @@ begin
  model_constr_decoder : WF_model_constr_decoder 
   port map(
     uclk_i          => uclk_i,
-    nfip_urst_i     => s_rst,
+    nfip_rst_i      => s_rst,
     model_id_i      => s_m_id_synch,--------------
     constr_id_i     => s_c_id_synch,
     ---------------------------------------------------------

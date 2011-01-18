@@ -108,7 +108,7 @@ port (
     slone_i                 : in  std_logic; --! stand-alone mode
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i             : in std_logic;  --! nanaoFIP internal reset
+    nfip_rst_i              : in std_logic;  --! nanaoFIP internal reset
 
     -- nanoFIP FIELDRIVE (synchronized with uclk)
     fd_txer_i               : in  std_logic; --! transmitter error
@@ -173,7 +173,7 @@ begin
 
     if rising_edge (uclk_i) then
   
-      if (nfip_urst_i = '1') then 
+      if (nfip_rst_i = '1') then 
         s_nFIP_status_byte                      <= (others => '0'); 
 
         else
@@ -250,7 +250,7 @@ begin
   -- generic map (g_counter_lgth => 4)
   -- port map(
     -- uclk_i            => uclk_i,
-    -- nfip_urst_i       => nfip_urst_i,
+    -- nfip_rst_i       => nfip_rst_i,
     -- reinit_counter_i  => var1_rdy_i,
     -- incr_counter_i    => s_var1_rdy_incr_c,
     -- counter_o         => s_var1_rdy_c,
@@ -266,7 +266,7 @@ begin
   -- generic map (g_counter_lgth => 4)
   -- port map(
     -- uclk_i            => uclk_i,
-    -- nfip_urst_i       => nfip_urst_i,
+    -- nfip_rst_i       => nfip_rst_i,
     -- reinit_counter_i  => var2_rdy_i,
     -- incr_counter_i    => s_var2_rdy_incr_c,
     -- counter_o         => s_var2_rdy_c,
@@ -284,7 +284,7 @@ begin
   -- generic map (g_counter_lgth => 4)
   -- port map(
     -- uclk_i            => uclk_i,
-    -- nfip_urst_i       => nfip_urst_i,
+    -- nfip_rst_i       => nfip_rst_i,
     -- reinit_counter_i  => VAR3_RDY_i,
     -- incr_counter_i    => s_var3_rdy_incr_c,
     -- counter_o         => s_var3_rdy_c,
@@ -307,7 +307,7 @@ begin
   Refreshment_bit_Creation: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then 
+      if nfip_rst_i = '1' then 
         s_refreshment   <= '0';
       else
 

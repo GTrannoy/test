@@ -90,7 +90,7 @@ entity WF_bits_to_txd is
     uclk_i              : in std_logic;                     --! 40 MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i         : in std_logic;                     --! nanoFIP internal reset
+    nfip_rst_i          : in std_logic;                     --! nanoFIP internal reset
 
    -- Signals from the WF_tx_serializer unit
     crc_byte_manch_i    : in std_logic_vector (31 downto 0);--! manch. encoded CRC bytes to be sent
@@ -134,7 +134,7 @@ begin
   Bits_Delivery: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         txd_o     <= '0';
 
       else
@@ -171,7 +171,7 @@ begin
   FD_TXENA_Generator: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         tx_enable_o     <= '0';
 
       else

@@ -350,7 +350,7 @@ package WF_package is
   port (
     uclk_i            : in std_logic; 
     wb_clk_i          : in std_logic;
-    nfip_urst_i       : in std_logic;
+    nfip_rst_i        : in std_logic;
     rstin_a_i         : in std_logic;
     wb_rst_a_i        : in std_logic;
     slone_a_i         : in std_logic;
@@ -373,8 +373,8 @@ package WF_package is
     c_id_a_i          : in std_logic_vector(3 downto 0);
     p3_lgth_a_i       : in std_logic_vector(2 downto 0);
     -----------------------------------------------------------------
-    rsti_o            : out std_logic;
-    urst_r_edge_o     : out std_logic;
+    rstin_o           : out std_logic;
+    rstin_f_edge_o    : out std_logic;
     slone_o           : out std_logic;
     nostat_o          : out std_logic;
     fd_wdgn_o         : out std_logic;
@@ -407,7 +407,7 @@ end component WF_inputs_synchronizer;
   component WF_rx_deserializer 
   port (
     uclk_i                   : in std_logic;
-    nfip_urst_i              : in std_logic;
+    nfip_rst_i               : in std_logic;
     rst_rx_unit_p_i          : in std_logic;
     signif_edge_window_i     : in std_logic;
     adjac_bits_window_i      : in std_logic;
@@ -434,7 +434,7 @@ end component WF_inputs_synchronizer;
   generic (c_TX_CLK_BUFF_LGTH : natural);
   port (
     uclk_i            : in std_logic;
-    nfip_urst_i       : in std_logic;
+    nfip_rst_i        : in std_logic;
     start_prod_p_i    : in std_logic;
     byte_ready_p_i    : in std_logic; 
     last_byte_p_i     : in std_logic;
@@ -456,7 +456,7 @@ end component WF_inputs_synchronizer;
     port (
       uclk_i                  : in std_logic; 
       rate_i                  : in std_logic_vector (1 downto 0);
-      nfip_urst_i             : in std_logic;
+      nfip_rst_i              : in std_logic;
       rxd_edge_i              : in std_logic;
       rst_rx_osc_i            : in std_logic;	
     -------------------------------------------------------------------------
@@ -476,7 +476,7 @@ end component WF_inputs_synchronizer;
   port (
     uclk_i                : in std_logic;
     slone_i               : in std_logic; 
-    nfip_urst_i           : in std_logic;
+    nfip_rst_i            : in std_logic;
     wb_clk_i              : in std_logic;
     wb_adr_i              : in std_logic_vector (9 downto 0); 
     wb_stb_r_edge_p_i     : in std_logic; 
@@ -502,7 +502,7 @@ end component WF_inputs_synchronizer;
   component WF_cons_bytes_to_dato is
   port (
     uclk_i            : in std_logic;                   
-    nfip_urst_i       : in std_logic;                    
+    nfip_rst_i        : in std_logic;                    
     transfer_byte_p_i : in std_logic_vector (1 downto 0);
 	byte_i            : in std_logic_vector (7 downto 0); 
       ---------------------------------------------------------------
@@ -519,7 +519,7 @@ end component WF_inputs_synchronizer;
     uclk_i                   : in std_logic;
     slone_i                  : in std_logic;
     subs_i                   : in std_logic_vector (7 downto 0); 
-    nfip_urst_i              : in std_logic;
+    nfip_rst_i               : in std_logic;
     fd_rxd_i                 : in std_logic;
     fd_rxd_r_edge_p_i        : in std_logic;
     fd_rxd_f_edge_p_i        : in std_logic; 
@@ -559,7 +559,7 @@ end component WF_inputs_synchronizer;
     uclk_i                  : in std_logic;
     slone_i                 : in std_logic;
     nostat_i                : in std_logic;
-    nfip_urst_i             : in std_logic;
+    nfip_rst_i              : in std_logic;
     wb_clk_i                : in std_logic;                    
     wb_data_i               : in std_logic_vector(7 downto 0);
     wb_adr_i                : in std_logic_vector(9 downto 0);
@@ -606,7 +606,7 @@ end component WF_production;
     uclk_i               : in std_logic; 
     slone_i              : in std_logic; 
     nostat_i             : in std_logic; 
-    nfip_urst_i          : in std_logic;
+    nfip_rst_i           : in std_logic;
     model_id_dec_i       : in std_logic_vector (7 downto 0); 
     constr_id_dec_i      : in std_logic_vector (7 downto 0); 
     wb_clk_i             : in std_logic; 
@@ -636,7 +636,7 @@ end component WF_production;
   component WF_prod_bytes_from_dati is
   port (
     uclk_i       : in std_logic;
-    nfip_urst_i  : in std_logic; 
+    nfip_rst_i   : in std_logic; 
     slone_data_i : in  std_logic_vector (15 downto 0);
     var3_rdy_i   : in std_logic;
     byte_index_i : in std_logic_vector (7 downto 0);
@@ -652,7 +652,7 @@ end component WF_production;
   generic ( c_QUARTZ_PERIOD : real);
   port (
     uclk_i                      : in std_logic; 
-    nfip_urst_i                 : in std_logic;
+    nfip_rst_i                  : in std_logic;
     rate_i                      : in std_logic_vector (1 downto 0);
     subs_i                      : in std_logic_vector (7 downto 0); 
     p3_lgth_i                   : in std_logic_vector (2 downto 0); 
@@ -682,8 +682,8 @@ end component WF_production;
   port (
     uclk_i              : in std_logic; 
     rstin_i             : in std_logic; 
-    urst_r_edge_i       : in std_logic;
-    rstpon_i            : in std_logic;
+    rstin_f_edge_i      : in std_logic;
+    rstpon_i          : in std_logic;
     rate_i              : in std_logic_vector (1 downto 0);
     var_i               : in t_var;    
     rst_nFIP_and_FD_p_i : in std_logic;
@@ -720,7 +720,7 @@ end component WF_production;
   generic (c_GENERATOR_POLY_length :  natural := 16);
   port (
     uclk_i             : in std_logic;
-    nfip_urst_i        : in std_logic;
+    nfip_rst_i        : in std_logic;
     start_crc_p_i      : in std_logic;
     data_bit_i         : in std_logic;
     data_bit_ready_p_i : in std_logic;
@@ -748,7 +748,7 @@ end component WF_production;
   component WF_rx_manch_code_check is
   port (
     uclk_i                : in std_logic;
-    nfip_urst_i           : in std_logic;   
+    nfip_rst_i           : in std_logic;   
     serial_input_signal_i : in std_logic;
     sample_bit_p_i        : in std_logic;
     sample_manch_bit_p_i  : in std_logic;
@@ -764,7 +764,7 @@ end component WF_production;
   generic (c_DEGLITCH_LGTH : integer := 10);
   port (
     uclk_i                  : in std_logic;
-    nfip_urst_i             : in std_logic; 
+    nfip_rst_i             : in std_logic; 
     rxd_i                   : in std_logic;
     sample_manch_bit_p_i    : in std_logic;
     sample_bit_p_i          : in std_logic;
@@ -783,7 +783,7 @@ end component WF_production;
   port (
     uclk_i                  : in std_logic; 
     slone_i                 : in std_logic; 
-    nfip_urst_i             : in std_logic;
+    nfip_rst_i             : in std_logic;
     fd_wdgn_i               : in std_logic; 
     fd_txer_i               : in std_logic; 
     var1_acc_i              : in std_logic; 
@@ -812,7 +812,7 @@ end component WF_production;
   generic (c_TX_CLK_BUFF_LGTH : natural := 4);
   port (
     uclk_i              : in std_logic; 
-    nfip_urst_i         : in std_logic; 
+    nfip_rst_i         : in std_logic; 
     txd_bit_index_i     : in unsigned(4 downto 0);
     data_byte_manch_i   : in std_logic_vector (15 downto 0);
     crc_byte_manch_i    : in std_logic_vector (31 downto 0);
@@ -846,6 +846,7 @@ end component WF_production;
     slone_i    : in  std_logic;
     nostat_i   : in  std_logic;
     rstin_i    : in  std_logic; 
+    rstpon_i   : in std_logic;
     var1_acc_i : in  std_logic;
     var2_acc_i : in  std_logic; 
     var3_acc_i : in  std_logic; 
@@ -881,7 +882,7 @@ end component WF_production;
   component WF_model_constr_decoder 
   port (
     uclk_i          : in std_logic; 
-    nfip_urst_i     : in std_logic;
+    nfip_rst_i     : in std_logic;
     model_id_i      : in std_logic_vector (3 downto 0); 
     constr_id_i     : in std_logic_vector (3 downto 0); 
     ---------------------------------------------------------------
@@ -898,7 +899,7 @@ end component WF_production;
   generic (g_counter_lgth :  natural := 5);
   port (
     uclk_i            : in std_logic;
-    nfip_urst_i       : in std_logic;
+    nfip_rst_i       : in std_logic;
     counter_top       : in unsigned (g_counter_lgth-1 downto 0);
     counter_load_i    : in std_logic;
     counter_decr_p_i  : in std_logic;
@@ -915,7 +916,7 @@ end component WF_production;
   generic (g_counter_lgth :  natural := 8);
   port (
     uclk_i            : in std_logic; 
-    nfip_urst_i       : in std_logic; 
+    nfip_rst_i       : in std_logic; 
     reinit_counter_i  : in std_logic;
     incr_counter_i    : in std_logic;
     ---------------------------------------------------------------
@@ -963,7 +964,7 @@ end component WF_production;
     uclk_i                : in std_logic; 
     slone_i               : in std_logic;
     subs_i                : in std_logic_vector (7 downto 0);
-    nfip_urst_i           : in std_logic;  
+    nfip_rst_i           : in std_logic;  
     cons_frame_ok_p_i     : in std_logic;
     var_i                 : in t_var;
     cons_var_rst_byte_1_i : in std_logic_vector (7 downto 0);
@@ -982,7 +983,7 @@ component WF_prod_permit is
 
   port (
     uclk_i                : in std_logic; 
-    nfip_urst_i           : in std_logic;
+    nfip_rst_i           : in std_logic;
     var_i                 : in t_var; 
     var3_rdy_o            : out std_logic
       );

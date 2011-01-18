@@ -58,7 +58,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 11/2010  v0.01  EG  unit created
 --!     -> 4/1/2011 v0.02  EG  unit renamed from WF_slone_prod_dati_bytes_sampler to
 --!                            WF_prod_bytes_from_dati; cleaning-up + commenting
---!                             
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -85,21 +84,21 @@ entity WF_prod_bytes_from_dati is
     -- nanoFIP User Interface, General signals
     uclk_i       : in std_logic;                       --! 40MHz clock
 
-    -- Signal from the WF_reset_unit unit
-    nfip_urst_i  : in std_logic;                       --! nanoFIP internal reset
+    -- Signal from the WF_reset_unit
+    nfip_rst_i   : in std_logic;                       --! nanoFIP internal reset
 
     -- nanoFIP User Interface, NON-WISHBONE
     slone_data_i : in  std_logic_vector (15 downto 0); --! input data bus for stand-alone mode
                                                        -- (synchronised with uclk)  
-   -- Signals from the WF_engine_control 
+   -- Signals from the WF_engine_control unit
     byte_index_i : in std_logic_vector (7 downto 0);   --! pointer to message bytes
 
-   -- Signals from the WF_prod_permit
+   -- Signals from the WF_prod_permit unit
     var3_rdy_i   : in std_logic;                       --! nanoFIP output VAR3_RDY
 
   -- OUTPUTS
     -- Signal to the WF_prod_bytes_retriever
-    slone_byte_o : out std_logic_vector (7 downto 0)   --! byte to be sent
+    slone_byte_o : out std_logic_vector (7 downto 0)   --! sampled byte to be sent
       );
 end entity WF_prod_bytes_from_dati;
 
@@ -127,7 +126,7 @@ begin
 Sample_DAT_I_bus: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then 
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_var3_rdy_d4    <= (others=>'0');
         s_sampled_data   <= (others=>'0');
  
