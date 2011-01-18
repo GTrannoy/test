@@ -90,7 +90,7 @@ entity WF_inputs_synchronizer is
     slone_a_i         : in std_logic;
 
     -- Signal from the WF_reset_unit
-    nfip_urst_i       : in std_logic;                   --! nanoFIP internal reset
+    nfip_rst_i       : in std_logic;                   --! nanoFIP internal reset
 
     -- nanoFIP WorldFIP Settings
     c_id_a_i          : in std_logic_vector(3 downto 0);
@@ -123,9 +123,9 @@ entity WF_inputs_synchronizer is
   -- OUTPUTS
     -- nanoFIP User Interface, General signals
     nostat_o          : out std_logic;
-    rsti_o            : out std_logic;
+    rstin_o           : out std_logic;
     slone_o           : out std_logic;
-    urst_r_edge_o     : out std_logic;
+    rstin_f_edge_o    : out std_logic;
 
     -- nanoFIP WorldFIP Settings
     c_id_o            : out std_logic_vector(3 downto 0);
@@ -192,12 +192,12 @@ begin
   RSTIN_synchronisation_with_uclk: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      s_u_rst_d3    <= s_u_rst_d3 (2 downto 0) & (not rstin_a_i);
+      s_u_rst_d3    <= s_u_rst_d3 (2 downto 0) &  rstin_a_i;
     end if;
   end process;
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  rsti_o            <= s_u_rst_d3(2);       -- active high
-  urst_r_edge_o     <= not s_u_rst_d3(3) and s_u_rst_d3(2);
+  rstin_o           <= s_u_rst_d3(2);
+  rstin_f_edge_o    <= s_u_rst_d3(3) and (not s_u_rst_d3(2));
 
 
 ---------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ begin
   begin
     if rising_edge (uclk_i) then
 
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_slone_d3  <= (others => '0');
         s_nostat_d3 <= (others => '0');
       else
@@ -224,7 +224,7 @@ begin
   FIELDRIVE_inputs_synchronisation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
        s_fd_rxd_d3   <= (others => '0');
        s_fd_wdgn_d3  <= (others => '0');
        s_fd_txer_d3  <= (others => '0');
@@ -255,7 +255,7 @@ begin
   VAR_ACC_synchronisation: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_var1_access_d1 <= '0';
         s_var1_access_d2 <= '0';
         s_var1_access_d3 <= '0';
@@ -347,7 +347,7 @@ begin
   Slone_dat_i_synchronization: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then 
+      if nfip_rst_i = '1' then 
         s_slone_dati_d1 <= (others => '0');
         s_slone_dati_d2 <= (others => '0');
         s_slone_dati_d3 <= (others => '0');
@@ -368,7 +368,7 @@ begin
   WorldFIP_Settings_synchronisation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-     if nfip_urst_i = '1' then
+     if nfip_rst_i = '1' then
        s_rate_d1    <= (others => '0');
        s_rate_d2    <= (others => '0');
        s_rate_d3    <= (others => '0');

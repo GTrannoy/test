@@ -91,7 +91,7 @@ entity WF_cons_bytes_to_dato is
     uclk_i            : in std_logic;                     --! 40MHz clock
 
     -- Signal from the WF_reset_unit unit
-    nfip_urst_i       : in std_logic;                     --! nanoFIP internal reset
+    nfip_rst_i        : in std_logic;                     --! nanoFIP internal reset
 
     -- Signals from the WF_cons_bytes_processor
     byte_i            : in std_logic_vector (7 downto 0); --! de-serialised byte
@@ -126,7 +126,7 @@ begin
 Data_Transfer_To_Dat_o: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         slone_data_o  <= (others => '0');         -- bus initialization
  
       else

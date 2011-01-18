@@ -147,7 +147,7 @@ entity WF_consumption is
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_reset_unit unit
 
-      nfip_urst_i              : in std_logic;
+      nfip_rst_i               : in std_logic;
       -- used by: all the units
 
 
@@ -260,7 +260,7 @@ begin
   generic map (c_DEGLITCH_LGTH => 10)
   port map(
     uclk_i                  => uclk_i,
-    nfip_urst_i             => nfip_urst_i,
+    nfip_rst_i              => nfip_rst_i,
     rxd_i                   => fd_rxd_i,
     sample_bit_p_i          => sample_bit_p_i,
     sample_manch_bit_p_i    => sample_manch_bit_p_i,
@@ -281,7 +281,7 @@ begin
   Consumption_Level_0_Deserializer: WF_rx_deserializer 
   port map (
     uclk_i                   => uclk_i,
-    nfip_urst_i              => nfip_urst_i,
+    nfip_rst_i               => nfip_rst_i,
     rst_rx_unit_p_i          => rst_rx_unit_p_i,
     sample_bit_p_i           => s_sample_bit_p,
     signif_edge_window_i     => signif_edge_window_i,
@@ -311,7 +311,7 @@ begin
   Consumption_Level_1_bytes_processor : WF_cons_bytes_processor 
   port map(
     uclk_i                => uclk_i,
-    nfip_urst_i           => nfip_urst_i, 
+    nfip_rst_i            => nfip_rst_i, 
     slone_i               => slone_i,
     byte_ready_p_i        => s_byte_ready_p,
     var_i                 => var_i,
@@ -366,7 +366,7 @@ begin
     uclk_i                => uclk_i,
     slone_i               => slone_i,
     subs_i                => subs_i,
-    nfip_urst_i           => nfip_urst_i, 
+    nfip_rst_i            => nfip_rst_i, 
     cons_frame_ok_p_i     => s_cons_frame_ok_p,
     var_i                 => var_i,
     cons_var_rst_byte_1_i => s_cons_var_rst_byte_1,

@@ -86,14 +86,14 @@ entity WF_cons_outcome is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i                : in std_logic;                   --! 40MHz clock
-    slone_i               : in std_logic;                   --! stand-alone mode 
+    uclk_i                : in std_logic;                     --! 40MHz clock
+    slone_i               : in std_logic;                     --! stand-alone mode 
 
     -- nanoFIP WorldFIP Settings (synchronized with uclk) 
     subs_i                : in std_logic_vector (7 downto 0); --! subscriber number coding
  
     -- Signal from the WF_reset_unit
-    nfip_urst_i           : in std_logic;                   --! nanoFIP internal reset
+    nfip_rst_i            : in std_logic;                   --! nanoFIP internal reset
 
     -- Signals from the WF_cons_frame_validator
     cons_frame_ok_p_i     : in std_logic;                   --! pulse after a correct cons frame
@@ -173,7 +173,7 @@ begin
   VAR_RDY_Generation: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         var1_rdy_o          <= '0';
         var2_rdy_o          <= '0';
         s_var1_received     <= '0';
@@ -235,7 +235,7 @@ begin
   Cons_frame_ok_p_delay: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         cons_frame_ok_p_d1 <= '0';
       else
         cons_frame_ok_p_d1 <= cons_frame_ok_p_i;
@@ -254,7 +254,7 @@ begin
   begin
     if rising_edge (uclk_i) then
 
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_rst_nfip_and_fd     <= '0';
         s_assert_rston        <= '0';
  

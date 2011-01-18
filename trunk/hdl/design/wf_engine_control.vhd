@@ -128,7 +128,7 @@ entity WF_engine_control is
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  -- 
     -- Signal from the WF_reset_unit
-    nfip_urst_i             : in std_logic;                     --! nanoFIP internal reset
+    nfip_rst_i              : in std_logic;                     --! nanoFIP internal reset
 
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  
@@ -256,7 +256,7 @@ begin
   Engine_Control_FSM_Sync: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         control_st <= idle;
       else
         control_st <= nx_control_st;
@@ -582,7 +582,7 @@ begin
   generic map(g_counter_lgth => 8)
   port map(
     uclk_i            => uclk_i,
-    nfip_urst_i       => nfip_urst_i,
+    nfip_rst_i        => nfip_rst_i,
     reinit_counter_i  => s_rst_prod_bytes_counter,
     incr_counter_i    => s_inc_prod_bytes_counter,
     -------------------------------------------------------
@@ -612,7 +612,7 @@ begin
   generic map(g_counter_lgth => 8)
   port map(
     uclk_i            => uclk_i,
-    nfip_urst_i       => nfip_urst_i,
+    nfip_rst_i        => nfip_rst_i,
     reinit_counter_i  => s_rst_rx_bytes_counter,
     incr_counter_i    => s_inc_rx_bytes_counter,
     -------------------------------------------------------
@@ -689,7 +689,7 @@ begin
   generic map(g_counter_lgth => 15)
   port map(
     uclk_i            => uclk_i,
-    nfip_urst_i       => nfip_urst_i,
+    nfip_rst_i        => nfip_rst_i,
     counter_top       => s_time_counter_top,
     counter_load_i    => s_load_time_counter,
     counter_decr_p_i  => '1', -- on each uclk tick
@@ -777,7 +777,7 @@ begin
   ID_DAT_var: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then 
+      if nfip_rst_i = '1' then 
         s_var       <= var_whatever;
         s_var_aux   <= var_whatever;
       else
@@ -838,7 +838,7 @@ begin
   process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         tx_last_byte_p_o     <= '0';
         s_tx_last_byte_p_d   <= '0';
         s_tx_byte_ready_p_d1 <= '0';

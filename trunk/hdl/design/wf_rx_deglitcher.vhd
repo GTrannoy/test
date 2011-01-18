@@ -94,7 +94,7 @@ entity WF_rx_deglitcher is
     uclk_i                  : in std_logic;  --! 40 MHz clock
 
     -- Signal from the WF_reset_unit  
-    nfip_urst_i             : in std_logic;  --! nanoFIP internal reset
+    nfip_rst_i              : in std_logic;  --! nanoFIP internal reset
 
     -- nanoFIP FIELDRIVE (synchronized with uclk)
     rxd_i                   : in std_logic;  --!        ____|--------|________|--------|________
@@ -140,7 +140,7 @@ begin
 Zeros_and_Ones_counter: process (uclk_i)
   begin
   if rising_edge (uclk_i) then
-    if nfip_urst_i = '1' then
+    if nfip_rst_i = '1' then
       s_zeros_and_ones_c   <= (others =>'0');
     else
 
@@ -167,7 +167,7 @@ end process;
 Filtering: process (uclk_i)
   begin
   if rising_edge (uclk_i) then
-    if nfip_urst_i = '1' then
+    if nfip_rst_i = '1' then
       s_rxd_filtered   <= '0';
       s_rxd_filtered_d <= '0';
     else
@@ -191,7 +191,7 @@ end process;
 Detect_f_edge_rxd_filtered: process (uclk_i)
   begin
     if rising_edge (uclk_i) then 
-      if nfip_urst_i = '1' then
+      if nfip_rst_i = '1' then
         s_rxd_filtered_buff <= (others => '0');
 
       else
