@@ -27,7 +27,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit gathers the main nanoFIP actions with respect to data consumption.
+--! @brief     The unit gathers the main actions that regard data consumption.
 --!            It instantiates the units:
 --!
 --!              o WF_rx_deglitcher        : for the filtering of the "nanoFIP FIELDRIVE"
@@ -36,41 +36,42 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o WF_cons_bytes_processor : for the manipulation of the data as they arrive (mainly
 --!                                          registering them to the RAM or putting them to DAT_O)
 --!              o WF_cons_frame_validator : for the validation of the consumed frame, at the end of
---!                                          of its arrival (checking mainly the CRC & manch. encoding)
---!              o WF_cons_outcome         : for the treatment of the "nanoFIP User Interface, NON-
+--!                                          of its arrival (in terms of FSS, Ctrl, PDU_TYPE, Lgth,
+--!                                          CRC bytes & manch. encoding)
+--!              o WF_cons_outcome         : for the generation of the "nanoFIP User Interface, NON-
 --!                                          WISHBONE" outputs VAR1_RDY and VAR2_RDY (for var_1, var_2)
 --!                                          or of the internal signals for the nanoFIP and FIELDRIVE
 --!                                          resets (for a var_rst)  
 --!
---!                            _________________________________
---!                           |                                 | 
---!                           |         WF_cons_outcome         | 
---!                           |_________________________________|
---!                                           ^
---!                            _________________________________
---!                           |                                 | 
---!                           |     WF_cons_frame_validator     | 
---!                           |_________________________________|
---!                                            ^
---!                            _________________________________
---!                           |                                 | 
---!                           |      WF_cons_bytes_processor    |
---!                           |                                 | 
---!                           |_________________________________|
---!                                            ^
---!                            _________________________________
---!                           |                                 | 
---!                           |        WF_rx_deserializer       |
---!                           |                                 | 
---!                           |_________________________________|
---!                                            ^
---!                            _________________________________
---!                           |                                 | 
---!                           |         WF_rx_deglitcher        |
---!                           |_________________________________|
---!
---!             _______________________________________________________________
---!            0__________________________FIELDBUS____________________________O    
+--!                                __       _________________________________
+--!                               |        |                                 | 
+--!                               |        |         WF_cons_outcome         | 
+--!                               |        |_________________________________|
+--!                           Level 2                       ^
+--!                               |         _________________________________
+--!                               |        |                                 | 
+--!                               |        |     WF_cons_frame_validator     | 
+--!                               |__      |_________________________________|
+--!                                                         ^
+--!                                __       _________________________________
+--!                               |        |                                 | 
+--!                           Level 1      |      WF_cons_bytes_processor    |
+--!                               |        |                                 | 
+--!                               |__      |_________________________________|
+--!                                                         ^
+--!                                __       _________________________________
+--!                               |        |                                 | 
+--!                               |        |        WF_rx_deserializer       |
+--!                               |        |                                 | 
+--!                               |        |_________________________________|
+--!                            Level 0                      ^
+--!                               |         _________________________________
+--!                               |        |                                 | 
+--!                               |        |         WF_rx_deglitcher        |
+--!                               |__      |_________________________________|
+--! 
+--!                          _______________________________________________________________
+--!                         0__________________________FIELDBUS____________________________O    
 --1
 --!
 --!            Note: In the entity declaration of this unit, below each input signal, we mark
@@ -112,7 +113,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --------------------------------------------------------------------------------------------------- 
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings!                                          --
 ---------------------------------------------------------------------------------------------------
@@ -253,7 +254,8 @@ begin
 --                               Consumption Level 0: Deglitcher                                 --
 ---------------------------------------------------------------------------------------------------
 --! @brief Instantiation of the WF_rx_deglitcher unit that applies a glitch filter to the "nanoFIP
---! FIELDRIVE" input signal fd_rxd
+--! FIELDRIVE" input signal fd_rxd.
+
   Consumption_Level_0_Deglitcher : WF_rx_deglitcher 
   generic map (c_DEGLITCH_LGTH => 10)
   port map(
@@ -275,6 +277,7 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --! @brief Instantiation of the WF_rx_deserializer unit that deserializes the deglitched fd_rxd
 --! and constructs bytes of data.
+
   Consumption_Level_0_Deserializer: WF_rx_deserializer 
   port map (
     uclk_i                   => uclk_i,
@@ -304,6 +307,7 @@ begin
 --! @brief Instantiation of the WF_cons_bytes_processor unit that is "consuming" data bytes
 --! arriving from the WF_rx_deserializer, by registering them to the Consumed memories or by
 --! transferring them to the "nanoFIP User Interface, NON_WISHBONE" output bus DAT_O.
+
   Consumption_Level_1_bytes_processor : WF_cons_bytes_processor 
   port map(
     uclk_i                => uclk_i,
@@ -334,6 +338,7 @@ begin
 --! @brief Instantiation of the WF_cons_frame_validator unit, responsible for the validation of a
 --! received RP_DAT frame with respect to the correctness of the Control, PDU_TYPE and Length
 --! bytes of the Manchester encoding.
+
   Consumption_Level_2_Frame_Validator: WF_cons_frame_validator
   port map(
     cons_ctrl_byte_i            => s_cons_ctrl_byte, 
@@ -354,7 +359,8 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --! @brief Instantiation of the WF_cons_outcome unit that is generating :
 --! the "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY & VAR2_RDY (for a var_1/2)
---! or the nanoFIP internal signals rst_nFIP_and_FD_p and assert_RSTON_p          (for a var_rst)
+--! or the nanoFIP internal signals rst_nFIP_and_FD_p and assert_RSTON_p          (for a var_rst).
+
   Consumption_Level_2_Outcome : WF_cons_outcome
   port map (
     uclk_i                => uclk_i,

@@ -27,33 +27,29 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The WF_engine_control is the coordinator of the main units: WF_consumption,
---!            WF_production and WF_reset_unit. It follows the reception of an incoming ID_DAT
---!            frame and accordingly can activate the transmitter WF_tx_serializer (if a frame has
---!            to be produced) or reset the receiver WF_rx_deserializer (if the reception has to
---!            be reinitialized) or inform the WF_reset_unit to reset the nanoFIP or the FIELDRIVE
---!            (if a consumed reset variable has arrived). Therefore, it is responsible for all 
---!            information traffic between the WF_consumption unit and the units WF_production and
---!            WF_reset_unit (in detail it provides all the information to the WF_production for
---!            the nanoFIP status byte and to the WF_reset_unit it provides the signals
---!            assert_rston_p and rst_nfip_and_fd_p).
+--! @brief     The WF_engine_control is following the reception of an incoming ID_DAT frame and
+--!              o identifies the variable to be treated
+--!              o signals accordingly the WF_production and WF_consumption units.
 --!            Its main output var_i is crucial for the units WF_cons_bytes_processor and
 --!            WF_prod_bytes_retriever as it defines the structure of the frames that are expected
---!            to arrive or to be produced.   
---!            Finally it is in charge of generation of the nanoFIP User Interface, NON_WISHBONE
---!            VAR_RDY signals.
+--!            to arrive or to be produced.
 --!
 --!            ------------------------------------------------------------------------------------
---!            Few Reminders
+--!            Reminder
 --!
 --!            ID_DAT frame structure :
 --!             ___________ ______  _______ ______  ___________ _______
 --!            |____FSS____|_Ctrl_||__Var__|_Subs_||____FCS____|__FES__|
 --! 
 --!
---!            RP_DAT frame structure :
---!             ___________ ______  _______ ________ _________________ ____________ _______  ___________ _______
---!            |____FSS____|_Ctrl_||__PDU__|__LGTH__|__..User-Data..__|_nFIPstatus_|__MPS__||____FCS____|__FES__|
+--!            Produced RP_DAT frame structure :
+--!             ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
+--!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|
+--!
+--!
+--!            Consumed RP_DAT frame structure :
+--!             ___________ ______  _______ ______ _________________________ _______  ___________ _______
+--!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|______..Pure-Data..______|__MPS__||____FCS____|__FES__|
 --!
 --!
 --!            Turnaround time : Time between the end of the reception of an ID_DAT frame
@@ -93,13 +89,9 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                         state consume_wait_FSS, for the correct use of the silence time(time
 --!                         stops counting when an RP_DAT frame has started)
 --!                         
---!     12/2010  v0.03  EG  removed check on slone mode for #bytes>4;
+--!     12/2010  v0.02  EG  removed check on slone mode for #bytes>4;
 --!                         in slone no broadcast
---!     01/2011  v0.04  EG  signals named according to their origin
---!                         signals removed for simplification; they were added to the
---!                         WF_consumption & WF_production units: var1,2,3_rdy, assert_rston,
---!                         rst_nfip_and_fd, nfip_status_r_tler, nfip_status_fcser,rst-status_bytes
---!                         rx_byte_ready_p.
+--!     01/2011  v0.03  EG  signals named according to their origin; signals removed....
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -108,7 +100,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -215,25 +207,17 @@ architecture rtl of WF_engine_control is
   signal control_st, nx_control_st  : control_st_t;
   signal s_var_aux, s_var, s_var_id : t_var;
 
-
-  signal s_tx_byte_ready_p_d1 :           std_logic;
-  signal s_load_time_counter, s_tx_byte_ready_p_d2 :        std_logic;
-  signal s_tx_start_prod_p :               std_logic;
-  signal s_time_c_is_zero, s_broadcast_var :                           std_logic;
-  signal s_inc_rx_bytes_counter, s_tx_last_byte_p :std_logic;
-  signal s_prod_data_length_match, s_tx_byte_ready_p :std_logic;
-  signal s_rx_bytes_c, s_prod_bytes_c :  unsigned(7 downto 0);
-  signal s_prod_data_length :      std_logic_vector(7 downto 0);
-  signal s_time_counter_top, s_time_c:                                 unsigned(14 downto 0); 
-  signal s_turnaround_time, s_silence_time :                             unsigned(14 downto 0);
-  signal s_produce_or_consume :                                        std_logic_vector (1 downto 0);
-  signal s_id_dat_subs_byte, s_id_dat_frame_ok : std_logic;
-  signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_cons_wait_FSS: std_logic;
-  signal s_prod_wait_turnar_time, s_producing, s_consuming :                                  std_logic;
-  signal s_rst_prod_bytes_counter, s_inc_prod_bytes_counter : std_logic;
-  signal s_rst_rx_bytes_counter, s_tx_last_byte_p_d: std_logic;
-  signal s_tx_byte_index, s_rx_byte_index :        std_logic_vector (7 downto 0);
-
+  signal s_time_c_is_zero, s_broadcast_var, s_tx_start_prod_p, s_inc_rx_bytes_counter  : std_logic;
+  signal s_producing, s_consuming, s_rst_prod_bytes_counter, s_inc_prod_bytes_counter  : std_logic;
+  signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_cons_wait_FSS          : std_logic;
+  signal s_prod_data_length_match, s_tx_byte_ready_p, s_prod_wait_turnar_time          : std_logic;
+  signal s_tx_byte_ready_p_d1, s_load_time_counter, s_tx_byte_ready_p_d2               : std_logic;
+  signal s_rst_rx_bytes_counter, s_tx_last_byte_p_d, s_tx_last_byte_p                  : std_logic;
+  signal s_id_dat_subs_byte, s_id_dat_frame_ok                                         : std_logic;
+  signal s_rx_bytes_c, s_prod_bytes_c                                      : unsigned (7 downto 0);
+  signal s_time_counter_top, s_time_c, s_turnaround_time, s_silence_time   : unsigned(14 downto 0);
+  signal s_prod_data_length, s_tx_byte_index, s_rx_byte_index      : std_logic_vector (7 downto 0);
+  signal s_produce_or_consume                                      : std_logic_vector (1 downto 0);
 
 
 --=================================================================================================
@@ -576,7 +560,8 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --! @brief Instantiation of the WF_prod_data_lgth_calc unit that calculates the total amount of
 --! data-bytes that have to be transferred when a variable is produced (including the
---! RP_DAT.Control, RP_DAT.Data.MPS_status and RP_DAT.Data.nanoFIP_status bytes)
+--! RP_DAT.Control, RP_DAT.Data.MPS_status and RP_DAT.Data.nanoFIP_status bytes).
+
   Produced_Data_Length_Calculator: WF_prod_data_lgth_calc
   port map(
     slone_i            => slone_i,             
@@ -592,6 +577,7 @@ begin
 --! @brief Instantiation of a WF_incr_counter for the counting of the number of the bytes that are
 --! being produced. The counter is reset at the "produce_wait_turnar_time" state of the FSM and
 --! counts bytes following the "tx_request_byte_p_i" pulse in the "produce" state.
+
   Produced_Bytes_Counter: WF_incr_counter
   generic map(g_counter_lgth => 8)
   port map(
@@ -621,6 +607,7 @@ begin
 --! following the "rx_byte_ready_p_i" pulse in the "id_dat_frame_ok" state.
 --! Regarding a RP_DAT frame  : the counter is reset at the "consume_wait_FSS" state and counts
 --! bytes following the "rx_byte_ready_p_i" pulse in the "consume" state.
+
   Rx_Bytes_Counter: WF_incr_counter
   generic map(g_counter_lgth => 8)
   port map(
@@ -638,6 +625,7 @@ begin
 --! @brief Combinatorial process Arguments_For_Both_Bytes_Counters: The process gives values to
 --! the signals reinit_counter_i and incr_counter_i of the Produced_Bytes_Counter and 
 --! Rx_Bytes_Counter according to the state of the FSM.
+
   Arguments_For_Both_Bytes_Counters: process (s_id_dat_frame_ok, s_consuming, tx_request_byte_p_i,
                                      s_producing, rx_byte_ready_p_i, s_rx_bytes_c, s_prod_bytes_c)
   begin
@@ -696,6 +684,7 @@ begin
 --! the identified variable is a produced one the counter loads to the turnaround time, whereas if
 --! it had been a consumed variable it loads to the silence. The counting takes place during the
 --! states "produce_wait_turnar_time" and "consume_wait_FSS" respectively.
+
   Turnaround_and_Silence_Time_Counter: WF_decr_counter
   generic map(g_counter_lgth => 15)
   port map(
@@ -723,6 +712,7 @@ begin
 --! @brief Combinatorial process Turnaround_and_Silence_Time_Counter_Arg: The process gives values
 --! to the counter_top and counter_load_i inputs of the Turnaround_and_Silence_Time_Counter,
 --! according to the state of the FSM and the type of received variable (s_produce_or_consume).
+
   Turnaround_and_Silence_Time_Counter_Arg: process (s_prod_wait_turnar_time, s_turnaround_time,
                                                     s_id_dat_frame_ok, s_produce_or_consume,
                                                     s_cons_wait_FSS, s_silence_time)
@@ -812,6 +802,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief: Combinatorial process Var_Characteristics: management of the signals
 --! s_produce_or_consume and s_broadcast_var, according to the value of s_var_aux.
+
   Var_Characteristics: process (s_var_aux)
   begin
     s_produce_or_consume       <= "00";

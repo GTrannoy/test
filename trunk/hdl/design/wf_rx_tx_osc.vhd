@@ -88,7 +88,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -237,6 +237,7 @@ begin
     end if;
   end process;
 
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Concurrent signal assignments concerning the receiver:
 -- creation of the windows where "significant edges" and "adjacent bits transitions" are expected
@@ -275,7 +276,6 @@ begin
 
   -- Edges between adjacent bits are expected inside the adjac_bits_window; if they do not arrive
   -- the rx_manch_clk and rx_bit_clk are inverted right after the end of the adjac_bits_window.
-
 
  rx_clk: process (uclk_i)
   
@@ -384,6 +384,7 @@ begin
     end if;
   end process;
 
+
 ---------------------------------------------------------------------------------------------------
 -- Concurrent signal assignments concerning the transmitter:
 
@@ -404,6 +405,10 @@ begin
                                               -- not s_tx_clk_d1       : ----|_____|-----|_____|---
                                               -- s_tx_clk_p            : __|-|___|-|___|-|___|-|___
 
+
+
+---------------------------------------------------------------------------------------------------
+--                                           Output signals                                      --
 ---------------------------------------------------------------------------------------------------
 -- Output signals construction:
 

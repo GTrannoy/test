@@ -53,6 +53,15 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                  transition         :    ^
 --!                  sample_manch_bit_p : ^ ^ ^ ^ 
 --!                  sample_bit_p       : ^   ^   (this sampling will give the 0 and the 1)
+--!
+--!            ------------------------------------------------------------------------------------
+--!            Reminder:
+--!
+--!            Consumed RP_DAT frame structure :
+--!             _______ _______ ______  _______ ______ ______________ _______  ___________ _______
+--!            |__PRE__|__FSD__|_Ctrl_||__PDU__|_LGTH_|_..PureData.._|__MPS__||____FCS____|__FES__|
+--!
+--!            ------------------------------------------------------------------------------------
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -67,17 +76,17 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n 
 --
---!   \n<b>Dependencies:</b>  \n
---!     WF_reset_unit         \n
---!     WF_rx_tx_osc          \n
---!     WF_rx_deglitcher      \n
---!     WF_engine_control     \n
---!     WF_inputs_synchronizer\n
+--!   \n<b>Dependencies:</b>         \n
+--!            WF_reset_unit         \n
+--!            WF_rx_tx_osc          \n
+--!            WF_rx_deglitcher      \n
+--!            WF_engine_control     \n
+--!            WF_inputs_synchronizer\n
 -- 
 -- 
---!   \n<b>Modified by:</b>   \n
---!     Pablo Alvarez Sanchez \n
---!     Evangelia Gousiou     \n
+--!   \n<b>Modified by:</b>          \n
+--!            Pablo Alvarez Sanchez \n
+--!             Evangelia Gousiou    \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -89,7 +98,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                          units WF_rx_manch_code_check and Incoming_Bits_Index created;
 --!                          each manch bit of FES checked (bf was just each bit, so any D5 was FES) 
 --!                          code cleaned-up + commented.\n
---!     -> 12/2010 v0.03 EG  CRC_ok pulse transfered 16 bits later to match the FES;
+--!     -> 12/2010 v0.02 EG  CRC_ok pulse transfered 16 bits later to match the FES;
 --!                          like this we confirm that the CRC_ok_p arrived just before the FES,
 --!                          and any 2 bytes that could by chanche be seen as CRC, are neglected.  
 --!                          FSM data_field_byte state: redundant code removed:
@@ -104,7 +113,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -177,10 +186,10 @@ architecture rtl of WF_rx_deserializer is
                     fsd_field, switch_to_deglitched, data_fcs_fes_fields);
 
   signal rx_st, nx_rx_st                                          : rx_st_t;
-  signal s_manch_code_viol_p, s_CRC_ok_p, s_CRC_ok_p_d16          : std_logic;
+  signal s_manch_code_viol_p, s_CRC_ok_p, s_CRC_ok_p_d16             : std_logic;
   signal s_fsd_last_bit, s_fes_wrong_bit, s_sample_manch_bit_p_d1 : std_logic;
   signal s_fes_detected_p, s_fes_detection_window                 : std_logic;
-  signal s_manch_not_ok, s_switching_to_deglitched                : std_logic;
+  signal s_manch_not_ok, s_switching_to_deglitched       : std_logic;
   signal s_receiving_fsd, s_receiving_bytes, s_receiving_pre      : std_logic;
   signal s_decr_manch_bit_index_p, s_manch_bit_index_load         : std_logic;
   signal s_manch_bit_index_is_zero, s_edge_outside_manch_window_p : std_logic;
@@ -424,13 +433,14 @@ architecture rtl of WF_rx_deserializer is
 
 
 ---------------------------------------------------------------------------------------------------
---                                          Bytes Creation                                       --
+--                                          Creating Bytes                                       --
 ---------------------------------------------------------------------------------------------------
 
 --!@brief Synchronous process Append_Bit_To_Byte: creation of bytes of data.
 --! A new bit of the (deglitched) input signal is appended to the output byte that is being formed
 --! when the Deserializer's FSM is in the "data_fcs_fes_fields" state, on the "sampling of a bit"
 --! moments.
+
   Append_Bit_To_Byte: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
@@ -460,7 +470,8 @@ architecture rtl of WF_rx_deserializer is
 ---------------------------------------------------------------------------------------------------
 
 --!@brief Instantiation of a counter that manages the position of an incoming deglitched bit
---! inside a manch. encoded byte (16 bits).  
+--! inside a manch. encoded byte (16 bits).
+  
   Incoming_Bits_Index: WF_decr_counter
   generic map(g_counter_lgth => 4)
   port map(
@@ -476,11 +487,13 @@ architecture rtl of WF_rx_deserializer is
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- FSD aux signals concurrent assignments:
+
   s_fsd_bit        <= s_receiving_fsd   and FSD (to_integer(s_manch_bit_index));  
   s_fsd_last_bit   <= s_manch_bit_index_is_zero and sample_manch_bit_p_i;
   s_fsd_wrong_bit  <= (s_fsd_bit xor rxd_filtered_i) and sample_manch_bit_p_i; 
 
   -- FES aux signals concurrent assignments :
+
   s_fes_bit        <= s_receiving_bytes and FES (to_integer(s_manch_bit_index));
   s_fes_wrong_bit  <= (s_fes_bit xor rxd_filtered_i) and sample_manch_bit_p_i;   
   s_fes_detected_p <=s_fes_detection_window and sample_manch_bit_p_i and s_manch_bit_index_is_zero;     
@@ -488,6 +501,7 @@ architecture rtl of WF_rx_deserializer is
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Combinatorial process that according to the state of the FSM sets values to the
 --! Incoming_Bits_Index inputs.
+
   Bit_Index: process (s_idle,s_receiving_pre, s_switching_to_deglitched, s_receiving_fsd,
                       s_receiving_bytes, s_manch_bit_index_is_zero,sample_manch_bit_p_i)
   begin
@@ -527,7 +541,8 @@ architecture rtl of WF_rx_deserializer is
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Synchronous process FES_Detector: creation of a window that is activated at the 
---! beginning of an incoming byte and stays active as long as 16 incoming manch. bits match the FES. 
+--! beginning of an incoming byte and stays active as long as 16 incoming manch. bits match the FES.
+ 
   FES_Detector: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
@@ -553,6 +568,7 @@ architecture rtl of WF_rx_deserializer is
 ---------------------------------------------------------------------------------------------------
 
 --!@brief Instantiation of the CRC calculator unit that verifies the received FCS field.
+
   CRC_Verification : WF_crc 
   generic map(c_GENERATOR_POLY_length => 16) 
   port map(
@@ -568,6 +584,7 @@ architecture rtl of WF_rx_deserializer is
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Instantiation of the WF_rx_manch_code_check unit that checks for manch. code violations.
+
   Manch_Encoding_Verification: WF_rx_manch_code_check
   port map(
     uclk_i                => uclk_i,
@@ -583,6 +600,7 @@ architecture rtl of WF_rx_deserializer is
 --!@brief Synchronous process that manages the s_manch_code_viol_p signal: If at any point after
 --! the FSS and before the FES a code violation appears, the signal s_manch_not_ok stays
 --! asserted until the end of the corresponding frame.    
+
   Code_viol: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
@@ -611,6 +629,7 @@ architecture rtl of WF_rx_deserializer is
 --! calculator unit is delayed for 16 manch. encoded bits. The matching of this delayed pulse with
 --! the FES pulse (s_fes_detected_p), would confirm that the two last bytes received before the
 --! FES were the correct CRC.
+
   CRC_OK_pulse_delay: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
@@ -648,6 +667,7 @@ architecture rtl of WF_rx_deserializer is
 --                                   Concurrent signal assignments                               --
 ---------------------------------------------------------------------------------------------------
 -- aux signals concurrent assignments :
+
   s_manch_r_edge_p              <= signif_edge_window_i and rxd_r_edge_p_i;
   s_manch_f_edge_p              <= signif_edge_window_i and rxd_f_edge_p_i;
   s_bit_r_edge_p                <= adjac_bits_window_i and ( rxd_r_edge_p_i);
@@ -656,6 +676,7 @@ architecture rtl of WF_rx_deserializer is
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- output signals concurrent assignments :
+
   byte_o                        <= s_byte; 
   rst_rx_osc_o                  <= s_idle;
   fss_received_p_o              <= s_receiving_fsd and s_fsd_last_bit;

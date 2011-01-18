@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_rx_manch_code_check.vhd                                                            |
+--! @file WF_rx_manch_code_check.vhd                                                              |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -31,15 +31,22 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            Manchester 2 (manch.) code violation is detected.
 --!            It is assumed that a violation happens if after a half-bit-clock period (plus 2 uclk
 --!            periods), the incoming signal has not had a transition.
---!            Note: the term sample_manch_bit_p refers to the moments when a manch. encoded bit
---!            should be sampled (before and after a significant edge), whereas the 
---!            sample_bit_p includes only the sampling of the 1st part, before the transition. 
---!            Example:
---!                    bit                : 0 
---!                    manch. encoded     : _|-
---!                    sample_manch_bit_p : ^ ^
---!                    sample_bit_p       : ^    (this sampling will give the 0)
-
+--!
+--!            Remark: We refer to
+--!              o a significant edge                : for the edge of a manch. encoded bit
+--!                (bit 0: __|--, bit 1: --|__)
+--!              o the sampling of a manch. bit      : for the moments when a manch. encoded bit
+--!                should be sampled, before and after a significant edge. The period of this
+--!                sampling is that of the half-bit-clock.
+--!              o the sampling of a bit             : for the sampling of only the 1st part,
+--!                before the transition (the period is the double of the manch. sampling) 
+--!
+--!                Example:
+--!                  bits               :   0     1 
+--!                  manch. encoded     : __|-- --|__
+--!                  significant edge   :  ^     ^
+--!                  sample_manch_bit_p :  ^ ^   ^ ^ 
+--!                  sample_bit_p       :  ^     ^   (this sampling will give the 0 and the 1)
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -116,8 +123,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process Check_Code_Violations: in order to check for code violations, the
 --! input signal is delayed by half-bit-clock period (serial_input_signal_d).
---! The signal check_code_viol_p is a pulse occuring 2 uclk periods after a manch. transition is
---! expected.
+--! The signal check_code_viol_p is a pulse occuring 2 uclk periods after a manch. edge is expected.
 --! As the following drawing roughly indicates, a violation exists if the signal and its delayed
 --! version are identical on the check_code_viol_p moments.
 
@@ -150,6 +156,7 @@ begin
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent signal assignment
+
   manch_code_viol_p_o                <= s_check_code_viol_p and 
                                         (not (serial_input_signal_i xor s_serial_input_signal_d));
   

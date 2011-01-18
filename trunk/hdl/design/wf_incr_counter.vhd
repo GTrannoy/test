@@ -102,6 +102,7 @@ begin
 
 --------------------------------------------------------------------------------------------------- 
   -- Synchronous process Incr_Counter
+
   Incr_Counter: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
@@ -119,8 +120,10 @@ begin
     end if;
   end process;
 
+
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent assignments for output signals
+
   counter_o         <= s_counter;
   counter_is_full_o <= '1' when s_counter = c_COUNTER_FULL else '0';
 

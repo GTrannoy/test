@@ -447,6 +447,7 @@ begin
 --!@brief Synchronous process Delay_mem_wr_en: since the input buses wb_data_i and wb_addr_i are
 --! the triply buffered versions of the DAT_I and ADR_I, the signal write_en_portb_i has to be delayed
 --! too. As write_en_portb_i we use the wb_ack_prod_p signal.
+
   Delay_mem_wr_en: process (wb_clk_i) 
   begin
     if rising_edge (wb_clk_i) then
