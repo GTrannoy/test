@@ -19,4 +19,10 @@
 1,3,8,0,0	-- writting VAR3 in memory
 378 us		-- stand-by time
 1,3,8,0,0	-- writting VAR3 in memory
+426 us		-- stand-by time
+1,3,124,0,0	-- writting VAR3 in memory
+618 us		-- stand-by time
+1,3,124,0,0	-- writting VAR3 in memory
+874 us		-- stand-by time
+1,3,124,0,0	-- writting VAR3 in memory
 2000 ms		-- final stand-by time to end the simulation
