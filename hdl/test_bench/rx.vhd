@@ -17,7 +17,9 @@ entity rx is
 	);
 	port(
 		clk						: in std_logic;
+		fes_value				: in std_logic_vector(7 downto 0);
 		fip_frame_trigger		: in std_logic;
+		fss_value				: in std_logic_vector(15 downto 0);
 		gx						: in std_logic_vector(crc_l downto 0);
 		id_control_byte			: in std_logic_vector(7 downto 0);
 		id_rp					: in std_logic;
@@ -28,6 +30,12 @@ entity rx is
 		reset					: in std_logic;
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
+		var_adr_presence		: in std_logic_vector(7 downto 0);
+		var_adr_identification	: in std_logic_vector(7 downto 0);
+		var_adr_broadcast		: in std_logic_vector(7 downto 0);
+		var_adr_consumed		: in std_logic_vector(7 downto 0);
+		var_adr_produced		: in std_logic_vector(7 downto 0);
+		var_adr_reset			: in std_logic_vector(7 downto 0);
 		var_length				: in std_logic_vector(6 downto 0);
 		
 		cd						: out std_logic;
@@ -72,6 +80,12 @@ architecture archi of rx is
 		rp_control_byte			: in std_logic_vector(7 downto 0);
 		station_adr				: in std_logic_vector(7 downto 0);
 		var_adr					: in std_logic_vector(7 downto 0);
+		var_adr_presence		: in std_logic_vector(7 downto 0);
+		var_adr_identification	: in std_logic_vector(7 downto 0);
+		var_adr_broadcast		: in std_logic_vector(7 downto 0);
+		var_adr_consumed		: in std_logic_vector(7 downto 0);
+		var_adr_produced		: in std_logic_vector(7 downto 0);
+		var_adr_reset			: in std_logic_vector(7 downto 0);
 		var_length				: in std_logic_vector(6 downto 0);
 		
 		msg_complete			: out std_logic;
@@ -129,8 +143,12 @@ architecture archi of rx is
 	end component;
 
 	component fss_gen
+	generic(
+		width					: integer:=16
+	);
 	port(
 		clk						: in std_logic;
+		fss_value				: in std_logic_vector(15 downto 0);
 		start_delimiter			: in std_logic;
 		reset					: in std_logic;
 		
@@ -146,6 +164,7 @@ architecture archi of rx is
 	);
 	port(
 		clk						: in std_logic;
+		fes_value				: in std_logic_vector(7 downto 0);
 		start_delimiter			: in std_logic;
 		reset					: in std_logic;
 		
@@ -231,23 +250,29 @@ begin
 
 	msg_block: msg_sender
 	port map(
-		clk					=> clk,
-		fip_frame_trigger	=> fip_frame_trigger,
-		id_control_byte		=> id_control_byte,
-		id_rp				=> id_rp,
-		mps_byte			=> mps_byte,
-		msg_start			=> msg_start,
-		msg_new_data_req	=> msg_new_data_req,
-		pdu_type_byte		=> pdu_type_byte,
-		reset				=> reset,
-		rp_control_byte		=> rp_control_byte,
-		station_adr			=> station_adr,
-		var_adr				=> var_adr,
-		var_length			=> var_length,
+		clk						=> clk,
+		fip_frame_trigger		=> fip_frame_trigger,
+		id_control_byte			=> id_control_byte,
+		id_rp					=> id_rp,
+		mps_byte				=> mps_byte,
+		msg_start				=> msg_start,
+		msg_new_data_req		=> msg_new_data_req,
+		pdu_type_byte			=> pdu_type_byte,
+		reset					=> reset,
+		rp_control_byte			=> rp_control_byte,
+		station_adr				=> station_adr,
+		var_adr					=> var_adr,
+		var_adr_presence		=> var_adr_presence,
+		var_adr_identification	=> var_adr_identification,
+		var_adr_broadcast		=> var_adr_broadcast,
+		var_adr_consumed		=> var_adr_consumed,
+		var_adr_produced		=> var_adr_produced,
+		var_adr_reset			=> var_adr_reset,
+		var_length				=> var_length,
 		
-		msg_complete		=> msg_complete,
-		msg_data			=> msg_data,
-		msg_go				=> msg_go
+		msg_complete			=> msg_complete,
+		msg_data				=> msg_data,
+		msg_go					=> msg_go
 	);
 	
 	msg_serializer: serializer
@@ -298,6 +323,7 @@ begin
 	fss_block: fss_gen
 	port map(
 		clk						=> clk,
+		fss_value				=> fss_value,
 		start_delimiter			=> seq_start,
 		reset					=> reset,
 		
@@ -309,6 +335,7 @@ begin
 	fes_block: fes_gen
 	port map(
 		clk						=> clk,
+		fes_value				=> fes_value,
 		start_delimiter			=> fcs_complete,
 		reset					=> reset,
 

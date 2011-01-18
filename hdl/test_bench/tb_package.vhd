@@ -16,6 +16,13 @@ component hex_byte_transcriber
 	);
 end component;
 
+component bin_byte_transcriber
+	port(
+		input		: in std_logic_vector(7 downto 0);
+		output		: out string (1 to 8)
+	);
+end component;
+
 end tb_package;
 
 package body tb_package is
