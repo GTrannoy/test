@@ -2,9 +2,9 @@
 -- Creation Date: May 2010
 -- Description: Generates the Frame Start Sequence 
 --				(Preamble + Frame Start Delimiter)
--- Modified by:
--- Modification Date:
--- Modification consisted on:
+-- Modified by: G. Penacoba
+-- Modification Date: January 2011
+-- Modification consisted on: The value used for the FSS comes from the config file
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -17,6 +17,7 @@ entity fss_gen is
 	);
 	port(
 		clk						: in std_logic;
+		fss_value				: in std_logic_vector(15 downto 0);
 		start_delimiter			: in std_logic;
 		reset					: in std_logic;
 		
@@ -28,7 +29,8 @@ end fss_gen;
 		
 architecture archi of fss_gen is
 
-constant fss_value		: std_logic_vector(width downto 0) :="101010101XX10XX0U";
+signal s_fss_value		: std_logic_vector(width downto 0);
+--														 :="101010101XX10XX0U";
 
 signal aux				: std_logic;
 signal i				: integer range width downto 0;
@@ -41,6 +43,8 @@ begin
 
 	sending_fss			<= '1' when start_delimiter ='1' and aux ='0' else
 							'0' when i = 0;
+							
+	s_fss_value			<= fss_value & "U";
 
 	decount: process
 	begin
@@ -56,7 +60,7 @@ begin
 		wait until clk ='1';
 	end process;
 
-	fss			<= fss_value(i);
+	fss			<= s_fss_value(i);
 	
 	violation: process(i)
 	begin

@@ -24,7 +24,6 @@ entity tx is
 		txd						: in std_logic;
 		txena					: in std_logic;
 		
-		sof_o						: out std_logic;
 		txerr					: out std_logic;
 		wdgn					: out std_logic
 	);
@@ -191,6 +190,4 @@ begin
 		wdgn				=> wdgn
 	);
 	
-	sof_o					<= sof;
-
 end archi;

@@ -34,6 +34,7 @@ architecture archi of nanofip_tb is
  
     nostat_i   : in  std_logic; --! No NanoFIP status transmission
     rstin_i    : in  std_logic; --! Initialisation control, active low
+    rstpon_i   : in  std_logic; --! Power On Reset, active low
     slone_i    : in  std_logic; --! Stand-alone mode
     uclk_i     : in  std_logic; --! 40 MHz clock
     rston_o    : out std_logic; --! Reset output, active low
@@ -188,6 +189,7 @@ begin
 
     nostat_i  => nostat,
     rstin_i   => urst_to_nf,
+    rstpon_i   => urst_to_nf,
     slone_i   => slone,
     uclk_i    => uclk,
     rston_o   => urst_from_nf,

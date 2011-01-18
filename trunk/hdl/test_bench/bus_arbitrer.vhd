@@ -14,13 +14,13 @@ use work.tb_package.all;
 
 entity bus_arbitrer is
 	port(
-		f_clk_period		: in time;
+		f_clk_period			: in time;
 		
-		fip_frame_trigger	: out std_logic;
-		id_rp				: out std_logic;
-		station_adr			: out std_logic_vector(7 downto 0);
-		var_adr				: out std_logic_vector(7 downto 0);
-		var_length			: out std_logic_vector(6 downto 0)
+		fip_frame_trigger		: out std_logic;
+		id_rp					: out std_logic;
+		station_adr				: out std_logic_vector(7 downto 0);
+		var_adr					: out std_logic_vector(7 downto 0);
+		var_length				: out std_logic_vector(6 downto 0)
 	);
 end bus_arbitrer;
 
