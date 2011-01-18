@@ -136,7 +136,6 @@ architecture RAM4K9 of  DualClkRAM is
 --! A Low on this signal makes the output retain data from the previous Read. A High indicates a 
 --! pass-through behavior where the data being written will appear on the output immediately.
 
-
   component RAM4K9
     generic (MEMORYFILE:string := "");
 

@@ -57,7 +57,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --------------------------------------------------------------------------------------------------- 
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -105,6 +105,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
   -- Synchronous process Decr_Counter
+
   Decr_Counter: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
@@ -124,8 +125,10 @@ begin
     end if;
   end process;
 
+
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent assignments for output signals
+
   counter_o         <= s_counter;
   counter_is_zero_o <= '1' when s_counter = to_unsigned(0,s_counter'length) else '0';
   

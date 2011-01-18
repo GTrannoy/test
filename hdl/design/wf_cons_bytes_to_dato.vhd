@@ -28,14 +28,14 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --
 --! @brief     In stand-alone mode, after the reception of a consumed or consumed broadcast
---!            variable, the unit is responsible for transering the two data-bytes of the variable
---!            to the 2-bytes long bus DAT_O.
+--!            variable, the unit is responsible for transering the two pure-data bytes to the
+--!            2-bytes long bus DAT_O.
 --!            The bytes are put in the bus one by one as they arrive, as the signal 
 --!            transfer_byte_p_i indicates.
 --!
 --!            Note: The validity of these transfered bytes is indicated by the "nanoFIP
---!            User Interface, NON_WISHBONE" signals VAR1_RDY/ VAR2_RDY which arrive after
---!            the reception of the FCS and FES bytes.  
+--!            User Interface, NON_WISHBONE" signals VAR1_RDY/ VAR2_RDY which arrive later, after
+--!            the end of the reception of the consumed frame.  
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -122,6 +122,7 @@ begin
 --!@brief synchronous process Data_Transfer_To_Dat_o: In stand-alone mode, accrording to the signal
 --! transfer_byte_p_i, the first or second byte of the user interface bus DAT_O takes the
 --! incoming byte byte_i.
+
 Data_Transfer_To_Dat_o: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then

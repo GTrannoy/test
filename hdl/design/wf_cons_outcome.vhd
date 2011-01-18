@@ -28,14 +28,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --
 --! @brief     According to the consumed variable that has been received (var_1, var_2, var_rst)
---!            the unit generates the signals:
+--!            and the outcome of the WF_cons_frame_VALIDATOR, the unit generates the signals:
 --!
 --!              o "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY and VAR2_RDY,
---!                according to the variable that is being treated (var_i) and to the
---!                "correct frame" indicator, cons_frame_ok_p_i.
---!
---!              o rst_nFIP_and_FD_p and assert_RSTON_p, according to the data bytes received and to
---!                the "correct frame" indicator, cons_frame_ok_p_i.    
+--!              o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the WF_reset_unit.    
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -69,7 +65,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --------------------------------------------------------------------------------------------------- 
 --
 --! @todo 
---!   -> rename the unit to include actions for var reset. 
 --
 --------------------------------------------------------------------------------------------------- 
 
@@ -146,36 +141,34 @@ begin
 
 --! Memory Mode:
   --! Since the three memories (consumed, consumed broadcast, produced) are independant, when a
-  --! produced var is being sent, the user can read form the consumed memories; similarly, when a
-  --! consumed variable is being received the user can write to the produced momory.
+  --! produced var. is being sent, the user can read form the consumed memories; similarly, when a
+  --! consumed var. is being received the user can read from the consumed broadcast memory.
 
-  --! VAR1_RDY (for consumed vars): signals that the user can safely read from the consumed
-  --! variable memory. The signal is asserted only after the reception of a correct RP_DAT frame.
-  --! It is de-asserted after the reception of a correct var1 ID_DAT frame. 
+  --! VAR1_RDY (for consumed vars): signals that the user can safely read from the consumed memory.
+  --! The signal is asserted only after the reception of a correct RP_DAT frame.
+  --! It is de-asserted after the reception of a correct var_1 ID_DAT frame. 
 
   --! VAR2_RDY (for broadcast consumed vars): signals that the user can safely read from the
-  --! consumed broadcast variable memory. The signal is asserted only after the reception of a 
-  --! correct consumed broadcast RP_DAT frame. It is de-asserted after the reception of a correct
-  --! var2 ID_DAT frame. 
+  --! consumed broadcast memory. The signal is asserted only after the reception of a correct
+  --! consumed broadcast RP_DAT frame. It is de-asserted after the reception of a correct var_2
+  --! ID_DAT frame. 
 
 
 --! Stand-alone Mode:
-  --! In stand-alone mode, the DAT_I and DAT_O buses for the produced and the consumed bytes 
-  --! are independant. Stand-alone mode does not treat the consumed broadcast variable.
+  --! Similarly, in stand-alone mode, the DAT_I and DAT_O buses for the produced and the consumed 
+  --! bytes are independant. Stand-alone mode though does not treat the consumed broadcast variable.
 
   --! VAR1_RDY (for consumed vars): signals that the user can safely retreive data from the DAT_O
   --! bus. The signal is asserted only after the reception of a correct RP_DAT frame.
-  --! It is de-asserted after the reception of a correct var1 ID_DAT frame(same as in memory mode).
+  --! It is de-asserted after the reception of a correct var_1 ID_DAT frame(same as in memory mode).
 
   --! VAR2_RDY (for broadcast consumed vars): stays always deasserted.
 
-
 --! Note: A correct consumed RP_DAT frame is signaled by the cons_frame_ok_p_i, whereas a correct
 --! ID_DAT frame along with the variable it contained is signaled by the var_i.
---! For consumed variables, var_i gets its value (var1, var2, var_rst) after the reception of a
+--! For consumed variables, var_i gets its value (var_1, var_2, var_rst) after the reception of a
 --! correct ID_DAT frame and of a correct FSS of the corresponding RP_DAT frame and it retains it
 --! unitl the end of the reception.
-
 
   VAR_RDY_Generation: process (uclk_i) 
   begin
@@ -192,7 +185,7 @@ begin
 
         when var_1 =>                              -- nanoFIP consuming
                                                    --------------------   
-          var1_rdy_o        <= '0';                -- while consuming a var1, VAR1_RDY is 0
+          var1_rdy_o        <= '0';                -- while consuming a var_1, VAR1_RDY is 0
           var2_rdy_o        <= s_var2_received;    -- VAR2_RDY retains its value
 
 
@@ -208,7 +201,7 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
         when var_2 =>                             -- nanoFIP consuming broadcast     
                                                   ------------------------------ 
-          var2_rdy_o        <= '0';               -- while consuming a var2, VAR2_RDY is 0
+          var2_rdy_o        <= '0';               -- while consuming a var_2, VAR2_RDY is 0
           var1_rdy_o        <= s_var1_received;   -- VAR1_RDY retains its value
 
           if slone_i = '0' and cons_frame_ok_p_d1 = '1' then        
@@ -250,14 +243,14 @@ begin
     end if;
   end process;
 
----------------------------------------------------------------------------------------------------
+
 ---------------------------------------------------------------------------------------------------
 --!@ brief: Generation of the signals s_rst_nfip_and_fd : signals that the 1st byte of a consumed 
 --!                                                        reset var contains the station address   
 --!                                  and s_assert_rston : signals that the 2nd byte of a consumed
 --!                                                        reset var contains the station address 
 
-  Reset_Signals: process (uclk_i) 
+  Cons_Reset_Signals: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
 

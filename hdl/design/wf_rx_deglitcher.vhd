@@ -25,18 +25,25 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit applies a glitch filter; it follows each manchester bit of the "nanoFIP
---!            FIELDRIVE" input signal fd_rxd (synchronized with uclk), counts the number of zeros
---!            and ones throughout its duration and finally outputs the majority. The output
---!            deglitched signal is one half-bit-clock period later than the input.
---!            Note: the term sample_manch_bit_p refers to the moments when a manch. encoded bit
---!            should be sampled (before and after a significant edge), whereas the 
---!            sample_bit_p includes only the sampling of the 1st part, before the transition. 
---!            Example:
---!                    bit                : 0 
---!                    manch. encoded     : _|-
---!                    sample_manch_bit_p : ^ ^
---!                    sample_bit_p       : ^    (this sampling will give the 0)
+--! @brief     The unit applies a glitch filter; it follows each Manchester 2 encoded bit (manch.)
+--!            of the "nanoFIP FIELDRIVE" input signal fd_rxd (synchronized with uclk), counts the 
+--!            number of zeros and ones throughout its duration and finally outputs the majority. 
+--!            The output deglitched signal is one half-bit-clock period later than the input.
+--!
+--!            Remark: We refer to
+--!              o a significant edge                : for the edge of a manch. encoded bit
+--!                (bit 0: _|-, bit 1: -|_)
+--!              o the sampling of a manch. bit      : for the moments when a manch. encoded bit
+--!                should be sampled, before and after a significant edge
+--!              o the sampling of a bit             : for the sampling of only the 1st part,
+--!                before the transition. 
+--!
+--!                Example:
+--!                  bits               :  0   1 
+--!                  manch. encoded     : _|- -|_
+--!                  significant edge   :  ^   ^
+--!                  sample_manch_bit_p : ^ ^ ^ ^ 
+--!                  sample_bit_p       : ^   ^   (this sampling will give the 0 and the 1)
 --
 --
 --! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -126,9 +133,9 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---! Synchronous process: Zeros_and_Ones_counter: For each manchester bit (between two
---! sample_manch_bit_p_i pulses) at each uclk tick, the signed counter decreases by one if rxd is
---! one or increases by one if rxd is zero.
+--! Synchronous process: Zeros_and_Ones_counter: For each manch. encoded bit (between two
+--! sample_manch_bit_p_i pulses) at each uclk tick, the signed counter decreases by one if rxd_i
+--! is "1" and increases by one if rxd_i is "0".
 
 Zeros_and_Ones_counter: process (uclk_i)
   begin
@@ -150,12 +157,12 @@ Zeros_and_Ones_counter: process (uclk_i)
   end if;
 end process;
 
+
 ---------------------------------------------------------------------------------------------------
---! Synchronous process Filtering: On the arrival of a new manchester bit, if the number of ones 
+--! Synchronous process Filtering: On the arrival of a new manch. bit, if the number of ones 
 --! that has been measured (for the bit that has already passed) is more than the number of zeros,
---! the filtered output signal is zero (until the new manchester bit), otherwise one. 
---! The filtered signal is one half-bit-clock cycle (+2 uclk cycles) late with respect to the
---! synchronized fd_rxd.
+--! the filtered output is set to zero (until the new manch. bit), otherwise to one. 
+--! The filtered signal is one half-bit-clock cycle (+2 uclk cycles) late with respect to its input.
 
 Filtering: process (uclk_i)
   begin
@@ -176,9 +183,10 @@ Filtering: process (uclk_i)
   end if;
 end process;
 
+
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Detect_f_edge_rxd_filtered: detection of a falling edge on the 
---! deglitched input signal(rxd_filtered). A buffer is used to store the last 2 bits of the signal.
+--!@brief Synchronous process Detect_f_edge_rxd_filtered: detection of a falling edge on the 
+--! deglitched input signal (rxd_filtered).
 
 Detect_f_edge_rxd_filtered: process (uclk_i)
   begin
@@ -193,8 +201,10 @@ Detect_f_edge_rxd_filtered: process (uclk_i)
     end if;
   end process;
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  -- Concurrent signals assignments
+
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+-- Concurrent signal assignments
+
   rxd_filtered_f_edge_p_o   <= s_rxd_filtered_buff(1) and (not s_rxd_filtered_buff(0));
   rxd_filtered_o            <= s_rxd_filtered_d;
   sample_bit_p_o            <= sample_bit_p_i;

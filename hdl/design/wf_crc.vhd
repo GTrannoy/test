@@ -27,8 +27,9 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit includes the modules for the generation of the CRC of serial data,
---!            as well as for the verification of an incoming CRC syndrome.
+--! @brief     The unit creates the modules:
+--!              o for the generation of the CRC of serial data,
+--!              o for the verification of an incoming CRC syndrome.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -68,7 +69,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -78,7 +79,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                                 Entity declaration for WF_crc
 --=================================================================================================
 entity WF_crc is
-generic (c_GENERATOR_POLY_length : natural := 16);   --! default value
+generic (c_GENERATOR_POLY_length : natural := 16);  --! default value
 port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals
@@ -89,13 +90,13 @@ port (
 
     -- Signals from the WF_rx_deserializer/ WF_tx_serializer units
     data_bit_i         : in std_logic;              --! incoming data bit stream
-    data_bit_ready_p_i : in std_logic;              --! indicator of sampling time for data_bit_i
+    data_bit_ready_p_i : in std_logic;              --! indicates the sampling moment of data_bit_i
     start_crc_p_i      : in std_logic;              --! beginning of the CRC calculation
 
     
   -- OUTPUTS 
     -- Signal to the WF_rx_deserializer unit
-    crc_ok_p           : out std_logic;             --! signaling of a correct received CRC syndrome
+    crc_ok_p           : out std_logic;             --! signals a correct received CRC syndrome
 
     -- Signal to the WF_tx_serializer unit
     crc_o              : out  std_logic_vector (c_GENERATOR_POLY_length-1 downto 0)--!calculated CRC
@@ -172,8 +173,8 @@ crc_o <= not s_q;
 --!@brief Combinatorial process Syndrome_Verification: On the reception, the CRC is being
 --! calculated as data is arriving (same as in the transmission) and it is being compared to the
 --! predefined c_VERIFICATION_MASK. When the CRC calculated from the received data matches the
---! c_VERIFICATION_MASK, it is implied that a correct CRC word has been received and the signal
---! crc_ok_p gives a pulse. 
+--! c_VERIFICATION_MASK, it is implied that a correct CRC word has been received for the preceded
+--! data and the signal crc_ok_p gives a pulse. 
 
 Syndrome_Verification: process (s_q, s_crc_bit_ready_p)
 

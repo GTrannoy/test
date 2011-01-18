@@ -27,13 +27,25 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Calculation of the total amount of data bytes that have to be transferreed when a
---!            variable is produced (including the RP_DAT.Control, RP_DAT.Data.MPS_status and
---!            RP_DAT.Data.nanoFIP_status bytes)
+--! @brief     Calculation of the total amount of bytes, after the FSS and before the FCS, that
+--!            have to be transferreed when a variable is produced. In detail, the calculation
+--!            takes into account the: RP_DAT.Control, RP_DAT.Data.PDU_TYPE, RP_DAT.Data.Length,
+--!            RP_DAT.Data.MPS_status, RP_DAT.Data.nanoFIP_status bytes as well as the user-data
+--!            bytes described by the P3_LGTH.
+--!
+--!            ------------------------------------------------------------------------------------
+--!            Reminder
+--!
+--!            Produced RP_DAT frame structure :
+--!             ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
+--!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|
+--!
+--!                                               |-----P3_LGTH-----|
+--!
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
 --! @date      09/12/2010
@@ -66,7 +78,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --------------------------------------------------------------------------------------------------- 
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -112,11 +124,11 @@ signal s_prod_data_length, s_p3_length_decoded : unsigned(7 downto 0);
 begin
 
 ---------------------------------------------------------------------------------------------------
---!@brief: Combinatorial process data_length_calcul: calculation of the total amount of data
---! bytes that have to be transferreed when a variable is produced, including the RP_DAT.Control as
---! well as the RP_DAT.Data.MPS_status and RP_DAT.Data.nanoFIP_status bytes. In the case of the 
---! presence and the identification variables, the data length is predefined in the WF_package.
---! In the case of a var3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation. 
+--!@brief: Combinatorial process data_length_calcul: calculation of the amount of bytes, after the
+--! FSS and before the FCS, that have to be transferreed when a variable is produced. In the case  
+--! of the presence and the identification variables, the data length is predefined in the WF_package.
+--! In the case of a var3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation.
+ 
   data_length_calcul: process (var_i, s_p3_length_decoded, slone_i, nostat_i, p3_lgth_i)
   begin
 
@@ -142,15 +154,15 @@ begin
       -- data length calculation according to the operational mode (memory or stand-alone)
 
       -- in slone mode                   2 bytes of user-data are produced(independantly of p3_lgth)
-      -- to these there should be added: 1 byte RP_DAT.Control
-      --                                 1 byte PDU
+      -- to these there should be added: 1 byte Control
+      --                                 1 byte PDU_TYPE
       --                                 1 byte Length
       --                                 1 byte MPS status
       --                      optionally 1 byte nFIP status
   
       -- in memory mode the signal      "s_p3_length_decoded" indicates the amount of user-data
-      -- to these, there should be added 1 byte RP_DAT.Control
-      --                                 1 byte PDU
+      -- to these, there should be added 1 byte Control
+      --                                 1 byte PDU_TYPE
       --                                 1 byte Length
       --                                 1 byte MPS status
       --                      optionally 1 byte nFIP status  

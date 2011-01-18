@@ -117,7 +117,7 @@ entity WF_production is
       var3_acc_i              : in std_logic;
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- nanoFIP FIELDRIVE
+    -- nanoFIP FIELDRIVE (synchronized with uclk)
 
       --! WF_status_bytes_gen : for the nanoFIP status byte, bits 6, 7
       fd_txer_i               : in  std_logic;
@@ -178,7 +178,7 @@ entity WF_production is
       var3_rdy_o              : out std_logic; --! signals the user that data can safely be written
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- nanoFIP User Interface, WISHBONE Slave output
+    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk) output
       wb_ack_prod_p_o         : out std_logic  --! WISHBONE acknowledge
 
       );

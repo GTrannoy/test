@@ -74,7 +74,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --------------------------------------------------------------------------------------------------- 
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 -- "W CL246  Input port bits 0, 2, 5, 6 of var_i(0 to 6) are unused"                             --
 -- var_i is one-hot encoded and has 7 values.                                                    -- 
@@ -130,11 +130,11 @@ begin
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief Combinatorial process Consumed_Frame_Validator: validation of an RP_DAT 
---! frame with respect to: Ctrl, PDU, Length bytes as well as CRC, FSS, FES and code violations.
---! The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that arrive at the beginning of a
---! frame, have been registered and keep their values until the end of a frame.
---! The signal rx_fss_crc_fes_manch_ok_p_i, is a pulse at the end of the FES that combines
---! the check of the FSS, CRC, FES and the code violations. 
+--! frame with respect to the Ctrl, PDU_TYPE and Length bytes as well as to the CRC, FSS, FES and
+--! to the manchester encoding. The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that
+--! arrive at the beginning of a frame, have been registered and keep their values until the end
+--! of it. The signal rx_fss_crc_fes_manch_ok_p_i, is a pulse at the end of the FES that combines
+--! the checks of the FSS, CRC, FES and of the manch. encoding. 
 
  Consumed_Frame_Validator: process (var_i, cons_ctrl_byte_i, rx_byte_index_i, cons_pdu_byte_i,
                                     rx_fss_crc_fes_manch_ok_p_i, cons_lgth_byte_i)
@@ -191,8 +191,10 @@ begin
 
 end process;            
 
+
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- -
-  -- Concurrent signal assignment for the output signals
+  -- Concurrent signal assignments 
+
   cons_frame_ok_p_o          <= rx_fss_crc_fes_manch_ok_p_i and
                                 s_cons_lgth_byte_ok         and
                                 s_cons_ctrl_byte_ok         and
@@ -201,6 +203,7 @@ end process;
   nfip_status_r_tler_o       <= s_cons_lgth_byte_ok         and
                                 s_cons_ctrl_byte_ok         and
                                 s_cons_pdu_byte_ok;
+
 
 end architecture rtl;
 --=================================================================================================

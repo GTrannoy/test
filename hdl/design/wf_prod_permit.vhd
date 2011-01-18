@@ -22,7 +22,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                          WF_prod_permit                                       --
+--                                        WF_prod_permit                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -112,7 +112,7 @@ begin
 
 --! VAR3_RDY (for produced vars): signals that the user can safely write to the produced variable
 --! memory or access the DAT_I bus. It is deasserted right after the end of the reception of a
---! correct var3 ID_DAT frame and stays de-asserted until the end of the transmission of the
+--! correct var_3 ID_DAT frame and stays de-asserted until the end of the transmission of the
 --! corresponding RP_DAT from nanoFIP.
 
 --! Note: A correct ID_DAT frame along with the variable it contained is signaled by the var_i.
@@ -146,7 +146,6 @@ begin
       end if;
     end if;
   end process;
-
 
 
 end architecture rtl;

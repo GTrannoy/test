@@ -179,9 +179,9 @@ package WF_package is
 
   constant c_BIT_RATE_UCLK_TICKS_31_25Kbit: unsigned := 
                           to_unsigned((32000 / integer(C_QUARTZ_PERIOD)),C_PERIODS_COUNTER_LENGTH);
-  constant c_BIT_RATE_UCLK_TICKS_1_Mbit: unsigned :=
+  constant c_BIT_RATE_UCLK_TICKS_1_Mbit: unsigned    :=
                           to_unsigned((1000 / integer(C_QUARTZ_PERIOD)),C_PERIODS_COUNTER_LENGTH);
-  constant c_BIT_RATE_UCLK_TICKS_2_5_Mbit: unsigned :=
+  constant c_BIT_RATE_UCLK_TICKS_2_5_Mbit: unsigned  :=
                           to_unsigned((400 /integer(C_QUARTZ_PERIOD)),C_PERIODS_COUNTER_LENGTH);
 
   -- Creation of a table with the c_BIT_RATE_UCLK_TICKS info per bit rate
@@ -192,6 +192,9 @@ package WF_package is
                            1 => (c_BIT_RATE_UCLK_TICKS_1_Mbit),
                            2 => (c_BIT_RATE_UCLK_TICKS_2_5_Mbit),
                            3 => (c_BIT_RATE_UCLK_TICKS_2_5_Mbit));
+
+  constant c_2_PERIODS_COUNTER_LENGTH : natural := 12;-- length of a counter counting 4 reception/
+                                                      -- transmission period
 
 
 ---------------------------------------------------------------------------------------------------
@@ -678,11 +681,11 @@ end component WF_production;
   component WF_reset_unit 
   port (
     uclk_i              : in std_logic; 
-    urst_i              : in  std_logic; 
-    rate_i              : in std_logic_vector (1 downto 0);
+    rstin_i             : in std_logic; 
     urst_r_edge_i       : in std_logic;
+    rstpon_i            : in std_logic;
+    rate_i              : in std_logic_vector (1 downto 0);
     var_i               : in t_var;    
-    subs_i              : in  std_logic_vector (7 downto 0);
     rst_nFIP_and_FD_p_i : in std_logic;
     assert_RSTON_p_i    : in std_logic;
     ---------------------------------------------------------------

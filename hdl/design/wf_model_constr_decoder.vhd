@@ -77,7 +77,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -141,7 +141,6 @@ begin
 --! s_constr_stage1. On a third uclk tick the loaded odd and even values are combined to give
 --! the decoded outputs (model_id_dec_o & constr_id_dec_o).
 
-
   Model_Constructor_Decoder: process (uclk_i)
   begin
     if rising_edge (uclk_i) then                    -- initializations
@@ -178,8 +177,10 @@ begin
     end if;
   end process;
 
+
 ---------------------------------------------------------------------------------------------------
 --!@brief Instantiation of a counter WF_incr_counter
+
   Free_Counter: WF_incr_counter
   generic map(g_counter_lgth => 2)
   port map(
@@ -195,6 +196,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Concurrent signal assignment for the output select_id_o
+
   select_id_o <=  ((not s_counter(0)) & s_counter(0)); -- 2 opposite clocks generated using
                                                        -- the LSB of the counter 
                                                        -- uclk_i: |-|__|-|__|-|__|-|__|-|__|-|_

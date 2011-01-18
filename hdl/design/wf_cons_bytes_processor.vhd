@@ -29,7 +29,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 -- unit name:  WF_cons_bytes_processor
 --
 --! @brief     The unit is consuming the data bytes that are arriving from the WF_rx_deserializer,
---!            according to the following rules:
+--!            according to the following:
 --!
 --!            o If the consumed variable had been a var_1 or a var_2:
 --!
@@ -43,7 +43,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              identified and sent to the WF_reset_unit.
 --!
 --!            ------------------------------------------------------------------------------------
---!            Small Reminder:
+--!            Reminder:
 --!
 --!            Consumed RP_DAT frame structure :
 --!             ___________ ______  _______ ________ ________________ _______  ___________ _______
@@ -99,7 +99,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                                    Sunplify Premier Warnings                                  --
+--                                    Synplify Premier Warnings                                  --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ port (
     -- Signal from the WF_reset_unit
     nfip_urst_i           : in std_logic;                      --! nanoFIP internal reset
 
-    -- nanoFIP User Interface, WISHBONE Slave
+    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk)
     wb_clk_i              : in std_logic;                      --! WISHBONE clock
     wb_adr_i              : in  std_logic_vector (9 downto 0); --! WISHBONE address to memory
     wb_cyc_i              : in std_logic;                      --! WISHBONE cycle
@@ -178,7 +178,10 @@ begin
 
   two    <= to_unsigned (2, two'length);
 
----------------------------------------------------------------------------------------------------  
+---------------------------------------------------------------------------------------------------
+--                                  Consumed & Consumed Broadcast RAM                            --
+--                    Storage (by the unit) & retreival (by the user) of consumed bytes          --
+--------------------------------------------------------------------------------------------------- 
 -- !@brief Instantiation of a Dual Port Consumed RAM
 --! (for both the consumed and consumed broadcast variables)
 
@@ -213,38 +216,64 @@ begin
                                           else '0';
 
 
----------------------------------------------------------------------------------------------------
---!@brief Combinatorial process Bytes_Consumption: Data bytes are consumed according to the
---! variable type they belong.
 
---! In memory mode the treatment of a var1 is identical to the one of a var2; only the base address
+---------------------------------------------------------------------------------------------------
+--                                      Consumed bytes to DAT_O                                  --
+---------------------------------------------------------------------------------------------------
+--! @brief Instantiation of the unit responsible for the transfering of 2 de-serialized data bytes
+--! to DAT_O;
+
+  Consumed_Bytes_To_DATO: WF_cons_bytes_to_dato
+  port map(
+    uclk_i            => uclk_i, 
+    nfip_urst_i       => nfip_urst_i, 
+    transfer_byte_p_i => s_slone_write_byte_p,
+    byte_i            => byte_i,
+    ------------------------------------------
+    slone_data_o      => s_slone_data);
+    ------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- -- --
+  -- In stand-alone mode the 16 bits DAT_O fills up with the output of the WF_cons_bytes_to_dato
+  -- unit.In memory mode,the lsb of DAT_O contains the output of the reading of the consumed memory
+ 
+   data_o <= s_slone_data when slone_i = '1'
+        else "00000000" & s_mem_data_out;  
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                        Bytes Processing                                       --
+---------------------------------------------------------------------------------------------------
+--!@brief Combinatorial process Bytes_Processing: Data bytes are consumed according to the
+--! variable type (var_1, var_2, var_rst) they belong.
+
+--! In memory mode the treatment of a var_1 is identical to the one of a var2; only the base address
 --! of the memory differs.
  
---! Bytes are consumed even if the Control, PDU_TYPE, Length, CRC & FES bytes or the manch.
+--! Bytes are consumed even if any of the Control, PDU_TYPE, Length, CRC & FES byte or the manch.
 --! encoding of the consumed frame are incorrect.
 --! It is the VAR_RDY signal that signals the user for the validity of the consumed data.
 
 --! In memory mode, the incoming bytes (byte_i) after the Control byte and before the CRC bytes,
 --! are written in the memory one by one as they arrive, on the moments when the signal
 --! byte_ready_p_i is active.
---! The signals byte_index_i and Length (s_cons_lgth_byte) are used to coordinate which bytes are
---! written and which are not:
---! the Control byte, that arrives when byte_index_i = 0, is not written
---! and the CRC bytes are not written by checking the amount of bytes indicated by the Length byte.
- 
---! The byte_index_i signal is counting each byte after the FSS and before the FES (therefore,
---! apart from all the pure data-bytes,it also includes the Control, PDU, Length, MPS & CRC bytes).
---! The Length byte (s_cons_lgth_byte) is received from the WF_rx_deserializer when byte_index_i is equal to 3
---! and indicates the amount of bytes in the frame after the Control, PDU_TYPE and itself and
+--! The signals byte_index_i and Length (s_cons_lgth_byte) are used to distinguish the Control and
+--! CRC bytes from hte rest:
+--!   o the Control byte arrives when byte_index_i = 0
+--!   o the CRC bytes arrive $Length bytes after the Length byte
+--! The byte_index_i signal is counting each byte after the FSS and before the FES.
+--! The Length byte (s_cons_lgth_byte) is received from the WF_rx_deserializer when byte_index_i is
+--! equal to 3 and indicates the amount of bytes in the frame after the Control, PDU_TYPE and itself and
 --! before the CRC.
 
 --! In stand-alone mode, in total two bytes of data have to be transferred to the data out bus. The
---! process manages the signal slone_write_byte_p which indicates which of the bytes of the bus
---! (msb: 15 downto 8 or lsb: 7 downto 0) have to be written.
+--! process manages the signal slone_write_byte_p which indicates on which one of the bytes of the
+--! bus (msb: 15 downto 8 or lsb: 7 downto 0) the new incoming byte has to be written.
 
 --! If the consumed variable is the reset one the process latches the first and second data bytes.
 
-Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
+Bytes_Processing: process (var_i, byte_index_i, slone_i, byte_i, two,
                             byte_ready_p_i, s_base_addr, s_cons_lgth_byte)
   
   begin
@@ -396,31 +425,14 @@ Bytes_Consumption: process (var_i, byte_index_i, slone_i, byte_i, two,
 end process;
 
 
+
 ---------------------------------------------------------------------------------------------------
---! @brief Instantiation of the unit responsible for the transfering of 2 de-serialized data bytes
---! to DAT_O;
-
-  Consumed_Bytes_To_DATO: WF_cons_bytes_to_dato
-  port map(
-    uclk_i            => uclk_i, 
-    nfip_urst_i       => nfip_urst_i, 
-    transfer_byte_p_i => s_slone_write_byte_p,
-    byte_i            => byte_i,
-    ------------------------------------------
-    slone_data_o      => s_slone_data);
-    ------------------------------------------
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- -- --
-  -- In stand-alone mode the 16 bits DAT_O fills up with the output of the WF_cons_bytes_to_dato
-  -- unit.In memory mode,the lsb of DAT_O contains the output of the reading of the consumed memory 
-   data_o <= s_slone_data when slone_i = '1'
-        else "00000000" & s_mem_data_out;  
-
+--                                 Control, PDU_TYPE, Length bytes                               --
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process Buffer_Ctrl_PDU_Length_bytes: Storage of the Control, PDU_TYPE
---! and Length bytes of an incoming RP_DAT frame. The bytes are sent to the WF_cons_outcome
---! unit that accordingly enables or not the signals VAR1_RDY (for a var1), VAR2_RDY (for a var2),
---! assert_rston_p and rst_nfip_and_fd_p (for a var_rst).
+--! and Length bytes of an incoming RP_DAT frame. The bytes are sent to the WF_cons_frame_validator
+--! unit that validates them and accordingly signals the WF_outcome unit for the activation of the
+--! VAR1_RDY(for a var_1), VAR2_RDY(for a var_2), assert_rston_p & rst_nfip_and_fd_p(for a var_rst).
 
 Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)
   begin                                               

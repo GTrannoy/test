@@ -48,8 +48,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            having been sent.            
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
 --! @date 10/01/2011
@@ -61,10 +61,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>\n
---!     data_if             \n
---!     tx_engine           \n
---!     WF_tx_rx            \n
---!     reset_logic         \n
+--!     WF_consumption      \n
+--!     WF_bytes_retriever  \n
+--!     WF_prod_permit      \n
+--!     WF_reset_unit       \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -88,7 +88,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 -- "W CL189	Register bits s_nFIP_status_byte(0), s_nFIP_status_byte(1) are always 0, optimizing" --
 -- "W CL260	Pruning Register bits 0 and 1 of s_nFIP_status_byte(7 downto 0)"                     --
@@ -110,7 +110,7 @@ port (
     -- Signal from the WF_reset_unit
     nfip_urst_i             : in std_logic;  --! nanaoFIP internal reset
 
-    -- nanoFIP FIELDRIVE  
+    -- nanoFIP FIELDRIVE (synchronized with uclk)
     fd_txer_i               : in  std_logic; --! transmitter error
     fd_wdgn_i               : in  std_logic; --! watchdog on transmitter
 
@@ -206,16 +206,16 @@ begin
 
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          -- t_txer
+          -- t_wder
           if (fd_wdgn_i = '0') then                              -- FIELDRIVE transmission error 
-            s_nFIP_status_byte(c_T_TXER_INDEX)  <= '1';
+            s_nFIP_status_byte(c_T_WDER_INDEX)  <= '1';
           end if;
 
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          -- t_wder
+          -- t_rxer
           if (fd_txer_i = '1') then                              -- FIELDRIVE watchdog timer problem
-            s_nFIP_status_byte(c_T_WDER_INDEX)  <= '1';
+            s_nFIP_status_byte(c_T_TXER_INDEX)  <= '1';
           end if;
 
 
@@ -311,7 +311,7 @@ begin
         s_refreshment   <= '0';
       else
 
-        if rst_status_bytes_p_i = '1' then          -- the bit is reinitialized
+        if rst_status_bytes_p_i = '1' then          -- bit reinitialized after a var production
           s_refreshment <= '0';  
 
         elsif (var3_acc_i = '1') then               -- indication that the memory has been accessed

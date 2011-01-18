@@ -69,7 +69,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --------------------------------------------------------------------------------------------------- 
 
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
+--                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --                                         No Warnings                                           --
 ---------------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ entity WF_inputs_synchronizer is
     rate_a_i          : in std_logic_vector(1 downto 0);
     subs_a_i          : in std_logic_vector(7 downto 0);
 
-    -- nanoFIP User Interface, WISHBONE Slave 
+    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk) 
     wb_clk_i          : in std_logic;                   --! WISHBONE clock
     dat_a_i           : in std_logic_vector(15 downto 0);
     wb_adr_a_i        : in std_logic_vector(9 downto 0);
@@ -134,7 +134,7 @@ entity WF_inputs_synchronizer is
     rate_o            : out std_logic_vector(1 downto 0);
     subs_o            : out std_logic_vector(7 downto 0);
 
-    -- nanoFIP User Interface, WISHBONE Slave 
+    -- nanoFIP User Interface, WISHBONE Slave
     wb_adri_o         : out std_logic_vector(9 downto 0);
     wb_cyc_o          : out std_logic;
     wb_dati_o         : out std_logic_vector(7 downto 0);
@@ -417,7 +417,6 @@ begin
   p3_lgth_o         <= s_p3_lgth_d3;
 
 
---------------------------------------------------------------------------------------------------
 
 end architecture rtl;
 --=================================================================================================
