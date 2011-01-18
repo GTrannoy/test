@@ -57,6 +57,8 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:ba_responded
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:nanofip_responded
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:silence_time_reached
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:start_turn_around
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:end_turn_around
 
 probe -create -shm -waveform :fieldrive:tx_block:fcs_check
 probe -create -shm -waveform :fieldrive:tx_block:fcs_ok
@@ -134,6 +136,8 @@ probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
 probe -create -shm -waveform :user_logic:wb_monitor:valid_bus_cycle
 probe -create -shm -waveform :user_logic:wb_monitor:var_id
 probe -create -shm -waveform :user_logic:wb_monitor:adr
+probe -create -shm -waveform :user_logic:wb_monitor:errct
+probe -create -shm -waveform :user_logic:wb_monitor:errct_trig
 #probe -create -shm -waveform :user_logic:wb_monitor:in_consumed
 #probe -create -shm -waveform :user_logic:wb_monitor:in_broadcast
 
@@ -149,5 +153,5 @@ probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
 
 
 
-run 7000 us
+run 7100 us
 

@@ -23,4 +23,10 @@
 1,5A,06,0	-- ID_DAT for Produced variable
 378 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
+426 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+618 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+874 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
 2000 ms		-- final stand-by time to end the simulation
