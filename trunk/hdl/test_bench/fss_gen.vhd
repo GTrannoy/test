@@ -39,7 +39,7 @@ signal sending_fss		: std_logic;
 begin
 
 	aux					<= '0' when start_delimiter ='0' else
-							'1' when i =width;
+							'1' when i = width;
 
 	sending_fss			<= '1' when start_delimiter ='1' and aux ='0' else
 							'0' when i = 0;

@@ -17,6 +17,7 @@ entity user_interface is
 		var2_rdy_i			: in std_logic;
 		var3_rdy_i			: in std_logic;
 
+		rstpon_o			: out std_logic;
 		uclk_o				: out std_logic;
 		urstn_to_nf			: out std_logic;
 		var1_acc_o			: out std_logic;
@@ -139,7 +140,8 @@ architecture archi of user_interface is
 		uclk_period			: out time;
 		ureset_length		: out time;
 		wclk_period			: out time;
-		wreset_length		: out time
+		wreset_length		: out time;
+		preset_length		: out time
 	);
 	end component;
 	
@@ -171,6 +173,8 @@ architecture archi of user_interface is
 	signal wclk_period			: time;
 	signal wreset				: std_logic;
 	signal wreset_length		: time;
+	signal preset				: std_logic;
+	signal preset_length		: time;
 
 begin
 
@@ -204,6 +208,15 @@ begin
 		wait for wreset_length;
 		wreset			<= '0';
 		wait for config_validity_time - wreset_length;
+	end process;
+	
+	por_reset: process
+	begin
+		wait for 0 us;			-- wait needed for the config text file to be read
+		preset			<= '1';
+		wait for preset_length;
+		preset			<= '0';
+		wait for config_validity_time - preset_length;
 	end process;
 	
 	slone_output_detector: process
@@ -320,11 +333,13 @@ begin
 		uclk_period				=> uclk_period,
 		ureset_length			=> ureset_length,
 		wclk_period				=> wclk_period,
-		wreset_length			=> wreset_length
+		wreset_length			=> wreset_length,
+		preset_length			=> preset_length
 	);
 	
 	uclk_o				<= uclk;
 	urstn_to_nf			<= not(ureset);
+	rstpon_o			<= not(preset);
 
 	adr_o				<= adr;
 	cyc_o				<= cyc;

@@ -69,6 +69,7 @@ architecture archi of nanofip_tb is
 		var2_rdy_i			: in std_logic;
 		var3_rdy_i			: in std_logic;
 
+		rstpon_o			: out std_logic;
 		uclk_o				: out std_logic;
 		urstn_to_nf			: out std_logic;
 		var1_acc_o			: out std_logic;
@@ -136,6 +137,7 @@ architecture archi of nanofip_tb is
 	signal slone		: std_logic; --! Stand-alone mode
 	signal nostat		: std_logic; --! No NanoFIP status transmission
 
+	signal rstpon		: std_logic; --! Power On Reset, active low
 	signal uclk			: std_logic; --! 40 MHz clock
 	signal urst_to_nf	: std_logic; --! Initialisation control, active low
 	signal urst_from_nf	: std_logic; --! Reset output, active low
@@ -189,7 +191,7 @@ begin
 
     nostat_i  => nostat,
     rstin_i   => urst_to_nf,
-    rstpon_i   => urst_to_nf,
+    rstpon_i  => rstpon,
     slone_i   => slone,
     uclk_i    => uclk,
     rston_o   => urst_from_nf,
@@ -236,6 +238,7 @@ begin
 		var2_rdy_i		=> var2_rdy,
 		var3_rdy_i		=> var3_rdy,
 
+		rstpon_o		=> rstpon,
 		uclk_o			=> uclk,
 		urstn_to_nf		=> urst_to_nf,
 		var1_acc_o		=> var1_acc,

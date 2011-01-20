@@ -33,7 +33,7 @@ architecture archi of encounter is
 constant zeroes	: unsigned(width-1 downto 0):=(others=>'0');
 
 signal one		: unsigned(width-1 downto 0);
-signal value	: unsigned(width-1 downto 0):=(others=>'0');
+signal value	: unsigned(width-1 downto 0);
 
 begin
 	
