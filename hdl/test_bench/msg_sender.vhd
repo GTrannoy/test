@@ -376,6 +376,7 @@ begin
 	write_incoming: process(running)
 	file data_file			: text;
 	variable data_line		: line;
+	variable reset_time		: time;
 	
 	begin
 		if running'event and running ='0' then
@@ -393,6 +394,16 @@ begin
 						write		(data_line, in_broadcast(i));
 						writeline	(data_file, data_line);
 					end loop;
+					file_close(data_file);
+				elsif var_id = var_adr_reset then
+					reset_time	:= now;
+					file_open(data_file,"data/tmp_var_reset.txt",write_mode);
+					write		(data_line, reset_time);
+					writeline	(data_file, data_line);
+					write		(data_line, res_first);
+					writeline	(data_file, data_line);
+					write		(data_line, res_second);
+					writeline	(data_file, data_line);
 					file_close(data_file);
 				end if;
 			end if;

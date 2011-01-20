@@ -19,7 +19,8 @@ entity user_config is
 		uclk_period			: out time;
 		ureset_length		: out time;
 		wclk_period			: out time;
-		wreset_length		: out time
+		wreset_length		: out time;
+		preset_length		: out time
 	);
 end user_config;
 
@@ -28,7 +29,10 @@ architecture archi of user_config is
 	signal read_config_trigger	: std_logic;
 	signal report_config_trigger: std_logic;
 	signal s_uclk_period		: time;
+	signal s_ureset_length		: time;
 	signal s_wclk_period		: time;
+	signal s_wreset_length		: time;
+	signal s_preset_length		: time;
 
 begin
 	-- process reading config values from a file
@@ -42,6 +46,7 @@ begin
 	variable ureset_lgth_config	: time;
 	variable wclk_period_config	: time;
 	variable wreset_lgth_config	: time;
+	variable preset_lgth_config	: time;
 	begin
 		readline	(config_file, config_line);
 		read		(config_line, uclk_period_config);
@@ -52,6 +57,8 @@ begin
 		readline	(config_file, config_line);
 		read		(config_line, wreset_lgth_config);
 		readline	(config_file, config_line);
+		read		(config_line, preset_lgth_config);
+		readline	(config_file, config_line);
 		read		(config_line, validity_time);
 		if endfile(config_file) then
 			file_close(config_file);
@@ -59,10 +66,14 @@ begin
 		config_validity			<= validity_time;
 		s_uclk_period			<= uclk_period_config;
 		uclk_period				<= uclk_period_config;
+		s_ureset_length			<= ureset_lgth_config;
 		ureset_length			<= ureset_lgth_config;
 		s_wclk_period			<= wclk_period_config;
 		wclk_period				<= wclk_period_config;
+		s_wreset_length			<= wreset_lgth_config;
 		wreset_length			<= wreset_lgth_config;
+		s_preset_length			<= preset_lgth_config;
+		preset_length			<= preset_lgth_config;
 		read_config_trigger		<= '1';
 		wait for validity_time - 1 ps;
 		read_config_trigger			<= '0';
@@ -76,10 +87,13 @@ begin
 	reporting: process(report_config_trigger)
 	begin
 		if report_config_trigger'event and report_config_trigger ='1' then
-			report LF & "User logic configuration" & LF &
-						"------------------------" & LF &
+			report LF & "User logic configuration settings" & LF &
+						"---------------------------------" & LF &
 			"User Clock period: " & time'image(s_uclk_period) & LF &
-			"Wishbone interface Clock period: " & time'image(s_wclk_period) & LF;
+			"Wishbone interface Clock period: " & time'image(s_wclk_period) & LF & LF &
+			"The user reset (RSTIN) is asserted for " & time'image(s_ureset_length) & LF &
+			"The wishbone reset (RST_I) is asserted for " & time'image(s_wreset_length) & LF &
+			"The power on reset (RSTPON) is asserted for " & time'image(s_preset_length) & LF;
 		end if;
 	end process;
 
