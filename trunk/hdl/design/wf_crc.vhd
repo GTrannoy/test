@@ -33,7 +33,6 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
 --
 --
 --! @date      08/2010
