@@ -3,26 +3,26 @@
 ## data transfer size: integer from 1 to 124, transfer offset: integer from 1 to 124, transfer block size: integer from 1 to 124.
 1096 us		-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
-40 us		-- stand-by time
+31 us		-- stand-by time
 0,2,124,0,0	-- reading VAR2 from memory
-40 us		-- stand-by time
+31 us		-- stand-by time
 1,3,124,0,0	-- writting VAR3 in memory
-1254 us		-- stand-by time
+1259 us		-- stand-by time
 1,3,4,0,0	-- writting VAR3 in memory
-26 us		-- stand-by time
+31 us		-- stand-by time
 1,3,4,10,0	-- writting VAR3 in memory
-490 us		-- stand-by time
+495 us		-- stand-by time
 1,3,8,0,0	-- writting VAR3 in memory
-26 us		-- stand-by time
+31 us		-- stand-by time
 1,3,10,4,0	-- writting VAR3 in memory
-490 us		-- stand-by time
+495 us		-- stand-by time
 1,3,8,0,0	-- writting VAR3 in memory
-378 us		-- stand-by time
+383 us		-- stand-by time
 1,3,8,0,0	-- writting VAR3 in memory
-426 us		-- stand-by time
+431 us		-- stand-by time
 1,3,124,0,0	-- writting VAR3 in memory
-618 us		-- stand-by time
+623 us		-- stand-by time
 1,3,124,0,0	-- writting VAR3 in memory
-874 us		-- stand-by time
+879 us		-- stand-by time
 1,3,124,0,0	-- writting VAR3 in memory
 2000 ms		-- final stand-by time to end the simulation

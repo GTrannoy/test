@@ -9,25 +9,25 @@
 1,5A,05,0	-- ID_DAT for Consumed variable
 164 us		-- stand-by time
 0,5A,05,11	-- RP_DAT for Consumed variable
-338 us		-- stand-by time
+353 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
 464 us		-- stand-by time
 1,5A,14,0	-- ID_DAT for Presence variable
 370 us		-- stand-by time
 1,5A,10,0	-- ID_DAT for Identification variable
-446 us		-- stand-by time
+456 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-516 us		-- stand-by time
+526 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-490 us		-- stand-by time
+495 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-378 us		-- stand-by time
+383 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-426 us		-- stand-by time
+431 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-618 us		-- stand-by time
+623 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-874 us		-- stand-by time
+879 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
 1328 us		-- stand-by time
 1,59,E0,0	-- ID_DAT for Reset variable
