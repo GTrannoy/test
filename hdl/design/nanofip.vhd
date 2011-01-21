@@ -131,7 +131,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                |             |   |___________| |____________|   |             |
 --!                |  WF_model_  |                                  |             |
 --!                | constr_dec  |    ___________________________   |             |
---!                |             |   |     WF_wb_controller      |  |             |
+--!                |             |   |      WF_wb_controller     |  |             |
 --!                |_____________|   |___________________________|  |_____________|
 --!                                    
 --!                                Figure 3: nanoFIP block diagram
@@ -589,9 +589,9 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                      WF_wb_controller                                      --
+--                                      WF_wb_controller                                         --
 ---------------------------------------------------------------------------------------------------
-  WISHBONE_ack_generator: WF_wb_controller
+  WISHBONE_controller: WF_wb_controller
   port map (
     wb_clk_i          => wclk_i,
     wb_rst_i          => rst_i,
