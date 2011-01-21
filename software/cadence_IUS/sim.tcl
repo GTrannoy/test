@@ -27,6 +27,7 @@ ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work wor
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_prod_bytes_retriever.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_prod_permit.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_cons_outcome.vhd
+ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/wf_wb_controller.vhd
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/design/nanofip.vhd
 
 ncvhdl -nocopyright -nolog -messages -linedebug -v93 -cdslib ./cds.lib -work worklib ../src/tb_files/tb_package.vhd

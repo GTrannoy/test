@@ -30,7 +30,7 @@
 874 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
 1328 us		-- stand-by time
-1,58,E0,0	-- ID_DAT for Reset variable
+1,59,E0,0	-- ID_DAT for Reset variable
 164 us		-- stand-by time
-0,58,E0,0	-- RP_DAT for Reset variable
+0,59,E0,0	-- RP_DAT for Reset variable
 2000 ms		-- final stand-by time to end the simulation

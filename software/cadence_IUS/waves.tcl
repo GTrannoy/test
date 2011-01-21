@@ -46,6 +46,9 @@ probe -create -shm -waveform :fieldrive:rx_block:fx
 probe -create -shm -waveform :fieldrive:rx_block:dx_final
 probe -create -shm -waveform :fieldrive:rx_block:cd
 probe -create -shm -waveform :fieldrive:rx_block:dx
+#probe -create -shm -waveform :fieldrive:rx_block:fss_block:fss_value
+#probe -create -shm -waveform :fieldrive:rx_block:fss_block:s_fss_value
+#probe -create -shm -waveform :fieldrive:rx_block:fss_block:i
 
 probe -create -shm -waveform :fieldrive:tx_block:decoder:extracted_clk
 #probe -create -shm -waveform :fieldrive:tx_block:decoder:locked
@@ -63,6 +66,7 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
 probe -create -shm -waveform :fieldrive:tx_block:fcs_check
 probe -create -shm -waveform :fieldrive:tx_block:fcs_ok
 
+#probe -create -shm -waveform :fieldrive:tx_block:chopper:chopping_counter:value
 probe -create -shm -waveform :fieldrive:tx_block:chopper:enable_chopping
 probe -create -shm -waveform :fieldrive:tx_block:chopper:chop_byte
 #probe -create -shm -waveform :fieldrive:tx_block:chopper:count_done
@@ -93,6 +97,7 @@ probe -create -shm -waveform :fd_txck
 probe -create -shm -waveform :fd_wdgn
 probe -create -shm -waveform :fd_txer
 
+probe -create -shm -waveform :rstpon
 probe -create -shm -waveform :uclk
 probe -create -shm -waveform :urst_from_nf
 probe -create -shm -waveform :urst_to_nf
@@ -136,22 +141,24 @@ probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
 probe -create -shm -waveform :user_logic:wb_monitor:valid_bus_cycle
 probe -create -shm -waveform :user_logic:wb_monitor:var_id
 probe -create -shm -waveform :user_logic:wb_monitor:adr
-probe -create -shm -waveform :user_logic:wb_monitor:errct
-probe -create -shm -waveform :user_logic:wb_monitor:errct_trig
+#probe -create -shm -waveform :user_logic:wb_monitor:errct
+#probe -create -shm -waveform :user_logic:wb_monitor:errct_trig
 #probe -create -shm -waveform :user_logic:wb_monitor:in_consumed
 #probe -create -shm -waveform :user_logic:wb_monitor:in_broadcast
 
 probe -create -shm -waveform :user_logic:wb_monitor:writing_produced
 probe -create -shm -waveform :user_logic:wb_monitor:out_produced
 
-probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_received
-probe -create -shm -waveform :fieldrive:tx_block:monitor:out_produced
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_received
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:out_produced
 
 probe -create -shm -waveform :user_logic:user_acc_monitor:var3_fresh
 probe -create -shm -waveform :user_logic:user_acc_monitor:ucacerr
 probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
 
+#probe -create -shm -waveform :dut:reset_unit:rstin_st
+#probe -create -shm -waveform :dut:reset_unit:s_c
 
 
-run 7100 us
+run 7500 us
 
