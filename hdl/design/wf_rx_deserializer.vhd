@@ -200,8 +200,8 @@ architecture rtl of WF_rx_deserializer is
   signal s_manch_r_edge_p, s_manch_f_edge_p                       : std_logic;
   signal s_manch_bit_index, s_manch_bit_index_top                 : unsigned(3 downto 0);
   signal s_byte                                                   : std_logic_vector (7 downto 0);
-  signal s_CRC_ok_p_buff, s_arriving_fes                          : std_logic_vector (15 downto 0);
-  signal s_arriving_fes                                           : std_logic_vector (14 downto 0);
+  signal s_arriving_fes                                          : std_logic_vector (15 downto 0);
+  signal s_CRC_ok_p_buff                                          : std_logic_vector (14 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
@@ -563,7 +563,7 @@ architecture rtl of WF_rx_deserializer is
       end if;
     end process;
   --  --  --  --  --  --  --  --  --  --  -- 
-  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES);
+  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES) and  s_receiving_bytes = '1' else '0';
 
 
 ---------------------------------------------------------------------------------------------------
@@ -650,7 +650,7 @@ architecture rtl of WF_rx_deserializer is
             if s_sample_manch_bit_p_d1 = '1' then          -- each manch. bit arrival. In total 15
                                                            -- delays have to be added in order to 
                                                            -- arrive to the FES.
-              s_CRC_ok_p_buff     <= s_CRC_ok_p_buff(14 downto 0) & s_CRC_ok_p;
+              s_CRC_ok_p_buff     <= s_CRC_ok_p_buff(13 downto 0) & s_CRC_ok_p;
             end if;
 
           end if;
