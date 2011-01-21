@@ -46,11 +46,15 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n  
 --
---!   \n<b>Dependencies:</b>\n
+--!   \n<b>Dependencies:</b>           \n
+--!            WF_reset_unit           \n
+--!            WF_enginr_control       \n
+--!            WF_cons_frame_validator \n
+--!            WF_cons_bytes_processor \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --------------------------------------------------------------------------------------------------- 
 --

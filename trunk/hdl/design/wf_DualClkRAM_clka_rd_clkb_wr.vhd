@@ -46,11 +46,11 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --! @details\n
 --
 --!   \n<b>Dependencies:</b>\n 
---!     DualClkRAM.vhd \n
+--!            DualClkRAM.vhd \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n 
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n 
 --
 --------------------------------------------------------------------------------------------------- 
 --

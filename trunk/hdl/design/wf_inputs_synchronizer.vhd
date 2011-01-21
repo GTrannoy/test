@@ -27,10 +27,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief      The unit synchronises all the input signals with to the uclk or wb_clk, to be used
---              by all the other units of  nanoFIP; a set of 3ple buffers is used for each signal.
---              Note: Because of the 3ple buffering, transitions on input signals of less than 2
---              clk cycles are not considered.
+--! @brief     The unit synchronises all the input signals with to the uclk or wb_clk, to be used
+--             by all the other units of  nanoFIP; a set of 3ple buffers is used for each signal.
+--             Note: Because of the 3ple buffering, transitions on input signals of less than 2
+--             clk cycles are not considered.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -45,12 +45,12 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n  
 --
---!   \n<b>Dependencies:</b>\n
---!     WF_reset_unit       \n
+--!   \n<b>Dependencies:</b>  \n
+--!             WF_reset_unit \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -99,16 +99,15 @@ entity WF_inputs_synchronizer is
     rate_a_i          : in std_logic_vector(1 downto 0);
     subs_a_i          : in std_logic_vector(7 downto 0);
 
-    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk) 
+    -- nanoFIP User Interface, WISHBONE Slave
     wb_clk_i          : in std_logic;                   --! WISHBONE clock
-    dat_a_i           : in std_logic_vector(15 downto 0);
-    wb_adr_a_i        : in std_logic_vector(9 downto 0);
     wb_cyc_a_i        : in std_logic;
     wb_rst_a_i        : in std_logic;                   --! WISHBONE reset
     wb_stb_a_i        : in std_logic; 
     wb_we_a_i         : in std_logic;
 
-    -- nanoFIP User Interface, non WISHBONE 
+    -- nanoFIP User Interface, NON WISHBONE 
+    dat_a_i           : in std_logic_vector(15 downto 0);
     var1_access_a_i   : in std_logic;
     var2_access_a_i   : in std_logic;
     var3_access_a_i   : in std_logic;
@@ -125,7 +124,6 @@ entity WF_inputs_synchronizer is
     nostat_o          : out std_logic;
     rstin_o           : out std_logic;
     slone_o           : out std_logic;
-    rstin_f_edge_o    : out std_logic;
 
     -- nanoFIP WorldFIP Settings
     c_id_o            : out std_logic_vector(3 downto 0);
@@ -135,15 +133,13 @@ entity WF_inputs_synchronizer is
     subs_o            : out std_logic_vector(7 downto 0);
 
     -- nanoFIP User Interface, WISHBONE Slave
-    wb_adri_o         : out std_logic_vector(9 downto 0);
     wb_cyc_o          : out std_logic;
-    wb_dati_o         : out std_logic_vector(7 downto 0);
     wb_stb_o          : out std_logic; 
     wb_stb_r_edge_o   : out std_logic;
     wb_we_o           : out std_logic;
 
 
-    -- nanoFIP User Interface, non WISHBONE 
+    -- nanoFIP User Interface, NON WISHBONE 
     slone_dati_o      : out std_logic_vector(15 downto 0);
     var1_access_o     : out std_logic;
     var2_access_o     : out std_logic;
@@ -173,12 +169,10 @@ architecture rtl of WF_inputs_synchronizer is
   signal s_mid_d1, s_mid_d2, s_mid_d3, s_cid_d1, s_cid_d2, s_cid_d3 : std_logic_vector(3 downto 0);
   signal s_fd_txer_d3, s_fd_wdgn_d3, s_fd_rxd_d3, s_fd_rxcdn_d3     : std_logic_vector(2 downto 0);
   signal s_p3_lgth_d1, s_p3_lgth_d2, s_p3_lgth_d3                   : std_logic_vector(2 downto 0);
-  signal s_u_rst_d3                                                 : std_logic_vector(3 downto 0);
+  signal s_u_rst_d3                                                 : std_logic_vector(2 downto 0);
   signal s_nostat_d3, s_slone_d3                                    : std_logic_vector(2 downto 0);  
-  signal s_wb_adr_d1, s_wb_adr_d2, s_wb_adr_d3                      : std_logic_vector(9 downto 0);
   signal s_rate_d1, s_rate_d2, s_rate_d3                            : std_logic_vector(1 downto 0);   
   signal s_subs_d1, s_subs_d2, s_subs_d3                            : std_logic_vector(7 downto 0); 
-  signal s_wb_dati_d1, s_wb_dati_d2, s_wb_dati_d3                   : std_logic_vector(7 downto 0);
   signal s_slone_dati_d1, s_slone_dati_d3, s_slone_dati_d2          :std_logic_vector(15 downto 0);
 
    
@@ -192,12 +186,11 @@ begin
   RSTIN_synchronisation_with_uclk: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      s_u_rst_d3    <= s_u_rst_d3 (2 downto 0) &  rstin_a_i;
+      s_u_rst_d3    <= s_u_rst_d3 (1 downto 0) &  rstin_a_i;
     end if;
   end process;
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   rstin_o           <= s_u_rst_d3(2);
-  rstin_f_edge_o    <= s_u_rst_d3(3) and (not s_u_rst_d3(2));
 
 
 ---------------------------------------------------------------------------------------------------
@@ -293,12 +286,6 @@ begin
   begin
    if rising_edge (wb_clk_i) then
      if wb_rst_a_i = '1' then          -- wb_rst is not buffered to comply with WISHBONE rule 3.15
-       s_wb_dati_d1  <= (others => '0');
-       s_wb_dati_d2  <= (others => '0');
-       s_wb_dati_d3  <= (others => '0');
-       s_wb_adr_d1   <= (others => '0');
-       s_wb_adr_d2   <= (others => '0');
-       s_wb_adr_d3   <= (others => '0');
        s_wb_stb_d1   <= '0';
        s_wb_stb_d2   <= '0';
        s_wb_stb_d3   <= '0';
@@ -310,14 +297,6 @@ begin
        s_wb_cyc_d3   <= '0';
 
       else
-        s_wb_dati_d3 <= s_wb_dati_d2; 
-        s_wb_dati_d2 <= s_wb_dati_d1; 
-        s_wb_dati_d1 <= dat_a_i (7 downto 0);
-
-        s_wb_adr_d3  <= s_wb_adr_d2;
-        s_wb_adr_d2  <= s_wb_adr_d1;
-        s_wb_adr_d1  <= wb_adr_a_i;
-
         s_wb_stb_d1  <= wb_stb_a_i;
         s_wb_stb_d2  <= s_wb_stb_d1; 
         s_wb_stb_d3  <= s_wb_stb_d2;   
@@ -335,8 +314,6 @@ begin
     end if;
   end process;
   --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  wb_dati_o          <= s_wb_dati_d3;
-  wb_adri_o          <= s_wb_adr_d3;
   wb_cyc_o           <= s_wb_cyc_d3;
   wb_we_o            <= s_wb_we_d3;
   wb_stb_o           <= s_wb_stb_d3;

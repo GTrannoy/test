@@ -47,7 +47,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --
 --
 --!   \n<b>Modified by:</b>   \n
---!     Evangelia Gousiou     \n
+--!            Evangelia Gousiou     \n
 --
 --------------------------------------------------------------------------------------------------- 
 --

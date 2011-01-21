@@ -52,19 +52,19 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
---! @date 10/01/2011
+--! @date      10/01/2011
 --
 --
---! @version v0.03
+--! @version   v0.03
 --
 --
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>\n
---!     WF_consumption      \n
---!     WF_bytes_retriever  \n
---!     WF_prod_permit      \n
---!     WF_reset_unit       \n
+--!            WF_consumption      \n
+--!            WF_bytes_retriever  \n
+--!            WF_prod_permit      \n
+--!            WF_reset_unit       \n
 --
 --
 --!   \n<b>Modified by:</b>\n

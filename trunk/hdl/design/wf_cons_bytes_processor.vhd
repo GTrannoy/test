@@ -61,24 +61,25 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
 --        
 --
---! @date 15/12/2010
+--! @date      15/12/2010
 --
 --
---! @version v0.03
+--! @version   v0.03
 --
 --
 --! @details\n 
 --
---!   \n<b>Dependencies:</b>    \n
---!          WF_reset_unit      \n
---!          WF_rx_deserializer \n
---!          WF_engine_control  \n
+--!   \n<b>Dependencies:</b>      \n
+--!            WF_reset_unit      \n
+--!            WF_rx_deserializer \n
+--!            WF_engine_control  \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Pablo Alvarez Sanchez \n
---!     Evangelia Gousiou     \n
+--!            Pablo Alvarez Sanchez \n
+--!            Evangelia Gousiou     \n
 --
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 11/09/2009  v0.01  EB  First version \n
@@ -119,11 +120,9 @@ port (
     -- Signal from the WF_reset_unit
     nfip_rst_i            : in std_logic;                      --! nanoFIP internal reset
 
-    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk)
+    -- nanoFIP User Interface, WISHBONE Slave 
     wb_clk_i              : in std_logic;                      --! WISHBONE clock
-    wb_adr_i              : in  std_logic_vector (9 downto 0); --! WISHBONE address to memory
-    wb_cyc_i              : in std_logic;                      --! WISHBONE cycle
-    wb_stb_r_edge_p_i     : in  std_logic;                     --! pulse on the rising edge of stb_i
+    wb_adr_i              : in  std_logic_vector (8 downto 0); --! WISHBONE address to memory
 
     -- Signals from the WF_rx_deserializer unit
     byte_i                : in std_logic_vector (7 downto 0);  --! input byte
@@ -138,9 +137,8 @@ port (
 
 
   -- OUTPUTS
-    -- nanoFIP User Interface, WISHBONE Slave outputs
+    -- nanoFIP User Interface, WISHBONE Slave output
     data_o                : out std_logic_vector (15 downto 0);--! data out bus 
-    wb_ack_cons_p_o       : out std_logic;                     --! WISHBONE acknowledge
 
     -- Signals to the WF_cons_frame_validator unit
     cons_ctrl_byte_o      : out std_logic_vector (7 downto 0); --! received RP_DAT Control byte
@@ -203,18 +201,6 @@ begin
       data_portb_i     => byte_i,                  -- byte to be written
       write_en_portb_i => s_write_byte_to_mem_p ); -- write enable
             
---------------------------------------------------------------------------------------------------- 
---!@brief Generate_wb_ack_cons_p_o:  Generation of the wb_ack_cons_p_o signal
---! (acknowledgement from WISHBONE Slave of the read cycle, as a response to the master's strobe).
---! wb_ack_cons_p_o is 1 wclk-wide pulse asserted 3 wclk cycles after the assertion of the 
---! asynchronous strobe signal, if the wb_cyc is asserted and the WISHBONE input address 
---! corresponds to an address in the Consumed memory block.
-
-  Generate_wb_ack_cons_p_o: wb_ack_cons_p_o <= '1' when ((wb_stb_r_edge_p_i = '1')    and 
-                                                        (wb_adr_i(9 downto 8) = "00") and
-                                                        (wb_cyc_i = '1'))
-                                          else '0';
-
 
 
 ---------------------------------------------------------------------------------------------------

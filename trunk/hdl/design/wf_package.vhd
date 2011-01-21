@@ -41,7 +41,7 @@ use ieee.numeric_std.all;
 --
 --
 --!   \n<b>Modified by:</b>   \n
---!     Evangelia Gousiou     \n
+--!            Evangelia Gousiou     \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -86,8 +86,9 @@ package WF_package is
                                                                                 "0001110001101011";
 
 
+
 ---------------------------------------------------------------------------------------------------
---                             Constants regarding the Manchester 2 coding                       --
+--                     Constants regarding the the ID_DAT and RP_DAT frame structure             --
 ---------------------------------------------------------------------------------------------------
 
   constant VP   : std_logic_vector (1 downto 0) := "11";
@@ -95,15 +96,11 @@ package WF_package is
   constant ONE  : std_logic_vector (1 downto 0) := "10";
   constant ZERO : std_logic_vector (1 downto 0) := "01";
 
+  constant c_PRE : std_logic_vector (15 downto 0) :=  ONE & ZERO & ONE & ZERO & ONE & ZERO & ONE & ZERO;
+  constant c_FSD : std_logic_vector (15 downto 0) :=  ONE & VP & VN & ONE & ZERO & VN & VP & ZERO;
+  constant c_FES : std_logic_vector (15 downto 0) :=  ONE & VP & VN & VP & VN & ONE & ZERO & ONE; 
+  constant c_FSS : std_logic_vector (31 downto 0) :=  c_PRE & c_FSD;
 
----------------------------------------------------------------------------------------------------
---                     Constants regarding the the ID_DAT and RP_DAT frame structure             --
----------------------------------------------------------------------------------------------------
-
-  constant PRE : std_logic_vector (15 downto 0) :=  ONE & ZERO & ONE & ZERO & ONE & ZERO & ONE & ZERO;
-  constant FSD : std_logic_vector (15 downto 0) :=  ONE & VP & VN & ONE & ZERO & VN & VP & ZERO;
-  constant FES : std_logic_vector (15 downto 0) :=  ONE & VP & VN & VP & VN & ONE & ZERO & ONE; 
-  constant FSS : std_logic_vector (31 downto 0) :=  PRE & FSD;
 
 
 ---------------------------------------------------------------------------------------------------
@@ -222,7 +219,7 @@ package WF_package is
                               (c_31K25_INDEX =>   (turnaround => integer (480000.0  / c_QUARTZ_PERIOD), 
                                                    silence    => integer (5160000.0 / c_QUARTZ_PERIOD)),
 
-                               c_1M_INDEX =>      (turnaround => integer (14000.0   / c_QUARTZ_PERIOD),
+                               c_1M_INDEX =>      (turnaround => integer (14000.0   / c_QUARTZ_PERIOD), 
                                                    silence    => integer (150000.0  / c_QUARTZ_PERIOD)),
                                               
                                c_2M5_INDEX =>     (turnaround => integer (6000.0   / c_QUARTZ_PERIOD),
@@ -236,7 +233,7 @@ package WF_package is
 ---------------------------------------------------------------------------------------------------
 --                    Constants & Types regarding the consumed & produced variables              --
 ---------------------------------------------------------------------------------------------------
-  -- Construction of a table that gathers main information for all the variables
+  -- Construction of a table that groups main information for all the variables
 
   type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_whatever);
 
@@ -362,7 +359,6 @@ package WF_package is
     wb_cyc_a_i        : in std_logic;
     wb_we_a_i         : in std_logic;
     wb_stb_a_i        : in std_logic; 
-    wb_adr_a_i        : in std_logic_vector(9 downto 0);
     var1_access_a_i   : in std_logic;
     var2_access_a_i   : in std_logic;
     var3_access_a_i   : in std_logic;
@@ -374,7 +370,6 @@ package WF_package is
     p3_lgth_a_i       : in std_logic_vector(2 downto 0);
     -----------------------------------------------------------------
     rstin_o           : out std_logic;
-    rstin_f_edge_o    : out std_logic;
     slone_o           : out std_logic;
     nostat_o          : out std_logic;
     fd_wdgn_o         : out std_logic;
@@ -387,8 +382,6 @@ package WF_package is
     wb_we_o           : out std_logic;
     wb_stb_o          : out std_logic; 
     wb_stb_r_edge_o   : out std_logic;
-    wb_dati_o         : out std_logic_vector(7 downto 0);
-    wb_adri_o         : out std_logic_vector(9 downto 0);
     var1_access_o     : out std_logic;
     var2_access_o     : out std_logic;
     var3_access_o     : out std_logic;
@@ -433,17 +426,17 @@ end component WF_inputs_synchronizer;
   component WF_tx_serializer 
   generic (c_TX_CLK_BUFF_LGTH : natural);
   port (
-    uclk_i            : in std_logic;
-    nfip_rst_i        : in std_logic;
-    start_prod_p_i    : in std_logic;
-    byte_ready_p_i    : in std_logic; 
-    last_byte_p_i     : in std_logic;
-    byte_i            : in std_logic_vector (7 downto 0);
-    tx_clk_p_buff_i   : in std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0);
+    uclk_i                  : in std_logic;
+    nfip_rst_i              : in std_logic;
+    start_prod_p_i          : in std_logic;
+    byte_request_accept_p_i : in std_logic; 
+    last_byte_p_i           : in std_logic;
+    byte_i                  : in std_logic_vector (7 downto 0);
+    tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0);
     -------------------------------------------------------------------------  
-    request_byte_p_o  : out std_logic;
-    tx_data_o         : out std_logic;
-    tx_enable_o       : out std_logic
+    byte_request_p_o        : out std_logic;
+    tx_data_o               : out std_logic;
+    tx_enable_o             : out std_logic
     -------------------------------------------------------------------------    
        );
   end component WF_tx_serializer;
@@ -478,16 +471,13 @@ end component WF_inputs_synchronizer;
     slone_i               : in std_logic; 
     nfip_rst_i            : in std_logic;
     wb_clk_i              : in std_logic;
-    wb_adr_i              : in std_logic_vector (9 downto 0); 
-    wb_stb_r_edge_p_i     : in std_logic; 
-    wb_cyc_i              : in std_logic; 
+    wb_adr_i              : in std_logic_vector (8 downto 0); 
     byte_ready_p_i        : in std_logic;
     byte_index_i          : in std_logic_vector (7 downto 0);
     var_i                 : in t_var;
     byte_i                : in std_logic_vector (7 downto 0);
       ---------------------------------------------------------------
     data_o                : out std_logic_vector (15 downto 0);
-    wb_ack_cons_p_o       : out std_logic; 
     cons_ctrl_byte_o      : out std_logic_vector (7 downto 0);
     cons_pdu_byte_o       : out std_logic_vector (7 downto 0);           
     cons_lgth_byte_o      : out std_logic_vector (7 downto 0);
@@ -524,9 +514,7 @@ end component WF_inputs_synchronizer;
     fd_rxd_r_edge_p_i        : in std_logic;
     fd_rxd_f_edge_p_i        : in std_logic; 
     wb_clk_i                 : in std_logic;                    
-    wb_adr_i                 : in std_logic_vector(9 downto 0);
-    wb_stb_r_edge_p_i        : in std_logic;
-    wb_cyc_i                 : in std_logic;
+    wb_adr_i                 : in std_logic_vector(8 downto 0);
     var_i                    : in t_var;
     byte_index_i             : in std_logic_vector (7 downto 0);
     rst_rx_unit_p_i          : in std_logic;
@@ -538,7 +526,6 @@ end component WF_inputs_synchronizer;
     var1_rdy_o               : out std_logic;
     var2_rdy_o               : out std_logic;
     data_o                   : out std_logic_vector (15 downto 0);
-    wb_ack_cons_p_o          : out std_logic;                     
     byte_o                   : out std_logic_vector (7 downto 0);
     byte_ready_p_o           : out std_logic;
     fss_received_p_o         : out std_logic;
@@ -562,10 +549,8 @@ end component WF_inputs_synchronizer;
     nfip_rst_i              : in std_logic;
     wb_clk_i                : in std_logic;                    
     wb_data_i               : in std_logic_vector(7 downto 0);
-    wb_adr_i                : in std_logic_vector(9 downto 0);
-    wb_stb_r_edge_p_i       : in std_logic;
-    wb_we_i                 : in std_logic; 
-    wb_cyc_i                : in std_logic;
+    wb_adr_i                : in std_logic_vector(8 downto 0);
+    wb_ack_prod_p_i         : in std_logic;  
     slone_data_i            : in std_logic_vector(15 downto 0);
     var1_acc_i              : in std_logic; 
     var2_acc_i              : in std_logic; 
@@ -576,7 +561,7 @@ end component WF_inputs_synchronizer;
     data_length_i           : in std_logic_vector (7 downto 0);
     byte_index_i            : in std_logic_vector (7 downto 0);
     start_prod_p_i          : in std_logic;
-    byte_ready_p_i          : in std_logic;
+    byte_request_accept_p_i : in std_logic;
     last_byte_p_i           : in std_logic;
     nfip_status_r_tler_i    : in std_logic;
     nfip_status_r_fcser_p_i : in std_logic;
@@ -586,15 +571,14 @@ end component WF_inputs_synchronizer;
     model_id_dec_i          : in  std_logic_vector (7 downto 0);
     constr_id_dec_i         : in  std_logic_vector (7 downto 0);
     --------------------------------------------------------------------------
-    request_byte_p_o        : out std_logic;
+    byte_request_p_o        : out std_logic;
     tx_data_o               : out std_logic;
     tx_enable_o             : out std_logic;
     u_cacer_o               : out std_logic;
     u_pacer_o               : out std_logic;
     r_tler_o                : out std_logic;
     r_fcser_o               : out std_logic; 
-    var3_rdy_o              : out std_logic; 
-    wb_ack_prod_p_o         : out std_logic  
+    var3_rdy_o              : out std_logic
     --------------------------------------------------------------------------
        );
 end component WF_production;
@@ -611,22 +595,19 @@ end component WF_production;
     constr_id_dec_i      : in std_logic_vector (7 downto 0); 
     wb_clk_i             : in std_logic; 
     wb_data_i            : in std_logic_vector (7 downto 0); 
-    wb_adr_i             : in std_logic_vector (9 downto 0); 
-    wb_stb_r_edge_p_i    : in std_logic; 
-    wb_we_i              : in std_logic;  
-    wb_cyc_i             : in std_logic;
+    wb_adr_i             : in std_logic_vector (8 downto 0); 
+    wb_ack_prod_p_i      : in std_logic;  
     slone_data_i         : in std_logic_vector (15 downto 0);
     nFIP_status_byte_i   : in std_logic_vector (7 downto 0);
     mps_status_byte_i    : in std_logic_vector (7 downto 0);
     var_i                : in t_var;
     data_length_i        : in std_logic_vector (7 downto 0);
     byte_index_i         : in std_logic_vector (7 downto 0);
-    byte_ready_p_i       : in std_logic;
+    byte_being_sent_p_i  : in std_logic;
     var3_rdy_i           : in std_logic;
     ---------------------------------------------------------------       
     rst_status_bytes_p_o : out std_logic; 
-    byte_o               : out std_logic_vector (7 downto 0);
-    wb_ack_prod_p_o      : out std_logic        
+    byte_o               : out std_logic_vector (7 downto 0)      
     ---------------------------------------------------------------          
        );
   end component WF_prod_bytes_retriever;
@@ -658,14 +639,14 @@ end component WF_production;
     p3_lgth_i                   : in std_logic_vector (2 downto 0); 
     slone_i                     : in std_logic; 
     nostat_i                    : in std_logic; 
-    tx_request_byte_p_i         : in std_logic;
+    tx_byte_request_p_i         : in std_logic;
     rx_fss_received_p_i         : in std_logic; 
     rx_crc_wrong_p_i            : in std_logic;
     rx_byte_i                   : in std_logic_vector (7 downto 0);  
     rx_byte_ready_p_i           : in std_logic;
     rx_fss_crc_fes_manch_ok_p_i : in std_logic;  
     ---------------------------------------------------------------
-    tx_byte_ready_p_o           : out std_logic;
+    tx_byte_request_accept_p_o  : out std_logic;
     tx_last_byte_p_o            : out std_logic;
     tx_start_prod_p_o           : out std_logic;
     prod_cons_byte_index_o      : out std_logic_vector (7 downto 0);
@@ -682,8 +663,7 @@ end component WF_production;
   port (
     uclk_i              : in std_logic; 
     rstin_i             : in std_logic; 
-    rstin_f_edge_i      : in std_logic;
-    rstpon_i          : in std_logic;
+    rstpon_i            : in std_logic;
     rate_i              : in std_logic_vector (1 downto 0);
     var_i               : in t_var;    
     rst_nFIP_and_FD_p_i : in std_logic;
@@ -978,16 +958,39 @@ end component WF_production;
        );
   end component WF_cons_outcome;
 
+
 ---------------------------------------------------------------------------------------------------
 component WF_prod_permit is
 
   port (
-    uclk_i                : in std_logic; 
-    nfip_rst_i           : in std_logic;
-    var_i                 : in t_var; 
-    var3_rdy_o            : out std_logic
+    uclk_i     : in std_logic; 
+    nfip_rst_i : in std_logic;
+    var_i      : in t_var; 
+    ---------------------------------------------------------------
+    var3_rdy_o : out std_logic
+    ---------------------------------------------------------------
       );
 end component WF_prod_permit;
+
+
+---------------------------------------------------------------------------------------------------
+component WF_wb_controller is
+
+  port (
+
+    wb_clk_i          : in std_logic; 
+    wb_rst_i          : in std_logic; 
+    wb_cyc_i          : in std_logic;                   
+    wb_stb_r_edge_p_i : in std_logic;
+    wb_we_i           : in std_logic;      
+    wb_adr_id_i       : in  std_logic_vector (2 downto 0);
+    ---------------------------------------------------------------
+    wb_ack_prod_p_o   : out std_logic;
+    wb_ack_p_o        : out std_logic  
+    ---------------------------------------------------------------  
+      );
+end component WF_wb_controller;
+
 
 
 ---------------------------------------------------------------------------------------------------

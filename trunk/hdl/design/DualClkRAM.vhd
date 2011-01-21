@@ -49,10 +49,10 @@ use PROASIC3.all;
 --! @details \n
 --
 --!   \n<b>Dependencies:</b>\n
---!     ProASIC3 lib        \n
+--!            ProASIC3 lib        \n
 -- 
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n
 --
 --------------------------------------------------------------------------------------------------- 
 --
