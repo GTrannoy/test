@@ -121,7 +121,7 @@ begin
                                                            (wb_adr_id_i = "010")     and
                                                            (wb_we_i = '1')           and 
                                                            (wb_cyc_i = '1'))
-                                          else '0';
+                                            else '0';
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Generate_wb_ack_read_p:  Generation of the wb_ack_read_p signal
@@ -130,7 +130,7 @@ begin
 --! corresponds to an address in the Consumed memory block.
 
   Generate_wb_ack_read_p_o: s_wb_ack_read_p <= '1' when ((wb_stb_r_edge_p_i = '1')        and 
-                                                         (wb_adr_id_i(1 downto 0) = "00") and
+                                                         (wb_adr_id_i(2 downto 1) = "00") and
                                                          (wb_cyc_i = '1'))
                                           else '0';
 
