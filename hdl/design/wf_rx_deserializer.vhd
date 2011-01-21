@@ -58,8 +58,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            Reminder:
 --!
 --!            Consumed RP_DAT frame structure :
---!             _______ _______ ______  _______ ______ ______________ _______  ___________ _______
---!            |__PRE__|__FSD__|_Ctrl_||__PDU__|_LGTH_|_..PureData.._|__MPS__||____FCS____|__FES__|
+--!           _______ _______ ______  _______ ______ ________________ _______  ___________ _______
+--!          |__PRE__|__FSD__|_Ctrl_||__PDU__|_LGTH_|_..ApplicData.._|__MPS__||____FCS____|__FES__|
 --!
 --!            ------------------------------------------------------------------------------------
 --
@@ -130,7 +130,7 @@ entity WF_rx_deserializer is
   port (
   -- INPUTS 
     -- nanoFIP User Interface general signal 
-    uclk_i                  : in std_logic; --! 40MHz clock
+    uclk_i                  : in std_logic; --! 40 MHz clock
  
     -- Signal from the WF_reset_unit
     nfip_rst_i              : in std_logic; --! nanoFIP internal reset
@@ -201,7 +201,7 @@ architecture rtl of WF_rx_deserializer is
   signal s_manch_bit_index, s_manch_bit_index_top                 : unsigned(3 downto 0);
   signal s_byte                                                   : std_logic_vector (7 downto 0);
   signal s_CRC_ok_p_buff, s_arriving_fes                          : std_logic_vector (15 downto 0);
-
+  signal s_arriving_fes                                           : std_logic_vector (14 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
@@ -336,7 +336,7 @@ architecture rtl of WF_rx_deserializer is
 
 
     -- nanoFIP can receive ID_DATs of a predefined length of 8 bytes and RP_DATs of any length 
-    -- (not predefined) up to 132 bytes (FSD+Ctrl+PDU_TYPE+LGTH+124 pure_data+MPS+FCS+FES).
+    -- (not predefined) up to 132 bytes (FSD+Ctrl+PDU_TYPE+LGTH+124 application_data+MPS+FCS+FES).
     -- The WF_engine_control unit is following the amount of bytes being received and in case
     -- their number overpasses the expected one, it activates the signal rst_rx_unit_p_i.
     -- Therefore, the Receiver_FSM stays in the data_fcs_fes_fields state until the arrival of a
@@ -551,17 +551,19 @@ architecture rtl of WF_rx_deserializer is
       if rising_edge (uclk_i) then
         if nfip_rst_i = '1' then
           s_arriving_fes <= (others =>'0');
-
         else
-          if s_receiving_bytes = '1' and sample_manch_bit_p_i = '1' then
+          if s_receiving_bytes = '0' then 
+            s_arriving_fes <= (others =>'0');
+
+          elsif s_receiving_bytes = '1' and sample_manch_bit_p_i = '1' then
             s_arriving_fes <= s_arriving_fes (14 downto 0) & rxd_filtered_i;
+
           end if;
         end if;
       end if;
     end process;
   --  --  --  --  --  --  --  --  --  --  -- 
-  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES) and sample_manch_bit_p_i = '1' else '0';
-
+  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES);
 
 
 ---------------------------------------------------------------------------------------------------
@@ -626,7 +628,7 @@ architecture rtl of WF_rx_deserializer is
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Synchronous process that handles the CRC signal: The crc_ok_p coming from the CRC
---! calculator unit is delayed for 16 manch. encoded bits. The matching of this delayed pulse
+--! calculator unit is delayed for 15 manch. encoded bits. The matching of this delayed pulse
 --! with the end of frame pulse (s_fes_detected_p), would confirm that the two last bytes
 --! received before the FES were the correct CRC.
 
@@ -656,7 +658,7 @@ architecture rtl of WF_rx_deserializer is
       end if; 
     end process;
   --  --  --  --  --  --  --  --  --  --  -- 
-  s_crc_ok_p_d16 <= s_CRC_ok_p_buff(15);                   -- pulse 1 half-bit-clock period long
+  s_crc_ok_p_d16 <= s_CRC_ok_p_buff(14);                   -- pulse 1 half-bit-clock period long
 
 
 

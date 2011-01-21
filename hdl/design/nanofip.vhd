@@ -432,7 +432,7 @@ begin
     port map(
       uclk_i                  => uclk_i,
       nfip_rst_i              => s_rst, 
-      rxd_edge_i              => s_fd_rxd_edge_p,      
+      rxd_edge_p_i            => s_fd_rxd_edge_p,      
       rst_rx_osc_i            => s_rst_rx_osc, 
       rate_i                  => s_rate_synch,  
     ---------------------------------------------------------

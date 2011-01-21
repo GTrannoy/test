@@ -90,7 +90,7 @@ entity WF_cons_outcome is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i                : in std_logic;                     --! 40MHz clock
+    uclk_i                : in std_logic;                     --! 40 MHz clock
     slone_i               : in std_logic;                     --! stand-alone mode 
 
     -- nanoFIP WorldFIP Settings (synchronized with uclk) 

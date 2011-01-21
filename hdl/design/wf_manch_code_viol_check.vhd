@@ -90,7 +90,7 @@ entity WF_rx_manch_code_check is
   port (
   -- INPUTS 
     -- nanoFIP User Interface general signal 
-    uclk_i                : in std_logic; --! 40MHz clock
+    uclk_i                : in std_logic; --! 40 MHz clock
 
     -- Signal from the WF_reset_unit
     nfip_rst_i            : in std_logic; --! nanoFIP internal reset

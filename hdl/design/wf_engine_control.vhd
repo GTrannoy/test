@@ -30,9 +30,8 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @brief     The WF_engine_control is following the reception of an incoming ID_DAT frame and
 --!              o identifies the variable to be treated
 --!              o signals accordingly the WF_production and WF_consumption units.
---!            Its main output var_i is crucial for the units WF_cons_bytes_processor and
---!            WF_prod_bytes_retriever as it defines the structure of the frames that are expected
---!            to arrive or to be produced.
+--!            During the production or consumption the unit is keeping track of the amounts of
+--!            produced and consumed bytes.
 --!
 --!            ------------------------------------------------------------------------------------
 --!            Reminder
@@ -49,7 +48,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!
 --!            Consumed RP_DAT frame structure :
 --!             ___________ ______  _______ ______ _________________________ _______  ___________ _______
---!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|______..Pure-Data..______|__MPS__||____FCS____|__FES__|
+--!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|_____..Applic-Data.._____|__MPS__||____FCS____|__FES__|
 --!
 --!
 --!            Turnaround time : Time between the end of the reception of an ID_DAT frame
@@ -90,15 +89,17 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                         PDU,length,ctrl bytes of RP_DAT checked bf VAR1_RDY/ var_2_rdy assertion;
 --!                         if ID_DAT>8 bytes or RP_DAT>134 (bf reception of a FES) go to idle; 
 --!                         state consume_wait_FSS, for the correct use of the silence time(time
---!                         stops counting when an RP_DAT frame has started)
---!                         
---!     12/2010  v0.02  EG  removed check on slone mode for #bytes>4;
---!                         in slone no broadcast
---!     01/2011  v0.03  EG  signals named according to their origin; signals removed....
+--!                         stops counting when an RP_DAT frame has started)                       
+--!     12/2010  v0.03  EG  state machine rewritten mealy style; removed check on slone mode 
+--!                         for #bytes>4; in slone no broadcast
+--!     01/2011  v0.04  EG  signals named according to their origin; signals var_rdy (1,2,3),
+--!                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and
+--!                         rx_byte_ready_p_o removedl cleaning-up+commenting
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo  -> add FES detection
+--! @todo  -> add an extra time counter (on top of the more complicated bytes counters) that after
+--!           134*8 transmission periods can reset tx and rx
 --!
 ---------------------------------------------------------------------------------------------------
 
@@ -152,7 +153,9 @@ entity WF_engine_control is
     rx_fss_crc_fes_manch_ok_p_i: in std_logic; --! indication of a frame (ID_DAT or RP_DAT) with
                                                --! correct FSS, FES, CRC and manch. encoding
 
-    rx_crc_wrong_p_i           : in std_logic; --! indication of a frame with a wrong CRC (pulse after FES arrival)
+    rx_crc_wrong_p_i           : in std_logic; --! indication of a frame with a wrong CRC
+                                               --  pulse arrives after the FES detection
+
     rx_fss_received_p_i        : in std_logic; --! pulse after a correct FSS detection (ID/ RP_DAT)
 
 
@@ -164,7 +167,7 @@ entity WF_engine_control is
     -- Signals to the WF_production
 
     -- Signal to the WF_tx_serializer unit
-    tx_byte_request_accept_p_o : out std_logic;--! 
+    tx_byte_request_accept_p_o : out std_logic;--! answer to tx_byte_request_p_i
     tx_last_byte_p_o           : out std_logic;--! indication that it is the last data-byte
     tx_start_prod_p_o          : out std_logic;--! launches the transmitters's FSM 
 
@@ -185,15 +188,15 @@ entity WF_engine_control is
     -- Signals to the WF_production & WF_consumption
 
     -- Signal to the WF_cons_bytes_processor, WF_prod_bytes_retriever
-    prod_cons_byte_index_o     : out std_logic_vector (7 downto 0);
-
+    prod_cons_byte_index_o     : out std_logic_vector (7 downto 0); --! index of the byte being
+                                                                    --! consumed/ produced
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  -- 
     -- Signals to the WF_production, WF_consumption, WF_reset_unit 
 
     -- Signal to the WF_cons_bytes_processor, WF_prod_bytes_retriever, WF_reset_unit
-    var_o                      : out t_var      --! variable received by a valid ID_DAT frame
-                                                --! that concerns this station 
+    var_o                      : out t_var     --! variable received by a valid ID_DAT frame
+                                               --! that concerns this station 
     );
 end entity WF_engine_control;
 
@@ -210,8 +213,8 @@ architecture rtl of WF_engine_control is
                          consume, consume_wait_FSS,
                          produce_wait_turnar_time, produce);
 
-  signal control_st, nx_control_st  : control_st_t;
-  signal s_var_aux, s_var, s_var_id : t_var;
+  signal control_st, nx_control_st                                                   :control_st_t;
+  signal s_var_aux, s_var, s_var_id                                                  : t_var;
 
   signal s_time_c_is_zero, s_broadcast_var, s_tx_start_prod_p, s_inc_rx_bytes_counter  : std_logic;
   signal s_producing, s_consuming, s_rst_prod_bytes_counter, s_inc_prod_bytes_counter  : std_logic;
@@ -241,12 +244,12 @@ begin
 
 --! The FSM starts in idle and expects from the WF_rx_deserializer to indicate the arrival of the
 --! FSS of an ID_DAT. It continues by checking one by one the bytes of the ID_DAT as they arrive:
---! if the Control byte is the nominal,
---! if the variable byte corresponds to a defined variable,
---! if the subscriber byte matches the station's address, or if the variable is a broadcast
---! and if the ID_DAT frame has been characterised as a valid one (the WF_rx_deserializer sends
---! a dedicated pulse at the end of the FES if the CRC has been correct and there have been no
---! unexpected manch. code violations throughout the frame).
+--!   o if the Control byte is the nominal,
+--!   o if the variable byte corresponds to a defined variable,
+--!   o if the subscriber byte matches the station's address, or if the variable is a broadcast
+--!   o and if the ID_DAT frame has been characterised as a valid one (the WF_rx_deserializer sends
+--!     a dedicated pulse at the end of the FES if the CRC has been correct and there have been no
+--!     unexpected manch. code violations throughout the frame).
 --! If the received variable is a produced (var_presence, var_identif, var_3) the FSM stays
 --! in the "produce_wait_turnar_time" state until the expiration of the turnaround time and then
 --! jumps to the "produce" state, waiting for the WF_serializer to send its last data-byte; then
@@ -350,9 +353,9 @@ begin
         elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_produce_or_consume = "01") then
           nx_control_st <= consume_wait_FSS;         -- CRC & FES check ok! station has to consume
 
-        elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_rx_bytes_c > 2)  then               -- 3 bytes after the arrival of the subscriber----->2----------------
+        elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_rx_bytes_c > 2)  then
+                                                     -- 3 bytes after the arrival of the subscriber
           nx_control_st <= idle;                     -- byte, a FES has not been detected
-                                                     -- s_rx_bytes_c: starts counting at this state
 
         else
           nx_control_st <= id_dat_frame_ok;          -- CRC & FES bytes being arriving
@@ -567,8 +570,8 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --! @brief Instantiation of the WF_prod_data_lgth_calc unit that calculates the total amount of
---! data-bytes that have to be transferred when a variable is produced (including the
---! RP_DAT.Control, RP_DAT.Data.MPS_status and RP_DAT.Data.nanoFIP_status bytes).
+--! bytes that have to be transferred when a variable is produced (including the RP_DAT.Control,
+--! RP_DAT.Data.MPS_status and RP_DAT.Data.nanoFIP_status bytes).
 
   Produced_Data_Length_Calculator: WF_prod_data_lgth_calc
   port map(
@@ -602,21 +605,6 @@ begin
   --  --  --  --  --  --  --  --  --  --  -- 
   -- when s_prod_data_length bytes have been counted,the signal s_prod_data_length_match is activated
   s_prod_data_length_match <= '1' when s_prod_bytes_c = unsigned (s_prod_data_length) else '0';
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---! @brief Instantiation of a WF_incr_counter for the counting of the production time.
-  Produced_Time_Counter: WF_incr_counter
-  generic map(g_counter_lgth => 18)
-  port map(
-    uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
-    reinit_counter_i  => s_rst_prod_bytes_counter,
-    incr_counter_i    => '1',
-    -------------------------------------------------------
-    counter_o         => open,
-    counter_is_full_o => s_prod_time_over  
-    -------------------------------------------------------
-      );
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
@@ -903,7 +891,7 @@ begin
 -- bytes and consumed RP_DAT > 130 bytes) 
   rst_rx_unit_p_o        <= s_idle_state and rx_byte_ready_p_i; 
 
--- Production starts after the expiration of the silence time
+-- Production starts after the expiration of the turnaround time
   tx_start_prod_p_o      <= s_tx_start_prod_p;
 ---------------------------------------------------------------------------------------------------
 

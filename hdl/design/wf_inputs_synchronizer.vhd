@@ -84,7 +84,7 @@ entity WF_inputs_synchronizer is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals
-    uclk_i            : in std_logic;                   --! 40MHz clock
+    uclk_i            : in std_logic;                   --! 40 MHz clock
     nostat_a_i        : in std_logic;
     rstin_a_i         : in std_logic;
     slone_a_i         : in std_logic;

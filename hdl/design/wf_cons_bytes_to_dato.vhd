@@ -28,8 +28,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --
 --! @brief     In stand-alone mode, after the reception of a consumed or consumed broadcast
---!            variable, the unit is responsible for transering the two pure-data bytes to the
---!            2-bytes long bus DAT_O.
+--!            variable, the unit is responsible for transering the two application-data bytes to
+--!            the 2-bytes long bus DAT_O.
 --!            The bytes are put in the bus one by one as they arrive, as the signal 
 --!            transfer_byte_p_i indicates.
 --!
@@ -88,7 +88,7 @@ entity WF_cons_bytes_to_dato is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i            : in std_logic;                     --! 40MHz clock
+    uclk_i            : in std_logic;                     --! 40 MHz clock
 
     -- Signal from the WF_reset_unit unit
     nfip_rst_i        : in std_logic;                     --! nanoFIP internal reset
@@ -134,14 +134,14 @@ Data_Transfer_To_Dat_o: process (uclk_i)
         if transfer_byte_p_i(0) = '1' then        -- the 1st byte is transfered in the lsb of the bus 
 
           slone_data_o(7 downto 0)   <= byte_i;   -- it stays there until a new cons. var arrives
-
+                                                  -- (or until a reset!)
         end if;                                   
 
 
         if transfer_byte_p_i(1) = '1' then        -- the 2nd byte is transfered in the msb of the bus
 
           slone_data_o(15 downto 8)  <= byte_i;   -- it stays there until a new cons. var arrives
-
+                                                  -- (or until a reset!)
         end if;
 
 
