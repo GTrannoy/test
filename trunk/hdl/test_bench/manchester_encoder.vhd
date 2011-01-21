@@ -67,6 +67,6 @@ begin
 	end process;
 	
 	cd				<= carrier;
-	data_out		<= data when carrier ='1' else '1';
+	data_out		<= data when carrier ='1' else '0';
 
 end archi;
