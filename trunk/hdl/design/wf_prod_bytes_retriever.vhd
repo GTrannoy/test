@@ -130,7 +130,7 @@ entity WF_prod_bytes_retriever is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i               : in std_logic;                     --! 40MHz clock
+    uclk_i               : in std_logic;                     --! 40 MHz clock
     nostat_i             : in std_logic;                     --! if negated, nFIP status is sent
     slone_i              : in std_logic;                     --! stand-alone mode 
 

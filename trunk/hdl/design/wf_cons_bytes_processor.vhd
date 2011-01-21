@@ -33,21 +33,22 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!
 --!            o If the consumed variable had been a var_1 or a var_2:
 --!
---!                o If the operation is in memory mode    : the unit is registering the pure-data
---!                  bytes along with the PDU_TYPE, Length and MPS bytes in the Consumed memories
+--!                o If the operation is in memory mode    : the unit is registering the 
+--!                  application-data bytes along with the PDU_TYPE, Length and MPS bytes in the
+--!                  Consumed memories
 --!
---!                o If the operation is in standalone mode: the unit is transferring the 2 
---!                  pure-data bytes to the "nanoFIP User Interface, NON_WISHBONE" data bus DAT_O.
+--!                o If the operation is in standalone mode: the unit is transferring the 2 appli-
+--!                  cation-data bytes to the "nanoFIP User Interface, NON_WISHBONE" data bus DAT_O
 --!
---!            o If the consumed variable had been a var_rst, the 2 pure-data bytes are just
+--!            o If the consumed variable had been a var_rst, the 2 application-data bytes are just
 --!              identified and sent to the WF_reset_unit.
 --!
 --!            ------------------------------------------------------------------------------------
 --!            Reminder:
 --!
 --!            Consumed RP_DAT frame structure :
---!             ___________ ______  _______ ________ ________________ _______  ___________ _______
---!            |____FSS____|_Ctrl_||__PDU__|__LGTH__|__..PureData..__|__MPS__||____FCS____|__FES__|
+--!           ___________ ______  _______ ________ __________________ _______  ___________ _______
+--!          |____FSS____|_Ctrl_||__PDU__|__LGTH__|__..ApplicData..__|__MPS__||____FCS____|__FES__|
 --!
 --!                                                 |-------LGTH bytes-------|
 --!                                |--------write to Consumed memory---------|
@@ -114,7 +115,7 @@ entity WF_cons_bytes_processor is
 port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i                : in std_logic;                      --! 40MHz clock
+    uclk_i                : in std_logic;                      --! 40 MHz clock
     slone_i               : in  std_logic;                     --! stand-alone mode (active high)
 
     -- Signal from the WF_reset_unit

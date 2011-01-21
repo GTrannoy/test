@@ -184,7 +184,7 @@ package WF_package is
   -- Creation of a table with the c_BIT_RATE_UCLK_TICKS info per bit rate
   type t_uclk_ticks is array (Natural range <>) of unsigned (C_PERIODS_COUNTER_LENGTH-1 downto 0);
 
-  constant c_BIT_RATE_UCLK_TICKS : t_uclk_ticks(3 downto 0):=
+  constant c_BIT_RATE_UCLK_TICKS : t_uclk_ticks (3 downto 0):=
                           (0 => (c_BIT_RATE_UCLK_TICKS_31_25Kbit),
                            1 => (c_BIT_RATE_UCLK_TICKS_1_Mbit),
                            2 => (c_BIT_RATE_UCLK_TICKS_2_5_Mbit),
@@ -278,7 +278,6 @@ package WF_package is
                               response     => produce,
                               base_addr    => "---------",
                               array_length => "00001010", -- 11 bytes in total including the Control byte
-                                                          -- (counting starts from 0)
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => x"52", 2 => x"08",
                                                3 => x"01", 4 => x"00", 5 => x"00", 6 => x"ff",
                                                7 => x"ff", 8 => x"00", 9 => x"00", 10 => x"00",
@@ -290,7 +289,7 @@ package WF_package is
                               response     => produce,
                               base_addr    => "100000000",
                               array_length => "00000001", -- only the Control and PDU type bytes are
-                                                          -- predefined (counting starts from 0)  
+                                                          -- predefined
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
                                                others => x"ff")),
 
@@ -300,17 +299,17 @@ package WF_package is
                               response     => consume,
                               base_addr    => "000000000",
                               array_length => "00000001", -- only the Control and PDU type bytes are
-                                                 -- predefined (counting starts from 0)  
+                                                          -- predefined
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
                                                    others => x"ff")),
 
 
      c_VAR_2_INDEX        => (var          => var_2,
-                              hexvalue     => x"91", --------------
+                              hexvalue     => x"91",
                               response     => consume,
                               base_addr    => "010000000",
                               array_length => "00000001", -- only the Control and PDU type bytes are
-                                                          -- predefined (counting starts from 0)   
+                                                          -- predefined  
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
                                                others => x"ff")),
 
@@ -318,8 +317,8 @@ package WF_package is
                               hexvalue     => x"e0", 
                               response     => reset,
                               base_addr    => "---------",
-                              array_length => "00000001", -- only the Control byte is predefined
-                                                          -- (counting starts from 0)
+                              array_length => "00000001", -- only the Control and PDU type bytes are
+                                                          -- predefined  
                               byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
                                                others => x"ff")));
 
@@ -450,7 +449,7 @@ end component WF_inputs_synchronizer;
       uclk_i                  : in std_logic; 
       rate_i                  : in std_logic_vector (1 downto 0);
       nfip_rst_i              : in std_logic;
-      rxd_edge_i              : in std_logic;
+      rxd_edge_p_i            : in std_logic;
       rst_rx_osc_i            : in std_logic;	
     -------------------------------------------------------------------------
       rx_manch_clk_p_o        : out std_logic;

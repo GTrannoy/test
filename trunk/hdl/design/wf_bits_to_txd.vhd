@@ -126,7 +126,7 @@ architecture rtl of WF_bits_to_txd is
 begin
 
 ---------------------------------------------------------------------------------------------------
---! @brief Synchronous process Bits_Delivery: managment of nanoFIP output signal FD_TXD by
+--! @brief Synchronous process Bits_Delivery: handling of nanoFIP output signal FD_TXD by
 --! placing bits of data according to the state of WF_tx_serializer's state machine (sending_fss,
 --! sending_data, sending_crc, sending_fes, stop_transmission) and to the counter txd_bit_index.
 --! The delivery is synchronised by the tx_clk_p_buff(1) signal.
@@ -151,7 +151,7 @@ begin
             txd_o <= crc_byte_manch_i (to_integer (txd_bit_index_i));          -- CRC: 2 bytes long
 
           elsif sending_fes_i = '1' then
-            txd_o <= c_FES(to_integer (resize(txd_bit_index_i,4)));                    -- FES: 1 byte
+            txd_o <= c_FES(to_integer (resize(txd_bit_index_i,4)));                  -- FES: 1 byte
 
           else
             txd_o <= '0'; 
@@ -180,12 +180,12 @@ begin
            (sending_crc_i = '1') or (sending_fes_i = '1') or (stop_transmission_i = '1')) then
 
           if  tx_clk_p_i = '1' then         -- in order to synchronise the 
-            tx_enable_o <= '1';             -- activation of tx_enabble with the
+            tx_enable_o <= '1';             -- activation of tx_enable with the
           end if;                           -- the delivery of the 1st FSS bit
-                                            -- txd (FSS)       :________|-----|___________|--------
+                                            -- FD_TXD (FSS)    :________|-----|___________|--------
                                             -- tx_clk_p_buff(1):______|-|___|-|___|-|___|-|___|-|__
                                             -- sending_FSS     :___|-------------------------------
-                                            -- tx_enable       :________|--------------------------
+                                            -- FD_TXENA        :________|--------------------------
         else
           tx_enable_o   <= '0';
         end if;   
