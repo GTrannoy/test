@@ -573,6 +573,8 @@ set_io r_fcser_o      \
     -pinname 85        \
     -fixed yes         \
     -DIRECTION Output
+
+
 #
 # Non IO constraints
 #

@@ -47,7 +47,6 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 --
 --! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
 -- @date       23/08/2010
@@ -59,13 +58,13 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! @details 
 --
 --!   \n<b>Dependencies:</b>\n
---!     WF_tx-_rx_osc       \n
---!     WF_reset_unit       \n
+--!            WF_tx-_rx_osc       \n
+--!            WF_reset_unit       \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!     Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n 
+--!            Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n 
 --
 ---------------------------------------------------------------------------------------------------
 --

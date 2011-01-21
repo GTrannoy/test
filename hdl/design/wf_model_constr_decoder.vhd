@@ -52,12 +52,12 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>\n
---!    WF_reset_unit\n
+--!            WF_reset_unit\n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Pablo Alvarez Sanchez\n
---!     Evangelia Gousiou    \n
+--!            Pablo Alvarez Sanchez\n
+--!            Evangelia Gousiou    \n
 --
 ---------------------------------------------------------------------------------------------------
 --

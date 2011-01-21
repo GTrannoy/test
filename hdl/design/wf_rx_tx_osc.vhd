@@ -61,15 +61,15 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @version   v0.03
 --
 --
---!   \n<b>Dependencies:</b>\n
---!     WF_reset_unit       \n
---!     WF_synchronizer     \n
---!     WF_rx_deserializer  \n
+--!   \n<b>Dependencies:</b>     \n
+--!            WF_reset_unit     \n
+--!            WF_synchronizer   \n
+--!            WF_rx_deserializer\n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Pablo Alvarez Sanchez\n
---!     Evangelia Gousiou    \n
+--!            Pablo Alvarez Sanchez\n
+--!            Evangelia Gousiou    \n
 --
 ---------------------------------------------------------------------------------------------------
 --

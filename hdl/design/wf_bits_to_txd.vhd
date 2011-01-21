@@ -46,13 +46,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
---!     WF_reset_unit       \n
---!     WF_tx_rx_osc        \n
---!     WF_tx_serializer    \n
+--!            WF_reset_unit       \n
+--!            WF_tx_rx_osc        \n
+--!            WF_tx_serializer    \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -142,7 +142,7 @@ begin
         if  tx_clk_p_i = '1' then 
 
           if sending_fss_i = '1' then
-            txd_o <= FSS (to_integer (txd_bit_index_i));   -- FSS: 2 bytes long (no need to resize)
+            txd_o <= c_FSS (to_integer (txd_bit_index_i));   -- FSS: 2 bytes long (no need to resize)
 
           elsif sending_data_i = '1' then
             txd_o <= data_byte_manch_i (to_integer (resize(txd_bit_index_i, 4)));    -- 1 data-byte
@@ -151,7 +151,7 @@ begin
             txd_o <= crc_byte_manch_i (to_integer (txd_bit_index_i));          -- CRC: 2 bytes long
 
           elsif sending_fes_i = '1' then
-            txd_o <= FES(to_integer (resize(txd_bit_index_i,4)));                    -- FES: 1 byte
+            txd_o <= c_FES(to_integer (resize(txd_bit_index_i,4)));                    -- FES: 1 byte
 
           else
             txd_o <= '0'; 
@@ -179,10 +179,10 @@ begin
         if ((sending_fss_i = '1') or (sending_data_i = '1') or -- tx sending bits
            (sending_crc_i = '1') or (sending_fes_i = '1') or (stop_transmission_i = '1')) then
 
-          if  tx_clk_p_i = '1' then -- in order to synchronise the 
-            tx_enable_o <= '1';                                -- activation of tx_enabble with the
-          end if;                                              -- the delivery of the 1st FSS bit
-                                            -- txd             :________|-----|___________|--------
+          if  tx_clk_p_i = '1' then         -- in order to synchronise the 
+            tx_enable_o <= '1';             -- activation of tx_enabble with the
+          end if;                           -- the delivery of the 1st FSS bit
+                                            -- txd (FSS)       :________|-----|___________|--------
                                             -- tx_clk_p_buff(1):______|-|___|-|___|-|___|-|___|-|__
                                             -- sending_FSS     :___|-------------------------------
                                             -- tx_enable       :________|--------------------------

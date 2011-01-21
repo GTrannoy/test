@@ -146,7 +146,6 @@ entity WF_reset_unit is
     uclk_i              : in std_logic;     --! 40 MHz clock
     rstin_i             : in std_logic;     --! initialisation control, active low
     rstpon_i            : in std_logic;     --! Power On Reset, active low
-    rstin_f_edge_i      : in std_logic;     --! rising edge on RSTIN
     rate_i              : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate 
 
     -- Signal from the WF_engine_control unit
@@ -252,16 +251,15 @@ begin
 --!@brief Combinatorial process RSTIN_FSM_Comb_State_Transitions: definition of the state
 --! transitions of the FSM.
   
-  RSTIN_FSM_Comb_State_Transitions: process (rstin_st,rstin_f_edge_i,
-                                             s_counter_is_ten,rstin_i,s_counter_is_four,
-                                             s_counter_is_full)
+  RSTIN_FSM_Comb_State_Transitions: process (rstin_st, rstin_i, s_counter_is_four,
+                                             s_counter_is_ten, s_counter_is_full)
   
   begin
   
   case rstin_st is 
 
     when idle =>                                                        
-                        if rstin_i = '0' then             -- RSTIN active
+                        if rstin_i = '0' then                      -- RSTIN active
                           nx_rstin_st   <= rstin_eval;  
 
                         else 
@@ -269,7 +267,7 @@ begin
                         end if;
    
     when rstin_eval => 
-                        if rstin_i = '1' then             -- RSTIN deactivated before the 8 cycles
+                        if rstin_i = '1' then                      -- RSTIN deactivated
                           nx_rstin_st   <= idle;
 
                         else
@@ -606,19 +604,16 @@ free_counter: WF_incr_counter
 ---------------------------------------------------------------------------------------------------
 
   nFIP_rst_o <= s_intern_rst_from_RSTIN or s_intern_rst_from_var_rst or s_por; -- nanoFIP internal
-                                                                               -- reset; resets
-  fd_rstn_o  <= not (s_FD_rst_from_RSTIN or s_FD_rst_from_var_rst or s_por);  
-
+                                                                               -- reset; resets all
+                                                                               -- logic apart from
+                                                                               -- WISHBONE
   Outputs_Buffering: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if (s_por = '1') or (s_intern_rst_from_RSTIN = '1') or (s_intern_rst_from_var_rst = '1') then     
-        rston_o    <= '1'; -- active low   
-
-      else
-        rston_o    <= not s_rston; 
+     
+      rston_o    <= not s_rston; 
+      fd_rstn_o  <= not (s_FD_rst_from_RSTIN or s_FD_rst_from_var_rst or s_por); 
                                                
-      end if;
     end if;
   end process;
 

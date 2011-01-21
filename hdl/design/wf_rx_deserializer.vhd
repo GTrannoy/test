@@ -98,12 +98,14 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                          units WF_rx_manch_code_check and Incoming_Bits_Index created;
 --!                          each manch bit of FES checked (bf was just each bit, so any D5 was FES) 
 --!                          code cleaned-up + commented.\n
---!     -> 12/2010 v0.02 EG  CRC_ok pulse transfered 16 bits later to match the FES;
+--!     -> 12/2010 v0.03 EG  CRC_ok pulse transfered 16 bits later to match the FES;
 --!                          like this we confirm that the CRC_ok_p arrived just before the FES,
 --!                          and any 2 bytes that could by chanche be seen as CRC, are neglected.  
 --!                          FSM data_field_byte state: redundant code removed:
 --!                          "s_fes_wrong_bit = '1' and s_manch_code_viol_p = '1' then idle"
 --!                          code(more!)cleaned-up
+--!     -> 01/2011 v0.04 EG  changed way of detecting the FES to be able to detect a FES even if
+--!                          bytes with size different than 8 have preceeded.
 --      
 ---------------------------------------------------------------------------------------------------
 --
@@ -186,10 +188,10 @@ architecture rtl of WF_rx_deserializer is
                     fsd_field, switch_to_deglitched, data_fcs_fes_fields);
 
   signal rx_st, nx_rx_st                                          : rx_st_t;
-  signal s_manch_code_viol_p, s_CRC_ok_p, s_CRC_ok_p_d16             : std_logic;
+  signal s_manch_code_viol_p, s_CRC_ok_p, s_CRC_ok_p_d16          : std_logic;
   signal s_fsd_last_bit, s_fes_wrong_bit, s_sample_manch_bit_p_d1 : std_logic;
-  signal s_fes_detected_p, s_fes_detection_window                 : std_logic;
-  signal s_manch_not_ok, s_switching_to_deglitched       : std_logic;
+  signal s_fes_detected_p                                         : std_logic;
+  signal s_manch_not_ok, s_switching_to_deglitched                : std_logic;
   signal s_receiving_fsd, s_receiving_bytes, s_receiving_pre      : std_logic;
   signal s_decr_manch_bit_index_p, s_manch_bit_index_load         : std_logic;
   signal s_manch_bit_index_is_zero, s_edge_outside_manch_window_p : std_logic;
@@ -198,7 +200,7 @@ architecture rtl of WF_rx_deserializer is
   signal s_manch_r_edge_p, s_manch_f_edge_p                       : std_logic;
   signal s_manch_bit_index, s_manch_bit_index_top                 : unsigned(3 downto 0);
   signal s_byte                                                   : std_logic_vector (7 downto 0);
-  signal s_CRC_ok_p_buff                                          : std_logic_vector (14 downto 0);
+  signal s_CRC_ok_p_buff, s_arriving_fes                          : std_logic_vector (15 downto 0);
 
 
 --=================================================================================================
@@ -488,15 +490,15 @@ architecture rtl of WF_rx_deserializer is
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- FSD aux signals concurrent assignments:
 
-  s_fsd_bit        <= s_receiving_fsd   and FSD (to_integer(s_manch_bit_index));  
+  s_fsd_bit        <= s_receiving_fsd   and c_FSD (to_integer(s_manch_bit_index));  
   s_fsd_last_bit   <= s_manch_bit_index_is_zero and sample_manch_bit_p_i;
   s_fsd_wrong_bit  <= (s_fsd_bit xor rxd_filtered_i) and sample_manch_bit_p_i; 
 
   -- FES aux signals concurrent assignments :
 
-  s_fes_bit        <= s_receiving_bytes and FES (to_integer(s_manch_bit_index));
+  s_fes_bit        <= s_receiving_bytes and c_FES (to_integer(s_manch_bit_index));
   s_fes_wrong_bit  <= (s_fes_bit xor rxd_filtered_i) and sample_manch_bit_p_i;   
-  s_fes_detected_p <=s_fes_detection_window and sample_manch_bit_p_i and s_manch_bit_index_is_zero;     
+     
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Combinatorial process that according to the state of the FSM sets values to the
@@ -517,7 +519,7 @@ architecture rtl of WF_rx_deserializer is
       s_decr_manch_bit_index_p <= '0';
 
     elsif s_switching_to_deglitched = '1' then -- preparation for the FSD byte
-      s_manch_bit_index_top    <= to_unsigned(FSD'left-1,s_manch_bit_index_top'length); 
+      s_manch_bit_index_top    <= to_unsigned(c_FSD'left-1,s_manch_bit_index_top'length); 
       -- FSD'left-1: bc the 1st bit of the FSD has been covered at the state PRE_field_f_edge
       s_manch_bit_index_load   <= s_manch_bit_index_is_zero and sample_manch_bit_p_i;
       s_decr_manch_bit_index_p <= '0';
@@ -539,27 +541,26 @@ architecture rtl of WF_rx_deserializer is
     end if;
   end process;
 
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief Synchronous process FES_Detector: creation of a window that is activated at the 
---! beginning of an incoming byte and stays active as long as 16 incoming manch. bits match the FES.
+--!@brief Synchronous process FES_Detector: The s_arriving_fes register is storing the last 16
+--! manch. encoded bits received and the s_fes_detected_p indicates weather they match the FES.  
  
   FES_Detector: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
         if nfip_rst_i = '1' then
-          s_fes_detection_window   <= '1';
+          s_arriving_fes <= (others =>'0');
 
         else
-          if s_manch_bit_index_is_zero = '1' and sample_manch_bit_p_i = '1' then 
-            s_fes_detection_window <= '1';
-
-          elsif  s_fes_wrong_bit = '1' then
-            s_fes_detection_window <= '0';
+          if s_receiving_bytes = '1' and sample_manch_bit_p_i = '1' then
+            s_arriving_fes <= s_arriving_fes (14 downto 0) & rxd_filtered_i;
           end if;
-
         end if;
       end if;
     end process;
+  --  --  --  --  --  --  --  --  --  --  -- 
+  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES) and sample_manch_bit_p_i = '1' else '0';
 
 
 
@@ -597,7 +598,7 @@ architecture rtl of WF_rx_deserializer is
     ---------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief Synchronous process that manages the s_manch_code_viol_p signal: If at any point after
+--!@brief Synchronous process that handles the s_manch_code_viol_p signal: If at any point after
 --! the FSS and before the FES a code violation appears, the signal s_manch_not_ok stays
 --! asserted until the end of the corresponding frame.    
 
@@ -613,22 +614,21 @@ architecture rtl of WF_rx_deserializer is
             s_manch_not_ok   <= '0';
 
           else
-
             if s_manch_code_viol_p ='1' and s_fes_wrong_bit ='1' then  
               s_manch_not_ok <= '1';                              -- if a code violation appears                   
                                                                   -- that doesn't belong to the FES         
             end if;                                            
-
           end if;
         end if;
       end if;
     end process;
 
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief Synchronous process that manages the signal crc_ok_p: The crc_ok_p coming from the CRC
---! calculator unit is delayed for 16 manch. encoded bits. The matching of this delayed pulse with
---! the FES pulse (s_fes_detected_p), would confirm that the two last bytes received before the
---! FES were the correct CRC.
+--!@brief Synchronous process that handles the CRC signal: The crc_ok_p coming from the CRC
+--! calculator unit is delayed for 16 manch. encoded bits. The matching of this delayed pulse
+--! with the end of frame pulse (s_fes_detected_p), would confirm that the two last bytes
+--! received before the FES were the correct CRC.
 
   CRC_OK_pulse_delay: process (uclk_i)
     begin
@@ -644,22 +644,19 @@ architecture rtl of WF_rx_deserializer is
             s_CRC_ok_p_buff       <= (others => '0');
 
           else
-
-            if s_sample_manch_bit_p_d1 = '1' then           -- a delay is added to s_CRC_ok_p with 
-                                                            -- each manch. bit arrival. In total 15 
-                                                            -- delays have to be added in order to
-                                                            -- arrive to the FES.
-              s_CRC_ok_p_buff     <= s_CRC_ok_p_buff(13 downto 0) & s_CRC_ok_p;
+                                                           -- a delay is added to s_CRC_ok_p with 
+            if s_sample_manch_bit_p_d1 = '1' then          -- each manch. bit arrival. In total 15
+                                                           -- delays have to be added in order to 
+                                                           -- arrive to the FES.
+              s_CRC_ok_p_buff     <= s_CRC_ok_p_buff(14 downto 0) & s_CRC_ok_p;
             end if;
 
           end if;
         end if;
       end if; 
     end process;
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-
-  s_crc_ok_p_d16 <= s_CRC_ok_p_buff(14);                    -- pulse 1 half-bit-clock period long
+  --  --  --  --  --  --  --  --  --  --  -- 
+  s_crc_ok_p_d16 <= s_CRC_ok_p_buff(15);                   -- pulse 1 half-bit-clock period long
 
 
 

@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_production.vhd
+--! @file WF_production.vhd                                                                       |
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
@@ -27,42 +27,53 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit gathers the main actions that regard data production.
+--! @brief     The unit groups the main actions that regard data production.
 --!            It instantiates the units:
 --!
---!              o WF_tx_serializerr       : that receives bytes from the WF_prod_bytes_retriever,
---!                                          encodes them (Manchester 2), adds the FSS, FCS & FES
---!                                          fields and puts one by one the encoded bits to the 
---!                                          FIELDRIVE output FD_TXD.   
---!              o WF_prod_bytes_retriever : that retreives user-data bytes from the Produced RAM 
---!                                          or the "nanoFIP User Interface, NON-WISHBONE" data bus
---!                                          DAT_I, and other bytes(PDU,LGTH,Ctrl,MPS,nFIP status)
---!                                          from the WF_package, WF_status_bytes_gen,
---!                                          WF_prod_data_lgth_calc units.
---!              o WF_status_bytes_gen     : that receives information from the WF_consumption
---!                                          
---!              o WF_prod_permit          : that handles the"nanoFIP User Interface, NON-WISHBONE"
---!                                          signal VAR3_RDY
+--!              o WF_tx_serializer       : that receives bytes from the WF_prod_bytes_retriever,
+--!                                         encodes them (Manchester 2), adds the FSS, FCS & FES
+--!                                         fields and puts one by one bits to the FIELDRIVE output
+--!                                         FD_TXD. Also handles the nanoFIP output FD_TXENA.   
 --!
---!                                __       _________________________________
---!                               |        |                                 | 
---!                            Level 2     |          WF_prod_permit         | 
---!                               |__      |_________________________________|
+--!              o WF_prod_bytes_retriever: that retrieves
+--!                                           user-data bytes: from the Produced RAM or the
+--!                                            "nanoFIP User Interface, NON-WISHBONE" data bus DAT_I, 
+--!                                           PDU,Ctrl bytes : from the WF_package 
+--!                                           MPS,nFIP status: from the WF_status_bytes_gen
+--!                                           LGTH byte      : from the WF_prod_data_lgth_calc
+--!                                         and following the external signals of the
+--!                                         WF_engine_control forwards them to the WF_tx_serializer. 
+--!
+--!              o WF_status_bytes_gen     : that receives information from the WF_consumption unit,
+--!                                          the FIELDRIVE and "User Interface,NON-WISHBONE" inputs
+--!                                          and outputs, to form the nanoFIP & MPS status bytes 
+--!                                          
+--!              o WF_prod_permit          : that signals the user that a variable can safely be
+--!                                          written (through the "nanoFIP User Interface,
+--!                                          NON-WISHBONE" signal VAR3_RDY)
+--!
+--!                                         _________________________________
+--!                                        |                                 | 
+--!                                        |          WF_prod_permit         | 
+--!                                        |_________________________________|
 --!                                                         ^
---!                                __       _________________________________     ________________
---!                               |        |                                 |   |                |
---!                           Level 1      |      WF_prod_bytes_retriever    | < | WF_status_bytes|
---!                               |        |                                 |   |      _gen      |
---!                               |__      |_________________________________|   |________________|
+--!                                         _________________________________     ________________
+--!                                        |                                 |   |                |
+--!                                        |      WF_prod_bytes_retriever    | < | WF_status_bytes|
+--!                                        |                                 |   |      _gen      |
+--!                                        |_________________________________|   |________________|
 --!                                                         ^
---!                                __       _________________________________
---!                               |        |                                 | 
---!                            Level 0     |         WF_tx_serializerr       |
---!                               |__      |_________________________________|
---! 
+--!                                         _________________________________
+--!                                        |                                 | 
+--!                                        |         WF_tx_serializerr       |
+--!                                        |_________________________________|
+--!                                                         ^
 --!                          _______________________________________________________________
 --!                         0__________________________FIELDBUS____________________________O    
-
+--!
+--!            Note: In the entity declaration of this unit, below each input signal, we mark
+--!            which of the instantiated units needs it.     
+--!
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -77,19 +88,20 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n  
 --
---!   \n<b>Dependencies:</b>    \n
---!     WF_prod_bytes_retriever \n
---!     WF_status_bytes_gen     \n
---!     WF_tx_serializer        \n
+--!   \n<b>Dependencies:</b>           \n
+--!            WF_reset_unit           \n
+--!            WF_consumption          \n
+--!            WF_engine_control       \n
+--!            WF_tx_rx_osc            \n
+--!            WF_model_constr_decoder \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 
---
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -118,103 +130,113 @@ entity WF_production is
 
       uclk_i                  : in std_logic;
 
-      --! WF_prod_bytes_retriever : for the selection of data bytes from the RAM or the DATI bus
-      --! WF_status_bytes_gen : the MPS status byte is different according to the operational mode
       slone_i                 : in std_logic;
-                                           
-      --! WF_prod_bytes_retriever : for the delivery or not of the nanoFIP status byte
+      -- WF_prod_bytes_retriever : for the selection of data bytes from the RAM or the DATI bus
+      -- WF_status_bytes_gen : the MPS status byte is different according to the operational mode                                           
+
       nostat_i                : in std_logic;
+      -- WF_prod_bytes_retriever : for the delivery or not of the nanoFIP status byte
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_reset_unit unit
+
       nfip_rst_i              : in std_logic;
 
+
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk)
+    -- nanoFIP User Interface, WISHBONE Slave
 
-      --! WF_prod_bytes_retriever : for the managment of the Production RAM
+
       wb_clk_i                : in std_logic;                    
-      wb_adr_i                : in std_logic_vector(9 downto 0);
+      wb_adr_i                : in std_logic_vector(8 downto 0);
       wb_data_i               : in std_logic_vector(7 downto 0);
-      wb_cyc_i                : in std_logic;
-      wb_stb_r_edge_p_i       : in std_logic;
-      wb_we_i                 : in std_logic; 
+       -- WF_prod_bytes_retriever : for the managment of the Production RAM
 
+
+	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+    -- Signal from the WF_wb_controller
+      wb_ack_prod_p_i         : in std_logic;  
+       -- WF_prod_bytes_retriever : for the latching of wb_data_i
+
+ 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, NON-WISHBONE (synchronized with uclk)
 
-      --! WF_prod_bytes_retriever : for the bytes retreival in stand-alone mode
       slone_data_i            : in std_logic_vector(15 downto 0);
+      -- WF_prod_bytes_retriever : for the bytes retreival in stand-alone mode
 
-      --! WF_status_bytes_gen : for the nanoFIP status byte, bits 2, 3
       var1_acc_i              : in std_logic; 
       var2_acc_i              : in std_logic; 
       var3_acc_i              : in std_logic;
+      -- WF_status_bytes_gen : for the nanoFIP status byte, bits 2, 3
+
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP FIELDRIVE (synchronized with uclk)
 
-      --! WF_status_bytes_gen : for the nanoFIP status byte, bits 6, 7
+
       fd_txer_i               : in  std_logic;
       fd_wdgn_i               : in  std_logic;
+      -- WF_status_bytes_gen : for the nanoFIP status byte, bits 6, 7
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signals from the WF_engine_control
 
-      --! WF_prod_bytes_retriever : for the definition of the bytes to be delivered
       byte_index_i            : in std_logic_vector (7 downto 0);
       data_length_i           : in std_logic_vector (7 downto 0);
-      var_i                   : in t_var;      
+      var_i                   : in t_var;-- also for the WF_prod_permit for the VAR3_RDY generation
+      -- WF_prod_bytes_retriever : for the definition of the bytes to be delivered
 
-      --! WF_tx_serializer : for the delivery coordination
-      byte_ready_p_i          : in std_logic;
+      byte_request_accept_p_i : in std_logic;
       last_byte_p_i           : in std_logic;
       start_prod_p_i          : in std_logic;
+      -- WF_tx_serializer : for the delivery coordination
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signals from the WF_consumption
-      --! WF_status_bytes_gen : for the generation of the nanoFIP status byte, bits 2, 4, 5 
+
       var1_rdy_i              : in std_logic;
       var2_rdy_i              : in std_logic;
       nfip_status_r_fcser_p_i : in std_logic;
       nfip_status_r_tler_i    : in std_logic;
+      -- WF_status_bytes_gen : for the generation of the nanoFIP status byte, bits 2, 4, 5 
+
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_rx_tx_osc
 
-      -- WF_tx_serializer : for the transmission synchronization
       tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
+      -- WF_tx_serializer : for the transmission synchronization
+
    
  	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --	
     -- Signals from the WF_model_constr_decoder unit
 
-      --! WF_prod_bytes_retriever : for the production of a var_identif
       constr_id_dec_i         : in  std_logic_vector (7 downto 0);
       model_id_dec_i          : in  std_logic_vector (7 downto 0);
+      -- WF_prod_bytes_retriever : for the production of a var_identif
+
 
   -------------------------------------------------------------------------------------------------
   -- OUTPUTS
-	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signal to the WF_engine_control
-      request_byte_p_o        : out std_logic;
 
-	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    -- Signal to the WF_engine_control
+      byte_request_p_o        : out std_logic;
+
+
     -- nanoFIP FIELDRIVE outputs
       tx_data_o               : out std_logic; --! transmitter data
       tx_enable_o             : out std_logic; --! transmitter enable
 
-	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
     -- nanoFIP User Interface, NON-WISHBONE outputs
       u_cacer_o               : out std_logic; --! nanoFIP status byte, bit 2
       r_fcser_o               : out std_logic; --! nanoFIP status byte, bit 5
       u_pacer_o               : out std_logic; --! nanoFIP status byte, bit 3
       r_tler_o                : out std_logic; --! nanoFIP status byte, bit 4
-      var3_rdy_o              : out std_logic; --! signals the user that data can safely be written
-
-	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- nanoFIP User Interface, WISHBONE Slave (synchronized with wb_clk) output
-      wb_ack_prod_p_o         : out std_logic  --! WISHBONE acknowledge
+      var3_rdy_o              : out std_logic  --! signals the user that data can safely be written
 
       );
 end entity WF_production;
@@ -238,7 +260,9 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                             Production Level 3 : VAR3_RDY generator                           --
 --------------------------------------------------------------------------------------------------- 
-  VAR3_RDY_generation: WF_prod_permit
+--! @brief Instantiation of the WF_prod_permit unit
+
+  production_VAR3_RDY_generation: WF_prod_permit
   port map(
     uclk_i      => uclk_i,
     nfip_rst_i  => nfip_rst_i,
@@ -255,7 +279,7 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_prod_bytes_retriever unit
 
-    production_level_1 : WF_prod_bytes_retriever
+    production_bytes_retriever : WF_prod_bytes_retriever
     port map(
       uclk_i               => uclk_i, 
       model_id_dec_i       => model_id_dec_i, 
@@ -265,22 +289,19 @@ begin
       nfip_rst_i           => nfip_rst_i,
       wb_clk_i             => wb_clk_i,   
       wb_adr_i             => wb_adr_i,   
-      wb_stb_r_edge_p_i    => wb_stb_r_edge_p_i, 
-      wb_cyc_i             => wb_cyc_i,  
-      wb_we_i              => wb_we_i, 
+      wb_ack_prod_p_i      => wb_ack_prod_p_i,
       nFIP_status_byte_i   => s_stat,  
       mps_status_byte_i    => s_mps,
       var_i                => var_i,  
       byte_index_i         => byte_index_i,  
-      byte_ready_p_i       => byte_ready_p_i,
+      byte_being_sent_p_i  => byte_request_accept_p_i,
       data_length_i        => data_length_i, 
       wb_data_i            => wb_data_i,
       slone_data_i         => slone_data_i,
       var3_rdy_i           => s_var3_rdy,
       -----------------------------------------------
       rst_status_bytes_p_o => s_rst_status_bytes_p, 
-      byte_o               => s_byte_to_tx,
-      wb_ack_prod_p_o      => wb_ack_prod_p_o  
+      byte_o               => s_byte_to_tx
       -----------------------------------------------
       );
 
@@ -291,7 +312,7 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_status_bytes_gen unit
 
-    status_bytes_gen : WF_status_bytes_gen 
+    production_status_bytes_generator : WF_status_bytes_gen 
     port map(
       uclk_i                  => uclk_i,
       nfip_rst_i              => nfip_rst_i,
@@ -324,22 +345,23 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_tx_serializer unit
 
-    production_level_0: WF_tx_serializer 
+    production_serializer: WF_tx_serializer 
     generic map(c_TX_CLK_BUFF_LGTH => c_TX_CLK_BUFF_LGTH)
     PORT MAP(
-      uclk_i            => uclk_i,
-      nfip_rst_i        => nfip_rst_i,
-      start_prod_p_i    => start_prod_p_i,
-      byte_ready_p_i    => byte_ready_p_i,
-      byte_i            => s_byte_to_tx,
-      last_byte_p_i     => last_byte_p_i,
-      tx_clk_p_buff_i   => tx_clk_p_buff_i,
+      uclk_i                   => uclk_i,
+      nfip_rst_i               => nfip_rst_i,
+      start_prod_p_i           => start_prod_p_i,
+      byte_request_accept_p_i  => byte_request_accept_p_i,
+      byte_i                   => s_byte_to_tx,
+      last_byte_p_i            => last_byte_p_i,
+      tx_clk_p_buff_i          => tx_clk_p_buff_i,
       -----------------------------------------------
-      tx_data_o         => tx_data_o,
-      request_byte_p_o  => request_byte_p_o,
-      tx_enable_o       => tx_enable_o
+      tx_data_o                => tx_data_o,
+      byte_request_p_o         => byte_request_p_o,
+      tx_enable_o              => tx_enable_o
       -----------------------------------------------
       );
+
 
     var3_rdy_o  <= s_var3_rdy;
 

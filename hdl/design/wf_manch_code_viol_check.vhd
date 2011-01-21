@@ -62,12 +62,12 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
---!     WF_reset_unit       \n
---!     WF_rx_deglitcher    \n
+--!            WF_reset_unit       \n
+--!            WF_rx_deglitcher    \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --------------------------------------------------------------------------------------------------- 
 --
