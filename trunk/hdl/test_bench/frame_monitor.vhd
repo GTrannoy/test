@@ -355,9 +355,9 @@ begin
 				if pdu_type_byte = pdu_produced then
 					for i in 2 to last_data loop
 						assert out_produced(i) = frame_data(i)
-						report "               //// check NOT OK \\\\  Data value expected in memory at address " & integer'image(i) 
-						& LF & "                                       does not match the one sent by nanoFIP " 
-						& LF & "                                       in the corresponding position of the produced variable"
+						report "               //// check NOT OK \\\\  In the produced variable sent by nanoFIP, "
+						& LF & "                                       the value of the data byte number " & integer'image(i-2) 
+						& LF & "                                       does not match the value expected in the corresponding address of the memory" 
 						severity warning;
 					end loop;
 					assert mps_byte=mps_fresh or mps_byte=mps_not_fresh

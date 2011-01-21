@@ -159,6 +159,8 @@ begin
 			writeline	(config_file,config_line);
 			hwrite		(config_line,std_logic_vector(model));
 			writeline	(config_file,config_line);
+			hwrite		(config_line,std_logic_vector(station_adr));
+			writeline	(config_file,config_line);
 
 			file_close(config_file);
 		end if;
