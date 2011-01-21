@@ -116,6 +116,7 @@ architecture archi of fieldrive_interface is
 	port(
 		cd						: in std_logic;
 		f_clk_period			: in time;
+		fd_reset				: in std_logic;
 		id_rp					: in std_logic;
 		min_turn_around			: in time;
 		silence_time			: in time;
@@ -272,6 +273,7 @@ begin
 	port map(
 		cd						=> cd,
 		f_clk_period			=> f_clk_period,
+		fd_reset				=> fd_reset,
 		id_rp					=> id_rp,
 		min_turn_around			=> min_turn_around,
 		silence_time			=> silence_time,

@@ -397,12 +397,12 @@ begin
 					file_close(data_file);
 				elsif var_id = var_adr_reset then
 					reset_time	:= now;
-					file_open(data_file,"data/tmp_var_reset.txt",write_mode);
+					file_open(data_file,"data/tmp_vreset_hist.txt",write_mode);
 					write		(data_line, reset_time);
 					writeline	(data_file, data_line);
-					write		(data_line, res_first);
+					hwrite		(data_line, res_first);
 					writeline	(data_file, data_line);
-					write		(data_line, res_second);
+					hwrite		(data_line, res_second);
 					writeline	(data_file, data_line);
 					file_close(data_file);
 				end if;
