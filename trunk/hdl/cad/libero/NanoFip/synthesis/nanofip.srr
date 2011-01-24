@@ -1,0 +1,766 @@
+#Build: Synplify Premier D-2009.12, Build 035R, Nov 24 2009
+#install: C:\Synopsys\fpga_D200912
+#OS: Windows XP 5.1
+#Hostname: PCBE13136
+
+#Implementation: synthesis
+
+#Mon Jan 24 10:20:58 2011
+
+$ Start of Compile
+#Mon Jan 24 10:20:58 2011
+
+Synopsys VHDL Compiler, version comp475rc, Build 015R, built Nov 17 2009
+Copyright (C) 1994-2009, Synopsys Inc.  All Rights Reserved
+
+@N: CD720 :"C:\Synopsys\fpga_D200912\lib\vhd\std.vhd":123:18:123:21|Setting time resolution to ns
+Top entity isn't set yet!
+VHDL syntax check successful!
+File C:\ohr\cern-fip\trunk\hdl\design\DualClkRAM.vhd changed - recompiling
+File C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_to_dato.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_DualClkRAM_clka_rd_clkb_wr.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_cons_frame_validator.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_manch_code_viol_check.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_consumption.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_production.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_model_constr_decoder.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_wb_controller.vhd changed - recompiling
+File C:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd changed - recompiling
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD233 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":243:22:243:23|Using sequential encoding for type t_var_response
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd":200:7:200:13|Synthesizing work.nanofip.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_wb_controller.vhd":77:7:77:22|Synthesizing work.wf_wb_controller.rtl 
+Post processing for work.wf_wb_controller.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_model_constr_decoder.vhd":88:7:88:29|Synthesizing work.wf_model_constr_decoder.rtl 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":64:7:64:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_model_constr_decoder.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":116:7:116:23|Synthesizing work.wf_engine_control.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":211:21:211:22|Using onehot encoding for type control_st_t (idle="100000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":415:6:415:37|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":548:6:548:19|OTHERS clause is not synthesized 
+@N: CD233 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":243:22:243:23|Using sequential encoding for type t_var_response
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":69:7:69:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":64:7:64:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":98:7:98:28|Synthesizing work.wf_prod_data_lgth_calc.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD233 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":243:22:243:23|Using sequential encoding for type t_var_response
+Post processing for work.wf_prod_data_lgth_calc.rtl
+Post processing for work.wf_engine_control.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_production.vhd":125:7:125:19|Synthesizing work.wf_production.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":102:7:102:22|Synthesizing work.wf_tx_serializer.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":144:19:144:20|Using onehot encoding for type tx_state_t (idle="1000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":280:6:280:19|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":367:6:367:19|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd":84:7:84:20|Synthesizing work.wf_bits_to_txd.rtl 
+Post processing for work.wf_bits_to_txd.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":69:7:69:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd":80:7:80:12|Synthesizing work.wf_crc.rtl 
+Post processing for work.wf_crc.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_manch_encoder.vhd":76:7:76:22|Synthesizing work.wf_manch_encoder.rtl 
+Post processing for work.wf_manch_encoder.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_manch_encoder.vhd":76:7:76:22|Synthesizing work.wf_manch_encoder.rtl 
+Post processing for work.wf_manch_encoder.rtl
+Post processing for work.wf_tx_serializer.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":142:7:142:25|Synthesizing work.wf_status_bytes_gen.rtl 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":64:7:64:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_status_bytes_gen.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":128:7:128:29|Synthesizing work.wf_prod_bytes_retriever.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD233 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":243:22:243:23|Using sequential encoding for type t_var_response
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":427:4:427:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_to_dati.vhd":81:7:81:29|Synthesizing work.wf_prod_bytes_from_dati.rtl 
+Post processing for work.wf_prod_bytes_from_dati.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_DualClkRAM_clka_rd_clkb_wr.vhd":80:7:80:35|Synthesizing work.wf_dualclkram_clka_rd_clkb_wr.syn 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\DualClkRAM.vhd":76:7:76:16|Synthesizing work.dualclkram.ram4k9 
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":2884:10:2884:15|Synthesizing proasic3.ram4k9.syn_black_box 
+Post processing for proasic3.ram4k9.syn_black_box
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":1782:10:1782:12|Synthesizing proasic3.gnd.syn_black_box 
+Post processing for proasic3.gnd.syn_black_box
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":2722:10:2722:12|Synthesizing proasic3.vcc.syn_black_box 
+Post processing for proasic3.vcc.syn_black_box
+Post processing for work.dualclkram.ram4k9
+Post processing for work.wf_dualclkram_clka_rd_clkb_wr.syn
+Post processing for work.wf_prod_bytes_retriever.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":78:7:78:20|Synthesizing work.wf_prod_permit.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+Post processing for work.wf_prod_permit.rtl
+Post processing for work.wf_production.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_consumption.vhd":133:7:133:20|Synthesizing work.wf_consumption.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":88:7:88:21|Synthesizing work.wf_cons_outcome.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+Post processing for work.wf_cons_outcome.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_frame_validator.vhd":97:7:97:29|Synthesizing work.wf_cons_frame_validator.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+Post processing for work.wf_cons_frame_validator.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":111:7:111:29|Synthesizing work.wf_cons_bytes_processor.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD233 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":243:22:243:23|Using sequential encoding for type t_var_response
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":401:6:401:19|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_to_dato.vhd":86:7:86:27|Synthesizing work.wf_cons_bytes_to_dato.rtl 
+Post processing for work.wf_cons_bytes_to_dato.rtl
+Post processing for work.wf_cons_bytes_processor.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":137:7:137:24|Synthesizing work.wf_rx_deserializer.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":197:16:197:17|Using onehot encoding for type rx_st_t (idle="1000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":364:4:364:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":434:4:434:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_manch_code_viol_check.vhd":91:7:91:28|Synthesizing work.wf_rx_manch_code_check.rtl 
+Post processing for work.wf_rx_manch_code_check.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":69:7:69:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+Post processing for work.wf_rx_deserializer.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deglitcher.vhd":89:7:89:22|Synthesizing work.wf_rx_deglitcher.behavioral 
+Post processing for work.wf_rx_deglitcher.behavioral
+Post processing for work.wf_consumption.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":105:7:105:18|Synthesizing work.wf_rx_tx_osc.rtl 
+Post processing for work.wf_rx_tx_osc.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":162:7:162:19|Synthesizing work.wf_reset_unit.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":239:13:239:14|Using onehot encoding for type t_var (var_presence="1000000")
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":218:25:218:26|Using onehot encoding for type after_a_var_rst_t (after_a_var_rst_idle="100000")
+@N: CD233 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":217:25:217:26|Using sequential encoding for type rstin_st_t
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":329:4:329:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":378:4:378:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":521:4:521:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":595:4:595:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":64:7:64:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_reset_unit.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_inputs_synchronizer.vhd":83:7:83:28|Synthesizing work.wf_inputs_synchronizer.rtl 
+Post processing for work.wf_inputs_synchronizer.rtl
+Post processing for work.nanofip.struc
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":431:6:431:7|Trying to extract state machine for register after_a_var_rst_st
+Extracted state machine for register after_a_var_rst_st
+State machine has 6 reachable states with original encodings of:
+   000001
+   000010
+   000100
+   001000
+   010000
+   100000
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":265:6:265:7|Trying to extract state machine for register rstin_st
+Extracted state machine for register rstin_st
+State machine has 4 reachable states with original encodings of:
+   00
+   01
+   10
+   11
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":175:4:175:8|Input port bit 0 of var_i(0 to 6) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":175:4:175:8|Input port bits 2 to 6 of var_i(0 to 6) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":239:6:239:7|Trying to extract state machine for register rx_st
+Extracted state machine for register rx_st
+State machine has 7 reachable states with original encodings of:
+   0000001
+   0000010
+   0000100
+   0001000
+   0010000
+   0100000
+   1000000
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_frame_validator.vhd":112:4:112:8|Input port bit 0 of var_i(0 to 6) is unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_frame_validator.vhd":112:4:112:8|Input port bit 2 of var_i(0 to 6) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_frame_validator.vhd":112:4:112:8|Input port bits 5 to 6 of var_i(0 to 6) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":106:4:106:8|Input port bit 0 of var_i(0 to 6) is unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":106:4:106:8|Input port bit 2 of var_i(0 to 6) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":106:4:106:8|Input port bits 5 to 6 of var_i(0 to 6) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":89:4:89:8|Input port bits 0 to 1 of var_i(0 to 6) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":89:4:89:8|Input port bits 3 to 6 of var_i(0 to 6) are unused 
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":266:4:266:5|Register bit s_nFIP_status_byte(0) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":266:4:266:5|Register bit s_nFIP_status_byte(1) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":266:4:266:5|Pruning Register bit 1 of s_nFIP_status_byte(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":266:4:266:5|Pruning Register bit 0 of s_nFIP_status_byte(7 downto 0)  
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":204:4:204:5|Trying to extract state machine for register tx_state
+Extracted state machine for register tx_state
+State machine has 7 reachable states with original encodings of:
+   0000001
+   0000010
+   0000100
+   0001000
+   0010000
+   0100000
+   1000000
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":267:4:267:5|Trying to extract state machine for register control_st
+Extracted state machine for register control_st
+State machine has 9 reachable states with original encodings of:
+   000000001
+   000000010
+   000000100
+   000001000
+   000010000
+   000100000
+   001000000
+   010000000
+   100000000
+@END
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+# Mon Jan 24 10:20:58 2011
+
+###########################################################]
+Synopsys Actel Technology Mapper, Version map500rc, Build 035R, Built Nov 17 2009 20:15:07
+Copyright (C) 1994-2009, Synopsys Inc.  All Rights Reserved
+Product Version D-2009.12
+@N: MF249 |Running in 32-bit mode.
+@N: MF258 |Gated clock conversion disabled 
+
+Automatic dissolve during optimization of view:work.WF_DualClkRAM_clka_rd_clkb_wr(syn) of G_memory_triplication\.1\.UDualClkRam(DualClkRAM)
+Automatic dissolve during optimization of view:work.WF_DualClkRAM_clka_rd_clkb_wr(syn) of G_memory_triplication\.2\.UDualClkRam(DualClkRAM)
+Automatic dissolve during optimization of view:work.WF_DualClkRAM_clka_rd_clkb_wr(syn) of G_memory_triplication\.0\.UDualClkRam(DualClkRAM)
+Automatic dissolve at startup in view:work.WF_cons_bytes_processor(rtl) of Consumed_Bytes_To_DATO(WF_cons_bytes_to_dato)
+Automatic dissolve at startup in view:work.WF_tx_serializer(rtl) of crc_bytes_manc_encoder(WF_manch_encoder_16)
+Automatic dissolve at startup in view:work.WF_tx_serializer(rtl) of data_byte_manc_encoder(WF_manch_encoder_8)
+Automatic dissolve at startup in view:work.WF_production(struc) of production_VAR3_RDY_generation(WF_prod_permit)
+Automatic dissolve at startup in view:work.nanofip(struc) of synchronizer(WF_inputs_synchronizer)
+
+Available hyper_sources - for debug and ip models
+	None Found
+
+Finished RTL optimizations (Time elapsed 0h:00m:00s; Memory used current: 56MB peak: 57MB)
+
+Encoding state machine work.WF_reset_unit(rtl)-after_a_var_rst_st[0:5]
+original code -> new code
+   000001 -> 000001
+   000010 -> 000010
+   000100 -> 000100
+   001000 -> 001000
+   010000 -> 010000
+   100000 -> 100000
+Encoding state machine work.WF_reset_unit(rtl)-rstin_st[0:3]
+original code -> new code
+   00 -> 00
+   01 -> 01
+   10 -> 10
+   11 -> 11
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":107:4:107:5|Found counter in view:work.WF_incr_counter_12_RSTIN_free_counter(rtl) inst s_counter[11:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":107:4:107:5|Found counter in view:work.WF_incr_counter_12_free_counter(rtl) inst s_counter[11:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":212:4:212:5|Found counter in view:work.WF_rx_tx_osc(rtl) inst s_rx_counter[10:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":361:4:361:5|Found counter in view:work.WF_rx_tx_osc(rtl) inst s_tx_counter[10:0]
+@N: MF176 |Default generator successful 
+@N: MF176 |Default generator successful 
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":253:41:253:83|Found 11 bit by 11 bit '<' comparator, 'un10_s_rxd_signif_edge_window'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":392:33:392:65|Found 11 bit by 11 bit '<' comparator, 'un13_s_tx_clk'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":257:41:257:78|Found 11 bit by 11 bit '<' comparator, 'un2_s_rx_adjac_bits_window'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":256:41:256:80|Found 11 bit by 11 bit '<' comparator, 'un9_s_rx_adjac_bits_window'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":393:34:393:72|Found 11 bit by 11 bit '<' comparator, 'un11_s_tx_clk'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":394:34:394:68|Found 11 bit by 11 bit '<' comparator, 'un3_s_tx_clk'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd":252:41:252:63|Found 11 bit by 11 bit '<' comparator, 'un3_s_rxd_signif_edge_window'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_deglitcher.vhd":143:2:143:3|Found updn counter in view:work.WF_rx_deglitcher(behavioral) inst s_zeros_and_ones_c[9:0] 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":509:44:509:80|Found ROM, 'un4_s_fes_bit', 16 words by 1 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":503:44:503:80|Found ROM, 'un4_s_fsd_bit', 16 words by 1 bits 
+Encoding state machine work.WF_rx_deserializer(rtl)-rx_st[0:6]
+original code -> new code
+   0000001 -> 0000001
+   0000010 -> 0000010
+   0000100 -> 0000100
+   0001000 -> 0001000
+   0010000 -> 0010000
+   0100000 -> 0100000
+   1000000 -> 1000000
+@N: MF176 |Default generator successful 
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":292:21:292:78|Found 8 bit by 8 bit '<' comparator, 'Bytes_Processing\.un18_slone_i'
+@N: MF238 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":292:47:292:78|Found 7 bit incrementor, 'un15_slone_i[1:7]'
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":309:24:309:87|Found ROM, 'Bytes_Generation\.byte_o_4[7:0]', 16 words by 8 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":289:24:289:88|Found ROM, 'byte_o_1[7]', 16 words by 1 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":289:24:289:88|Found ROM, 'byte_o_1[5:4]', 16 words by 2 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":289:24:289:88|Found ROM, 'byte_o_1[2:0]', 16 words by 3 bits 
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":351:15:351:67|Found 8 bit decrementor, 'Bytes_Generation\.un14_slone_i_a_4[7:0]'
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":463:41:463:75|Found 9 bit decrementor, 's_mem_addr_A[8:0]'
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":478:40:478:46|Found 7 bit decrementor, 's_lgth_byte[7:1]'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":107:4:107:5|Found counter in view:work.WF_incr_counter_4(rtl) inst s_counter[3:0]
+Encoding state machine work.WF_tx_serializer(rtl)-tx_state[0:6]
+original code -> new code
+   0000001 -> 0000001
+   0000010 -> 0000010
+   0000100 -> 0000100
+   0001000 -> 0001000
+   0010000 -> 0010000
+   0100000 -> 0100000
+   1000000 -> 1000000
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd":154:21:154:65|Found ROM, 'Bits_Delivery\.txd_o_5', 16 words by 1 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd":145:21:145:56|Found ROM, 'Bits_Delivery\.txd_o_2', 32 words by 1 bits 
+Encoding state machine work.WF_engine_control(rtl)-control_st[0:8]
+original code -> new code
+   000000001 -> 000000001
+   000000010 -> 000000010
+   000000100 -> 000000100
+   000001000 -> 000001000
+   000010000 -> 000010000
+   000100000 -> 000100000
+   001000000 -> 001000000
+   010000000 -> 010000000
+   100000000 -> 100000000
+@N: MF176 |Default generator successful 
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":107:4:107:5|Found counter in view:work.WF_incr_counter_8_Produced_Bytes_Counter(rtl) inst s_counter[7:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":107:4:107:5|Found counter in view:work.WF_incr_counter_8_Rx_Bytes_Counter(rtl) inst s_counter[7:0]
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":120:23:120:35|Found 15 bit decrementor, 'un1_s_counter_1[15:1]'
+Automatic dissolve during optimization of view:work.WF_rx_tx_osc(rtl) of un1_s_period_0(ADD__const_cin_w9)
+Automatic dissolve during optimization of view:work.WF_incr_counter_2(rtl) of un1_s_counter_1(PM_nanofip_ADDC__0_2_A3P400_PQFP208_-2)
+Finished factoring (Time elapsed 0h:00m:02s; Memory used current: 61MB peak: 62MB)
+
+@N: BN116 :"c:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd":146:2:146:3|Removing sequential instance Production.production_serializer.crc_generation.s_crc_bit_ready_p of view:PrimLib.dff(prim) because there are no references to its outputs 
+Finished gated-clock and generated-clock conversion (Time elapsed 0h:00m:02s; Memory used current: 61MB peak: 62MB)
+
+Finished generic timing optimizations - Pass 1 (Time elapsed 0h:00m:02s; Memory used current: 62MB peak: 63MB)
+
+Starting Early Timing Optimization (Time elapsed 0h:00m:02s; Memory used current: 63MB peak: 63MB)
+
+Finished Early Timing Optimization (Time elapsed 0h:00m:03s; Memory used current: 63MB peak: 63MB)
+
+Finished generic timing optimizations - Pass 2 (Time elapsed 0h:00m:03s; Memory used current: 63MB peak: 63MB)
+
+Finished preparing to map (Time elapsed 0h:00m:03s; Memory used current: 66MB peak: 67MB)
+
+
+High Fanout Net Report
+**********************
+
+Driver Instance / Pin Name                                       Fanout, notes
+------------------------------------------------------------------------------
+reset_unit.nFIP_rst_o_0_0 / Y                                    444          
+synchronizer.s_rate_d3_maj[1] / Y                                26           
+engine_control.un2_s_turnaround_time_1_0 / Y                     33           
+Consumption.Consumption_Deserializer.rx_st_maj[0] / Y            41           
+rx_tx_osc.un2_s_period_0 / Y                                     76           
+slone_i_pad / Y                                                  37           
+Consumption.Consumption_Deserializer.s_write_bit_to_byte / Y     27           
+==============================================================================
+
+@N: FP130 |Promoting Net uclk_i_c on CLKBUF  uclk_i_pad 
+@N: FP130 |Promoting Net s_rst on CLKINT  I_110 
+@N: FP130 |Promoting Net rx_tx_osc.un8_s_rxd_signif_edge_window.N_15 on CLKINT  I_111 
+@N: FP130 |Promoting Net wclk_i_c on CLKBUF  wclk_i_pad 
+Replicating Combinational Instance Consumption.Consumption_Deserializer.s_write_bit_to_byte, fanout 27 segments 2
+Buffering slone_i_c, fanout 37 segments 2
+Replicating Combinational Instance Consumption.Consumption_Deserializer.rx_st_maj[0], fanout 42 segments 2
+Replicating Combinational Instance engine_control.un2_s_turnaround_time_1_0, fanout 33 segments 2
+Replicating Combinational Instance synchronizer.s_rate_d3_maj[1], fanout 27 segments 2
+Finished technology mapping (Time elapsed 0h:00m:03s; Memory used current: 71MB peak: 72MB)
+
+@N: MF322 |Retiming summary: 0 registers retimed to 0 
+
+		#####  BEGIN RETIMING REPORT  #####
+
+Retiming summary : 0 registers retimed to 0
+
+Original and Pipelined registers replaced by retiming :
+		None
+
+New registers created by retiming :
+		None
+
+
+		#####   END RETIMING REPORT  #####
+
+Finished technology timing optimizations and critical path resynthesis (Time elapsed 0h:00m:03s; Memory used current: 71MB peak: 72MB)
+
+
+Added 1 Buffers
+Added 4 Cells via replication
+	Added 0 Sequential Cells via replication
+	Added 4 Combinational Cells via replication
+Finished restoring hierarchy (Time elapsed 0h:00m:03s; Memory used current: 71MB peak: 72MB)
+
+Writing Analyst data base C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.srm
+Finished Writing Netlist Databases (Time elapsed 0h:00m:04s; Memory used current: 71MB peak: 72MB)
+
+Writing EDIF Netlist and constraint files
+D-2009.12
+Finished Writing EDIF Netlist and constraint files (Time elapsed 0h:00m:05s; Memory used current: 72MB peak: 74MB)
+
+@W: MT420 |Found inferred clock nanofip|uclk_i with period 25.00ns. A user-defined clock should be declared on object "p:uclk_i"
+
+@W: MT420 |Found inferred clock nanofip|wclk_i with period 25.00ns. A user-defined clock should be declared on object "p:wclk_i"
+
+
+
+##### START OF TIMING REPORT #####[
+# Timing Report written on Mon Jan 24 10:21:05 2011
+#
+
+
+Top view:               nanofip
+Library name:           PA3
+Operating conditions:   COMWC-2 ( T = 70.0, V = 1.42, P = 1.30, tree_type = balanced_tree )
+Requested Frequency:    40.0 MHz
+Wire load mode:         top
+Wire load model:        proasic3
+Paths requested:        5
+Constraint File(s):    
+@N: MT320 |This timing report estimates place and route data. Please look at the place and route timing report for final timing..
+
+@N: MT322 |Clock constraints cover only FF-to-FF paths associated with the clock..
+
+
+
+Performance Summary 
+*******************
+
+
+Worst slack in design: 8.962
+
+                   Requested     Estimated     Requested     Estimated                Clock        Clock              
+Starting Clock     Frequency     Frequency     Period        Period        Slack      Type         Group              
+----------------------------------------------------------------------------------------------------------------------
+nanofip|uclk_i     40.0 MHz      62.4 MHz      25.000        16.038        8.962      inferred     Inferred_clkgroup_0
+nanofip|wclk_i     40.0 MHz      224.2 MHz     25.000        4.461         20.539     inferred     Inferred_clkgroup_1
+======================================================================================================================
+
+
+
+
+
+Clock Relationships
+*******************
+
+Clocks                          |    rise  to  rise    |    fall  to  fall   |    rise  to  fall   |    fall  to  rise 
+-----------------------------------------------------------------------------------------------------------------------
+Starting        Ending          |  constraint  slack   |  constraint  slack  |  constraint  slack  |  constraint  slack
+-----------------------------------------------------------------------------------------------------------------------
+nanofip|uclk_i  nanofip|uclk_i  |  25.000      8.962   |  No paths    -      |  No paths    -      |  No paths    -    
+nanofip|wclk_i  nanofip|wclk_i  |  25.000      20.539  |  No paths    -      |  No paths    -      |  No paths    -    
+=======================================================================================================================
+ Note: 'No paths' indicates there are no paths in the design for that pair of clock edges.
+       'Diff grp' indicates that paths exist but the starting clock and ending clock are in different clock groups.
+
+
+
+Interface Information 
+*********************
+
+		No IO constraint found 
+
+
+
+====================================
+Detailed Report for Clock: nanofip|uclk_i
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                                                                 Starting                                                       Arrival          
+Instance                                                         Reference          Type     Pin     Net                        Time        Slack
+                                                                 Clock                                                                           
+-------------------------------------------------------------------------------------------------------------------------------------------------
+synchronizer.s_p3_lgth_d3_tmr2[0]                                nanofip|uclk_i     DFN1     Q       s_p3_lgth_d3_tmr2[0]       0.550       8.962
+synchronizer.s_p3_lgth_d3_tmr3[0]                                nanofip|uclk_i     DFN1     Q       s_p3_lgth_d3_tmr3[0]       0.550       8.981
+synchronizer.s_p3_lgth_d3_tmr2[1]                                nanofip|uclk_i     DFN1     Q       s_p3_lgth_d3_tmr2[1]       0.434       8.999
+engine_control.control_st_tmr2[3]                                nanofip|uclk_i     DFN1     Q       control_st_tmr2[3]         0.550       9.125
+engine_control.control_st_tmr3[3]                                nanofip|uclk_i     DFN1     Q       control_st_tmr3[3]         0.550       9.145
+synchronizer.s_p3_lgth_d3_tmr3[1]                                nanofip|uclk_i     DFN1     Q       s_p3_lgth_d3_tmr3[1]       0.550       9.158
+Production.production_bytes_retriever.s_byte_index_d_tmr2[0]     nanofip|uclk_i     DFN1     Q       s_byte_index_d_tmr2[0]     0.434       9.180
+synchronizer.s_p3_lgth_d3[0]                                     nanofip|uclk_i     DFN1     Q       s_p3_lgth_d3[0]            0.550       9.203
+Production.production_bytes_retriever.s_byte_index_d_tmr3[0]     nanofip|uclk_i     DFN1     Q       s_byte_index_d_tmr3[0]     0.550       9.341
+engine_control.control_st[3]                                     nanofip|uclk_i     DFN1     Q       control_st_0[3]            0.550       9.367
+=================================================================================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                                                    Starting                                                        Required          
+Instance                                            Reference          Type     Pin     Net                         Time         Slack
+                                                    Clock                                                                             
+--------------------------------------------------------------------------------------------------------------------------------------
+Production.production_serializer.s_byte[2]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNI30KQQ4[2]     24.572       8.962
+Production.production_serializer.s_byte_tmr2[2]     nanofip|uclk_i     DFN1     D       s_byte_maj_RNI30KQQ4[2]     24.572       8.962
+Production.production_serializer.s_byte_tmr3[2]     nanofip|uclk_i     DFN1     D       s_byte_maj_RNI30KQQ4[2]     24.572       8.962
+Production.production_serializer.s_byte[0]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNIQ7FQ04[0]     24.572       9.010
+Production.production_serializer.s_byte[1]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNIGQ9SP2[1]     24.572       9.010
+Production.production_serializer.s_byte[3]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNIQF54L3[3]     24.572       9.010
+Production.production_serializer.s_byte[4]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNIF8H7O3[4]     24.572       9.010
+Production.production_serializer.s_byte[5]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNIQBUFP3[5]     24.572       9.010
+Production.production_serializer.s_byte[7]          nanofip|uclk_i     DFN1     D       s_byte_maj_RNICRJJT3[7]     24.572       9.010
+Production.production_serializer.s_byte_tmr2[0]     nanofip|uclk_i     DFN1     D       s_byte_maj_RNIQ7FQ04[0]     24.572       9.010
+======================================================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      25.000
+    - Setup time:                            0.428
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         24.572
+
+    - Propagation time:                      15.610
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (critical) :                     8.962
+
+    Number of logic level(s):                15
+    Starting point:                          synchronizer.s_p3_lgth_d3_tmr2[0] / Q
+    Ending point:                            Production.production_serializer.s_byte[2] / D
+    The start point is clocked by            nanofip|uclk_i [rising] on pin CLK
+    The end   point is clocked by            nanofip|uclk_i [rising] on pin CLK
+
+Instance / Net                                                                                                                                Pin      Pin               Arrival     No. of    
+Name                                                                                                                                Type      Name     Dir     Delay     Time        Fan Out(s)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+synchronizer.s_p3_lgth_d3_tmr2[0]                                                                                                   DFN1      Q        Out     0.550     0.550       -         
+s_p3_lgth_d3_tmr2[0]                                                                                                                Net       -        -       0.240     -           1         
+synchronizer.s_p3_lgth_d3_maj[0]                                                                                                    MAJ3      B        In      -         0.790       -         
+synchronizer.s_p3_lgth_d3_maj[0]                                                                                                    MAJ3      Y        Out     0.546     1.337       -         
+s_p3_lgth_synch[0]                                                                                                                  Net       -        -       0.884     -           4         
+engine_control.Produced_Data_Length_Calculator.s_p3_length_decoded_0_a2[3]                                                          NOR2A     A        In      -         2.221       -         
+engine_control.Produced_Data_Length_Calculator.s_p3_length_decoded_0_a2[3]                                                          NOR2A     Y        Out     0.469     2.689       -         
+s_p3_length_decoded[3]                                                                                                              Net       -        -       0.288     -           2         
+engine_control.Produced_Data_Length_Calculator.s_p3_length_decoded_0_a2[4]                                                          OR2B      B        In      -         2.977       -         
+engine_control.Produced_Data_Length_Calculator.s_p3_length_decoded_0_a2[4]                                                          OR2B      Y        Out     0.469     3.446       -         
+un2_s_p3_length_decoded[2]                                                                                                          Net       -        -       0.955     -           5         
+engine_control.Produced_Data_Length_Calculator.un1_s_p3_length_decoded.ADD_6x6_medium_area_I17_Y_0                                  AX1D      A        In      -         4.401       -         
+engine_control.Produced_Data_Length_Calculator.un1_s_p3_length_decoded.ADD_6x6_medium_area_I17_Y_0                                  AX1D      Y        Out     0.748     5.149       -         
+un1_s_p3_length_decoded[6]                                                                                                          Net       -        -       0.240     -           1         
+engine_control.Produced_Data_Length_Calculator.s_prod_data_length_6                                                                 NOR2B     B        In      -         5.389       -         
+engine_control.Produced_Data_Length_Calculator.s_prod_data_length_6                                                                 NOR2B     Y        Out     0.469     5.857       -         
+s_data_length_from_control[6]                                                                                                       Net       -        -       0.955     -           5         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_6_0_0_x2                                                       XOR2      A        In      -         6.813       -         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_6_0_0_x2                                                       XOR2      Y        Out     0.305     7.118       -         
+N_88_i_i_0                                                                                                                          Net       -        -       0.240     -           1         
+Production.production_bytes_retriever.Bytes_Generation\.un15_slone_i_3                                                              XA1       C        In      -         7.358       -         
+Production.production_bytes_retriever.Bytes_Generation\.un15_slone_i_3                                                              XA1       Y        Out     0.532     7.890       -         
+un15_slone_i_3                                                                                                                      Net       -        -       0.240     -           1         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNIHOUMF[0]                                                                NOR3C     C        In      -         8.130       -         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNIHOUMF[0]                                                                NOR3C     Y        Out     0.479     8.609       -         
+un15_slone_i_6                                                                                                                      Net       -        -       0.240     -           1         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNI7T5QK[0]                                                                NOR2B     A        In      -         8.849       -         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNI7T5QK[0]                                                                NOR2B     Y        Out     0.384     9.233       -         
+un15_slone_i                                                                                                                        Net       -        -       1.063     -           6         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNI75I1M[2]                                                                NOR2B     B        In      -         10.296      -         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNI75I1M[2]                                                                NOR2B     Y        Out     0.469     10.765      -         
+N_175                                                                                                                               Net       -        -       0.955     -           5         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNIEAO7M[2]                                                                OR2B      B        In      -         11.720      -         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNIEAO7M[2]                                                                OR2B      Y        Out     0.469     12.189      -         
+N_150                                                                                                                               Net       -        -       0.240     -           1         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNI1TO882[1]                                                               NOR3C     C        In      -         12.429      -         
+Production.production_bytes_retriever.s_byte_index_d_maj_RNI1TO882[1]                                                               NOR3C     Y        Out     0.497     12.926      -         
+byte_o_0_iv_0_5[2]                                                                                                                  Net       -        -       0.240     -           1         
+Production.production_bytes_retriever.Produced_Bytes_From_RAM.G_memory_triplication\.0\.UDualClkRam.A9D8DualClkRAM_R0C0_RNIBLV5Q4   OR3C      B        In      -         13.166      -         
+Production.production_bytes_retriever.Produced_Bytes_From_RAM.G_memory_triplication\.0\.UDualClkRam.A9D8DualClkRAM_R0C0_RNIBLV5Q4   OR3C      Y        Out     0.466     13.632      -         
+s_byte_to_tx[2]                                                                                                                     Net       -        -       0.240     -           1         
+Production.production_serializer.s_byte_maj_RNIOIBBQ4[2]                                                                            MX2       B        In      -         13.872      -         
+Production.production_serializer.s_byte_maj_RNIOIBBQ4[2]                                                                            MX2       Y        Out     0.427     14.299      -         
+N_23                                                                                                                                Net       -        -       0.240     -           1         
+Production.production_serializer.s_byte_maj_RNI30KQQ4[2]                                                                            NOR2A     A        In      -         14.539      -         
+Production.production_serializer.s_byte_maj_RNI30KQQ4[2]                                                                            NOR2A     Y        Out     0.469     15.008      -         
+s_byte_maj_RNI30KQQ4[2]                                                                                                             Net       -        -       0.602     -           3         
+Production.production_serializer.s_byte[2]                                                                                          DFN1      D        In      -         15.610      -         
+===============================================================================================================================================================================================
+Total path delay (propagation time + setup) of 16.038 is 8.174(51.0%) logic and 7.864(49.0%) route.
+Path delay compensated for clock skew. Clock skew is added to clock-to-out value, and is subtracted from setup time value
+
+
+
+
+====================================
+Detailed Report for Clock: nanofip|wclk_i
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                                  Starting                                                   Arrival           
+Instance                          Reference          Type       Pin     Net                  Time        Slack 
+                                  Clock                                                                        
+---------------------------------------------------------------------------------------------------------------
+synchronizer.s_wb_stb_d3_tmr2     nanofip|wclk_i     DFN1       Q       s_wb_stb_d3_tmr2     0.550       20.539
+synchronizer.s_wb_stb_d3_tmr3     nanofip|wclk_i     DFN1       Q       s_wb_stb_d3_tmr3     0.550       20.558
+synchronizer.s_wb_stb_d3          nanofip|wclk_i     DFN1       Q       s_wb_stb_d3          0.550       20.780
+synchronizer.s_wb_cyc_d3_tmr2     nanofip|wclk_i     DFN1       Q       s_wb_cyc_d3_tmr2     0.434       21.066
+synchronizer.s_wb_we_d3_tmr2      nanofip|wclk_i     DFN1       Q       s_wb_we_d3_tmr2      0.550       21.139
+synchronizer.s_wb_we_d3_tmr3      nanofip|wclk_i     DFN1       Q       s_wb_we_d3_tmr3      0.550       21.158
+synchronizer.s_wb_cyc_d3_tmr3     nanofip|wclk_i     DFN1       Q       s_wb_cyc_d3_tmr3     0.550       21.166
+synchronizer.s_wb_stb_d4_tmr2     nanofip|wclk_i     DFN1E1     Q       s_wb_stb_d4_tmr2     0.434       21.292
+synchronizer.s_wb_we_d3           nanofip|wclk_i     DFN1       Q       s_wb_we_d3           0.550       21.380
+synchronizer.s_wb_stb_d4_tmr3     nanofip|wclk_i     DFN1E1     Q       s_wb_stb_d4_tmr3     0.550       21.380
+===============================================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                                             Starting                                                                   Required           
+Instance                                     Reference          Type     Pin     Net                                    Time         Slack 
+                                             Clock                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------
+WISHBONE_controller.wb_ack_p_o               nanofip|wclk_i     DFN1     D       wb_ack_prod_p_o_0_0_a2_4_1_RNI7NQF     24.572       20.539
+WISHBONE_controller.wb_ack_p_o_tmr2          nanofip|wclk_i     DFN1     D       wb_ack_prod_p_o_0_0_a2_4_1_RNI7NQF     24.572       20.539
+WISHBONE_controller.wb_ack_p_o_tmr3          nanofip|wclk_i     DFN1     D       wb_ack_prod_p_o_0_0_a2_4_1_RNI7NQF     24.572       20.539
+WISHBONE_controller.wb_ack_prod_p_o          nanofip|wclk_i     DFN1     D       wb_ack_prod_p_o_0_0_a2                 24.572       20.539
+WISHBONE_controller.wb_ack_prod_p_o_tmr2     nanofip|wclk_i     DFN1     D       wb_ack_prod_p_o_0_0_a2                 24.572       20.539
+WISHBONE_controller.wb_ack_prod_p_o_tmr3     nanofip|wclk_i     DFN1     D       wb_ack_prod_p_o_0_0_a2                 24.572       20.539
+synchronizer.s_wb_cyc_d2                     nanofip|wclk_i     DFN1     D       s_wb_cyc_d1_maj_RNIR876                24.598       21.982
+synchronizer.s_wb_cyc_d2_tmr2                nanofip|wclk_i     DFN1     D       s_wb_cyc_d1_maj_RNIR876                24.598       21.982
+synchronizer.s_wb_cyc_d2_tmr3                nanofip|wclk_i     DFN1     D       s_wb_cyc_d1_maj_RNIR876                24.598       21.982
+synchronizer.s_wb_cyc_d3                     nanofip|wclk_i     DFN1     D       s_wb_cyc_d2_maj_RNIS876                24.598       21.982
+===========================================================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      25.000
+    - Setup time:                            0.428
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         24.572
+
+    - Propagation time:                      4.033
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (non-critical) :                 20.539
+
+    Number of logic level(s):                3
+    Starting point:                          synchronizer.s_wb_stb_d3_tmr2 / Q
+    Ending point:                            WISHBONE_controller.wb_ack_prod_p_o / D
+    The start point is clocked by            nanofip|wclk_i [rising] on pin CLK
+    The end   point is clocked by            nanofip|wclk_i [rising] on pin CLK
+
+Instance / Net                                               Pin      Pin               Arrival     No. of    
+Name                                               Type      Name     Dir     Delay     Time        Fan Out(s)
+--------------------------------------------------------------------------------------------------------------
+synchronizer.s_wb_stb_d3_tmr2                      DFN1      Q        Out     0.550     0.550       -         
+s_wb_stb_d3_tmr2                                   Net       -        -       0.240     -           1         
+synchronizer.s_wb_stb_d3_maj                       MAJ3      B        In      -         0.790       -         
+synchronizer.s_wb_stb_d3_maj                       MAJ3      Y        Out     0.546     1.337       -         
+s_wb_stb_synch                                     Net       -        -       0.884     -           4         
+WISHBONE_controller.wb_ack_prod_p_o_0_0_a2_4_2     NOR2A     A        In      -         2.221       -         
+WISHBONE_controller.wb_ack_prod_p_o_0_0_a2_4_2     NOR2A     Y        Out     0.469     2.689       -         
+wb_ack_prod_p_o_0_0_a2_4_2                         Net       -        -       0.288     -           2         
+WISHBONE_controller.wb_ack_prod_p_o_0_0_a2         NOR3B     B        In      -         2.977       -         
+WISHBONE_controller.wb_ack_prod_p_o_0_0_a2         NOR3B     Y        Out     0.453     3.430       -         
+wb_ack_prod_p_o_0_0_a2                             Net       -        -       0.602     -           3         
+WISHBONE_controller.wb_ack_prod_p_o                DFN1      D        In      -         4.033       -         
+==============================================================================================================
+Total path delay (propagation time + setup) of 4.461 is 2.446(54.8%) logic and 2.015(45.2%) route.
+Path delay compensated for clock skew. Clock skew is added to clock-to-out value, and is subtracted from setup time value
+
+
+
+##### END OF TIMING REPORT #####]
+
+--------------------------------------------------------------------------------
+Target Part: A3P400_PQFP208_-2
+Report for cell nanofip.struc
+  Core Cell usage:
+              cell count     area count*area
+              AND2    25      1.0       25.0
+             AND2A     8      1.0        8.0
+              AND3     7      1.0        7.0
+             AND3A     5      1.0        5.0
+               AO1    29      1.0       29.0
+              AO13     2      1.0        2.0
+              AO15     1      1.0        1.0
+              AO16     1      1.0        1.0
+              AO1A     8      1.0        8.0
+              AO1B    19      1.0       19.0
+              AO1C     9      1.0        9.0
+              AO1D     6      1.0        6.0
+              AOI1    22      1.0       22.0
+             AOI1A    16      1.0       16.0
+             AOI1B    27      1.0       27.0
+               AX1     9      1.0        9.0
+              AX1A     1      1.0        1.0
+              AX1B     4      1.0        4.0
+              AX1C     4      1.0        4.0
+              AX1D     2      1.0        2.0
+              AX1E    16      1.0       16.0
+             AXOI3     1      1.0        1.0
+             AXOI4     1      1.0        1.0
+              BUFF     1      1.0        1.0
+            CLKINT     2      0.0        0.0
+               GND    44      0.0        0.0
+               INV     1      1.0        1.0
+              MAJ3   550      1.0      550.0
+              MIN3     2      1.0        2.0
+               MX2   197      1.0      197.0
+              MX2A     9      1.0        9.0
+              MX2B     1      1.0        1.0
+              MX2C    33      1.0       33.0
+             NAND2     4      1.0        4.0
+              NOR2   113      1.0      113.0
+             NOR2A   428      1.0      428.0
+             NOR2B   116      1.0      116.0
+              NOR3    32      1.0       32.0
+             NOR3A    41      1.0       41.0
+             NOR3B    42      1.0       42.0
+             NOR3C    62      1.0       62.0
+               OA1     8      1.0        8.0
+              OA1A    16      1.0       16.0
+              OA1B    51      1.0       51.0
+              OA1C     9      1.0        9.0
+              OAI1     7      1.0        7.0
+               OR2    64      1.0       64.0
+              OR2A    74      1.0       74.0
+              OR2B    56      1.0       56.0
+               OR3    35      1.0       35.0
+              OR3A    45      1.0       45.0
+              OR3B    25      1.0       25.0
+              OR3C    34      1.0       34.0
+               VCC    44      0.0        0.0
+               XA1    26      1.0       26.0
+              XA1A    23      1.0       23.0
+              XA1B    20      1.0       20.0
+              XA1C    10      1.0       10.0
+              XAI1     1      1.0        1.0
+             XAI1A     2      1.0        2.0
+             XNOR2    77      1.0       77.0
+             XNOR3     9      1.0        9.0
+              XOR2    83      1.0       83.0
+              XOR3     1      1.0        1.0
+              ZOR3     3      1.0        3.0
+
+
+              DFN1  1530      1.0     1530.0
+            DFN1E0    18      1.0       18.0
+            DFN1E1    54      1.0       54.0
+            RAM4K9     6      0.0        0.0
+                   -----          ----------
+             TOTAL  4232              4136.0
+
+
+  IO Cell usage:
+              cell count
+            CLKBUF     2
+             INBUF    62
+            OUTBUF    31
+                   -----
+             TOTAL    95
+
+
+Core Cells         : 4136 of 9216 (45%)
+IO Cells           : 95
+
+  RAM/ROM Usage Summary
+Block Rams : 6 of 12 (50%)
+
+Mapper successful!
+Process took 0h:00m:05s realtime, 0h:00m:05s cputime
+# Mon Jan 24 10:21:05 2011
+
+###########################################################]
