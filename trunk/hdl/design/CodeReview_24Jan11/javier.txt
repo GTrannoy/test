@@ -1,0 +1,29 @@
+Comments on NanoFIP VHDL code from Javier Serrano
+
+General comments
+----------------
+
+None so far. Enjoying looking at code after quite a while, sipping a
+bio mango juice from Burkina Faso.
+
+wf_inputs_synchronizer.vhd
+--------------------------
+
+Line 250 onwards. Cosmetics: the vector notation is shorter, so I'd
+stick to it for all cases, including the varX_access.
+
+Line 326. I don't think it's a good idea to synchronize the data from
+the user in slone mode. If there is an incoherent state (i.e. some
+bits have flipped and others haven't) this state will propagate
+through the pipeline. Only control signals need to be synchronized (as
+is done for the wishbone). The user *must* ensure the data are stable
+by the time VAR3_RDY goes to zero, so the 3*16 FFs spent here can only
+get us trouble. Incidentally, I think we should change the spec so it
+does not say we sample the data on the first clock tick after VAR3_RDY
+goes down. We can also sample a couple of ticks later, the user should
+not care.
+
+Line 347. One could argue about the need for these. We know these
+inputs are static. While I can't really think how these FFs could get
+us in trouble, they are certainly not needed, so why risk it?
+
