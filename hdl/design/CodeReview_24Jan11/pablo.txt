@@ -1,0 +1,9 @@
+WF_inputs_synchronizer.vhd
+
+Considering radiation hardness registering constant inputs on three flip flops is probably a weekness. Proabably one tmr flip-flop would be enough.
+
+The wishbone bus is actually properly implemented as it removes any flip-flops from the data and address bus. Notice that the traditional synchronous implementation would require to register the data and address on the IOs, preventing the use of TMR flip-flops.
+
+
+
+
