@@ -1,0 +1,121 @@
+Comments on NanoFIP VHDL code from Matthieu Cattin
+
+
+general comments
+--------------------------------------------------------------------------------
+* Entities inputs and outputs grouping -> group by interface.
+* Several signal declaration per line.
+* According to coding guidelines generics shoud be named g_MY_GENERIC.
+* The coding style is not consistant.
+* Synplify warnings in the code. Why?
+* In the comments, the following figure:
+        _
+     __| |__
+
+  is perhaps clearer than:
+
+     __|-|__
+
+  The line in the middle can be taken for a high impedance state.
+
+* Use @details for big descriptions and @brief just for a summary.
+
+
+WF_package.vhd
+--------------------------------------------------------------------------------
+Line 239. What is var_whatever used for?
+
+
+nanofip.vhd
+--------------------------------------------------------------------------------
+Lines 313, 314. Avoid synthesizer specific attibute inside source code.
+     	        You can probably use a constraint file.
+
+
+WF_inputs_synchronizer.vhd
+--------------------------------------------------------------------------------
+All file. Sometimes signals are synchronized like that:
+    	    s_slone_d3  <= s_slone_d3 (1 downto 0) & slone_a_i;
+	  And sometime like this:
+	    s_var1_access_d1 <= var1_access_a_i;
+            s_var1_access_d2 <= s_var1_access_d1;
+            s_var1_access_d3 <= s_var1_access_d2;
+	  The result is the same, but why two coding style then?
+
+Lines 60->62. What do you mean by;
+     	      "in nanoFIP input fd_rxd we also see the nanoFIP output fd_txd"
+	      Is it due to cross-talk?
+	      Or is it a normal behaviour of the FieldDrive?
+
+Lines 72->76. I would commit the Synplify report (and all other reports)
+     	      to the SVN and remove this comment.
+
+Line 238. The comment "to clean rxd from txd" is not clear for me.
+
+
+wf_reset_unit.vhd
+--------------------------------------------------------------------------------
+Line 83. assert_RSTON should be replaced by assert_RSTON_p
+
+Lines 269, 435. Use of s_por (asynchronous) in a synchronous process!
+
+Line 408. Assignment of s_counter_full is far from here.
+     	  Consider removing the signal s_counter_full.
+
+Lines 419, 421, 424. Typo "If after the reception or a var_rst [..]".
+      	   	     Should be "If after the reception OF a var_rst [..]".
+
+Line 460. Just in case of what?
+
+Line 484. An the winner of the biggest variable name is ....
+
+Line 629. Assignment of s_var_rst_counter_full is really far from here.
+     	  Consider removing the signal s_var_rst_counter_full.
+
+
+wf_incr_counter.vhd
+--------------------------------------------------------------------------------
+
+
+
+wf_rx_tx_osc.vhd
+--------------------------------------------------------------------------------
+Line 28. Typo "Generation the clock signals needed [..]".
+     	 Should be "Generation OF the clock signals needed [..]".
+
+Lines 49->53. This figure is not clear to me.
+
+Lines 106, 114. Inconsistent generic names. _LENGTH and _LGTH
+
+Line 187. Not clear "# uclock ticks for a period".
+     	  Should be "# uclock ticks for a bit period".
+	  Or "# uclock ticks for a manchester bit period".
+
+Line 189. Divide by 2 would be a more useful comment ;)
+
+Line 190. Divide by 4 ...
+
+Line 191. Is s_jitter a good name for this signal?
+
+Line 252. When the first falling edge arrives (or the following significant edges)
+          s_rx_counter is reset and start counting.
+	  And the significant edge window is valid as long as s_rx_counter is
+	  smaller than s_jitter.
+	  It means that just after an edge if another comes before
+	  s_rx_counter = s_jitter, the edge is valid.
+	  There is probalby something wrong here.
+
+
+wf_consumption.vhd
+--------------------------------------------------------------------------------
+Line 266. Not useful to put the generic map, the default value is also 10.
+
+
+wf_rx_deglitcher.vhd
+--------------------------------------------------------------------------------
+Line 90. What is the unit of the deglitch length?
+     	 That whould be nice to add a comment.
+
+
+
+To be continued...
