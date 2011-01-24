@@ -90,7 +90,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                         if ID_DAT>8 bytes or RP_DAT>134 (bf reception of a FES) go to idle; 
 --!                         state consume_wait_FSS, for the correct use of the silence time(time
 --!                         stops counting when an RP_DAT frame has started)                       
---!     12/2010  v0.03  EG  state machine rewritten mealy style; removed check on slone mode 
+--!     12/2010  v0.03  EG  state machine rewritten moore style; removed check on slone mode 
 --!                         for #bytes>4; in slone no broadcast
 --!     01/2011  v0.04  EG  signals named according to their origin; signals var_rdy (1,2,3),
 --!                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and
