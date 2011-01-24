@@ -49,7 +49,8 @@ use ieee.numeric_std.all;
 --!     ->    8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed) \n
 --!     ->   10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of 
 --!                              std_logic_vector(9 downto 0) to simplify calculations; cleaning-up
---!     -> 11/1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs 
+--!     ->    1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs 
+--!                              added DualClkRam
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -348,7 +349,7 @@ package WF_package is
     wb_clk_i          : in std_logic;
     nfip_rst_i        : in std_logic;
     rstin_a_i         : in std_logic;
-    wb_rst_a_i        : in std_logic;
+    wb_rst_i        : in std_logic;
     slone_a_i         : in std_logic;
     nostat_a_i        : in std_logic;
     fd_wdgn_a_i       : in std_logic;
@@ -380,7 +381,7 @@ package WF_package is
     wb_cyc_o          : out std_logic;
     wb_we_o           : out std_logic;
     wb_stb_o          : out std_logic; 
-    wb_stb_r_edge_o   : out std_logic;
+    wb_stb_r_edge_p_o : out std_logic;
     var1_access_o     : out std_logic;
     var2_access_o     : out std_logic;
     var3_access_o     : out std_logic;
@@ -412,7 +413,7 @@ end component WF_inputs_synchronizer;
     -----------------------------------------------------------------
     byte_ready_p_o           : out std_logic;
     byte_o                   : out std_logic_vector (7 downto 0);
-    crc_wrong_p_o            : out std_logic;
+    crc_or_manch_wrong_p_o   : out std_logic;
     fss_crc_fes_manch_ok_p_o : out std_logic;
     fss_received_p_o         : out std_logic;
     rst_rx_osc_o             : out std_logic	
@@ -529,7 +530,7 @@ end component WF_inputs_synchronizer;
     byte_ready_p_o           : out std_logic;
     fss_received_p_o         : out std_logic;
     nfip_status_r_tler_o     : out std_logic;
-    crc_wrong_p_o            : out std_logic;
+    crc_or_manch_wrong_p_o   : out std_logic;
     assert_rston_p_o         : out std_logic;
     rst_nfip_and_fd_p_o      : out std_logic;
     fss_crc_fes_manch_ok_p_o : out std_logic;
@@ -640,7 +641,7 @@ end component WF_production;
     nostat_i                    : in std_logic; 
     tx_byte_request_p_i         : in std_logic;
     rx_fss_received_p_i         : in std_logic; 
-    rx_crc_wrong_p_i            : in std_logic;
+    rx_crc_or_manch_wrong_p_i   : in std_logic;
     rx_byte_i                   : in std_logic_vector (7 downto 0);  
     rx_byte_ready_p_i           : in std_logic;
     rx_fss_crc_fes_manch_ok_p_i : in std_logic;  
@@ -664,12 +665,14 @@ end component WF_production;
     rstin_i             : in std_logic; 
     rstpon_i            : in std_logic;
     rate_i              : in std_logic_vector (1 downto 0);
+    rst_i               : in std_logic;
     var_i               : in t_var;    
     rst_nFIP_and_FD_p_i : in std_logic;
     assert_RSTON_p_i    : in std_logic;
     ---------------------------------------------------------------
-    rston_o             : out std_logic;
+    wb_rst_o            : out std_logic;
     nFIP_rst_o          : out std_logic; 
+    rston_o             : out std_logic;
     fd_rstn_o           : out std_logic 
     ---------------------------------------------------------------
        );
@@ -692,6 +695,26 @@ end component WF_production;
     --------------------------------------------------------------------------
        );
   end component WF_DualClkRAM_clka_rd_clkb_wr; 
+
+
+---------------------------------------------------------------------------------------------------
+  component DualClkRam is 
+    port(
+    CLKA   : in std_logic; 
+    ADDRA  : in std_logic_vector (8 downto 0);
+    DINA   : in std_logic_vector (7 downto 0);  
+    RWA    : in std_logic;                   
+    CLKB   : in std_logic; 
+    ADDRB  : in std_logic_vector (8 downto 0); 
+    DINB   : in std_logic_vector (7 downto 0);  
+    RWB    : in std_logic;                   
+    RESETn : in std_logic;                  
+    --------------------------------------------------------------------------    
+    DOUTA  : out std_logic_vector (7 downto 0); 
+    DOUTB  : out std_logic_vector (7 downto 0)  
+    --------------------------------------------------------------------------
+    );
+  end component DualClkRam;
 
 
 ---------------------------------------------------------------------------------------------------

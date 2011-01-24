@@ -22,22 +22,30 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                   WF_cons_frame_validator                                     --
+--                                    WF_cons_frame_validator                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
 --! @brief     Validation of a consumed RP_DAT frame with respect to the correctness of:
---!              o the Control, PDU_TYPE and Length bytes. The unit receives those
---!                  bytes from the the WF_cons_bytes_processor unit.
---!              o the CRC, FSS and FES bytes. The unit receives those bytes from 
---!                  the WF_rx_deserializer unit.
---!              o the manchester encoding (no occurence of unwanted code violations).
---!                  This information comes also from the WF_rx_deserializer unit.
+--!              o the Control, PDU_TYPE and Length bytes;
+--!                the bytes are received from the the WF_cons_bytes_processor unit.
+--!              o the CRC, FSS, FES bytes and the Manchester encoding;
+--!                the rx_fss_crc_fes_manch_ok_p_i pulse from the WF_rx_deserializer unit groups
+--!                these checks.
 --!
---!            The output cons_frame_ok_p is used by the WF_cons_outcome unit, which treats
+--!            The output cons_frame_ok_p is used by the WF_cons_outcome unit, which handles
 --!            accordingly the signals VAR1_RDY/ VAR2_RDY   (if it had been a var_1 or a var_2)
 --!            or the signals nFIP_and_FD_p/ assert_RSTON_p (if it had been a var_rst) 
+--!
+--!
+--!            Reminder:
+--!
+--!            Consumed RP_DAT frame structure :
+--!             ___________ ______  _______ ______ _________________________ _______  ___________ _______
+--!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|_____..Applic-Data.._____|__MPS__||____FCS____|__FES__|
+--!
+--!                                        |---------------LGTH bytes---------------|
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -53,13 +61,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>    \n
---!     WF_cons_bytes_processor \n
---!     WF_engine_control       \n
---!     WF_rx_deserializer      \n
+--!            WF_cons_bytes_processor \n
+--!            WF_engine_control       \n
+--!            WF_rx_deserializer      \n
 --
 --
 --!   \n<b>Modified by:</b>\n
---!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
+--!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -101,13 +109,13 @@ entity WF_cons_frame_validator is
 
    -- Signals from the WF_engine_control unit
     rx_byte_index_i            : in std_logic_vector (7 downto 0); --! index of byte being received
-    var_i                      : in t_var;                  --! variable type that is being treated
+    var_i                      : in t_var;      --! variable type that is being treated
 
 
   -- OUTPUT
     -- Signal to the WF_cons_outcome unit
     cons_frame_ok_p_o          : out std_logic; --! pulse at the end of the FES
-                                                --! indicating a valid frame
+                                                --! indicating a valid received RP_DAT frame
 
     -- Signal to the WF_status_bytes_gen unit
     nfip_status_r_tler_o       : out std_logic  --! received PDU_TYPE or Length error
@@ -131,7 +139,7 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Combinatorial process Consumed_Frame_Validator: validation of an RP_DAT 
 --! frame with respect to the Ctrl, PDU_TYPE and Length bytes as well as to the CRC, FSS, FES and
---! to the manchester encoding. The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that
+--! to the Manchester encoding. The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that
 --! arrive at the beginning of a frame, have been registered and keep their values until the end
 --! of it. The signal rx_fss_crc_fes_manch_ok_p_i, is a pulse at the end of the FES that combines
 --! the checks of the FSS, CRC, FES and of the manch. encoding. 
@@ -163,8 +171,7 @@ begin
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     if rx_fss_crc_fes_manch_ok_p_i = '1' then                   -- checking the RP_DAT.Data.Length
-                                                                -- byte, when the end of frame
-                                                                -- arrives correctly.
+                                                                -- byte, when the FES arrives.
       if unsigned(rx_byte_index_i ) = (unsigned(cons_lgth_byte_i) + 5) then 
         s_cons_lgth_byte_ok <= '1';                             -- rx_byte_index starts counting 
                                                                 -- from 0 and apart from the 

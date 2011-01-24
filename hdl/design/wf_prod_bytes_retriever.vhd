@@ -36,7 +36,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!    ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
 --!   |____FSS____|_Ctrl_||__PDU__|_LGTH_|_...User-Data..._|_nstat_|__MPS__||____FCS____|__FES__|
 --!
---!            Data provided by the this unit (nstat & MPS, only if applicable) :
+--!            Data provided by the this unit :
 --!                ______  _______ ______ ________________________________________ _______ _______  
 --!               |_Ctrl_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||
 --!
@@ -55,13 +55,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!
 --!
 --!              o var_3          : if the operation is in stand-alone mode, the unit retreives the
---!                                 user-data bytes from the "nanoFIP User Interface, NON_WISHBONE"
+--!                                 user-data bytes from the "nanoFIP User Interface, NON-WISHBONE"
 --!                                 bus DAT_I.
 --!                                 If the operation is in memory mode, it retreives them from the
 --!                                 Produced RAM.
 --!                                 The unit retreives the MPS and nanoFIP status bytes from the
 --!                                 WF_status_bytes_gen, and the LGTH byte from the
---!                                 WF_prod_data_lgth_calc (in the WF_engine_control). The
+--!                                 WF_prod_data_lgth_calc (inside the WF_engine_control). The
 --!                                 rest of the bytes (Ctrl & PDU) come from the WF_package.
 --!                ______  _______ ______ ________________________________________ _______ _______  
 --!               |_Ctrl_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||
@@ -152,15 +152,15 @@ entity WF_prod_bytes_retriever is
     -- Signals from the WF_engine_control unit
     byte_index_i         : in std_logic_vector(7 downto 0);  --!index of the byte to be retrieved
 
-    byte_being_sent_p_i  : in std_logic;                     --! indication that a byte is ready
-                                                             --! to be delivered  
+    byte_being_sent_p_i  : in std_logic;                     --! pulse on the beginning of the
+                                                             --! delivery of a new byte
 
     data_length_i        : in std_logic_vector(7 downto 0);  --! # bytes of the Conrol&Data fields
                                                              -- of the RP_DAT frame; includes:
                                                              -- 1 byte RP_DAT.Control,
                                                              -- 1 byte RP_DAT.Data.PDU_type,
                                                              -- 1 byte RP_DAT.Data.LENGTH
-                                                             -- 0-124 bytes of RP_DAT.Data,
+                                                             -- 2-124 bytes of RP_DAT.Data,
                                                              -- 1 byte RP_DAT.Data.MPS_status &
                                                              -- optionally 1 byte for the 
                                                              -- RP_DAT.Data.nanoFIP_status 
@@ -199,9 +199,9 @@ end entity WF_prod_bytes_retriever;
 architecture rtl of WF_prod_bytes_retriever is
 
   signal s_base_addr, s_mem_addr_offset        : unsigned(8 downto 0);
-  signal s_byte_index_aux                      : integer range 0 to 15;
+  signal s_byte_index_d_aux                    : integer range 0 to 15;
   signal s_lgth_byte, s_mem_byte, s_slone_byte : std_logic_vector (7 downto 0);
-  signal s_byte_index                          : std_logic_vector (7 downto 0);       
+  signal s_byte_index_d                        : std_logic_vector (7 downto 0);       
   signal s_mem_addr_A                          : std_logic_vector (8 downto 0);
   
 
@@ -263,15 +263,15 @@ begin
 --!@brief Combinatorial process Bytes_Generation: Generation of bytes for the Control and Data
 --! fields of an RP_DAT frame:\n If the variable requested in the ID_DAT is of "produced" type 
 --! (identification/ presence/ var3) the process prepares accordingly, one by one, bytes of data
---! to be sent. \n The pointer "s_byte_index" (or "s_byte_index_aux") indicates which byte of the 
+--! to be sent. \n The pointer "s_byte_index_d" (or "s_byte_index_d_aux") indicates which byte of the 
 --! frame is to be sent. Some of the bytes are defined in the WF_package, the rest come either from 
 --! the memory (if slone = 0) or from the the input bus data_i (if slone = 1) or from the
 --! WF_status_bytes_gen or the WF_model_constr_decoder units.\n The output byte "byte_o" is sent to
 --! the WF_tx_serializer unit for manchester encoding and serialization.
    
-  Bytes_Generation: process (var_i, s_byte_index, data_length_i, constr_id_dec_i, model_id_dec_i, 
-                             nFIP_status_byte_i, mps_status_byte_i, s_slone_byte, s_byte_index_aux,
-                             s_mem_byte, s_byte_index_aux, nostat_i, byte_being_sent_p_i, 
+  Bytes_Generation: process (var_i, s_byte_index_d, data_length_i, constr_id_dec_i, model_id_dec_i, 
+                             nFIP_status_byte_i, mps_status_byte_i, s_slone_byte, s_byte_index_d_aux,
+                             s_mem_byte, s_byte_index_d_aux, nostat_i, byte_being_sent_p_i, 
                              s_lgth_byte, slone_i)
   
   begin
@@ -286,7 +286,7 @@ begin
     -- are predefined in the c_VARS_ARRAY matrix.
     when var_presence =>
 
-      byte_o         <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).byte_array(s_byte_index_aux);
+      byte_o         <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).byte_array(s_byte_index_d_aux);
  
       s_base_addr    <= (others => '0');     
       rst_status_bytes_p_o  <= '0';                                                         
@@ -299,14 +299,14 @@ begin
     -- WF_model_constr_decoder, wereas all the rest are predefined in the c_VARS_ARRAY matrix. 
     when var_identif =>
 
-      if s_byte_index = c_CONSTR_BYTE_INDEX then       
+      if s_byte_index_d = c_CONSTR_BYTE_INDEX then       
         byte_o       <= constr_id_dec_i;       
 
-      elsif s_byte_index = c_MODEL_BYTE_INDEX then      
+      elsif s_byte_index_d = c_MODEL_BYTE_INDEX then      
         byte_o       <= model_id_dec_i;      
 
       else
-        byte_o       <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).byte_array(s_byte_index_aux);  	  
+        byte_o       <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).byte_array(s_byte_index_d_aux);  	  
       end if;
 
       s_base_addr    <= (others => '0'); 
@@ -316,7 +316,7 @@ begin
 
    
     -- case: variable 3 (06h)
-    -- For a var3 there is a separation according to the operational mode (stand-alone or memory)
+    -- For a var_3 there is a separation according to the operational mode (stand-alone or memory)
     -- In general, few of the bytes are predefined in the c_VARS_ARRAY matrix, wereas the rest come
     -- either from the memory/ data_i bus or from status_generator unit (WF_status_gen). 
     when var_3 =>
@@ -333,14 +333,14 @@ begin
         -- The first (Control) and second (PDU_TYPE) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package 
 
-        if unsigned(s_byte_index) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then  -- less or eq                   
-          byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_aux);
+        if unsigned(s_byte_index_d) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then  -- less or eq                   
+          byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_d_aux);
           rst_status_bytes_p_o <= '0'; 
        
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The c_LENGTH_BYTE_INDEX byte is the Length
 
-        elsif s_byte_index = c_LENGTH_BYTE_INDEX then       
+        elsif s_byte_index_d = c_LENGTH_BYTE_INDEX then       
           byte_o               <= s_lgth_byte;                                              
           rst_status_bytes_p_o <= '0';
 
@@ -348,13 +348,13 @@ begin
         -- The one but last byte if the input nostat_i is negated is the nanoFIP status byte
         -- (if nostat_i is not negated, the "else" condition takes place) 
 
-        elsif (unsigned(s_byte_index) = (unsigned(data_length_i)-1 )) and nostat_i = '0' then
+        elsif (unsigned(s_byte_index_d) = (unsigned(data_length_i)-1 )) and nostat_i = '0' then
           byte_o               <= nFIP_status_byte_i;                            
           rst_status_bytes_p_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The last byte is the MPS status
-        elsif s_byte_index = (data_length_i)  then    
+        elsif s_byte_index_d = (data_length_i)  then    
           byte_o               <= mps_status_byte_i;
           rst_status_bytes_p_o <= byte_being_sent_p_i; -- reset signal for both status bytes.
                                                        -- The reset arrives after having sent 
@@ -378,14 +378,14 @@ begin
         -- The first (Control) and second (PDU type) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
-        if unsigned(s_byte_index) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length then -- less or equal                             
-          byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_aux);
+        if unsigned(s_byte_index_d) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length then -- less or eq                             
+          byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_d_aux);
           rst_status_bytes_p_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The c_LENGTH_BYTE_INDEX byte is the Length
 
-        elsif s_byte_index = c_LENGTH_BYTE_INDEX then       
+        elsif s_byte_index_d = c_LENGTH_BYTE_INDEX then       
           byte_o               <= s_lgth_byte;                                              
           rst_status_bytes_p_o <= '0';
        
@@ -393,13 +393,13 @@ begin
         -- The one but last byte if the input nostat_i is negated is the nanoFIP status byte
         -- (if nostat_i is not negated, the "else" condition takes place) 
 
-        elsif unsigned(s_byte_index) = (unsigned(data_length_i)-1 ) and nostat_i = '0' then 
+        elsif unsigned(s_byte_index_d) = (unsigned(data_length_i)-1 ) and nostat_i = '0' then 
           byte_o               <= nFIP_status_byte_i;                            
           rst_status_bytes_p_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The last byte is the MPS status
-        elsif s_byte_index = data_length_i then    
+        elsif s_byte_index_d = data_length_i then    
           byte_o               <= mps_status_byte_i;
           rst_status_bytes_p_o <= byte_being_sent_p_i; -- reset signal for both status bytes. 
                                                        -- The reset arrives after having sent the 
@@ -435,21 +435,21 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@briedf Synchronous process Delay_byte_index_i: in the combinatorial process Bytes_Generation,
---! according to the value of the signal s_byte_index, a byte is retrieved either from the memory,
+--! according to the value of the signal s_byte_index_d, a byte is retrieved either from the memory,
 --! or from the WF_package or from the WF_status_bytes_gen or WF_model_constr_decoder units.
 --! Since the memory needs one clock cycle to output its data (as opposed to the other units that
---! have them ready) the signal s_byte_index has to be a delayed version of the byte_index_i
---! (byte_index_i is the signal used as address for the mem; s_byte_index is the delayed one
+--! have them ready) the signal s_byte_index_d has to be a delayed version of the byte_index_i
+--! (byte_index_i is the signal used as address for the mem; s_byte_index_d is the delayed one
 --! used for the other units).
 
   Delay_byte_index_i: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-        s_byte_index <= (others => '0');          
+        s_byte_index_d <= (others => '0');          
       else  
 
-        s_byte_index <= byte_index_i;   -- index of byte to be sent                
+        s_byte_index_d <= byte_index_i;   -- index of byte to be sent                
       end if;
     end if;
   end process;
@@ -469,7 +469,7 @@ begin
                                                                                   
   s_mem_addr_offset <= (resize((unsigned(byte_index_i)), s_mem_addr_offset'length));
 
-  s_byte_index_aux  <= (to_integer(unsigned(s_byte_index(3 downto 0))));
+  s_byte_index_d_aux  <= (to_integer(unsigned(s_byte_index_d(3 downto 0))));
                                                       -- index of byte to be sent(range restricted)
                                                       -- used to retreive bytes from the matrix
                                                       -- c_VARS_ARRAY.byte_array, with a predefined

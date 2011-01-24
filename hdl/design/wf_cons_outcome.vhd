@@ -28,7 +28,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --
 --! @brief     According to the consumed variable that has been received (var_1, var_2, var_rst)
---!            and the outcome of the WF_cons_frame_VALIDATOR, the unit generates the signals:
+--!            and the output of the WF_cons_frame_validator, the unit generates the signals:
 --!
 --!              o "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY and VAR2_RDY,
 --!              o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the WF_reset_unit.    
@@ -48,7 +48,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n<b>Dependencies:</b>           \n
 --!            WF_reset_unit           \n
---!            WF_enginr_control       \n
+--!            WF_engine_control       \n
 --!            WF_cons_frame_validator \n
 --!            WF_cons_bytes_processor \n
 --
@@ -90,11 +90,11 @@ entity WF_cons_outcome is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i                : in std_logic;                     --! 40 MHz clock
-    slone_i               : in std_logic;                     --! stand-alone mode 
+    uclk_i                : in std_logic;                   --! 40 MHz clock
+    slone_i               : in std_logic;                   --! stand-alone mode 
 
     -- nanoFIP WorldFIP Settings (synchronized with uclk) 
-    subs_i                : in std_logic_vector (7 downto 0); --! subscriber number coding
+    subs_i                : in std_logic_vector(7 downto 0);--! subscriber number coding
  
     -- Signal from the WF_reset_unit
     nfip_rst_i            : in std_logic;                   --! nanoFIP internal reset
@@ -110,7 +110,7 @@ entity WF_cons_outcome is
     cons_var_rst_byte_2_i : in std_logic_vector(7 downto 0);--! 2nd data-byte of a received var_rst
 
 
-  -- OUTPUT
+  -- OUTPUTS
     -- nanoFIP User Interface, NON-WISHBONE outputs
     var1_rdy_o            : out std_logic; --! signals new data is received and can safely be read
     var2_rdy_o            : out std_logic; --! signals new data is received and can safely be read
@@ -144,9 +144,9 @@ begin
 --!@brief Synchronous process VAR_RDY_Generation: 
 
 --! Memory Mode:
-  --! Since the three memories (consumed, consumed broadcast, produced) are independant, when a
-  --! produced var. is being sent, the user can read form the consumed memories; similarly, when a
-  --! consumed var. is being received the user can read from the consumed broadcast memory.
+  --! Since the three memories (consumed, consumed broadcast, produced) are independent, when a
+  --! produced var is being sent, the user can read form the consumed memories; similarly, when a
+  --! consumed var is being received the user can read from the consumed broadcast memory.
 
   --! VAR1_RDY (for consumed vars): signals that the user can safely read from the consumed memory.
   --! The signal is asserted only after the reception of a correct RP_DAT frame.
@@ -160,9 +160,9 @@ begin
 
 --! Stand-alone Mode:
   --! Similarly, in stand-alone mode, the DAT_I and DAT_O buses for the produced and the consumed 
-  --! bytes are independant. Stand-alone mode though does not treat the consumed broadcast variable.
+  --! bytes are independent. Stand-alone mode though does not treat the consumed broadcast variable.
 
-  --! VAR1_RDY (for consumed vars): signals that the user can safely retreive data from the DAT_O
+  --! VAR1_RDY (for consumed vars): signals that the user can safely retrieve data from the DAT_O
   --! bus. The signal is asserted only after the reception of a correct RP_DAT frame.
   --! It is de-asserted after the reception of a correct var_1 ID_DAT frame(same as in memory mode).
 
@@ -172,7 +172,7 @@ begin
 --! ID_DAT frame along with the variable it contained is signaled by the var_i.
 --! For consumed variables, var_i gets its value (var_1, var_2, var_rst) after the reception of a
 --! correct ID_DAT frame and of a correct FSS of the corresponding RP_DAT frame and it retains it
---! unitl the end of the reception.
+--! until the end of the reception.
 
   VAR_RDY_Generation: process (uclk_i) 
   begin

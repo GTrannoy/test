@@ -22,7 +22,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                          WF_crc                                               --
+--                                             WF_crc                                            --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -38,7 +38,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @date      08/2010
 --
 --
---! @version   v0.02
+--! @version   v0.03
 --
 --
 --! @details \n 
@@ -139,7 +139,7 @@ Gen_16_bit_Register_and_Interconnections:
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process CRC_calculation: the process "moves" the shift register described
---! above, for the calculation of the CRC
+--! above, for the calculation of the CRC.
 
 CRC_calculation: process (uclk_i)
 begin
@@ -173,7 +173,7 @@ crc_o <= not s_q;
 --! calculated as data is arriving (same as in the transmission) and it is being compared to the
 --! predefined c_VERIFICATION_MASK. When the CRC calculated from the received data matches the
 --! c_VERIFICATION_MASK, it is implied that a correct CRC word has been received for the preceded
---! data and the signal crc_ok_p gives a pulse. 
+--! data and the signal crc_ok_p gives a 1 uclk-wide pulse. 
 
 Syndrome_Verification: process (s_q, s_crc_bit_ready_p)
 
@@ -192,6 +192,7 @@ end process;
 
 
 end architecture rtl;
+
 --=================================================================================================
 --                                      architecture end
 --=================================================================================================

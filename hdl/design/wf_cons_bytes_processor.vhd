@@ -26,7 +26,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name:  WF_cons_bytes_processor
 --
 --! @brief     The unit is consuming the data bytes that are arriving from the WF_rx_deserializer,
 --!            according to the following:
@@ -37,25 +36,24 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                  application-data bytes along with the PDU_TYPE, Length and MPS bytes in the
 --!                  Consumed memories
 --!
---!                o If the operation is in standalone mode: the unit is transferring the 2 appli-
+--!                o If the operation is in stand-alone mode: the unit is transferring the 2 appli-
 --!                  cation-data bytes to the "nanoFIP User Interface, NON_WISHBONE" data bus DAT_O
 --!
 --!            o If the consumed variable had been a var_rst, the 2 application-data bytes are just
 --!              identified and sent to the WF_reset_unit.
 --!
---!            ------------------------------------------------------------------------------------
+--!
 --!            Reminder:
 --!
 --!            Consumed RP_DAT frame structure :
 --!           ___________ ______  _______ ________ __________________ _______  ___________ _______
 --!          |____FSS____|_Ctrl_||__PDU__|__LGTH__|__..ApplicData..__|__MPS__||____FCS____|__FES__|
 --!
---!                                                 |-------LGTH bytes-------|
---!                                |--------write to Consumed memory---------|
---!                                                 |----to DAT_O----|
---!                                                 |--to ResetUnit--|
+--!                                               |--------LGTH bytes--------|
+--!                              |---------write to Consumed memory----------|
+--!                                               |-----to DAT_O-----|
+--!                                               |---to Reset Unit--|
 --!
---!            ------------------------------------------------------------------------------------
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -246,7 +244,7 @@ begin
 --! are written in the memory one by one as they arrive, on the moments when the signal
 --! byte_ready_p_i is active.
 --! The signals byte_index_i and Length (s_cons_lgth_byte) are used to distinguish the Control and
---! CRC bytes from hte rest:
+--! CRC bytes from the rest:
 --!   o the Control byte arrives when byte_index_i = 0
 --!   o the CRC bytes arrive $Length bytes after the Length byte
 --! The byte_index_i signal is counting each byte after the FSS and before the FES.
@@ -416,12 +414,12 @@ end process;
 ---------------------------------------------------------------------------------------------------
 --                                 Control, PDU_TYPE, Length bytes                               --
 ---------------------------------------------------------------------------------------------------
---!@brief Synchronous process Buffer_Ctrl_PDU_Length_bytes: Storage of the Control, PDU_TYPE
+--!@brief Synchronous process Register_Ctrl_PDU_Length_bytes: Storage of the Control, PDU_TYPE
 --! and Length bytes of an incoming RP_DAT frame. The bytes are sent to the WF_cons_frame_validator
 --! unit that validates them and accordingly signals the WF_outcome unit for the activation of the
 --! VAR1_RDY(for a var_1), VAR2_RDY(for a var_2), assert_rston_p & rst_nfip_and_fd_p(for a var_rst).
 
-Buffer_Ctrl_PDU_Length_bytes: process (uclk_i)
+Register_Ctrl_PDU_Length_bytes: process (uclk_i)
   begin                                               
 
   if rising_edge (uclk_i) then

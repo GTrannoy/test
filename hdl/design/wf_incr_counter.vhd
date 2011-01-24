@@ -24,8 +24,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Synchronous increasing counter with a reset, a reinitialise and an increase
---!            enable signal.
+--! @brief     Increasing counter with synchronous reset, reinitialise and increase enable.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -48,6 +47,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
+--!     -> 01/2011  EG  v0.011  counter_full became a constant 
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -69,7 +69,7 @@ entity WF_incr_counter is
     uclk_i           : in std_logic;                            --! 40 MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_rst_i      : in std_logic;                            --! nanoFIP internal reset
+    nfip_rst_i      : in std_logic;                             --! nanoFIP internal reset
 
    -- Signals from any unit
    incr_counter_i    : in std_logic;                            --! increment enable
@@ -90,15 +90,14 @@ end entity WF_incr_counter;
 --=================================================================================================
 architecture rtl of WF_incr_counter is
 
-signal c_COUNTER_FULL : unsigned(g_counter_lgth-1 downto 0);
-signal s_counter      : unsigned(g_counter_lgth-1 downto 0);
+constant c_COUNTER_FULL : unsigned(g_counter_lgth-1 downto 0) := (others => '1');
+signal   s_counter      : unsigned(g_counter_lgth-1 downto 0);
 
 --=================================================================================================
 --                                      architecture begin
 --=================================================================================================  
 begin
 
-  c_COUNTER_FULL    <= (others => '1');
 
 --------------------------------------------------------------------------------------------------- 
   -- Synchronous process Incr_Counter

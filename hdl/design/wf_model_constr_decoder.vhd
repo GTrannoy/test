@@ -26,8 +26,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   WF_model_constr_decoder
---
 --
 --! @brief     Generation of the nanoFIP output S_ID and decoding of the inputs C_ID and M_ID.
 --!            The output S_ID0 is a clock with period the double of uclk's period and the S_ID1
@@ -43,7 +41,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
 --
---! @date      06/10/2010
+--! @date      21/01/2011
 --
 --
 --! @version   v0.03
@@ -67,12 +65,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                               "for" loop replaced with signals concatenation; 
 --!                               Counter is of c_RELOAD_MID_CID bits; Code cleaned-up \n
 --!     -> 06/10/2010  v0.03  EG  generic c_RELOAD_MID_CID removed;
---!                               separate processes for counter and the rest
+--!                               counter unit instantiated
+--!     -> 01/2011     v0.031 EG  loading aftern the 2nd cycle (no need for 3)
 --
 ---------------------------------------------------------------------------------------------------
 --
 --! @todo 
---!
+--!  -> select_id_o not the output of a dff:-s 
 --
 ---------------------------------------------------------------------------------------------------
 
@@ -138,8 +137,8 @@ begin
 --! of all the odd bits of M_ID & C_ID are loaded on the registers s_model_stage1/ s_constr_stage1
 --! and on the second uclk tick, the values of the odd bits move to the registers s_model_stage2/
 --! s_constr_stage2, giving place to all the even bits to be loaded to the s_model_stage1/
---! s_constr_stage1. On a third uclk tick the loaded odd and even values are combined to give
---! the decoded outputs (model_id_dec_o & constr_id_dec_o).
+--! s_constr_stage1. The loaded odd and even values are combined after the 2 periods to give the
+--!  decoded outputs model_id_dec_o & constr_id_dec_o.
 
   Model_Constructor_Decoder: process (uclk_i)
   begin
@@ -154,23 +153,24 @@ begin
 
       else
       
-       s_model_stage1   <= model_id_i;            -- after 2 uclk ticks stage1 keeps the even bits
-       s_model_stage2  <= s_model_stage1;         -- and stage2 the odd ones
+       s_model_stage2    <= s_model_stage1;        -- after 2 uclk ticks stage1 keeps the even bits
+       s_model_stage1    <= model_id_i;            -- and stage2 the odd ones
 
-       s_constr_stage1  <= constr_id_i;           -- same for the constructor
-       s_constr_stage2 <= s_constr_stage1;
+       s_constr_stage2   <= s_constr_stage1;
+       s_constr_stage1   <= constr_id_i;           -- same for the constructor
 
-       if  s_counter="10" then
+
+       if  s_counter = "01" then
 
          model_id_dec_o  <= s_model_stage2(3) & s_model_stage1(3) & -- putting together 
                             s_model_stage2(2) & s_model_stage1(2) & -- odd and even bits
                             s_model_stage2(1) & s_model_stage1(1) &
                             s_model_stage2(0) & s_model_stage1(0);
 
-         constr_id_dec_o <= s_constr_stage1(3) & s_constr_stage2(3) & 
-                            s_constr_stage1(2) & s_constr_stage2(2) &
-                            s_constr_stage1(1) & s_constr_stage2(1) &
-                            s_constr_stage1(0) & s_constr_stage2(0);
+         constr_id_dec_o <= s_constr_stage2(3) & s_constr_stage1(3) & 
+                            s_constr_stage2(2) & s_constr_stage1(2) &
+                            s_constr_stage2(1) & s_constr_stage1(1) &
+                            s_constr_stage2(0) & s_constr_stage1(0);
        end if;
 
       end if;
@@ -185,7 +185,7 @@ begin
   generic map(g_counter_lgth => 2)
   port map(
     uclk_i            => uclk_i,
-    nfip_rst_i       => nfip_rst_i,
+    nfip_rst_i        => nfip_rst_i,
     reinit_counter_i  => '0',
     incr_counter_i    => '1',
     -----------------------------------------
@@ -197,7 +197,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 --!@brief Concurrent signal assignment for the output select_id_o
 
-  select_id_o <=  ((not s_counter(0)) & s_counter(0)); -- 2 opposite clocks generated using
+   select_id_o <=  ((not s_counter(0)) & s_counter(0));-- 2 opposite clocks generated using
                                                        -- the LSB of the counter 
                                                        -- uclk_i: |-|__|-|__|-|__|-|__|-|__|-|_
                                                        -- S_ID0 : |----|____|----|____|----|___

@@ -29,7 +29,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @brief     Unit responsible for the sampling of the DAT_I bus in stand-alone operation.
 --!            Following to the functional specs page 15, in stand-alone mode, the nanoFIP
---!            samples the data on the first clock cycle after the deassertion of VAR3_RDY.
+--!            samples the data on the first clock cycle after the de-assertion of VAR3_RDY.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -47,6 +47,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n<b>Dependencies:</b>\n
 --!            WF_reset_unit     \n
 --!            WF_engine_control \n
+--!            WF_prod_permit    \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -89,12 +90,13 @@ entity WF_prod_bytes_from_dati is
 
     -- nanoFIP User Interface, NON-WISHBONE
     slone_data_i : in  std_logic_vector (15 downto 0); --! input data bus for stand-alone mode
-                                                       -- (synchronised with uclk)  
+                                                       -- (synchronized with uclk)  
    -- Signals from the WF_engine_control unit
-    byte_index_i : in std_logic_vector (7 downto 0);   --! pointer to message bytes
+    byte_index_i : in std_logic_vector (7 downto 0);   --! index of the byte to be produced
 
    -- Signals from the WF_prod_permit unit
     var3_rdy_i   : in std_logic;                       --! nanoFIP output VAR3_RDY
+
 
   -- OUTPUTS
     -- Signal to the WF_prod_bytes_retriever
@@ -119,9 +121,9 @@ begin
 --------------------------------------------------------------------------------------------------- 
 --!@brief Synchronous process Sample_DAT_I_bus: the sampling of the DAT_I bus in stand-alone mode
 --! has to take place on the first clock cycle after the de-assertion of VAR3_RDY.
---! Note: Since slone_data_i is the triply buffered version of the bus DAT_I (for synchronisation),
+--! Note: Since slone_data_i is the triply registered version of the bus DAT_I (for synchronization),
 --! the signal VAR3_RDY has to be (internally) delayed for 3 uclk cycles too, before the sampling;
---! the 4th delay is added in order to achieve the sampling 1 uclk AFTER the de-assertion.
+--! the 4th delay is added in order to have the sampling 1 uclk AFTER the de-assertion.
 
 Sample_DAT_I_bus: process (uclk_i) 
   begin
@@ -144,6 +146,7 @@ Sample_DAT_I_bus: process (uclk_i)
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   slone_byte_o           <= s_sampled_data(7 downto 0) when byte_index_i = c_1st_DATA_BYTE_INDEX
                        else s_sampled_data(15 downto 8); 
+
 
 end architecture rtl;
 --=================================================================================================

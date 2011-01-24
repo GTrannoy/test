@@ -17,23 +17,26 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
 use IEEE.NUMERIC_STD.all;     --! conversion functions
 
+--! Specific Packages
+use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
+
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                  WF_DualClkRAM_clka_rd_clkb_wr                                --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   WF_DualClkRAM_clka_rd_clkb_wr.vhd
 --
---
---! @brief     The unit provides, transparently to the outside world, the memory triplication.
---!            The component DualClkRam (512 bytes) is triplicated; each incoming byte is written 
+--! @brief     The unit provides the memory triplication, transparently to the outside world.
+--!            The component DualClkRam (512 bytes) is triplicated: each incoming byte is written 
 --!            at the same position in the three memories, whereas each outgoing byte is the 
 --!            outcome of a majority voter.
 --!            The memory is dual port; port A is used for reading only, port B for writing only.
+--!
+--!            Remark: MajorityVoter(A,B,C) = (A and B) OR (A and C) OR (B and C)            
 -- 
 -- 
---! @author	   Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 --
@@ -103,26 +106,6 @@ end WF_DualClkRAM_clka_rd_clkb_wr;
 architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is 
 
 ---------------------------------------------------------------------------------------------------
---!@brief: component DualClkRam declaration
-
-  component DualClkRam is 
-    port(
-    CLKA   : in std_logic; 
-    ADDRA  : in std_logic_vector (8 downto 0);
-    DINA   : in std_logic_vector (7 downto 0);  
-    RWA    : in std_logic;                   
-
-    CLKB   : in std_logic; 
-    ADDRB  : in std_logic_vector (8 downto 0); 
-    DINB   : in std_logic_vector (7 downto 0);  
-    RWB    : in std_logic;                   
-    RESETn : in std_logic;                  
-    
-    DOUTA  : out std_logic_vector (7 downto 0); 
-    DOUTB  : out std_logic_vector (7 downto 0)  
-    );
-  end component DualClkRam;
----------------------------------------------------------------------------------------------------
 
 type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
 
@@ -169,13 +152,11 @@ end generate;
 
 
 --------------------------------------------------------------------------------------------------- 
---!@brief majority voter: when a reading is done from the memory, the output of the unit is the
---! output of the majority voter. The majority voter considers the outputs of the three memories
---! and "calculates" their majority with combinatorial logic.
+--!@brief Combinatorial Majority_Voter
 
-majority_voter: data_porta_o <= (data_o_A_array(0) and data_o_A_array(1)) or
-                            (data_o_A_array(1) and data_o_A_array(2)) or
-                            (data_o_A_array(2) and data_o_A_array(0));
+Majority_Voter: data_porta_o <= (data_o_A_array(0) and data_o_A_array(1)) or
+                                (data_o_A_array(1) and data_o_A_array(2)) or
+                                (data_o_A_array(2) and data_o_A_array(0));
 
 end syn;
 --=================================================================================================

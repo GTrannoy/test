@@ -34,15 +34,24 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            The unit is also responsible for the identification of the FSS and FES fields of
 --!            ID_DAT and RP_DAT frames and the verification of their FCS and Manchester 2 (manch.)
 --!            encoding.
+--!            At the end of a frame (FES detection) either the fss_crc_fes_manch_ok_p_o pulse
+--!            is assserted, indicating a frame with with correct FSS, CRC, FES and manch. encoding
+--!            or the pulse crc_or_manch_wrong_p_o is asserted indicating an error on the CRC or
+--!            manch. encoding.
+--!            If a FES is not detected after the reception of more than 8 bytes for an ID_DAT or
+--!            more than 130 bytes for a RP_DAT the unit is reset by the WF_engine_control.
 --!
 --!            Remark: We refer to
 --!              o a significant edge                : for the edge of a manch. encoded bit
---!                (bit 0: _|-, bit 1: -|_)
+--!                (bit 0: _|-, bit 1: -|_).
+--!
 --!              o a transition	                     : for the moment in between two adjacent bits, 
 --!                that may or may not result in an edge (eg. a 0 followed by a 0 will give an edge
 --!                _|-|_|-, but a 0 followed by a 1 will not _|--|_ ).
+--!
 --!              o the sampling of a manch. bit      : for the moments when a manch. encoded bit
---!                should be sampled, before and after a significant edge
+--!                should be sampled, before and after a significant edge.
+--!
 --!              o the sampling of a bit             : for the sampling of only the 1st part,
 --!                before the transition. 
 --!
@@ -54,14 +63,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                  sample_manch_bit_p : ^ ^ ^ ^ 
 --!                  sample_bit_p       : ^   ^   (this sampling will give the 0 and the 1)
 --!
---!            ------------------------------------------------------------------------------------
+--!
 --!            Reminder:
 --!
 --!            Consumed RP_DAT frame structure :
 --!           _______ _______ ______  _______ ______ ________________ _______  ___________ _______
 --!          |__PRE__|__FSD__|_Ctrl_||__PDU__|_LGTH_|_..ApplicData.._|__MPS__||____FCS____|__FES__|
 --!
---!            ------------------------------------------------------------------------------------
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -71,7 +79,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @date      9/12/2010
 --
 --
---! @version   v0.03
+--! @version   v0.04
 --
 --
 --! @details \n 
@@ -106,6 +114,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                          code(more!)cleaned-up
 --!     -> 01/2011 v0.04 EG  changed way of detecting the FES to be able to detect a FES even if
 --!                          bytes with size different than 8 have preceeded.
+--!                          crc_or_manch_wrong_p_o replaced the crc_wrong_p_o.
 --      
 ---------------------------------------------------------------------------------------------------
 --
@@ -166,7 +175,8 @@ entity WF_rx_deserializer is
                                              --! correct FSS, FES, CRC and manch. encoding
 
     -- Signal to the WF_production and the WF_engine_control units 	
-    crc_wrong_p_o           : out std_logic; --! indication of a wrong CRC on a ID_DAT or RP_DAT
+    crc_or_manch_wrong_p_o  : out std_logic; --! indication of a wrong CRC or manch. encoding on a
+                                             --! ID_DAT or RP_DAT; pulse after the FES detection
 
     -- Signal to the WF_engine_control units 	
     fss_received_p_o        : out std_logic; --! pulse after the reception of a correct FSS (ID/RP)
@@ -188,7 +198,7 @@ architecture rtl of WF_rx_deserializer is
                     fsd_field, switch_to_deglitched, data_fcs_fes_fields);
 
   signal rx_st, nx_rx_st                                          : rx_st_t;
-  signal s_manch_code_viol_p, s_CRC_ok_p, s_CRC_ok_p_d16          : std_logic;
+  signal s_manch_code_viol_p, s_CRC_ok_p, s_crc_ok_p_d15          : std_logic;
   signal s_fsd_last_bit, s_fes_wrong_bit, s_sample_manch_bit_p_d1 : std_logic;
   signal s_fes_detected_p                                         : std_logic;
   signal s_manch_not_ok, s_switching_to_deglitched                : std_logic;
@@ -200,7 +210,7 @@ architecture rtl of WF_rx_deserializer is
   signal s_manch_r_edge_p, s_manch_f_edge_p                       : std_logic;
   signal s_manch_bit_index, s_manch_bit_index_top                 : unsigned(3 downto 0);
   signal s_byte                                                   : std_logic_vector (7 downto 0);
-  signal s_arriving_fes                                          : std_logic_vector (15 downto 0);
+  signal s_arriving_fes                                           : std_logic_vector (15 downto 0);
   signal s_CRC_ok_p_buff                                          : std_logic_vector (14 downto 0);
 
 --=================================================================================================
@@ -224,7 +234,7 @@ architecture rtl of WF_rx_deserializer is
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Synchronous process Deserializer_FSM_Sync: storage of the current state of the FSM
 
-   Deserializer_FSM_Sync: process (uclk_i)
+  Deserializer_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
         if nfip_rst_i = '1' then
@@ -338,7 +348,7 @@ architecture rtl of WF_rx_deserializer is
     -- nanoFIP can receive ID_DATs of a predefined length of 8 bytes and RP_DATs of any length 
     -- (not predefined) up to 132 bytes (FSD+Ctrl+PDU_TYPE+LGTH+124 application_data+MPS+FCS+FES).
     -- The WF_engine_control unit is following the amount of bytes being received and in case
-    -- their number overpasses the expected one, it activates the signal rst_rx_unit_p_i.
+    -- their number exceeds the expected one, it activates the signal rst_rx_unit_p_i.
     -- Therefore, the Receiver_FSM stays in the data_fcs_fes_fields state until the arrival of a
     -- correct FES, or until the arrival of a reset signal from the WF_engine_control.  
 
@@ -563,7 +573,7 @@ architecture rtl of WF_rx_deserializer is
       end if;
     end process;
   --  --  --  --  --  --  --  --  --  --  -- 
-  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES) and  s_receiving_bytes = '1' else '0';
+  s_fes_detected_p <= '1' when s_arriving_fes = (c_FES) else '0';              -- 1 uclk-wide pulse
 
 
 ---------------------------------------------------------------------------------------------------
@@ -658,7 +668,7 @@ architecture rtl of WF_rx_deserializer is
       end if; 
     end process;
   --  --  --  --  --  --  --  --  --  --  -- 
-  s_crc_ok_p_d16 <= s_CRC_ok_p_buff(14);                   -- pulse 1 half-bit-clock period long
+  s_crc_ok_p_d15 <= s_CRC_ok_p_buff(14);                   -- pulse 1 half-bit-clock period long
 
 
 
@@ -678,9 +688,9 @@ architecture rtl of WF_rx_deserializer is
 
   byte_o                        <= s_byte; 
   rst_rx_osc_o                  <= s_idle;
-  fss_received_p_o              <= s_receiving_fsd and s_fsd_last_bit;
-  crc_wrong_p_o                 <= s_fes_detected_p and (not s_crc_ok_p_d16);
-  fss_crc_fes_manch_ok_p_o      <= s_fes_detected_p and s_crc_ok_p_d16 and (not s_manch_not_ok);
+  fss_received_p_o              <= s_receiving_fsd  and s_fsd_last_bit;
+  crc_or_manch_wrong_p_o        <= s_fes_detected_p and ((not s_crc_ok_p_d15) or (not s_manch_not_ok));
+  fss_crc_fes_manch_ok_p_o      <= s_fes_detected_p and s_crc_ok_p_d15 and (not s_manch_not_ok);
 
 
 end architecture rtl;

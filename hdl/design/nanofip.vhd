@@ -57,8 +57,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! After a 14xy or a 10xy or a 06xy ID_DAT, if nanoFIP's address (SUBS) is xy, it will respond
 --! with a "produced" RP_DAT frame, containing the variable requested. Figure 2 shows the structure
 --! of a RP_DAT frame:
---!                ___________ ______  _____________________  ___________ _______
---!               |____FSS____|_Ctrl_||_____...-Data..._____||____FCS____|__FES__|
+--!                ___________ ______  ____________________  ___________ _______
+--!               |____FSS____|_Ctrl_||_____...Data..._____||____FCS____|__FES__|
 --!
 --!                            Figure 2 : RP_DAT frame structure
 --!
@@ -77,6 +77,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!  o External reset input pin, RST_I, activated by the user, that resets only the WISHBONE logic
 --!  o Addressed reset by the reset broadcast consumed variable (E0..h),
 --!    validated by station address as data
+--!  o External Power On Reset input pin, RSTPON
 --!
 --! nanoFIP also provides resets to the user and to the FIELDRIVE:
 --!  o Reset output available to external logic (RSTON) by the reset broadcast consumed variable
@@ -85,7 +86,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!    validated by station address as data
 --! 
 --! nanoFIP's main building blocks are (Figure 3):
---!  o WF_inputs_synchronizer : for the synchronization of all the input signals with the user
+--!  o WF_inputs_synchronizer : for the synchronization of the input signals with the user
 --!    or the WISHBONE clock.
 --!  o WF_reset_unit          : for the treatment of the reset input signals and the generation
 --!    of the reset outputs.
@@ -141,7 +142,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! Complete information about this project at: http://www.ohwr.org/projects/cern-fip
 --
 --
---! @author    Erik Van der Bij      (Erik.Van.der.Bij@cern.ch)     \n
+--! @authors   Erik Van der Bij      (Erik.Van.der.Bij@cern.ch)     \n
 --!            Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
 --        
@@ -162,6 +163,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            WF_consumption         \n
 --!            WF_production          \n
 --!            WF_engine_control      \n
+--!            WF_wb_controller       \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -189,7 +191,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --                                    Synplify Premier Warnings                                  --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 --  "W MT420 Found inferred clock nanofip|wclk_i"; "W MT420 Found inferred clock nanofip|uclk_i" --
--- The wclk and uclk are the nanoFIP's input clocks.                                             --
+--  The wclk and uclk are the nanoFIP's input clocks.                                             --
 ---------------------------------------------------------------------------------------------------
 
 
@@ -255,7 +257,7 @@ entity nanofip is
   we_i       : in  std_logic;                    --! WISHBONE write enable
 
 
--- OUTUTS
+-- OUTPUTS
 
   -- WorldFIP settings
 
@@ -322,8 +324,8 @@ architecture struc of nanofip is
   signal s_rst, s_rx_byte_ready, s_start_prod_p, s_rst_rx_osc, s_prod_request_byte_p   : std_logic;
   signal s_prod_last_byte_p                                                            : std_logic;
   signal s_rstin_synch, s_slone_synch, s_nostat_synch, s_fd_wdgn_synch, s_fd_txer_synch: std_logic;
-  signal s_fss_crc_fes_manch_ok_p, s_cons_fss_decoded_p                                : std_logic;
-  signal s_crc_wrong_p, s_reset_nFIP_and_FD_p, s_rx_manch_clk_p, s_rx_bit_clk_p        : std_logic;
+  signal s_fss_crc_fes_manch_ok_p, s_cons_fss_decoded_p, s_wb_rst, s_rx_bit_clk_p      : std_logic;
+  signal s_crc_or_manch_wrong_p, s_reset_nFIP_and_FD_p, s_rx_manch_clk_p               : std_logic;
   signal s_var1_access_synch, s_var2_access_synch, s_var3_access_synch, s_wb_stb_synch : std_logic;
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy, s_assert_RSTON_p, s_wb_ack_prod           : std_logic;
   signal s_rst_rx_unit_p, s_nfip_status_r_tler, s_signif_edge_window , s_wb_we_synch   : std_logic;
@@ -355,7 +357,7 @@ begin
     wb_clk_i          => wclk_i,
     nfip_rst_i        => s_rst, 
     rstin_a_i         => rstin_i,
-    wb_rst_a_i        => rst_i,
+    wb_rst_i          => s_wb_rst,
     slone_a_i         => slone_i,
     nostat_a_i        => nostat_i,
     fd_wdgn_a_i       => fd_wdgn_i,
@@ -387,7 +389,7 @@ begin
     wb_cyc_o          => s_wb_cyc_synch,
     wb_we_o           => s_wb_we_synch,
     wb_stb_o          => s_wb_stb_synch,
-    wb_stb_r_edge_o   => s_wb_stb_r_edge,
+    wb_stb_r_edge_p_o => s_wb_stb_r_edge,
     var1_access_o     => s_var1_access_synch,
     var2_access_o     => s_var2_access_synch,
     var3_access_o     => s_var3_access_synch,
@@ -411,12 +413,14 @@ begin
       rstin_i               => s_rstin_synch,
       rstpon_i              => rstpon_i,
       rate_i                => s_rate_synch,
+      rst_i                 => rst_i,
       var_i                 => s_var_from_control,
       rst_nFIP_and_FD_p_i   => s_reset_nFIP_and_FD_p,
       assert_RSTON_p_i      => s_assert_RSTON_p,
     ---------------------------------------------------------
-      rston_o               => rston_o,
       nFIP_rst_o            => s_rst, 
+      wb_rst_o              => s_wb_rst,
+      rston_o               => rston_o,
       fd_rstn_o             => fd_rstn_o  
     ---------------------------------------------------------
       );
@@ -475,8 +479,8 @@ begin
     byte_o                  => s_rx_byte,
     byte_ready_p_o          => s_rx_byte_ready,
     fss_received_p_o        => s_cons_fss_decoded_p, 
-    crc_wrong_p_o           => s_crc_wrong_p,
-    fss_crc_fes_manch_ok_p_o => s_fss_crc_fes_manch_ok_p,
+    crc_or_manch_wrong_p_o  => s_crc_or_manch_wrong_p,
+    fss_crc_fes_manch_ok_p_o=> s_fss_crc_fes_manch_ok_p,
     nfip_status_r_tler_o    => s_nfip_status_r_tler,
     assert_rston_p_o        => s_assert_RSTON_p,
     rst_nfip_and_fd_p_o     => s_reset_nFIP_and_FD_p,
@@ -512,7 +516,7 @@ begin
     byte_request_accept_p_i => s_prod_byte_ready_p,
     last_byte_p_i           => s_prod_last_byte_p,
     nfip_status_r_tler_i    => s_nfip_status_r_tler,
-    nfip_status_r_fcser_p_i => s_crc_wrong_p,
+    nfip_status_r_fcser_p_i => s_crc_or_manch_wrong_p,
     var1_rdy_i              => s_var1_rdy,
     var2_rdy_i              => s_var2_rdy,
     tx_clk_p_buff_i         => s_tx_clk_p_buff,
@@ -538,7 +542,6 @@ begin
 
   engine_control : WF_engine_control 
     generic map( c_QUARTZ_PERIOD => c_QUARTZ_PERIOD)
-
     port map(
       uclk_i                      => uclk_i,
       nfip_rst_i                   => s_rst, 
@@ -547,7 +550,7 @@ begin
       rx_byte_i                    => s_rx_byte, 
       rx_byte_ready_p_i            => s_rx_byte_ready,
       rx_fss_crc_fes_manch_ok_p_i  => s_fss_crc_fes_manch_ok_p,
-      rx_crc_wrong_p_i             => s_crc_wrong_p,
+      rx_crc_or_manch_wrong_p_i    => s_crc_or_manch_wrong_p,
       rate_i                       => s_rate_synch,
       subs_i                       => s_subs_synch,
       p3_lgth_i                    => s_p3_lgth_synch, 

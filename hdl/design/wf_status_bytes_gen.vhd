@@ -28,8 +28,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   WF_status_bytes_gen
---
 --
 --! @brief     Generation of the nanoFIP status and MPS status bytes.
 --!            The unit is also responsible for outputting the "nanoFIP User Interface, 
@@ -37,15 +35,57 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            status bits 2 to 5.
 --!
 --!            The information contained in the nanoFIP status byte is coming from :
---!            o the WF_consumption unit,
---!            o the "nanoFIP FIELDRIVE" inputs fd_wdgn and fd_txer
---!            o the "nanoFIP User Interface, NON_WISHBONE" inputs (VAR_ACC) and outputs (VAR_RDY). 
+--!            o the WF_consumption unit, for the bits 4 and 5
+--!            o the "nanoFIP FIELDRIVE" inputs FD_WDGN and FD_TXER, for the bits 6 and 7
+--!            o the "nanoFIP User Interface, NON_WISHBONE" inputs (VAR_ACC) and outputs (VAR_RDY),
+--!              for the bits 2 and 3.
+--!
 --!
 --!            For the refreshment and significance bits of the MPS status, the signal
 --!            "nanoFIP User Interface, NON_WISHBONE" input VAR3_ACC is used.
 --!
 --!            The MPS status byte and the bits 0 to 5 of the nanoFIP status byte are reset after
 --!            having been sent.            
+--!
+--!
+--!            Reminder:
+--!                    ________________________  _________    ____________________________________
+--!                   |   nanoFIP STATUS BIT       NAME                    CONTENTS               |
+--!                   |________________________  _________    ____________________________________|
+--!                   |           0                 r1                     reserved               |
+--!                   |________________________  _________    ____________________________________|
+--!                   |           1                 r2                     reserved               |
+--!                   |________________________  _________    ____________________________________|
+--!                   |           2               u_cacer           user cons var access error    |
+--!                   |________________________  _________    ____________________________________|
+--!                   |           3               u_pacer           user prod var access error    |
+--!                   |________________________  _________    ____________________________________|
+--!                   |           4               r_tler         received PDU_TYPE or Length error|
+--!                   |________________________  _________    ____________________________________|
+--!                   |           5               r_fcser              received FCS error         | // or manch. encoding
+--!                   |________________________  _________    ____________________________________|
+--!                   |           6               t_txer           transmit error (FIELDRIVE)     |
+--!                   |________________________  _________    ____________________________________|
+--!                   |           7               t_wder           watchdog error (FIELDRIVE)     |
+--!                   |________________________  _________    ____________________________________|
+--!
+--!                    ---------------------------------------------------------------------------
+--!                        __________________  _____________   ______________                
+--!                       |  MPS STATUS BIT        NAME           CONTENTS   |
+--!                       |__________________  _____________   ______________| 
+--!                       |        0            refreshment         1/0      |  
+--!                       |__________________  _____________   ______________| 
+--!                       |        1                                 0       |  
+--!                       |__________________  _____________   ______________| 
+--!                       |        2           significance         1/0      |  
+--!                       |__________________  _____________   ______________| 
+--!                       |        3                                 0       |
+--!                       |__________________  _____________   ______________| 
+--!                       |       4-7                               000      |  
+--!                       |__________________  _____________   ______________| 
+--! 
+--!                  The refreshment and significance are set to 1 if the user has updated
+--!                   the produced variable since the last transmission of the variable 
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -90,8 +130,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
 --                               Synplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL189	Register bits s_nFIP_status_byte(0), s_nFIP_status_byte(1) are always 0, optimizing" --
--- "W CL260	Pruning Register bits 0 and 1 of s_nFIP_status_byte(7 downto 0)"                     --
+-- "W CL189 Register bits s_nFIP_status_byte(0), s_nFIP_status_byte(1) are always 0, optimizing" --
+-- "W CL260 Pruning Register bits 0 and 1 of s_nFIP_status_byte(7 downto 0)"                     --
 -- Bits 0 and 1 of nanoFIP status byte are reserved for future ideas.                            --
 ---------------------------------------------------------------------------------------------------
 
@@ -154,9 +194,9 @@ architecture rtl of WF_status_bytes_gen is
 
 signal s_refreshment                                                                  : std_logic;
 signal s_nFIP_status_byte : std_logic_vector (7 downto 0);
---signal s_var1_rdy_incr_c, s_var1_rdy_extended                                         : std_logic;
---signal s_var2_rdy_incr_c, s_var2_rdy_extended, s_var3_rdy_incr_c, s_var3_rdy_extended : std_logic; 
---signal s_var1_rdy_c, s_var2_rdy_c, s_var3_rdy_c                           : unsigned (3 downto 0);
+signal s_var1_rdy_incr_c, s_var1_rdy_extended                                         : std_logic;
+signal s_var2_rdy_incr_c, s_var2_rdy_extended, s_var3_rdy_incr_c, s_var3_rdy_extended : std_logic; 
+signal s_var1_rdy_c, s_var2_rdy_c, s_var3_rdy_c                           : unsigned (3 downto 0);
 
 
 --=================================================================================================
@@ -165,8 +205,60 @@ signal s_nFIP_status_byte : std_logic_vector (7 downto 0);
 begin
 
 ---------------------------------------------------------------------------------------------------
+--                                        MPS status byte                                        --
+---------------------------------------------------------------------------------------------------
+--!@brief Synchronous process Refreshment_bit_Creation: Creation of the refreshment bit (used in
+--! the MPS status byte). The bit is set to 1 if the user has updated the produced variable since
+--! its last transmission. The process is checking if the signal VAR3_ACC has been asserted since
+--! the last production of a variable.
+ 
+  Refreshment_bit_Creation: process (uclk_i) 
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then 
+        s_refreshment   <= '0';
+      else
+
+        if rst_status_bytes_p_i = '1' then          -- bit reinitialized after a var production
+          s_refreshment <= '0';  
+
+        elsif (var3_acc_i = '1') then               -- indication that the memory has been accessed
+          s_refreshment <= '1';
+        end if;
+
+      end if;
+    end if;
+end process;
+
+
+---------------------------------------------------------------------------------------------------
+--!@brief Combinatorial process MPS_byte_Creation: Creation of the MPS byte
+--! (nanoFIP functional specification, Table 2)
+ 
+  MPS_byte_Creation: process (slone_i, s_refreshment)
+  
+  begin
+    if slone_i='1' then
+      mps_status_byte_o (7 downto 3)           <= (others => '0');   
+      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
+      mps_status_byte_o (1)                    <= '0';
+      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
+
+
+    else
+      mps_status_byte_o (7 downto 3)           <= (others => '0');      
+      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
+      mps_status_byte_o (1)                    <= '0';
+      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
+    end if;
+  end process;
+
+
+---------------------------------------------------------------------------------------------------
+--                                     nanoFIP status byte                                       --
+---------------------------------------------------------------------------------------------------
 --! @brief Synchronous process Status_byte_Formation: Formation of the nanoFIP status byte
---! according to the definitions in Table 8 of nanoFIP's functional specifications.
+--! (nanoFIP functional specification, Table 8)
 
   nFIP_status_byte_generation: process (uclk_i) 
   begin
@@ -187,8 +279,9 @@ begin
         
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- u_cacer
-          if ((var1_rdy_i = '0' and var1_acc_i = '1') or
-              (var2_rdy_i = '0' and var2_acc_i = '1')) then      -- since the last time the status
+          if ((s_var1_rdy_extended = '0' and var1_acc_i = '1') or
+              (s_var2_rdy_extended = '0' and var2_acc_i = '1')) then
+                                                                 -- since the last time the status
                                                                  -- byte was delivered,
             s_nFIP_status_byte(c_U_CACER_INDEX) <= '1';          -- the user logic accessed a cons.
                                                                  -- var. when it was not ready
@@ -197,7 +290,7 @@ begin
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- u_pacer
-          if (VAR3_RDY_i = '0' and var3_acc_i = '1') then  
+          if (s_var3_rdy_extended = '0' and var3_acc_i = '1') then  
                                                                  -- since the last time the status 
             s_nFIP_status_byte(c_U_PACER_INDEX) <= '1';          -- byte was delivered,
                                                                  -- the user logic accessed a prod.
@@ -235,114 +328,71 @@ begin
       end if;
     end if;
   end process;
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-  --! @brief Concurrent signal assignments
+
+
+---------------------------------------------------------------------------------------------------
+--!@brief Instantiation of 3 WF_incr_counters used for the internal extension of each one of the
+--! signals VAR1_RDY, VAR2_RDY, VAR3_RDY for 15 uclk cycles.
+--! Enabled VAR_ACC during this period will not trigger an error.
+                 
+  Extend_VAR1_RDY: WF_incr_counter        -- VAR1_RDY            : __|---...---|___________________
+  generic map (g_counter_lgth => 4)       -- s_var1_rdy_extended : __|---...------------------|____
+  port map(
+    uclk_i            => uclk_i,
+    nfip_rst_i        => nfip_rst_i,
+    reinit_counter_i  => var1_rdy_i,
+    incr_counter_i    => s_var1_rdy_incr_c,
+    counter_is_full_o => open,
+    ------------------------------------------
+    counter_o         => s_var1_rdy_c);       
+    ------------------------------------------ 
+
+    s_var1_rdy_incr_c   <= '1' when s_var1_rdy_c < "1111" else '0';
+    s_var1_rdy_extended <= '1' when var1_rdy_i= '1' or s_var1_rdy_incr_c = '1' else '0';
+
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  Extend_VAR2_RDY: WF_incr_counter
+  generic map (g_counter_lgth => 4)
+  port map(
+    uclk_i            => uclk_i,
+    nfip_rst_i        => nfip_rst_i,
+    reinit_counter_i  => var2_rdy_i,
+    incr_counter_i    => s_var2_rdy_incr_c,
+    counter_is_full_o => open,
+    ------------------------------------------
+    counter_o         => s_var2_rdy_c);
+    ------------------------------------------
+
+    s_var2_rdy_incr_c   <= '1' when s_var2_rdy_c < "1111" else '0';
+    s_var2_rdy_extended <= '1' when var2_rdy_i= '1' or s_var2_rdy_incr_c = '1' else '0';
+
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  Extend_VAR3_RDY: WF_incr_counter
+  generic map (g_counter_lgth => 4)
+  port map(
+    uclk_i            => uclk_i,
+    nfip_rst_i        => nfip_rst_i,
+    reinit_counter_i  => VAR3_RDY_i,
+    incr_counter_i    => s_var3_rdy_incr_c,
+    counter_is_full_o => open,
+    ------------------------------------------
+    counter_o         => s_var3_rdy_c);
+    ------------------------------------------
+
+    s_var3_rdy_incr_c   <= '1' when s_var3_rdy_c < "1111" else '0';
+    s_var3_rdy_extended <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_incr_c = '1' else '0';
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                            Outputs                                            --
+---------------------------------------------------------------------------------------------------
+ 
   nFIP_status_byte_o                            <= s_nFIP_status_byte;
   u_cacer_o                                     <= s_nFIP_status_byte(c_U_CACER_INDEX);  
   u_pacer_o                                     <= s_nFIP_status_byte(c_U_PACER_INDEX);
   r_tler_o                                      <= s_nFIP_status_byte(c_R_TLER_INDEX);
   r_fcser_o                                     <= s_nFIP_status_byte(c_R_FCSER_INDEX);
-
----------------------------------------------------------------------------------------------------
---!@brief Synchronous process 
- 
-  -- Extend_VAR1_RDY: WF_incr_counter
-  -- generic map (g_counter_lgth => 4)
-  -- port map(
-    -- uclk_i            => uclk_i,
-    -- nfip_rst_i       => nfip_rst_i,
-    -- reinit_counter_i  => var1_rdy_i,
-    -- incr_counter_i    => s_var1_rdy_incr_c,
-    -- counter_o         => s_var1_rdy_c,
-    -- counter_is_full_o => open);
-
-    -- s_var1_rdy_incr_c   <= '1' when s_var1_rdy_c < "1111"
-                      -- else '0';
-
-    -- s_var1_rdy_extended <= '1' when var1_rdy_i= '1' or s_var1_rdy_incr_c = '1'
-                      -- else '0';
--------------------------------------------------------------------------------------------------
-  -- Extend_VAR2_RDY: WF_incr_counter
-  -- generic map (g_counter_lgth => 4)
-  -- port map(
-    -- uclk_i            => uclk_i,
-    -- nfip_rst_i       => nfip_rst_i,
-    -- reinit_counter_i  => var2_rdy_i,
-    -- incr_counter_i    => s_var2_rdy_incr_c,
-    -- counter_o         => s_var2_rdy_c,
-    -- counter_is_full_o => open);
-
-    -- s_var2_rdy_incr_c   <= '1' when s_var1_rdy_c < "1111"
-                      -- else '0';
-
-    -- s_var2_rdy_extended <= '1' when var2_rdy_i= '1' or s_var2_rdy_incr_c = '1'
-                      -- else '0';
-
-
--------------------------------------------------------------------------------------------------
-  -- Extend_VAR3_RDY: WF_incr_counter
-  -- generic map (g_counter_lgth => 4)
-  -- port map(
-    -- uclk_i            => uclk_i,
-    -- nfip_rst_i       => nfip_rst_i,
-    -- reinit_counter_i  => VAR3_RDY_i,
-    -- incr_counter_i    => s_var3_rdy_incr_c,
-    -- counter_o         => s_var3_rdy_c,
-    -- counter_is_full_o => open);
-
-    -- s_var3_rdy_incr_c   <= '1' when s_var3_rdy_c < "1111"
-                      -- else '0';
-
-    -- s_var3_rdy_extended <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_incr_c = '1'
-                      -- else '0';
-
-
-
----------------------------------------------------------------------------------------------------
---!@brief Synchronous process Refreshment_bit_Creation: Creation of the refreshment bit (used in
---! the MPS status byte). The bit is set to 1 if the user has updated the produced variable since
---! its last transmission. The process is checking if the signal var3_access has been asserted
---! since the last production of a variable.
- 
-  Refreshment_bit_Creation: process (uclk_i) 
-  begin
-    if rising_edge (uclk_i) then
-      if nfip_rst_i = '1' then 
-        s_refreshment   <= '0';
-      else
-
-        if rst_status_bytes_p_i = '1' then          -- bit reinitialized after a var production
-          s_refreshment <= '0';  
-
-        elsif (var3_acc_i = '1') then               -- indication that the memory has been accessed
-          s_refreshment <= '1';
-        end if;
-
-      end if;
-    end if;
-end process;
-
----------------------------------------------------------------------------------------------------
---!@brief Combinatorial process MPS_byte_Creation: Creation of the MPS byte according to the
---! definitions in the Table 2 of the specs.
- 
-  MPS_byte_Creation: process (slone_i, s_refreshment)
-  
-  begin
-    if slone_i='1' then
-      mps_status_byte_o (7 downto 3)           <= (others => '0');   
-      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
-      mps_status_byte_o (1)                    <= '0';
-      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= '1'; 
-
-
-    else
-      mps_status_byte_o (7 downto 3)           <= (others => '0');      
-      mps_status_byte_o (c_REFRESHMENT_INDEX)  <= s_refreshment; 
-      mps_status_byte_o (1)                    <= '0';
-      mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= s_refreshment;
-    end if;
-  end process;
 
 
 end architecture rtl;

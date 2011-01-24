@@ -22,21 +22,28 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                   WF_prod_data_lgth_calc                                      --
+--                                     WF_prod_data_lgth_calc                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Calculation of the total amount of bytes, after the FSS and before the FCS, that
---!            have to be transferreed when a variable is produced. In detail, the calculation
---!            takes into account the: RP_DAT.Control, RP_DAT.Data.PDU_TYPE, RP_DAT.Data.Length,
---!            RP_DAT.Data.MPS_status, RP_DAT.Data.nanoFIP_status bytes as well as the user-data
---!            bytes described by the P3_LGTH.
+--! @brief     Calculation of the amount of bytes, after the FSS and before the FCS, that have
+--!            to be transferred when a variable is produced (var_presence, var_identif, var_3).
+--!            In detail the unit adds:
+--!             o  1 byte RP_DAT.Control,
+--!             o  1 byte RP_DAT.Data.PDU_TYPE,
+--!             o  1 byte RP_DAT.Data.Length,
+--!             o  2-124 bytes RP_DAT.Data.User_Data, defined by the "nanoFIP User Interface,General
+--!                signal" SLONE and the "nanoFIP WorldFIP Settings" input P3_LGTH
+--!             o  1 byte RP_DAT.Data.MPS_status, if applicable (only in var_3)
+--!             o  1 byte RP_DAT.Data.nanoFIP_status, only for a var_3, if the "nanoFIP User
+--!                Interface General signal" NOSTAT is negated.
 --!
---!            ------------------------------------------------------------------------------------
---!            Reminder
+--!
+--!            Reminder:
 --!
 --!            Produced RP_DAT frame structure :
+--!                               ||--------------------- Data ---------------------||
 --!             ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
 --!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|
 --!
@@ -125,9 +132,9 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --!@brief: Combinatorial process data_length_calcul: calculation of the amount of bytes, after the
---! FSS and before the FCS, that have to be transferreed when a variable is produced. In the case  
+--! FSS and before the FCS, that have to be transferred when a variable is produced. In the case  
 --! of the presence and the identification variables, the data length is predefined in the WF_package.
---! In the case of a var3 the inputs slone, nostat and p3_lgth[] are accounted for the calculation.
+--! In the case of a var3 the inputs SLONE, NOSTAT and P3_LGTH[] are accounted for the calculation.
  
   data_length_calcul: process (var_i, s_p3_length_decoded, slone_i, nostat_i, p3_lgth_i)
   begin
@@ -153,7 +160,7 @@ begin
       when var_3 =>  
       -- data length calculation according to the operational mode (memory or stand-alone)
 
-      -- in slone mode                   2 bytes of user-data are produced(independantly of p3_lgth)
+      -- in slone mode                   2 bytes of user-data are produced(independently of P3_LGTH)
       -- to these there should be added: 1 byte Control
       --                                 1 byte PDU_TYPE
       --                                 1 byte Length
@@ -172,23 +179,23 @@ begin
           if nostat_i = '1' then                              -- 6 bytes (counting starts from 0)
             s_prod_data_length <= to_unsigned(5, s_prod_data_length'length); 
 
-          else                                                -- 7 bytes (counting starts from 0)
+          else                                                -- 7 bytes 
             s_prod_data_length <= to_unsigned(6, s_prod_data_length'length); 
           end if;
 
 
         else
           if nostat_i = '0' then
-            s_prod_data_length <= s_p3_length_decoded + 4;      -- (counting starts from 0)
+            s_prod_data_length <= s_p3_length_decoded + 4;
 
            else
-            s_prod_data_length <= s_p3_length_decoded + 3;      -- (counting starts from 0)
+            s_prod_data_length <= s_p3_length_decoded + 3;
            end if;          
           end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 
-      when var_1 | var_2 | var_rst =>                         -- to avoid Warnings from Synthesiser
+      when var_1 | var_2 | var_rst =>                       
         s_prod_data_length     <= (others => '0');
 
       when others => 
@@ -196,6 +203,7 @@ begin
 
     end case;
   end process;
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent signal assignment for the output
   prod_data_length_o           <= std_logic_vector (s_prod_data_length);

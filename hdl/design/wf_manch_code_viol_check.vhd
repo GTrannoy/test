@@ -22,7 +22,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                       WF_rx_manch_code_check                                  --
+--                                     WF_rx_manch_code_check                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -35,9 +35,11 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            Remark: We refer to
 --!              o a significant edge                : for the edge of a manch. encoded bit
 --!                (bit 0: __|--, bit 1: --|__)
+--!
 --!              o the sampling of a manch. bit      : for the moments when a manch. encoded bit
 --!                should be sampled, before and after a significant edge. The period of this
 --!                sampling is that of the half-bit-clock.
+--!
 --!              o the sampling of a bit             : for the sampling of only the 1st part,
 --!                before the transition (the period is the double of the manch. sampling) 
 --!
@@ -122,11 +124,10 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process Check_Code_Violations: in order to check for code violations, the
---! input signal is delayed by half-bit-clock period (serial_input_signal_d).
---! The signal check_code_viol_p is a pulse occuring 2 uclk periods after a manch. edge is expected.
---! As the following drawing roughly indicates, a violation exists if the signal and its delayed
---! version are identical on the check_code_viol_p moments.
-
+--! input signal is delayed for 1 half-bit-clock period.
+--! The signal check_code_viol_p is a pulse occurring 2 uclk periods after a manch. edge is expected.
+--! A violation exists if the signal and its delayed version are identical on the
+--! check_code_viol_p moments.
 --                                     0    V-    1
 --   rxd_filtered          :         __|--|____|--|__ 
 --   serial_input_signal_d :           __|--|____|--|__
@@ -153,6 +154,7 @@ begin
          end if;
       end if;
   end process; 
+
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent signal assignment

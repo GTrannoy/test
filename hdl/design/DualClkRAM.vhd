@@ -236,7 +236,7 @@ begin
       WMODEA  => GROUND,
 
       -- INPUTS concerning port B 
-      -- datain B (1 byte, (7 downto 0))
+      -- data in B (1 byte, (7 downto 0))
       DINB8   => GROUND,
       DINB7   => DINB(7),
       DINB6   => DINB(6),
@@ -275,7 +275,7 @@ begin
 
     -- Oututs 
     -- output concerning port A
-      -- dataout A (1 byte)    
+      -- data out A (1 byte)    
       DOUTA8  => OPEN,
       DOUTA7  => DOUTA(7),
       DOUTA6  => DOUTA(6),
@@ -287,7 +287,7 @@ begin
       DOUTA0  => DOUTA(0),
 
     -- output concerning port B
-      -- dataout B (1 byte) 
+      -- data out B (1 byte) 
       DOUTB8  => OPEN,
       DOUTB7  => DOUTB(7),
       DOUTB6  => DOUTB(6),

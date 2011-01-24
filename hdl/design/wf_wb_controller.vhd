@@ -35,7 +35,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      20/01/2011
+--! @date      21/01/2011
 --
 --
 --! @version   v0.01
@@ -47,15 +47,14 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            WF_production  \n
 --!            WF_consumption \n
 --
---------------------------------------------------------------------------------------------------- 
 --
 --!   \n<b>Modified by:</b>\n
 --!     Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> 
---
+--!     -> 21/01/2011  v0.011  EG  changed registering
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -67,7 +66,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---/!\----------------------------/!\----------------------------/!\-------------------------/!\---
 --                               Sunplify Premier D-2009.12 Warnings                             --
 -- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL246  Input port bits 0, 1, 3, 4 of var_i(0 to 6) are unused"                             --
+--                                         No Warnings!                                          --
 ---------------------------------------------------------------------------------------------------
 
 
@@ -84,20 +83,22 @@ entity WF_wb_controller is
     wb_rst_i          : in std_logic;                      --! WISHBONE reset
     wb_cyc_i          : in std_logic;                      --! WISHBONE cycle
     wb_stb_r_edge_p_i : in std_logic;                      --! rising edge on WISHBONE strobe
+                                                           --! 1 wb-clk wide pulse
+
     wb_we_i           : in std_logic;                      --! WISHBONE write enable
  
-   wb_adr_id_i        : in  std_logic_vector (2 downto 0); --! 3 first bits of WISHBONE address
+    wb_adr_id_i        : in  std_logic_vector (2 downto 0);--! 3 first bits of WISHBONE address
 
 
   -- OUTPUTS
 
     -- Signal from the WF_production_unit
-    wb_ack_prod_p_o : out std_logic;                        --! response to a write cycle
-                                                            -- latching moment of wb_dat_i
+    wb_ack_prod_p_o : out std_logic;                       --! response to a write cycle
+                                                           -- latching moment of wb_dat_i
 
     -- nanoFIP User Interface, WISHBONE Slave output
-    wb_ack_p_o      : out std_logic                         --! WISHBONE acknowledge
-                                                            -- response to master's strobe
+    wb_ack_p_o      : out std_logic                        --! WISHBONE acknowledge
+
       );
 end entity WF_wb_controller;
 
@@ -107,7 +108,7 @@ end entity WF_wb_controller;
 --=================================================================================================
 architecture rtl of WF_wb_controller is
 
-  signal s_wb_ack_write_p, s_wb_ack_read_p, s_wb_ack_write_p_d, s_wb_ack_read_p_d : std_logic;
+  signal s_wb_ack_write_p, s_wb_ack_read_p : std_logic;
 
 begin
 
@@ -123,6 +124,7 @@ begin
                                                            (wb_cyc_i = '1'))
                                             else '0';
 
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Generate_wb_ack_read_p:  Generation of the wb_ack_read_p signal
 --! (acknowledgement from WISHBONE Slave of the read cycle, as a response to the master's strobe).
@@ -134,25 +136,24 @@ begin
                                                          (wb_cyc_i = '1'))
                                           else '0';
 
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
---!@brief Output_Register: 
+--!@brief Output_Register 
+
    WB_ACK: process (wb_clk_i) 
    begin
      if rising_edge (wb_clk_i) then
        if wb_rst_i = '1' then
-         s_wb_ack_read_p_d <= '0';
-         s_wb_ack_write_p_d <= '0';
+         wb_ack_p_o      <= '0';
+         wb_ack_prod_p_o <= '0';
        else  
-
-        s_wb_ack_read_p_d  <= s_wb_ack_read_p;
-        s_wb_ack_write_p_d <= s_wb_ack_write_p;               
+         wb_ack_p_o      <= s_wb_ack_read_p or s_wb_ack_write_p; 
+         wb_ack_prod_p_o <= s_wb_ack_write_p;               
        end if;
      end if;
    end process;
 
 
-   wb_ack_p_o       <= s_wb_ack_read_p_d or s_wb_ack_write_p_d; 
-   wb_ack_prod_p_o  <= s_wb_ack_write_p_d; 
 
 end architecture rtl;
 --=================================================================================================

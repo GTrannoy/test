@@ -119,7 +119,7 @@ end entity WF_bits_to_txd;
 --!                                  architecture declaration
 --=================================================================================================
 architecture rtl of WF_bits_to_txd is
-
+signal s_fss : std_logic_vector (31 downto 0);
 --=================================================================================================
 --                                      architecture begin
 --=================================================================================================  
@@ -162,6 +162,7 @@ begin
     end if;
   end process;
 
+s_fss<=c_FSS;
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process FD_TXENA_Generator: The nanoFIP output FD_TXENA is activated at the
