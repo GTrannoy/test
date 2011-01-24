@@ -102,7 +102,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 09/2009 v0.01 PAS First version \n
 --!     -> 10/2010 v0.02 EG  state switch_to_deglitched added;
 --!                          output signal rst_rx_osc_o added; signals renamed;
---!                          state machine rewritten (mealy style); 
+--!                          state machine rewritten (moore style); 
 --!                          units WF_rx_manch_code_check and Incoming_Bits_Index created;
 --!                          each manch bit of FES checked (bf was just each bit, so any D5 was FES) 
 --!                          code cleaned-up + commented.\n
