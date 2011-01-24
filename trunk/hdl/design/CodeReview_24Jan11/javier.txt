@@ -6,6 +6,13 @@ General comments
 None so far. Enjoying looking at code after quite a while, sipping a
 bio mango juice from Burkina Faso.
 
+nanofip.vhd
+-----------
+
+Line 313 and 314. Synplify attributes make code less portable. Could
+they be pushed out of the code into some Synplify config file? I don't
+have strong feelings about this though.
+
 wf_inputs_synchronizer.vhd
 --------------------------
 
@@ -21,7 +28,9 @@ by the time VAR3_RDY goes to zero, so the 3*16 FFs spent here can only
 get us trouble. Incidentally, I think we should change the spec so it
 does not say we sample the data on the first clock tick after VAR3_RDY
 goes down. We can also sample a couple of ticks later, the user should
-not care.
+not care. Oops, now I see these lines are also used in wishbone mode
+for data_in. I am pretty sure the argument still applies. In fact we
+are not synchronizing the WB address, why synchronize the data_in?
 
 Line 347. One could argue about the need for these. We know these
 inputs are static. While I can't really think how these FFs could get
