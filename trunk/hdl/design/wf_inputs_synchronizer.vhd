@@ -27,10 +27,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit synchronises all the input signals with to the uclk or wb_clk, to be used
---             by all the other units of  nanoFIP; a set of 3ple buffers is used for each signal.
---             Note: Because of the 3ple buffering, transitions on input signals of less than 2
---             clk cycles are not considered.
+--! @brief     The unit synchronizes the nanoFIP's input signals to the uclk or the wb_clk;
+--!            a set of 3 registers is used for each signal.
+--!            Notes : Regarding the WISHBONE interface, only the control signals STB, CYC, WE are
+--!                    synchronized. 
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -60,6 +60,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                      in nanoFIP input fd_rxd we also see the nanoFIP output fd_txd; in order to
 --!                      get only the receiver's data, we filter fd_rxd with the reception activity
 --!                      detection fd_rxcdn. 
+--!   1/2011   v0.021 EG wb_rst_a_i renamed to wb_rst_i
 --
 --------------------------------------------------------------------------------------------------- 
 --
@@ -84,13 +85,13 @@ entity WF_inputs_synchronizer is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals
-    uclk_i            : in std_logic;                   --! 40 MHz clock
+    uclk_i            : in std_logic;  --! 40 MHz clock
     nostat_a_i        : in std_logic;
     rstin_a_i         : in std_logic;
     slone_a_i         : in std_logic;
 
     -- Signal from the WF_reset_unit
-    nfip_rst_i       : in std_logic;                   --! nanoFIP internal reset
+    nfip_rst_i       : in std_logic;   --! nanoFIP internal reset
 
     -- nanoFIP WorldFIP Settings
     c_id_a_i          : in std_logic_vector(3 downto 0);
@@ -100,9 +101,11 @@ entity WF_inputs_synchronizer is
     subs_a_i          : in std_logic_vector(7 downto 0);
 
     -- nanoFIP User Interface, WISHBONE Slave
-    wb_clk_i          : in std_logic;                   --! WISHBONE clock
+    wb_clk_i          : in std_logic;  --! WISHBONE clock
+    wb_rst_i          : in std_logic;  --! WISHBONE reset, includes also the PowerOnReset
+                                       --! Note: wb_rst is not registered, to comply
+                                       --! with WISHBONE rule 3.15
     wb_cyc_a_i        : in std_logic;
-    wb_rst_a_i        : in std_logic;                   --! WISHBONE reset
     wb_stb_a_i        : in std_logic; 
     wb_we_a_i         : in std_logic;
 
@@ -135,9 +138,8 @@ entity WF_inputs_synchronizer is
     -- nanoFIP User Interface, WISHBONE Slave
     wb_cyc_o          : out std_logic;
     wb_stb_o          : out std_logic; 
-    wb_stb_r_edge_o   : out std_logic;
+    wb_stb_r_edge_p_o : out std_logic; --! 1 wb_clk-wide pulse on the rising edge of a STB_I
     wb_we_o           : out std_logic;
-
 
     -- nanoFIP User Interface, NON WISHBONE 
     slone_dati_o      : out std_logic_vector(15 downto 0);
@@ -183,7 +185,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-  RSTIN_synchronisation_with_uclk: process (uclk_i)
+  RSTIN_synchronization_with_uclk: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       s_u_rst_d3    <= s_u_rst_d3 (1 downto 0) &  rstin_a_i;
@@ -194,7 +196,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-  User_interf_general_signals_synchronisation: process (uclk_i)
+  User_interf_general_signals_synchronization: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
 
@@ -214,7 +216,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-  FIELDRIVE_inputs_synchronisation: process (uclk_i)
+  FIELDRIVE_inputs_synchronization: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
@@ -245,7 +247,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-  VAR_ACC_synchronisation: process (uclk_i) 
+  VAR_ACC_synchronization: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
@@ -282,10 +284,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
-  WISHBONE_inputs_synchronisation: process (wb_clk_i)
+  WISHBONE_inputs_synchronization: process (wb_clk_i)
   begin
    if rising_edge (wb_clk_i) then
-     if wb_rst_a_i = '1' then          -- wb_rst is not buffered to comply with WISHBONE rule 3.15
+     if wb_rst_i = '1' then          -- wb_rst is not buffered to comply with WISHBONE rule 3.15
        s_wb_stb_d1   <= '0';
        s_wb_stb_d2   <= '0';
        s_wb_stb_d3   <= '0';
@@ -317,7 +319,7 @@ begin
   wb_cyc_o           <= s_wb_cyc_d3;
   wb_we_o            <= s_wb_we_d3;
   wb_stb_o           <= s_wb_stb_d3;
-  wb_stb_r_edge_o    <= (not s_wb_stb_d4) and s_wb_stb_d3; 
+  wb_stb_r_edge_p_o  <= (not s_wb_stb_d4) and s_wb_stb_d3; 
 
 
 --------------------------------------------------------------------------------------------------
@@ -342,7 +344,7 @@ begin
 
 
 --------------------------------------------------------------------------------------------------
-  WorldFIP_Settings_synchronisation: process (uclk_i)
+  WorldFIP_Settings_synchronization: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
      if nfip_rst_i = '1' then

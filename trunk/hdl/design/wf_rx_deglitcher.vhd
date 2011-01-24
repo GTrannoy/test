@@ -26,15 +26,17 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --
 --
 --! @brief     The unit applies a glitch filter; it follows each Manchester 2 encoded bit (manch.)
---!            of the "nanoFIP FIELDRIVE" input signal fd_rxd (synchronized with uclk), counts the 
+--!            of the "nanoFIP FIELDRIVE" input signal FD_RXD (synchronized with uclk), counts the 
 --!            number of zeros and ones throughout its duration and finally outputs the majority. 
 --!            The output deglitched signal is one half-bit-clock period later than the input.
 --!
 --!            Remark: We refer to
 --!              o a significant edge                : for the edge of a manch. encoded bit
 --!                (bit 0: _|-, bit 1: -|_)
+--!
 --!              o the sampling of a manch. bit      : for the moments when a manch. encoded bit
 --!                should be sampled, before and after a significant edge
+--!
 --!              o the sampling of a bit             : for the sampling of only the 1st part,
 --!                before the transition. 
 --!
@@ -58,7 +60,7 @@ use IEEE.NUMERIC_STD.all;    --! conversion functions
 --! @details 
 --
 --!   \n<b>Dependencies:</b>\n
---!            WF_tx-_rx_osc       \n
+--!            WF_tx_rx_osc       \n
 --!            WF_reset_unit       \n
 --
 --
@@ -201,7 +203,7 @@ Detect_f_edge_rxd_filtered: process (uclk_i)
   end process;
 
 
- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+---------------------------------------------------------------------------------------------------
 -- Concurrent signal assignments
 
   rxd_filtered_f_edge_p_o   <= s_rxd_filtered_buff(1) and (not s_rxd_filtered_buff(0));

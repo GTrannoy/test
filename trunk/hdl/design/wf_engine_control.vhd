@@ -33,8 +33,8 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!            During the production or consumption the unit is keeping track of the amounts of
 --!            produced and consumed bytes.
 --!
---!            ------------------------------------------------------------------------------------
---!            Reminder
+--!
+--!            Reminder:
 --!
 --!            ID_DAT frame structure :
 --!             ___________ ______  _______ ______  ___________ _______
@@ -53,10 +53,10 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!
 --!            Turnaround time : Time between the end of the reception of an ID_DAT frame
 --!            requesting for a variable to be produced and the starting of the delivery of a
---!            produced RP_DAT frame
+--!            produced RP_DAT frame.
 --!
 --!            Silence time    : Maximum time that nanoFIP waits for a consumed RP_DAT frame after
---!            the reception of an ID_DAT frame indicating a variable to be consumed
+--!            the reception of an ID_DAT frame indicating a variable to be consumed.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -94,12 +94,12 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                         for #bytes>4; in slone no broadcast
 --!     01/2011  v0.04  EG  signals named according to their origin; signals var_rdy (1,2,3),
 --!                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and
---!                         rx_byte_ready_p_o removedl cleaning-up+commenting
+--!                         rx_byte_ready_p_o removed cleaning-up+commenting
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo  -> add an extra time counter (on top of the more complicated bytes counters) that after
---!           134*8 transmission periods can reset tx and rx
+--! @todo  -> could add an extra time counter (on top of the more complicated bytes counters) that 
+--!           after 134*8 transmission periods can reset tx and rx
 --!
 ---------------------------------------------------------------------------------------------------
 
@@ -153,7 +153,7 @@ entity WF_engine_control is
     rx_fss_crc_fes_manch_ok_p_i: in std_logic; --! indication of a frame (ID_DAT or RP_DAT) with
                                                --! correct FSS, FES, CRC and manch. encoding
 
-    rx_crc_wrong_p_i           : in std_logic; --! indication of a frame with a wrong CRC
+    rx_crc_or_manch_wrong_p_i  : in std_logic; --! indication of a frame with a wrong CRC or manch.
                                                --  pulse arrives after the FES detection
 
     rx_fss_received_p_i        : in std_logic; --! pulse after a correct FSS detection (ID/ RP_DAT)
@@ -220,7 +220,7 @@ architecture rtl of WF_engine_control is
   signal s_producing, s_consuming, s_rst_prod_bytes_counter, s_inc_prod_bytes_counter  : std_logic;
   signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_cons_wait_FSS          : std_logic;
   signal s_prod_data_length_match, s_tx_byte_request_accept_p, s_prod_wait_turnar_time : std_logic;
-  signal s_tx_byte_request_accept_p_d1, s_load_time_counter, s_prod_time_over          : std_logic;
+  signal s_tx_byte_request_accept_p_d1, s_load_time_counter                            : std_logic;
   signal s_rst_rx_bytes_counter, s_tx_last_byte_p_d, s_tx_last_byte_p                  : std_logic;
   signal s_id_dat_subs_byte, s_id_dat_frame_ok, s_tx_byte_request_accept_p_d2          : std_logic;
   signal s_rx_bytes_c, s_prod_bytes_c                                      : unsigned (7 downto 0);
@@ -282,7 +282,7 @@ begin
                                                       s_var_id, rx_byte_ready_p_i,rx_byte_i, 
                                                       control_st, rx_fss_received_p_i,
                                                       s_rx_bytes_c, s_tx_last_byte_p,
-                                                      rx_crc_wrong_p_i)
+                                                      rx_crc_or_manch_wrong_p_i)
 
   begin
 
@@ -392,7 +392,7 @@ begin
       when consume                  =>
 
         if (rx_fss_crc_fes_manch_ok_p_i = '1') or -- the cons frame arrived to the end,as expected
-           (rx_crc_wrong_p_i = '1') or            -- FES detected but wrong CRC or manch. encoding  
+           (rx_crc_or_manch_wrong_p_i = '1') or   -- FES detected but wrong CRC or manch. encoding  
            (s_rx_bytes_c > 130)      then         -- no FES detected after the max number of bytes
 
           nx_control_st <= idle;            -- back to idle
@@ -844,7 +844,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief: Essential buffering of the signals tx_last_byte_p_o, tx_byte_request_accept_p_o,tx_start_prod_p_o
+--!@brief: Registering the signals tx_last_byte_p_o, tx_byte_request_accept_p_o,tx_start_prod_p_o
 
   process (uclk_i)
   begin

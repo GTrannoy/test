@@ -25,8 +25,6 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
--- unit name   WF_rx_tx_osc
---
 --! @brief     Generation the clock signals needed for the receiver (WF_rx_deglitcher and
 --!            WF_rx_deserializer) and transmiter (WF_tx_serializer)\n
 --!

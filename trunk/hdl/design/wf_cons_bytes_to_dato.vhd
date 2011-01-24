@@ -27,9 +27,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     In stand-alone mode, after the reception of a consumed or consumed broadcast
---!            variable, the unit is responsible for transering the two application-data bytes to
---!            the 2-bytes long bus DAT_O.
+--! @brief     In stand-alone mode, after the reception of a consumed (var_1) or a consumed 
+--!            broadcast variable (var_2), the unit is responsible for transering the two 
+--!            application-data bytes to the 2-bytes long bus DAT_O.
 --!            The bytes are put in the bus one by one as they arrive, as the signal 
 --!            transfer_byte_p_i indicates.
 --!
@@ -101,7 +101,7 @@ entity WF_cons_bytes_to_dato is
 
 
   -- OUTPUTS
-    -- Signal to the WF_prod_bytes_retriever
+    -- nanoFIP, User Interface NON WISHBONE output
     slone_data_o      : out std_logic_vector (15 downto 0) --! output bus DAT_O
       );
 end entity WF_cons_bytes_to_dato;
@@ -119,9 +119,9 @@ architecture rtl of WF_cons_bytes_to_dato is
 begin
 
 ---------------------------------------------------------------------------------------------------
---!@brief synchronous process Data_Transfer_To_Dat_o: In stand-alone mode, accrording to the signal
---! transfer_byte_p_i, the first or second byte of the user interface bus DAT_O takes the
---! incoming byte byte_i.
+--!@brief Synchronous process Data_Transfer_To_Dat_o: In stand-alone mode, according to the signal
+--! transfer_byte_p_i, the first or second byte of the "User Interface, NON WISHBONE" bus DAT_O
+--! takes the byte byte_i.
 
 Data_Transfer_To_Dat_o: process (uclk_i) 
   begin

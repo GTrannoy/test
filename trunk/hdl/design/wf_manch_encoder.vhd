@@ -25,10 +25,10 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --
 --
 --! @brief     Encoding of a word to its Manchester 2 (manch.) equivalent.
---!            This code ensures that there is one transition for each bit.
---!            bit            :    "0"           "1"
---!            manch. encoded :   "0 1"         "1 0"
---!            scheme         :    _|-           -|_
+--!            The manch. encoding ensures that there is one transition for each bit.
+--!             o  bit            :    "0"           "1"
+--!             o  manch. encoded :   "0 1"         "1 0"
+--!             o  scheme         :    _|-           -|_
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
@@ -38,7 +38,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --! @date      10/12/2010
 --
 --
---! @version   v0.02
+--! @version   v0.01
 --
 --
 --! @details \n  
@@ -52,8 +52,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --------------------------------------------------------------------------------------------------- 
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> 11/2010  v0.01  EG  1st version           \n
---!     -> 12/2010  v0.02  EG  cleaned-up, commented \n
+--!     -> 12/2010  v0.01  EG  cleaned-up, commented (all 3 lines!) \n
 --! 
 --
 --------------------------------------------------------------------------------------------------- 

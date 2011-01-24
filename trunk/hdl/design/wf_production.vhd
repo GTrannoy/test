@@ -22,7 +22,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                          WF_production                                        --
+--                                         WF_production                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
@@ -36,17 +36,18 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                                         FD_TXD. Also handles the nanoFIP output FD_TXENA.   
 --!
 --!              o WF_prod_bytes_retriever: that retrieves
---!                                           user-data bytes: from the Produced RAM or the
---!                                            "nanoFIP User Interface, NON-WISHBONE" data bus DAT_I, 
---!                                           PDU,Ctrl bytes : from the WF_package 
---!                                           MPS,nFIP status: from the WF_status_bytes_gen
---!                                           LGTH byte      : from the WF_prod_data_lgth_calc
---!                                         and following the external signals of the
+--!                                           o user-data bytes: from the Produced RAM or the
+--!                                             "nanoFIP User Interface, NON-WISHBONE" bus DAT_I, 
+--!                                           o PDU,Ctrl bytes : from the WF_package 
+--!                                           o MPS,nFIP status: from the WF_status_bytes_gen
+--!                                           o LGTH byte      : from the WF_prod_data_lgth_calc
+--!                                         and following the signals from the external unit
 --!                                         WF_engine_control forwards them to the WF_tx_serializer. 
 --!
 --!              o WF_status_bytes_gen     : that receives information from the WF_consumption unit,
---!                                          the FIELDRIVE and "User Interface,NON-WISHBONE" inputs
---!                                          and outputs, to form the nanoFIP & MPS status bytes 
+--!                                          the "FIELDRIVE" and "User Interface,NON-WISHBONE"inputs
+--!                                          and outputs, for the generation of the nanoFIP & MPS
+--!                                          status bytes 
 --!                                          
 --!              o WF_prod_permit          : that signals the user that a variable can safely be
 --!                                          written (through the "nanoFIP User Interface,
@@ -131,11 +132,12 @@ entity WF_production is
       uclk_i                  : in std_logic;
 
       slone_i                 : in std_logic;
-      -- WF_prod_bytes_retriever : for the selection of data bytes from the RAM or the DATI bus
-      -- WF_status_bytes_gen : the MPS status byte is different according to the operational mode                                           
+      -- used by: WF_prod_bytes_retriever for the selection of data bytes from the RAM or the DAT_I
+      -- used by: WF_status_bytes_gen because the MPS status is different in memory & stand-alone                                          
 
       nostat_i                : in std_logic;
-      -- WF_prod_bytes_retriever : for the delivery or not of the nanoFIP status byte
+      -- used by: WF_prod_bytes_retriever for the delivery or not of the nanoFIP status byte
+
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_reset_unit unit
@@ -146,38 +148,38 @@ entity WF_production is
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, WISHBONE Slave
 
-
       wb_clk_i                : in std_logic;                    
       wb_adr_i                : in std_logic_vector(8 downto 0);
       wb_data_i               : in std_logic_vector(7 downto 0);
-       -- WF_prod_bytes_retriever : for the managment of the Production RAM
+       -- used by: WF_prod_bytes_retriever for the managment of the Production RAM
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_wb_controller
+
       wb_ack_prod_p_i         : in std_logic;  
-       -- WF_prod_bytes_retriever : for the latching of wb_data_i
+       -- used by: WF_prod_bytes_retriever for the latching of the wb_data_i
 
  
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, NON-WISHBONE (synchronized with uclk)
 
       slone_data_i            : in std_logic_vector(15 downto 0);
-      -- WF_prod_bytes_retriever : for the bytes retreival in stand-alone mode
+      -- used by: WF_prod_bytes_retriever for the bytes retreival in stand-alone mode
 
       var1_acc_i              : in std_logic; 
       var2_acc_i              : in std_logic; 
       var3_acc_i              : in std_logic;
-      -- WF_status_bytes_gen : for the nanoFIP status byte, bits 2, 3
+      -- used by: WF_status_bytes_gen for the nanoFIP status byte, bits 2, 3
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP FIELDRIVE (synchronized with uclk)
 
-
       fd_txer_i               : in  std_logic;
       fd_wdgn_i               : in  std_logic;
-      -- WF_status_bytes_gen : for the nanoFIP status byte, bits 6, 7
+      -- used by: WF_status_bytes_gen for the nanoFIP status byte, bits 6, 7
+
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signals from the WF_engine_control
@@ -185,12 +187,12 @@ entity WF_production is
       byte_index_i            : in std_logic_vector (7 downto 0);
       data_length_i           : in std_logic_vector (7 downto 0);
       var_i                   : in t_var;-- also for the WF_prod_permit for the VAR3_RDY generation
-      -- WF_prod_bytes_retriever : for the definition of the bytes to be delivered
+      -- used by: WF_prod_bytes_retriever for the definition of the bytes to be delivered
 
       byte_request_accept_p_i : in std_logic;
       last_byte_p_i           : in std_logic;
       start_prod_p_i          : in std_logic;
-      -- WF_tx_serializer : for the delivery coordination
+      -- used by: WF_tx_serializer for the delivery coordination
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -200,14 +202,14 @@ entity WF_production is
       var2_rdy_i              : in std_logic;
       nfip_status_r_fcser_p_i : in std_logic;
       nfip_status_r_tler_i    : in std_logic;
-      -- WF_status_bytes_gen : for the generation of the nanoFIP status byte, bits 2, 4, 5 
+      -- used by: WF_status_bytes_gen for the generation of the nanoFIP status byte, bits 2, 4, 5 
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_rx_tx_osc
 
       tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
-      -- WF_tx_serializer : for the transmission synchronization
+      -- used by: WF_tx_serializer for the transmission synchronization
 
    
  	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --	
@@ -215,7 +217,7 @@ entity WF_production is
 
       constr_id_dec_i         : in  std_logic_vector (7 downto 0);
       model_id_dec_i          : in  std_logic_vector (7 downto 0);
-      -- WF_prod_bytes_retriever : for the production of a var_identif
+      -- used by: WF_prod_bytes_retriever for the production of a var_identif
 
 
   -------------------------------------------------------------------------------------------------
@@ -223,7 +225,8 @@ entity WF_production is
 
 
     -- Signal to the WF_engine_control
-      byte_request_p_o        : out std_logic;
+      byte_request_p_o        : out std_logic;--! request for a new byte to be transmitted; pulse
+                                              --! at the end of the transmission of a previous byte
 
 
     -- nanoFIP FIELDRIVE outputs
@@ -258,7 +261,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                             Production Level 3 : VAR3_RDY generator                           --
+--                                       Production Permit                                       --
 --------------------------------------------------------------------------------------------------- 
 --! @brief Instantiation of the WF_prod_permit unit
 
@@ -275,7 +278,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                               Production Level 1 : Bytes Retreival                            --
+--                                          Bytes Retreival                                      --
 --------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_prod_bytes_retriever unit
 
@@ -308,7 +311,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                           Production Level 1 : Status Byte generation                         --
+--                                    Status Byte Generation                                     --
 --------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_status_bytes_gen unit
 
@@ -341,7 +344,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                Production Level 0 : Serializer                                --
+--                                           Serializer                                          --
 --------------------------------------------------------------------------------------------------- 
 --!@brief Instantiation of the WF_tx_serializer unit
 
@@ -364,6 +367,7 @@ begin
 
 
     var3_rdy_o  <= s_var3_rdy;
+
 
 
 end architecture struc;

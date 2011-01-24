@@ -24,8 +24,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Synchronous decreasing counter with a reset, a load enable & a decrease
---!            enable signal.
+--! @brief     Decreasing counter with synchronous reset, load enable and decrease enable.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -68,7 +67,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --=================================================================================================
 
 entity WF_decr_counter is
-  generic (g_counter_lgth : natural := 4);                         --! default length
+  generic (g_counter_lgth : natural := 4);                        --! default length
   port (
   -- INPUTS 
     -- nanoFIP User Interface general signal
