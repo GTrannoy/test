@@ -6,4 +6,11 @@ The wishbone bus is actually properly implemented as it removes any flip-flops f
 
 
 
+I made a synthesis with XST on an Spartan6. No serious problems. It only found the following warnings: 
+
+WARNING:HDLCompiler:92 - "E:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd" Line 184: s_q_check_mask should be on the sensitivity list of the process
+WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_DualClkRAM_clka_rd_clkb_wr.vhd" Line 122: Assignment to zero ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd" Line 165: Assignment to s_fss ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd" Line 424: Assignment to s_id_dat_ctrl_byte ignored, since the identifier is never used
+
 
