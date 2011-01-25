@@ -14,3 +14,12 @@ WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd"
 WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd" Line 424: Assignment to s_id_dat_ctrl_byte ignored, since the identifier is never used
 
 
+
+
+wf.crc.vhd
+
+c_GENERATOR_POLY_length and c_VERIFICATION_MASK should both come from a generic
+
+
+wf_cons_bytes_processor.vhd
+line 422. Isn't it possible to check c_CTRL_BYTE_INDEX, c_PDU_BYTE_INDEX and c_LENGTH_BYTE_INDEX upon reception? That would save 24 flip-flops. 
