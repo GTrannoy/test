@@ -3,8 +3,17 @@ Comments on NanoFIP VHDL code from Javier Serrano
 General comments
 ----------------
 
-None so far. Enjoying looking at code after quite a while, sipping a
-bio mango juice from Burkina Faso.
+The code is very clear and the abundance of comments makes it easy to
+follow. Some signal names are way too long though. It would be more
+useful in general to give some good comments about the meaning of
+signals next to their declaration, instead of trying to embed too much
+info in the signal name.
+
+The guidelines specify that active low signals should be suffixed with
+_n. Sometimes we see signals or ports were the underscore has been ommitted,
+like rstpon_i, which make it difficult to figure out if the n if part
+of the name ("power oN reset") or if it is there to mark the signal as
+active low (which in this particular case it is).
 
 nanofip.vhd
 -----------
@@ -12,6 +21,17 @@ nanofip.vhd
 Line 313 and 314. Synplify attributes make code less portable. Could
 they be pushed out of the code into some Synplify config file? I don't
 have strong feelings about this though.
+
+wf_incr_counter.vhd
+-------------------
+
+Line 72. The ports nfip_rst_i and reinit_counter_i do exactly the same
+thing. One should go. Also, the counter does not know it's inside a
+nanofip, I think a reset should be called rst_i and not nfip_rst_i. 
+
+Line 81. Minor point. The output port counter_o should be
+std_logic_vector.  See similar comment for line 178 of
+wf_reset_unit.vhd.
 
 wf_inputs_synchronizer.vhd
 --------------------------
@@ -36,3 +56,15 @@ Line 347. One could argue about the need for these. We know these
 inputs are static. While I can't really think how these FFs could get
 us in trouble, they are certainly not needed, so why risk it?
 
+wf_reset_unit.vhd
+-----------------
+
+Line 178. Minor point. It is better to use only std_logic and
+std_logic_vector for ports, for the reasons explained in paragraph
+4.15 in the guidelines. This is most important for the top entity, so
+not very important here. Internal conversion to t_var should be
+simple.
+
+Line 419. Minor detail. "reception or" -> "reception of"
+
+Line 421. Same thing.
