@@ -22,4 +22,4 @@ c_GENERATOR_POLY_length and c_VERIFICATION_MASK should both come from a generic
 
 
 wf_cons_bytes_processor.vhd
-line 422. Isn't it possible to check c_CTRL_BYTE_INDEX, c_PDU_BYTE_INDEX and c_LENGTH_BYTE_INDEX upon reception? That would save 24 flip-flops. 
+line 422. Isn't it possible to check c_CTRL_BYTE_INDEX, c_PDU_BYTE_INDEX upon reception? That would save 16 flip-flops. 
