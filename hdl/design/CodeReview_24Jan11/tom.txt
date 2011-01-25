@@ -1,0 +1,125 @@
+General comments
+------------------------
+
+- Good work! No significant bugs confirmed, most of the comments cover possible optimizations and coding style
+- check indentation (or use C-C C-B in Emacs)
+- avoid excessive empty lines
+- use either CR-LF or LF line endings, not both in the same project (or even in the same file),
+- remove useless comments, such as "END OF FILE" or a big ascii-art header with name "NanoFIP", "architecture declaration" just above the "architecture" keyword, etc.
+- be consequent with prefixing (or not prefixing) signal names (see wf_tx_serializer.vhd:120 for example)
+- use identical naming scheme for all generics - somewhere you have "LGTH" in your name, somewhere else - "LENGTH". Prefix generics with "g_".
+- avoid commenting obvious stuff (i.e. use std_logic_1164) or duplicating the exact name of the entity/signal/process in its comment.
+- use proper architecture names (several architectures are named "rtl", but in fact they containg behavioural code)
+
+- In a big module (such as nanofip top level), grouping all the inputs and then all the outputs altogether doesn't seem for me to be very intuitive. I would recommend grouping I/O ports by interfaces they belong to (and then, inside the interfaces, the inputs and outputs - for example clocks&resets, then Fieldrive I/F, then Wishbone I/F, etc.)
+
+- Wishbone signals: add wb_ prefix to clearly recognize wb bus among other signals  (for example, name "rst_i" says nothing about where the signals belong to)
+
+- Signal declarations: try to group the signals into interfaces connecting individual modules instead of one big and randomly ordered signal declaration. For example:
+
+-- synchronizer <-> rx_tx_osc signals:
+signal s_fd_rxd_edge_p
+signal s_rx_bit_clk_p
+-- engine_control <-> production signals:
+signal s_.....
+
+
+* Specification:
+page 18: Is the WB bus 8-bit or 16-bit? (dat_i/o is 16-bits whereas "data port size" is 8)
+
+--------------------------
+wf_tx_serializer.vhd
+
+- line 305: it's basically a one-hot decoder which is more readable (and takes 5x less space) if written like this:
+s_prepare_to_produce <= '1' when (tx_state = idle) else '0';
+s_sending_FSS <= '1' when (tx_state = send_fss) else '0';
+I've noticed you use such ^^^^ syntax in other files.
+
+- line 103: tx_clk_p_buff_i is not a clock signal. Remove "clk" from the name, it may be confusing. You're using tx_clk_p_buf_i to arrange serializer operations in time. It would be good for readability of the code to split it into separate signals named according to the phase of serialization they enable or to define appropriate aliases.
+- line 236: not really necessary, as the state machine is fully defined.
+- line 462: these lines are in fact a part of the state machine (which makes it a Mealy, not Moore-type FSM). Consider moving them to Comb_Output_Signals process.
+- line 501: s_prepare_to_produce, s_sending_FSS actualy represent the TX FSM state in one-hot encoding. There's no need to use if(...) elsif (...) instructions, since they may force the synthesizer to generate a priority encoder which takes more FPGA resources. I would consider using a CASE (tx_state) statement.
+- line 560: s_tx_enable is used only once in the whole entity. Why not drive tx_enable_o directly from bits_to_txd?
+
+wf_bits_to_txd.vhd
+--------------------------
+- line 141+: sending_xxx signals are mutually exclusive. There's no need for if-elsif constructs.
+
+wf_crc.vhd
+--------------------------
+- line 98: shouldn't it be crc_ok_o instead of crc_ok_p ?
+- line 125: too many generates:
+  s_q_nx(0) <= data_bit_i xor s_q(s_q'left);
+  for i in 1 to c_GENERATOR_POLY'left generate s_q_nx(i) <= (....);
+- line 182: replace with if(s_q = (not c_VERIFICATION_MASK)), it may save some logic resources (synthesizer will infer a comparator and no XOR gates)
+- line 186: avoid driving outputs with comb logic unless it's really justified. Here you can move the CRC comparison to the sequential process above.
+
+---------------
+wf_dualCLKRAM.vhd:
+- line 176: check the post-PAR implementation of the voting logic (how it's mapped into LUTs)
+
+
+----------------------------
+wf_manch_encoder.vhd
+
+- lines 107+: the module is quite simple, it implements a simple combinatorial function. It could be implemented as a VHDL function to make the code more compact.
+
+
+wf_package.vhd
+----------------------------
+line 94: do not declare such names (ZERO, ONE) globally or at least prefix them with "c_" to indicate that they are constant.
+line 186: direction of table index - up or down?
+line 998: empty package body
+
+wf_inputs_synchronizer.vhd
+----------------------------
+line 104: All WB signals must be synchronous to wb_clk_i, otherwise it will not be compatible with the standard. Don't mark them as asynchronous. I also doubt if the flip-flop chains will do any good here (see Pablo's comment on radiation hardness)
+line 206+, 227+, 263+ - use the same style for implementing sync chains (table or a series of assignments) 
+line 238: I understand this line sets the RXD input to 0 when there's no carrier detected to prevent looping back the TX data. It deserves a longer comment. Also, I would consider moving this piece of code to the deserializer. The purpose of wf_inputs_synchronizer should be only the clock domain synchronization, not cleaning TX-RX feedback.
+
+
+
+wf_wb_controller.vhd
+----------------------------
+line 132: what if wb_adr_id_i[2:1] == 00 and wb_we_i = 1 (the code will recognize this as a read transaction?)
+
+
+wf_reset_unit.vhd
+----------------------------
+line 148: confusing signal name. RSTPON_I could mean a REseT on Power ON (active 1), but the comment says it's actibe low (so shouldn't it be rst_pon_n_i?)
+line 152: (portability) avoid using complex data types in entity ports. Maybe replace with port var_is_rst_i = (var_i == var_rst)?
+line 207: why not use rstpon_i directly in the code, without inverting it? 
+line 209: the only purpose of s_transm_period is to be multiplied by 2 in the next line. Consider removing this signal.
+line 216: "s_c" says nothing about the purpose of the signal.
+line 216: singal s_counter_full is assigned only to s_counter_is_full which drives only one load ("if" in line 295). The counter could be compared directly in the FSM process.
+lines 274, 285: the same applies to s_counter_is_ten, s_counter_is_four. Reduce the number of signals, they are really messing up the code!
+line 455 (and other case entries): use a bit shorter names for the FSM states. Add comments explaining their purposes.
+line 616: mark rston_o (or s_rston) as an active-high (low) signal or get rid of the inversion by driving s_rst with inverted values in process Resets_after_a_var_rst_Comb_State_Transitions.
+
+
+
+wf_rx_tx_osc.vhd
+----------------------------
+line 108/116: LGTH or LENGTH?
+line 212/261: here you have processes with rx/tx counters, but in other files you instantiate an up/down counter block. Be consistent :)
+line 229: what if the device hasn't received yet any frames and there is a glitch on the FIP bus (so s_rx_counter gets reset at a wrong moment, desynchronizing the rest)?
+line 234: merge this confition into if in line 229.
+lines 254/258: since half_period = period >> 1, one_forth_period = period >> 2 and jitter = period >> 3 and counter is counting from 0 to period, we could optimize this a bit:
+
+rxd_signif_edge_window signal:
+
+value of s_rx_counter:      expanded value:         results of comparisons:
+  0                         0                       rxd_signif_edge_window <= 1 
+  jitter                    period/8                rxd_signif_edge_window <= 0
+  s_counter_full-jitter-1   pediod*7/8              rxd_signif_edge_window <= 1
+
+rx_adjac_bits_window:
+  0                         0                       rx_adjac_bits_window <= 1
+  s_half_period-s_jitter-1  period*3/4              rx_adjac_bits_window <= 0
+  (...) and so on and so forth
+
+All expanded values are multipies of (s_period/8), so you could use a counter counting up to (s_period/8) and a state machine changing the signals above every time it reaches its maximum value. This optimization requires period to be a multiple of 8 (which is true for all bus speeds and 40 MHz uclk). 
+
+Possible serious bug:
+-----------------------
+The bit-window locking seems to be using the first transition in the RXD signal to synchronize the counter in rx_tx_osc. From what I understood from the WF spec, the purpose of the preamble character is to allow the node to synchronize it's receiver data window to the incoming signal, but I don't see how the preable detection logic interacts with RX windowing, as the whole process (which is critical for realibility) is spread in many files. I would recommend splitting rx_tx_osc unit into two separate units, the first for generating TX clock signals and the 2nd responsible for detecting PRE sequence in raw signal and producing RX bit sampling clock synchonized with the recovered PRE character (not with the 1st transition on the bus). I don't know if it's compliant with WF spec - I could be wrong.
