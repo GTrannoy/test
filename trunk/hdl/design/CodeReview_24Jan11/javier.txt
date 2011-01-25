@@ -22,6 +22,12 @@ Line 313 and 314. Synplify attributes make code less portable. Could
 they be pushed out of the code into some Synplify config file? I don't
 have strong feelings about this though.
 
+wf_engine_control.vhd
+---------------------
+
+Line 198. It is preferable to have all ports be std_logic or
+std_logic_vector, see comment on line 178 of the reset unit.
+
 wf_incr_counter.vhd
 -------------------
 
