@@ -1,0 +1,43 @@
+General comments:
+----------------
+I don't agree with Matthieu's comment about entities ports. 
+I don't know if you have a guideline on this, but in my case I prefer having 
+inputs all together and outputs all together, then maybe organized by interface 
+but only within the inputs or the within the outputs.
+
+wf_cons_frame_validator.vhd
+---------------------------
+
+Line 173: why does s_cons_lgth_byte_ok depend on rx_fss_crc_fes_manch_ok_p_i?
+In any case the output cons_frame_ok_p_o will only be valid when 
+rx_fss_crc_fec_manch_ok_p_i is valid.
+In my opinion s_cons_lgth_byte_ok should not be forced to 0 because there 
+is (for example) an error on the crc. When debugging a simulation it is easy
+assume that if s_cons_lgth_byte_ok is 0, it's only because the length was wrong.
+
+In fact as the file is written now, the AND between rx_fss_crc_fes_manch_ok_p_i
+and s_cons_lgth_byte_ok on lines 205 and 206 is redundant with the 
+"if then else"  of the lines 173, 185 and 187.
+
+
+wf_cons_bytes_processor.vhd
+---------------------------
+
+Line 191: the comment could be re-phrased to 
+PORT A: connected to Wishbone interface for reading by the user.
+PORT B: used by nanoFIP memory to write into memory.
+
+Line 267: s_base_addr is an input and an output of the combinatorial process.
+Synplify should give a "combinatorial loop" warning about this.
+This line could be written as a separate process.
+
+Lines 290 to 294: the comment is not very clear. Is this to avoid writing
+the CRC in the memory?
+
+In general for this module, the only reason to have the RAM block memory - and
+therefore the Wishbone interface signals wb_clk_i, wb_adr_i and data_o - 
+instantiated in this entity is to be able to integrate the multiplexor of lines
+226 and 227.
+In my opinion it would much clearer for the general structure, and for the
+functionality of this particular block, to take out the memory and instantiate
+it in an independent block along with the multiplexor for data_o.
