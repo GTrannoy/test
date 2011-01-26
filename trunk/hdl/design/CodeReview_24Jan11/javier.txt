@@ -28,6 +28,26 @@ wf_engine_control.vhd
 Line 198. It is preferable to have all ports be std_logic or
 std_logic_vector, see comment on line 178 of the reset unit.
 
+Line 290. This state machine can be stuck in a given state for a
+number of reasons, most notably the physical interruption of the wfip
+traffic. Granted, things should go back to normal (i.e. Idle) once
+the link is re-established, thanks to the appearance of
+rx_byte_ready_p_i pulses with incoherent byte contents, but that's a
+bit weak in terms of protection. I would favor timeouts relying only
+on the system clock as an additional way to go back to Idle. In fact
+this is probably a comment that applies to other state machines in the
+design. The "finger-crossing" nature of the current protection is even
+more apparent in the id_dat_frame_ok state, where after a link cut you
+have to wait until a valid received frame while the counter (free
+running) is more than 2 in value. Again, not a high risk for things
+to go wrong, but we can get quite a lot of peace of mind with
+independent timeouts. After a bit of thinking, something worse could
+happen: the state machine could be stopped in the id_dat_frame_ok
+state and re-awakened after a while (when the link is back) and then
+go to consumption of some dummy data that was not even destined to
+this station. IMHO independent timeouts should be mandatory in all
+states of all state machines, unless the cost in logic is prohibitive.
+
 wf_incr_counter.vhd
 -------------------
 
