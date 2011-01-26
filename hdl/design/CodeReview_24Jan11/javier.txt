@@ -18,6 +18,9 @@ active low (which in this particular case it is).
 If a file is not listed below it does not mean all is good, just that
 I did not have time to look at it ;)
 
+Question for Eva (did not have time to look): we know all inputs are
+well registered. Are all outputs registered as well?
+
 nanofip.vhd
 -----------
 
@@ -124,6 +127,18 @@ Line 90. Minor point. It should be "g_DEGLITCH_LGTH" instead of
 "c_DEGLITCH_LGTH".
 
 Line 103. Minor: it should be "WF_rx_tx_osc" instead of "WF_tx_rx_osc".
+
+wf_rx_deserializer.vhd (only looked at part of it)
+----------------------
+
+Line 240. I wonder if we should have an additional condition which
+takes this state machine to Idle, namely the wfip link being inactive,
+i.e. maintaining a constant level for a long (to be defined)
+time. This would ensure the state machine is always sitting in the
+Idle state before the beginning of a frame. With the current
+implementation, it might well be the case, but there are many
+scenarios to analyze and we risk forgetting something.
+
 
 wf_rx_tx_osc.vhd
 ----------------
