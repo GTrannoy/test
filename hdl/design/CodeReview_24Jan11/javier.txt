@@ -15,6 +15,9 @@ like rstpon_i, which make it difficult to figure out if the n if part
 of the name ("power oN reset") or if it is there to mark the signal as
 active low (which in this particular case it is).
 
+If a file is not listed below it does not mean all is good, just that
+I did not have time to look at it ;)
+
 nanofip.vhd
 -----------
 
@@ -74,7 +77,8 @@ narrower than one uclk period, there is a risk of generating a
 spurious edge pulse. Making something much more robust is easy and
 cheap: add two more stages to the pipeline and do a super-robust edge
 detector by requiring that two signals are zero and the other two are
-one.
+one. This will induce a delay, which might have to be compensated in
+other signals (fd_rxd_o) so the whole thing is coherent.
 
 Line 250 onwards. Cosmetics: the vector notation is shorter, so I'd
 stick to it for all cases, including the varX_access.
