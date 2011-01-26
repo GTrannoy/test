@@ -21,5 +21,35 @@ wf.crc.vhd
 c_GENERATOR_POLY_length and c_VERIFICATION_MASK should both come from a generic
 
 
+To tom.  crc_ok_p is not registered to reduce the number of flip flops, remember this is a rad hard design. It is marcked as p because it is generated using  s_crc_bit_ready_p which is already a pulse. 
+
+
 wf_cons_bytes_processor.vhd
 line 422. Isn't it possible to check c_CTRL_BYTE_INDEX, c_PDU_BYTE_INDEX upon reception? That would save 16 flip-flops. 
+
+wf_rx_tx_oscillator.vhd
+
+Interesting note from IEC 61158-2
+
+9.2.6 Preamble
+In order to synchronize bit times a preamble shall be transmitted at the beginning of each
+PhPDU consisting of the following sequence of bits, shown from left to right in order of
+transmission:
+1, 0, 1, 0, 1, 0, 1, 0.
+(shown as a waveform in Figure 32)
+NOTE 1 Received preamble can contain as few as four bits due to loss of one bit through each of four repeaters
+(as specified in the MAU Network Configuration Rules).
+The period may be extended, but not reduced, by Systems management as given in Table 4.
+A preamble extension sequence as listed in Table 4 shall be defined as the following
+sequence of bits, shown from left to right in order of transmission:
+1, 0, 1, 0, 1, 0, 1, 0.
+
+
+
+wf_engine_control.vhd
+
+To Javier. Using std_logic on entity ports is a strong rule in cores. As wf_engine_control.vhd is interfaced with other custom entities this rule should become only a recomendation. Passing var as a custom type gives the possibility to the designer to chose the suitible encoding scheme easily wich is very handy for this critical signal. 
+
+To Gonzalo. Receiving to consecutive ID_DAT would be a legal situation? I only see it happening in case an RP_DAT is lost. In that case the watchdog should have reset the control state machine.
+
+Line 775: This process is equivalent to a case statement. The exit is needed to select the case that is driving s_var_id.
