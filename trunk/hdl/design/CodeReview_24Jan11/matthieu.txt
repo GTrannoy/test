@@ -5,7 +5,8 @@ general comments
 --------------------------------------------------------------------------------
 * Entities inputs and outputs grouping -> group by interface.
 * Several signal declaration per line.
-* According to coding guidelines generics shoud be named g_MY_GENERIC.
+* According to coding guidelines generics shoud be named g_MY_GENERIC
+  and constants c_MY_CONSTANT.
 * The coding style is not consistant.
 * Synplify warnings in the code. Why?
 * In the comments, the following figure:
@@ -17,12 +18,18 @@ general comments
      __|-|__
 
   The line in the middle can be taken for a high impedance state.
+  ==> BAD IDEA, it takes 2 lines.
 
 * Use @details for big descriptions and @brief just for a summary.
+* To clean file layout, in emacs you could use C-c C-b and M-x delete-trailing-whitespace
+* Remove todo list from files header.
 
 
 WF_package.vhd
 --------------------------------------------------------------------------------
+Lines 220->227. Turnaround and silence constants don't corresponds to the
+      		functional spec!
+
 Line 239. What is var_whatever used for?
 
 
@@ -75,7 +82,9 @@ Line 629. Assignment of s_var_rst_counter_full is really far from here.
 
 wf_incr_counter.vhd
 --------------------------------------------------------------------------------
+Line 81. All entity port must be std_logic or std_logic_vector.
 
+Line 109. nfip_rst_i is equal to reinit_counter_i.
 
 
 wf_rx_tx_osc.vhd
@@ -97,6 +106,7 @@ Line 190. Divide by 4 ...
 
 Line 191. Is s_jitter a good name for this signal?
 
+#################### IMPORTANT ####################
 Line 252. When the first falling edge arrives (or the following significant edges)
           s_rx_counter is reset and start counting.
 	  And the significant edge window is valid as long as s_rx_counter is
@@ -104,11 +114,18 @@ Line 252. When the first falling edge arrives (or the following significant edge
 	  It means that just after an edge if another comes before
 	  s_rx_counter = s_jitter, the edge is valid.
 	  There is probalby something wrong here.
+#################### IMPORTANT ####################
 
 
 wf_consumption.vhd
 --------------------------------------------------------------------------------
 Line 266. Not useful to put the generic map, the default value is also 10.
+
+Line 301. sample_manch_bit_p_i can be connected directly to sample_manch_bit_p_i
+     	  without going through wf_rx_deglitcher, which is just forwarding
+	  sample_manch_bit_p_i to sample_manch_bit_p_o. -> more readable.
+
+Line 294. Same remark as for sample_manch_bit_p_i.
 
 
 wf_rx_deglitcher.vhd
@@ -116,6 +133,139 @@ wf_rx_deglitcher.vhd
 Line 90. What is the unit of the deglitch length?
      	 That whould be nice to add a comment.
 
+Lines 112, 113. These two ports can be removed, see wf_consumption.vhd comments
+     	        Line 294 and 301.
+
+Line 176. There is a TAB at the begining of the line.
+
+Line 177. Nice trick!
 
 
-To be continued...
+wf_rx_deserializer.vhd
+--------------------------------------------------------------------------------
+Line 374. Ouputs of the FSM are ~= to the FSM state.
+     	  FSM states could be used in other processes, this would make the code
+	  easier to read.
+
+#################### IMPORTANT ####################
+Line 323. The only way to get out of switch_to_deglitched is to receive a
+     	  filtered falling edge. What append if you don't?
+	  -> A reset is needed.
+	  All other states can return to IDLE, but not this one!
+#################### IMPORTANT ####################
+
+Line 474. s_write_bit_to_byte is a pulse -> add _p
+
+Line 586. Instance value same as default value.
+
+Line 631. You say "that doesn't belong to the FES" but in the if there is
+     	  s_fes_wrong_bit = '1'. So either the comment or the test is wrong.
+
+Line 692. (not s_manch_not_ok) = manchester ok, which is probalby not what you want.
+
+
+wf_cons_bytes_processor.vhd
+--------------------------------------------------------------------------------
+Line 95. Still some stuff to do...
+
+Line 292. two can be replaced by 2 as you're dealing with unsigned.
+
+Line 392. Here is the var_whatever!
+
+
+WF_DualClkRAM_clka_rd_clkb_wr.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+DualClkRAM.vhd
+--------------------------------------------------------------------------------
+You should mention that this entity is vendor/component specific.
+
+
+WF_cons_bytes_to_dato.vhd
+--------------------------------------------------------------------------------
+Lines 136, 143. how could "it" stays there if the signal in the test is a pulse?
+
+
+WF_engine_control.vhd
+--------------------------------------------------------------------------------
+Line 640. This should be the FSM outputs.
+
+Lines 827, 829. Use constants instead of "01" and "10", it will be more readable.
+
+
+WF_prod_data_lgth_calc.vhd
+--------------------------------------------------------------------------------
+Line 110. You should only use std_logic and std_logic_vector for entity ports.
+
+Lines 177->194. if/end if missaligned.
+
+Line 198. Same as line 201.
+
+
+WF_cons_frame_validator.vhd
+--------------------------------------------------------------------------------
+Line 112. You should only use std_logic and std_logic_vector for entity ports.
+
+
+WF_cons_outcome.vhd
+--------------------------------------------------------------------------------
+Line 106. You should only use std_logic and std_logic_vector for entity ports.
+
+
+WF_production.vhd
+--------------------------------------------------------------------------------
+Line 
+
+
+WF_prod_permit.vhd
+--------------------------------------------------------------------------------
+Line 89. You should only use std_logic and std_logic_vector for entity ports.
+
+
+WF_prod_bytes_retriever.vhd
+--------------------------------------------------------------------------------
+Line 169. You should only use std_logic and std_logic_vector for entity ports.
+
+Line 234. (8 downto 0) is useless here.
+
+Line 419. Same as line 427.
+
+
+WF_prod_bytes_from_dati.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+WF_status_bytes_gen.vhd
+--------------------------------------------------------------------------------
+Line 303. Once there is a fieldrive transmission error, the status bit stays at
+     	  one. Is that what you want?
+
+Line 310. Same as for line 303.
+
+
+WF_tx_serializer.vhd
+--------------------------------------------------------------------------------
+Line 94. Yes ;)
+
+
+WF_bits_to_txd.vhd
+--------------------------------------------------------------------------------
+Line 103 You should only use std_logic and std_logic_vector for entity ports.
+
+
+WF_manch_encoder.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+WF_model_constr_decoder.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+WF_wb_controller.vhd
+--------------------------------------------------------------------------------
+Lines 122, 135. Why is the address used to generate the ack?
