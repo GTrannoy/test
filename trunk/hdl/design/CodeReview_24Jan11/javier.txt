@@ -75,10 +75,14 @@ detectors as robust as possible, and add deglitching here. With the
 current implementation if there is a glitch in the rx line, even
 narrower than one uclk period, there is a risk of generating a
 spurious edge pulse. Making something much more robust is easy and
-cheap: add two more stages to the pipeline and do a super-robust edge
-detector by requiring that two signals are zero and the other two are
-one. This will induce a delay, which might have to be compensated in
-other signals (fd_rxd_o) so the whole thing is coherent.
+cheap: add four more stages to the pipeline (for a total of six usable
+signals) and do a super-robust edge detector by requiring that at
+least two signals are zero (out of the first three) and at least two
+are one (out of the last three). Viceversa of course for detecting the
+other edge. For extra-robustness, inhibit detection for a while after
+a detected edge. This will induce a delay, which might have to be
+compensated in other signals (fd_rxd_o) so the whole thing is
+coherent.
 
 Line 250 onwards. Cosmetics: the vector notation is shorter, so I'd
 stick to it for all cases, including the varX_access.
