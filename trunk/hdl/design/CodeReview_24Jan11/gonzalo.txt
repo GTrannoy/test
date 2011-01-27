@@ -43,15 +43,31 @@ it in an independent block along with the multiplexor for data_o.
 
 wf_engine_control.vhd
 ---------------------
-Line 377-380: What happens if 2 consecutive ID_DAT arrive. The second one will
-not be processed correctly since it will be treated as an RP_DAT and therefore
-discarded because of wrong CTRL byte. But if the second was a correct ID_DAT,
-nanoFIP should interpret it correctly.
+Line 377-380: What happens if 2 consecutive ID_DAT arrive within the silence time. 
+The second one will not be processed correctly since it will be treated as an 
+RP_DAT and therefore discarded because of wrong CTRL byte. But if the second was 
+a correct ID_DAT, nanoFIP should interpret it correctly.
 
-Line 775: Is this process going to be synthesized the same way by all the tools?
-Does it generate a latch? Is the exit statement necessary?
+Line 775: 
+One signal is assigned in statements that are not mutually exclusive.
+Is this process going to be synthesized the same way by all the tools?
+
+Inside the FOR loop there is an IF-THEN without an ELSE.
+Does it generate a latch?
+
+Is the construction with FOR and EXIT statement necessary?
 
 Line 817: The same as above
+
+wf_rx_tx_osc.vhd
+----------------
+
+wf_rx_deserializer.vhd
+----------------------
+I am not sure if in case a frame is received with one bit missing inside the 
+data, but with a CRC that is correct with respect to the bits actually
+received, the frame would effectively be discarded as it should.
+(As responsible for the testbench, I take note that I should check that :-)
 
 
 nanofip.vhd
