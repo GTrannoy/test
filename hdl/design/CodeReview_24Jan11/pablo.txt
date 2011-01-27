@@ -53,3 +53,23 @@ To Javier. Using std_logic on entity ports is a strong rule in cores. As wf_engi
 To Gonzalo. Receiving to consecutive ID_DAT would be a legal situation? I only see it happening in case an RP_DAT is lost. In that case the watchdog should have reset the control state machine.
 
 Line 775: This process is equivalent to a case statement. The exit is needed to select the case that is driving s_var_id.
+
+
+WF_status_bytes_gen.vhd
+
+L293. 
+          if (s_var3_rdy_extended = '0' and var3_acc_i = '1') then  
+                                                                 -- since the last time the status 
+            s_nFIP_status_byte(c_U_PACER_INDEX) <= '1';          -- byte was delivered,
+                                                                 -- the user logic accessed a prod.
+                                                                 -- var. when it was not ready
+          end if;  
+
+Would it not be easier to use some kind of 
+
+
+wf_rx.vhd
+
+LINE 569: The  16 bit register s_arriving_fes could be removed if the FES arrival is verified bit by bit upon arrival. 
+LINE 663: Is s_CRC_ok_p_buff really needed? I think a flag (or inserting a new state) would be enough. 
+
