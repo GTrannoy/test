@@ -32,7 +32,6 @@ constant reset_max_latency				: time := 100 us;
 signal ba_responded						: boolean;
 signal end_turn_around					: time:=0 fs;
 signal fd_reset_assertion				: time:=0 fs;
-signal fd_reset_deassertion				: time:=0 fs;
 signal nanofip_responded				: boolean;
 signal silence_time_reached				: boolean;
 signal start_turn_around				: time:=0 fs;
@@ -46,7 +45,9 @@ signal vreset_hist_opened_ok			: boolean;
 signal vreset_time						: time;
 
 begin
-
+	--process starting to count the effective turn-around time
+	-- just after the end of the reception of he ID_DAT
+	-----------------------------------------------------------
 	end_of_id_dat: process(cd)
 	begin
 		if cd'event and cd ='0' then
@@ -56,6 +57,9 @@ begin
 		end if;
 	end process;
 	
+	--process ending the effective turn-around time from 
+	-- the moment the tx_ena signal is asserted
+	-----------------------------------------------------------
 	begining_of_rp_dat_detection: process(txena)
 	begin
 		if txena'event and txena ='1' then
@@ -63,6 +67,8 @@ begin
 		end if;
 	end process;
 
+	--process describing the possible bus reactions
+	-----------------------------------------------
 	bus_activity_surveillance: process
 	begin
 		wait for 0 fs;
@@ -83,18 +89,21 @@ begin
 	bus_activity_reporting: process(ba_responded, nanofip_responded, silence_time_reached)
 	begin
 		if silence_time_reached and not(ba_responded or nanofip_responded) and start_turn_around > 0 fs then
-			report	"               /++\ check NOT OK /++\  The specified silence time of " & time'image(silence_time) 
+			report	"               #### check NOT OK ####  The specified silence time of " & time'image(silence_time) 
 														& " has been reached without any answer to the ID_DAT frame" & LF
 			severity warning;
 		elsif nanofip_responded and not(ba_responded or silence_time_reached) then
 			report	"            __ check OK __  NanoFIP responds after " & time'image(end_turn_around - start_turn_around) 
 																	& ". This turn-around time is within specs" & LF;
 		elsif nanofip_responded and ba_responded and not(silence_time_reached) then
-			report	"               /++\ check NOT OK /++\  The bus arbitrer and nanoFIP have both responded to the same ID_DAT" & LF
+			report	"               #### check NOT OK ####  The bus arbitrer and nanoFIP have both responded to the same ID_DAT" & LF
 			severity warning;
 		end if;
 	end process;
-			
+	
+	-- process extracting the history information for the different resets
+	-- from temporary text files
+	----------------------------------------------------------------------	
 	check_for_reset_history: process(fd_reset)
 	file phist_file					: text;
 	variable phist_line				: line;
@@ -207,7 +216,7 @@ begin
 	reset_reporting2: process(fd_reset)
 	variable fd_rst_deassertion			: time;
 	begin
-		if fd_reset ='0' then
+		if fd_reset'event and fd_reset ='0' and now /= 0 fs then
 			fd_rst_deassertion	:= now;
 			report "            NanoFIP has kept the Fieldrive reset asserted for " & time'image(fd_rst_deassertion - fd_reset_assertion) & LF;
 		end if;

@@ -89,14 +89,14 @@ begin
 		if valid_bus_cycle then
 			if var_id = 1 then
 				if in_consumed(adr) /= dat_i then
-					report "               //// check NOT OK \\\\  Value retrieved from memory in address " &
+					report "               #### check NOT OK ####  Value retrieved from memory in address " &
 					integer'image(adr) & " of the consumed variable does not match the one sent from FIP" & LF
 					severity warning;
 					errct_trig	<= '1';
 				end if;
 			elsif var_id = 2 then
 				if in_broadcast(adr) /= dat_i then
-					report "               //// check NOT OK \\\\  Value retrieved from memory in address " & 
+					report "               #### check NOT OK ####  Value retrieved from memory in address " & 
 					integer'image(adr) & " of the broadcast variable does not match the one sent from FIP" & LF
 					severity warning;
 					errct_trig	<= '1';

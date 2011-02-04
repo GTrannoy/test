@@ -21,7 +21,6 @@ use work.tb_package.all;
 
 entity user_sequencer is
 	port(
-		urstn_from_nf		: in std_logic;
 		uclk_period			: in time;
 		wclk_period			: in time;
 

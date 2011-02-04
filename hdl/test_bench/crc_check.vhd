@@ -258,7 +258,7 @@ begin
 				report "            __ check OK __  Frame Check Sequence (CRC) received from nanoFIP is correct" & LF & LF;
 			else
 				assert FALSE
-				report "               //// check NOT OK \\\\  Frame Check Sequence (CRC) received from nanoFIP is not correct" & LF & LF
+				report "               #### check NOT OK ####  Frame Check Sequence (CRC) received from nanoFIP is not correct" & LF & LF
 				severity warning;
 			end if;
 		end if;
