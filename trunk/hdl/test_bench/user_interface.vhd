@@ -66,7 +66,6 @@ architecture archi of user_interface is
 
 	component user_sequencer
 	port(
-		urstn_from_nf		: in std_logic;
 		uclk_period			: in time;
 		wclk_period			: in time;
 
@@ -84,6 +83,7 @@ architecture archi of user_interface is
 	component user_access_monitor is
 	port(
 		cyc					: in std_logic;
+		urstn_from_nf		: in std_logic;
 		slone_access_read	: in std_logic;
 		slone_access_write	: in std_logic;
 		var1_rdy_i			: in std_logic;
@@ -264,7 +264,6 @@ begin
 	
 	user_sequence: user_sequencer
 	port map(
-		urstn_from_nf			=> urstn_from_nf,
 		uclk_period				=> uclk_period,
 		wclk_period				=> wclk_period,
 		
@@ -281,6 +280,7 @@ begin
 	user_acc_monitor: user_access_monitor
 	port map(
 		cyc						=> cyc,
+		urstn_from_nf			=> urstn_from_nf,
 		slone_access_read		=> slone_access_read,
 		slone_access_write		=> slone_access_write,
 		var1_rdy_i				=> var1_rdy_i,

@@ -271,10 +271,10 @@ begin
 					& LF & "                            and the frame contents match the variable expected values";
 
 					if mps_byte = mps_fresh and not(var3_fresh) then
-						report "               //// check NOT OK \\\\  The data are flagged incorrectly as fresh"
+						report "               #### check NOT OK ####  The data are flagged incorrectly as fresh"
 						severity warning;
 					elsif mps_byte = mps_not_fresh and var3_fresh then
-						report "               //// check NOT OK \\\\  The data are flagged incorrectly as not fresh"
+						report "               #### check NOT OK ####  The data are flagged incorrectly as not fresh"
 						severity warning;
 					elsif mps_byte = mps_not_fresh and not(var3_fresh) then
 						report "               __ check OK __  The data are flagged correctly as not fresh"
@@ -286,11 +286,11 @@ begin
 													" a user produced variable access error"
 							severity warning;
 						elsif nfip_status(2) ='0' and ucacerr then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte does not indicate as it should" &
+							report "               #### check NOT OK ####  The nanoFIP status byte does not indicate as it should" &
 													" a user consumed variable access error"
 							severity warning;
 						elsif nfip_status(2) ='1' and not(ucacerr) then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte wrongly indicates" &
+							report "               #### check NOT OK ####  The nanoFIP status byte wrongly indicates" &
 													" a user consumed variable access error"
 							severity warning;
 						end if;						
@@ -300,11 +300,11 @@ begin
 													" a user produced variable access error"
 							severity warning;
 						elsif nfip_status(3) ='0' and upacerr then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte does not indicate as it should" &
+							report "               #### check NOT OK ####  The nanoFIP status byte does not indicate as it should" &
 													" a user produced variable access error"
 							severity warning;
 						elsif nfip_status(3) ='1' and not(upacerr) then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte wrongly indicates" &
+							report "               #### check NOT OK ####  The nanoFIP status byte wrongly indicates" &
 													" a user produced variable access error"
 							severity warning;
 						end if;						
@@ -328,40 +328,40 @@ begin
 				end if;
 			elsif not(control_ok) then
 				if control_byte = control_id then
-					report "               //// check NOT OK \\\\  NanoFIP has issued an ID_DAT frame"
+					report "               #### check NOT OK ####  NanoFIP has issued an ID_DAT frame"
 					severity warning;
 				else
-					report "               //// check NOT OK \\\\  NanoFIP has issued a frame with an illegal Control byte"
+					report "               #### check NOT OK ####  NanoFIP has issued a frame with an illegal Control byte"
 					severity warning;
 				end if;
 			elsif not(pdu_type_byte = pdu_presence 
 					or pdu_type_byte = pdu_identification 
 					or pdu_type_byte = pdu_produced) then
-				report "               //// check NOT OK \\\\  NanoFIP response is an RP_DAT frame"
+				report "               #### check NOT OK ####  NanoFIP response is an RP_DAT frame"
 				& LF & "                                       but the PDU type byte corresponds to " & var_string
 				severity warning;
 			elsif not(length_specs_ok) then
-				report "               //// check NOT OK \\\\  NanoFIP response is an RP_DAT frame of " & var_string
+				report "               #### check NOT OK ####  NanoFIP response is an RP_DAT frame of " & var_string
 				& LF & "                                       but the length is not in accordance with the specs"
 				severity warning;
 			elsif not(length_coherent) then
-				report "               //// check NOT OK \\\\  NanoFIP response is an RP_DAT frame of " & var_string
+				report "               #### check NOT OK ####  NanoFIP response is an RP_DAT frame of " & var_string
 				& LF & "                                       but the Length byte is not coherent with the actual length"
 				severity warning;
 			elsif not(contents_ok) then
-				report "               //// check NOT OK \\\\  NanoFIP response is an RP_DAT frame of " & var_string
+				report "               #### check NOT OK ####  NanoFIP response is an RP_DAT frame of " & var_string
 				& LF & "                                       but the frame contents don't match the variable expected values"
 				severity warning;
 				if pdu_type_byte = pdu_produced then
 					for i in 2 to last_data loop
 						assert out_produced(i) = frame_data(i)
-						report "               //// check NOT OK \\\\  In the produced variable sent by nanoFIP, "
+						report "               #### check NOT OK ####  In the produced variable sent by nanoFIP, "
 						& LF & "                                       the value of the data byte number " & integer'image(i-2) 
 						& LF & "                                       does not match the value expected in the corresponding address of the memory" 
 						severity warning;
 					end loop;
 					assert mps_byte=mps_fresh or mps_byte=mps_not_fresh
-					report "               //// check NOT OK \\\\  The mps_byte has an invalid value"
+					report "               #### check NOT OK ####  The mps_byte has an invalid value"
 					severity warning;
 					if nostat ='0' then
 						if nfip_status(2) ='1' and ucacerr then
@@ -369,11 +369,11 @@ begin
 													" a user produced variable access error"
 							severity warning;
 						elsif nfip_status(2) ='0' and ucacerr then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte does not indicate as it should" &
+							report "               #### check NOT OK ####  The nanoFIP status byte does not indicate as it should" &
 													" a user consumed variable access error"
 							severity warning;
 						elsif nfip_status(2) ='1' and not(ucacerr) then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte wrongly indicates" &
+							report "               #### check NOT OK ####  The nanoFIP status byte wrongly indicates" &
 													" a user consumed variable access error"
 							severity warning;
 						end if;						
@@ -383,11 +383,11 @@ begin
 													" a user produced variable access error"
 							severity warning;
 						elsif nfip_status(3) ='0' and upacerr then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte does not indicate as it should" &
+							report "               #### check NOT OK ####  The nanoFIP status byte does not indicate as it should" &
 													" a user produced variable access error"
 							severity warning;
 						elsif nfip_status(3) ='1' and not(upacerr) then
-							report "               //// check NOT OK \\\\  The nanoFIP status byte wrongly indicates" &
+							report "               #### check NOT OK ####  The nanoFIP status byte wrongly indicates" &
 													" a user produced variable access error"
 							severity warning;
 						end if;						

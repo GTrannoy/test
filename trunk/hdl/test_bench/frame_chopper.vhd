@@ -79,7 +79,7 @@ begin
 			byte_nb				<= byte_nb + 1;
 
 			assert byte_nb 		< max_frame_length -1
-			report "               //// check NOT OK \\\\ "
+			report "               #### check NOT OK #### "
 			& " The frame received from NanoFIP exceeds the maximum specified length"
 			severity warning;
 		end if;
