@@ -30,7 +30,43 @@
 879 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
 1328 us		-- stand-by time
+1,58,E0,0	-- ID_DAT for Reset variable
+164 us		-- stand-by time
+0,58,E0,0	-- RP_DAT for Reset variable
+188 us		-- stand-by time
 1,59,E0,0	-- ID_DAT for Reset variable
 164 us		-- stand-by time
 0,59,E0,0	-- RP_DAT for Reset variable
+188 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,0	-- RP_DAT for Consumed variable
+203 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,1	-- RP_DAT for Consumed variable
+211 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,2	-- RP_DAT for Consumed variable
+219 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,3	-- RP_DAT for Consumed variable
+227 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,121	-- RP_DAT for Consumed variable
+1171 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,122	-- RP_DAT for Consumed variable
+1179 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,123	-- RP_DAT for Consumed variable
+1187 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,124	-- RP_DAT for Consumed variable
 2000 ms		-- final stand-by time to end the simulation
