@@ -50,9 +50,24 @@ probe -create -shm -waveform :fieldrive:rx_block:dx
 #probe -create -shm -waveform :fieldrive:rx_block:fss_block:s_fss_value
 #probe -create -shm -waveform :fieldrive:rx_block:fss_block:i
 
+
+probe -create -shm -waveform :dut:production:production_serializer:start_prod_p_i
+probe -create -shm -waveform :dut:production:production_serializer:s_sending_fss
+probe -create -shm -waveform :dut:production:production_serializer:s_bit_index_top
+probe -create -shm -waveform :dut:production:production_serializer:s_bit_index_load
+probe -create -shm -waveform :dut:production:production_serializer:s_decr_index_p
+probe -create -shm -waveform :dut:production:production_serializer:tx_clk_p_buff_i
+probe -create -shm -waveform :dut:production:production_serializer:s_bit_index
+probe -create -shm -waveform :dut:production:production_serializer:tx_state
+
+
+
 probe -create -shm -waveform :fieldrive:tx_block:decoder:extracted_clk
-#probe -create -shm -waveform :fieldrive:tx_block:decoder:locked
-#probe -create -shm -waveform :fieldrive:tx_block:decoder:locking
+probe -create -shm -waveform :fieldrive:tx_block:decoder:locked
+probe -create -shm -waveform :fieldrive:tx_block:decoder:locking
+probe -create -shm -waveform :fieldrive:tx_block:decoder:extracted_bits
+probe -create -shm -waveform :fieldrive:tx_block:decoder:violation
+
 probe -create -shm -waveform :fieldrive:tx_block:chopper:vx
 probe -create -shm -waveform :fieldrive:tx_block:chopper:sof
 probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
@@ -160,5 +175,5 @@ probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
 #probe -create -shm -waveform :dut:reset_unit:s_c
 
 
-run 7500 us
+run 20 ms
 
