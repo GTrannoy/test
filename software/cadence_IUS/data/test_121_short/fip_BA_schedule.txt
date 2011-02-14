@@ -1,0 +1,72 @@
+## Schedules the different frames to be sent by the Bus Arbitrer separated by stand-by times. The frame parameters must be separated by comas, without spaces.
+## The order and values must be as follows: id_rp: (1) for ID_DAT frame / (0) for RP_DAT frame, station adress: 8-bit in hexadecimal format,
+## variable adress: Identification(10h)/ Presence(14h)/ Broadcast(91h)/ Consumed(05h)/ Produced(06h)/ Reset (E0h), variable data length: integer from 2 to 124
+200 us		-- stand-by time
+1,01,91,0	-- ID_DAT for Broadcast variable
+36 us		-- stand-by time
+0,01,91,17	-- RP_DAT for Broadcast variable
+107 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,11	-- RP_DAT for Consumed variable
+176 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+139 us		-- stand-by time
+1,5A,14,0	-- ID_DAT for Presence variable
+89 us		-- stand-by time
+1,5A,10,0	-- ID_DAT for Identification variable
+160 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+201 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+170 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+114 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+138 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+234 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+362 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+571 us		-- stand-by time
+1,58,E0,0	-- ID_DAT for Reset variable
+36 us		-- stand-by time
+0,58,E0,0	-- RP_DAT for Reset variable
+47 us		-- stand-by time
+1,59,E0,0	-- ID_DAT for Reset variable
+36 us		-- stand-by time
+0,59,E0,0	-- RP_DAT for Reset variable
+47 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,0	-- RP_DAT for Consumed variable
+70 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,1	-- RP_DAT for Consumed variable
+74 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,2	-- RP_DAT for Consumed variable
+78 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,3	-- RP_DAT for Consumed variable
+82 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,121	-- RP_DAT for Consumed variable
+554 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,122	-- RP_DAT for Consumed variable
+558 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,123	-- RP_DAT for Consumed variable
+562 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,124	-- RP_DAT for Consumed variable
+2000 ms		-- final stand-by time to end the simulation
