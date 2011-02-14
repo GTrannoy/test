@@ -266,24 +266,15 @@ begin
 		if report_trigger ='1' then
 			if frame_ok then
 				if pdu_type_byte = pdu_produced then
-					report "            __ check OK __  NanoFIP response is an RP_DAT frame of a " & integer'image(varlength_board) & " bytes " & var_string
-					& LF & "                            which is according to the board configuration and coherent wiht the Length byte"
-					& LF & "                            and the frame contents match the variable expected values";
-
-					if mps_byte = mps_fresh and not(var3_fresh) then
-						report "               #### check NOT OK ####  The data are flagged incorrectly as fresh"
-						severity warning;
-					elsif mps_byte = mps_not_fresh and var3_fresh then
-						report "               #### check NOT OK ####  The data are flagged incorrectly as not fresh"
-						severity warning;
-					elsif mps_byte = mps_not_fresh and not(var3_fresh) then
-						report "               __ check OK __  The data are flagged correctly as not fresh"
-						severity warning;
-					end if;
 					if nostat ='0' then
+						report "            __ check OK __  NanoFIP response is an RP_DAT frame of a " & var_string
+						& LF & "                            with " & integer'image(varlength_board) & " bytes of data plus the nanoFIP status byte" 
+						& LF & "                            which is according to the board configuration and coherent wiht the Length byte"
+						& LF & "                            and the frame contents match the variable expected values";
+
 						if nfip_status(2) ='1' and ucacerr then
 							report "               __ check OK __  The nanoFIP status byte correctly indicates" &
-													" a user produced variable access error"
+													" a user consumed variable access error"
 							severity warning;
 						elsif nfip_status(2) ='0' and ucacerr then
 							report "               #### check NOT OK ####  The nanoFIP status byte does not indicate as it should" &
@@ -319,6 +310,22 @@ begin
 						severity warning;
 						assert nfip_status(7) ='0'
 						report "               The nanoFIP status byte reports a Fieldrive watchdog error"
+						severity warning;
+					else
+						report "            __ check OK __  NanoFIP response is an RP_DAT frame of a " & var_string
+						& LF & "                            with " & integer'image(varlength_board) & " bytes of data and no nanoFIP status byte" 
+						& LF & "                            which is according to the board configuration and coherent wiht the Length byte"
+						& LF & "                            and the frame contents match the variable expected values";
+					end if;
+
+					if mps_byte = mps_fresh and not(var3_fresh) then
+						report "               #### check NOT OK ####  The data are flagged incorrectly as fresh"
+						severity warning;
+					elsif mps_byte = mps_not_fresh and var3_fresh then
+						report "               #### check NOT OK ####  The data are flagged incorrectly as not fresh"
+						severity warning;
+					elsif mps_byte = mps_not_fresh and not(var3_fresh) then
+						report "               __ check OK __  The data are flagged correctly as not fresh"
 						severity warning;
 					end if;
 				else
@@ -366,7 +373,7 @@ begin
 					if nostat ='0' then
 						if nfip_status(2) ='1' and ucacerr then
 							report "               __ check OK __  The nanoFIP status byte correctly indicates" &
-													" a user produced variable access error"
+													" a user consumed variable access error"
 							severity warning;
 						elsif nfip_status(2) ='0' and ucacerr then
 							report "               #### check NOT OK ####  The nanoFIP status byte does not indicate as it should" &

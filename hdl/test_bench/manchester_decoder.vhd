@@ -25,7 +25,7 @@ end manchester_decoder;
 
 architecture archi of manchester_decoder is
 
-constant secure_lock	: unsigned(3 downto 0) := x"B";
+constant secure_lock	: unsigned(3 downto 0) := x"9";
 constant release_lock	: unsigned(3 downto 0) := x"8";
 
 --signal cfig_clk_period	: time;--:= 1000 ns;
@@ -237,7 +237,7 @@ begin
 	end process;
 	-- This process locks the bus clock. It selects one of the two synchronised clocks by excluding
 	-- the other one. If one rising edge occurs for one of the clocks without transition on the input
-	-- signal, this clock stops being candidate for locking. After 7 consecutive rising edges
+	-- signal, this clock stops being candidate for locking. After 6 consecutive rising edges
 	-- of one of the clocks simultaneous with transitions of the input signal, the bus clock
 	-- is locked onto that clock. After 5 consecutive rising edges of the locked clock not 
 	-- simultaneous with a transition of the input signal, the bus clock is considered unlocked.
