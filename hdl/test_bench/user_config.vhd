@@ -116,7 +116,7 @@ begin
 			if now = 0 ps then
 				report LF & "User logic configuration settings" & LF &
 							"---------------------------------" & LF &
-							"User Clock period: " & time'image(s_uclk_period) & LF &
+							"User Clock period              : " & time'image(s_uclk_period) & LF &
 							"Wishbone interface Clock period: " & time'image(s_wclk_period) & LF & LF;
 			end if;
 			if s_preset_length > 0 fs then

@@ -285,23 +285,24 @@ begin
 	reporting: process(report_config_trigger)
 	begin
 		if report_config_trigger'event and report_config_trigger ='1' then
-			report LF & "WFIP bus configuration settings for test" & LF &
-						"-----------------------------------------" & LF &
-			"WorldFIP rate: " & rate_strg & LF &
-			"Silence time: " & time'image(silencetime) & LF &
-			"Minimum turn around time: " & time'image(min_turnaround) & LF &
-			"CRC length: " & integer'image(crc_l) & " bits" & LF &
-			"CRC generation polinomial: " & gx_strg & Lf &
-			"Values for FSS and FES: " & fss_value_strg & " & " & fes_value_strg & " respectively" & LF &
+			report LF & 
+			"WFIP bus configuration settings for test" & LF &
+			"-----------------------------------------" & LF &
+			"WorldFIP rate                                  : " & rate_strg & LF &
+			"Silence time                                   : " & time'image(silencetime) & LF &
+			"Minimum turn around time                       : " & time'image(min_turnaround) & LF &
+			"CRC length                                     : " & integer'image(crc_l) & " bits" & LF &
+			"CRC generation polinomial                      : " & gx_strg & Lf &
+			"Values for FSS and FES                         : " & fss_value_strg & " & " & fes_value_strg & " respectively" & LF &
 			"Control bytes for ID_DAT frame and RP_DAT frame: " & id_control_strg & "h & " & rp_control_strg & "h respectively" & LF &
-			"Address for Presence Variable: " & presence_strg & "h" & LF &
-			"Address for Idenfication Variable: " & identification_strg & "h" & LF &
-			"Address for Broadcast Variable: " & broadcast_strg & "h" & LF &
-			"Address for Consumed Variable: " & consumed_strg & "h" & LF &
-			"Address for Produced Variable: " & produced_strg & "h" & LF &
-			"Address for Reset Variable: " & reset_strg & "h" & LF &
-			"PDU_type byte for consumed variables: " & pdu_type_strg & "h" & LF &
-			"MPS byte for fresh data on consumed variables: " & mps_strg & "h" & LF;
+			"Address for Presence Variable                  : " & presence_strg & "h" & LF &
+			"Address for Idenfication Variable              : " & identification_strg & "h" & LF &
+			"Address for Broadcast Variable                 : " & broadcast_strg & "h" & LF &
+			"Address for Consumed Variable                  : " & consumed_strg & "h" & LF &
+			"Address for Produced Variable                  : " & produced_strg & "h" & LF &
+			"Address for Reset Variable                     : " & reset_strg & "h" & LF &
+			"PDU_type byte for consumed variables           : " & pdu_type_strg & "h" & LF &
+			"MPS byte for fresh data on consumed variables  : " & mps_strg & "h" & LF;
 		end if;
 	end process;
 	

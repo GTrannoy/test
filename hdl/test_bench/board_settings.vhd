@@ -301,15 +301,16 @@ begin
 	reporting: process(report_config_trigger)
 	begin
 		if report_config_trigger'event and report_config_trigger ='1' then
-			report LF & "Board configuration settings for nanoFIP under test" & LF &
-						"---------------------------------------------------" & LF &
-			"WorldFIP rate: " & rate_strg & LF &
-			"Agent address: " & integer'image(to_integer(station_adr)) & LF &
-			"Operation mode: " & mode_strg & Lf &
-			"Produced variable length: " & length_strg & LF &
+			report LF & 
+			"Board configuration settings for nanoFIP under test" & LF &
+			"---------------------------------------------------" & LF &
+			"WorldFIP rate                  : " & rate_strg & LF &
+			"Agent address                  : " & integer'image(to_integer(station_adr)) & LF &
+			"Operation mode                 : " & mode_strg & Lf &
+			"Produced variable length       : " & length_strg & LF &
 			"NanoFIP status byte tranmission: " & nstat_strg & LF &
-			"Constructor ID: " & integer'image(to_integer(constructor)) & LF &
-			"Model ID: " & integer'image(to_integer(model)) & LF;
+			"Constructor ID (dec)           : " & integer'image(to_integer(constructor)) & LF &
+			"Model ID (dec)                 : " & integer'image(to_integer(model)) & LF;
 		end if;
 	end process;
 	
