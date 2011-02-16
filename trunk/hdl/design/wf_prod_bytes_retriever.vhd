@@ -129,7 +129,7 @@ entity WF_prod_bytes_retriever is
 
   port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    -- nanoFIP User Interface, General signals
     uclk_i               : in std_logic;                     --! 40 MHz clock
     nostat_i             : in std_logic;                     --! if negated, nFIP status is sent
     slone_i              : in std_logic;                     --! stand-alone mode 
@@ -139,23 +139,23 @@ entity WF_prod_bytes_retriever is
 	
     -- nanoFIP User Interface, WISHBONE Slave
     wb_clk_i             : in std_logic;                     --! WISHBONE clock
-    wb_adr_i             : in std_logic_vector(8 downto 0);  --! WISHBONE address to memory
-    wb_data_i            : in std_logic_vector(7 downto 0);  --! WISHBONE data bus
+    wb_adr_i             : in std_logic_vector (8 downto 0); --! WISHBONE address to memory
+    wb_data_i            : in std_logic_vector (7 downto 0); --! WISHBONE data bus
 
     -- Signal from the WF_wb_controller
     wb_ack_prod_p_i      : in std_logic;                     --! WISHBONE acknowledge
                                                              --  latching moment of wb_data_i
 
-    -- nanoFIP User Interface, NON WISHBONE (synchronized with uclk)
-    slone_data_i         : in std_logic_vector(15 downto 0); --! input data bus for slone mode
+    -- nanoFIP User Interface, NON WISHBONE
+    slone_data_i         : in std_logic_vector (15 downto 0);--! input data bus for slone mode
 
     -- Signals from the WF_engine_control unit
-    byte_index_i         : in std_logic_vector(7 downto 0);  --!index of the byte to be retrieved
+    byte_index_i         : in std_logic_vector (7 downto 0); --!index of the byte to be retrieved
 
     byte_being_sent_p_i  : in std_logic;                     --! pulse on the beginning of the
                                                              --! delivery of a new byte
 
-    data_length_i        : in std_logic_vector(7 downto 0);  --! # bytes of the Conrol&Data fields
+    data_length_i        : in std_logic_vector (7 downto 0); --! # bytes of the Conrol&Data fields
                                                              -- of the RP_DAT frame; includes:
                                                              -- 1 byte RP_DAT.Control,
                                                              -- 1 byte RP_DAT.Data.PDU_type,
@@ -172,12 +172,12 @@ entity WF_prod_bytes_retriever is
     var3_rdy_i           : in std_logic;                     --! nanoFIP output VAR3_RDY  
 
     -- Signals from the WF_status_bytes_gen
-    mps_status_byte_i    : in std_logic_vector(7 downto 0);  --! MPS status byte
-    nFIP_status_byte_i   : in std_logic_vector(7 downto 0);  --! nanoFIP status byte
+    mps_status_byte_i    : in std_logic_vector (7 downto 0); --! MPS status byte
+    nFIP_status_byte_i   : in std_logic_vector (7 downto 0); --! nanoFIP status byte
 
     -- Signals from the WF_model_constr_dec unit
-    constr_id_dec_i      : in  std_logic_vector(7 downto 0); --! decoded constructor id settings
-    model_id_dec_i       : in  std_logic_vector(7 downto 0); --! decoded model id settings
+    constr_id_dec_i      : in  std_logic_vector (7 downto 0);--! decoded constructor id settings
+    model_id_dec_i       : in  std_logic_vector (7 downto 0);--! decoded model id settings
 
 
   -- OUTPUTS
@@ -187,18 +187,18 @@ entity WF_prod_bytes_retriever is
                                                              --! the delivery of the last one (MPS)
 
     -- Signal to the WF_tx_serializer
-    byte_o               : out std_logic_vector(7 downto 0)  --! output byte to be serialized
+    byte_o               : out std_logic_vector (7 downto 0) --! output byte to be serialized
 
       );
 end entity WF_prod_bytes_retriever;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_prod_bytes_retriever is
 
-  signal s_base_addr, s_mem_addr_offset        : unsigned(8 downto 0);
+  signal s_base_addr, s_mem_addr_offset        : unsigned (8 downto 0);
   signal s_byte_index_d_aux                    : integer range 0 to 15;
   signal s_lgth_byte, s_mem_byte, s_slone_byte : std_logic_vector (7 downto 0);
   signal s_byte_index_d                        : std_logic_vector (7 downto 0);       
@@ -206,7 +206,7 @@ architecture rtl of WF_prod_bytes_retriever is
   
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -218,13 +218,13 @@ begin
 --!@brief Instantiation of a Produced Dual Port RAM
 
     Produced_Bytes_From_RAM:  WF_DualClkRAM_clka_rd_clkb_wr 
-    generic map(
-      c_RAM_DATA_LGTH => 8,                 -- 8 bits: length of data word
-      c_RAM_ADDR_LGTH => 9)                 -- 2^9: depth of produced ram
+    generic map (
+      g_ram_data_lgth => 8,                 -- 8 bits: length of data word
+      g_ram_addr_lgth => 9)                 -- 2^9: depth of produced ram
                                             -- first 2 bits : identification of memory block
                                             -- remaining 7  : address of a byte inside the blck 
     -- port A corresponds to: nanoFIP that reads from the Produced ram & B to: WISHBONE that writes
-    port map(
+    port map (
       clk_porta_i      => uclk_i,	            -- 40 MHz clock
       addr_porta_i     => s_mem_addr_A,         -- address of byte to be read from memory
       ------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ begin
 --! has been de-asserted.
 
     Produced_Bytes_From_DATI: WF_prod_bytes_from_dati
-    port map(
+    port map (
       uclk_i       => uclk_i,
       nfip_rst_i   => nfip_rst_i,
       slone_data_i => slone_data_i,
@@ -271,8 +271,7 @@ begin
    
   Bytes_Generation: process (var_i, s_byte_index_d, data_length_i, constr_id_dec_i, model_id_dec_i, 
                              nFIP_status_byte_i, mps_status_byte_i, s_slone_byte, s_byte_index_d_aux,
-                             s_mem_byte, s_byte_index_d_aux, nostat_i, byte_being_sent_p_i, 
-                             s_lgth_byte, slone_i)
+                             s_mem_byte, nostat_i, byte_being_sent_p_i, s_lgth_byte, slone_i)
   
   begin
   
@@ -486,8 +485,8 @@ begin
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

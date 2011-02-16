@@ -67,18 +67,12 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!
 ---------------------------------------------------------------------------------------------------
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Synplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings                                           --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
 --!                                 Entity declaration for WF_crc
 --=================================================================================================
 entity WF_crc is
-generic (c_GENERATOR_POLY_length : natural := 16);  --! default value
 port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals
@@ -98,22 +92,22 @@ port (
     crc_ok_p           : out std_logic;             --! signals a correct received CRC syndrome
 
     -- Signal to the WF_tx_serializer unit
-    crc_o              : out  std_logic_vector (c_GENERATOR_POLY_length-1 downto 0)--!calculated CRC
+    crc_o              : out  std_logic_vector (c_CRC_GENER_POLY_LGTH-1 downto 0)--!calculated CRC
      );                                                         
 
 end entity WF_crc;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_crc is
 
 signal s_crc_bit_ready_p            : std_logic;
-signal s_q, s_q_nx, s_q_check_mask  : std_logic_vector (c_GENERATOR_POLY_length - 1 downto 0);
+signal s_q, s_q_nx, s_q_check_mask  : std_logic_vector (c_CRC_GENER_POLY_LGTH - 1 downto 0);
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================
 begin
 
@@ -124,14 +118,14 @@ begin
 
 Gen_16_bit_Register_and_Interconnections:
 
-  for I in 0 to c_GENERATOR_POLY'left generate
+  for I in 0 to c_CRC_GENER_POLY'left generate
 
     iteration_0: if I = 0 generate
       s_q_nx(I) <= ((data_bit_i) xor s_q(s_q'left));
     end generate;
   
     next_iterations: if I > 0 generate
-      s_q_nx(I) <= s_q(I-1) xor (c_GENERATOR_POLY(I) and (data_bit_i xor s_q(s_q'left)));      
+      s_q_nx(I) <= s_q(I-1) xor (c_CRC_GENER_POLY(I) and (data_bit_i xor s_q(s_q'left)));      
     end generate;
 
   end generate;
@@ -171,15 +165,15 @@ crc_o <= not s_q;
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial process Syndrome_Verification: On the reception, the CRC is being
 --! calculated as data is arriving (same as in the transmission) and it is being compared to the
---! predefined c_VERIFICATION_MASK. When the CRC calculated from the received data matches the
---! c_VERIFICATION_MASK, it is implied that a correct CRC word has been received for the preceded
+--! predefined c_CRC_VERIFIC_MASK. When the CRC calculated from the received data matches the
+--! c_CRC_VERIFIC_MASK, it is implied that a correct CRC word has been received for the preceded
 --! data and the signal crc_ok_p gives a 1 uclk-wide pulse. 
 
 Syndrome_Verification: process (s_q, s_crc_bit_ready_p)
 
 begin
   
-  s_q_check_mask <= s_q xor c_VERIFICATION_MASK;
+  s_q_check_mask <= s_q xor c_CRC_VERIFIC_MASK;------------
   
   if (unsigned(not s_q_check_mask)) = 0 then 
     crc_ok_p     <= s_crc_bit_ready_p;
@@ -194,8 +188,8 @@ end process;
 end architecture rtl;
 
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

@@ -187,12 +187,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                                    Synplify Premier Warnings                                  --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---  "W MT420 Found inferred clock nanofip|wclk_i"; "W MT420 Found inferred clock nanofip|uclk_i" --
---  The wclk and uclk are the nanoFIP's input clocks.                                             --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -207,61 +201,61 @@ entity nanofip is
 
   -- WorldFIP settings
 
-  c_id_i     : in  std_logic_vector (3 downto 0); --! Constructor identification settings
-  m_id_i     : in  std_logic_vector (3 downto 0); --! Model identification settings
-  p3_lgth_i  : in  std_logic_vector (2 downto 0); --! Produced variable data length
-  rate_i     : in  std_logic_vector (1 downto 0); --! Bit rate
-  subs_i     : in  std_logic_vector (7 downto 0); --! Subscriber number coding (station address)
+  c_id_i     : in std_logic_vector (3 downto 0); --! Constructor identification settings
+  m_id_i     : in std_logic_vector (3 downto 0); --! Model identification settings
+  p3_lgth_i  : in std_logic_vector (2 downto 0); --! Produced variable data length
+  rate_i     : in std_logic_vector (1 downto 0); --! WorldFIP bit rate
+  subs_i     : in std_logic_vector (7 downto 0); --! Subscriber number coding (station address)
 
 
   --  FIELDRIVE 
 
-  fd_rxcdn_i : in  std_logic;                     --! Reception activity detection, active low
-  fd_rxd_i   : in  std_logic;                     --! Receiver data
-  fd_txer_i  : in  std_logic;                     --! Transmitter error
-  fd_wdgn_i  : in  std_logic;                     --! Watchdog on transmitter
+  fd_rxcdn_i : in std_logic;                     --! Reception activity detection, active low
+  fd_rxd_i   : in std_logic;                     --! Receiver data
+  fd_txer_i  : in std_logic;                     --! Transmitter error
+  fd_wdgn_i  : in std_logic;                     --! Watchdog on transmitter
 
  
   --  User Interface, General signals
  
-  nostat_i   : in  std_logic;                     --! No NanoFIP status with produced data
+  nostat_i   : in std_logic;                     --! No NanoFIP status with produced data
 
-  rstin_i    : in  std_logic;                     --! Initialisation control, active low
-                                                  --! Resets nanoFIP & the FIELDRIVE
+  rstin_i    : in std_logic;                     --! Initialisation control, active low
+                                                 --! Resets nanoFIP & the FIELDRIVE
 
-  rstpon_i   : in std_logic;                      --! Power On Reset, active low
+  rstpon_i   : in std_logic;                     --! Power On Reset, active low
 
-  slone_i    : in  std_logic;                     --! Stand-alone mode
-  uclk_i     : in  std_logic;                     --! 40 MHz clock
+  slone_i    : in std_logic;                     --! Stand-alone mode
+  uclk_i     : in std_logic;                     --! 40 MHz clock
 
 
   --  User Interface, NON-WISHBONE
 
-  var1_acc_i : in  std_logic;                    --! Signals that the user logic is accessing var 1
-  var2_acc_i : in  std_logic;                    --! Signals that the user logic is accessing var 2
-  var3_acc_i : in  std_logic;                    --! Signals that the user logic is accessing var 3
+  var1_acc_i : in std_logic;                     --! Signals that the user logic is accessing var 1
+  var2_acc_i : in std_logic;                     --! Signals that the user logic is accessing var 2
+  var3_acc_i : in std_logic;                     --! Signals that the user logic is accessing var 3
 
 
   --  User Interface, WISHBONE Slave
-  wclk_i     : in  std_logic;                    --! WISHBONE clock; may be independent of uclk
-  adr_i      : in  std_logic_vector(9 downto 0); --! WISHBONE address
+  wclk_i     : in std_logic;                     --! WISHBONE clock; may be independent of uclk
+  adr_i      : in std_logic_vector (9 downto 0); --! WISHBONE address
   cyc_i      : in std_logic;                     --! WISHBONE cycle 
 
-  dat_i      : in  std_logic_vector(15 downto 0);--! dat_i(7 downto 0) : WISHBONE data in, memory mode
+  dat_i      : in std_logic_vector (15 downto 0);--! dat_i(7 downto 0) : WISHBONE data in, memory mode
                                                  --! dat_i(15 downto 0): data in, stand-alone mode
 
-  rst_i      : in  std_logic;                    --! WISHBONE reset
+  rst_i      : in std_logic;                     --! WISHBONE reset
                                                  --! Does not reset other internal logic
 
-  stb_i      : in  std_logic;                    --! WISHBONE strobe
-  we_i       : in  std_logic;                    --! WISHBONE write enable
+  stb_i      : in std_logic;                     --! WISHBONE strobe
+  we_i       : in std_logic;                     --! WISHBONE write enable
 
 
 -- OUTPUTS
 
   -- WorldFIP settings
 
-  s_id_o     : out std_logic_vector(1 downto 0); --! Identification selection
+  s_id_o     : out std_logic_vector (1 downto 0);--! Identification selection
  
 
   --  FIELDRIVE
@@ -269,7 +263,7 @@ entity nanofip is
   fd_rstn_o  : out std_logic;                    --! Initialisation control, active low
   fd_txck_o  : out std_logic;                    --! Line driver half bit clock
   fd_txd_o   : out std_logic;                    --! Transmitter data
-  fd_txena_o:  out std_logic;                    --! Transmitter enable
+  fd_txena_o : out std_logic;                    --! Transmitter enable
 
 
   --  User Interface, General signals
@@ -321,98 +315,38 @@ architecture struc of nanofip is
   end component;
 
 
-  signal s_rst, s_rx_byte_ready, s_start_prod_p, s_rst_rx_osc, s_prod_request_byte_p   : std_logic;
-  signal s_prod_last_byte_p                                                            : std_logic;
-  signal s_rstin_synch, s_slone_synch, s_nostat_synch, s_fd_wdgn_synch, s_fd_txer_synch: std_logic;
-  signal s_fss_crc_fes_manch_ok_p, s_cons_fss_decoded_p, s_wb_rst, s_rx_bit_clk_p      : std_logic;
-  signal s_crc_or_manch_wrong_p, s_reset_nFIP_and_FD_p, s_rx_manch_clk_p               : std_logic;
-  signal s_var1_access_synch, s_var2_access_synch, s_var3_access_synch, s_wb_stb_synch : std_logic;
+  signal s_rst, s_rx_byte_ready, s_start_tx_p, s_prod_request_byte_p   : std_logic;
+  signal s_prod_last_byte_p, s_rst_tx_p                                                : std_logic;
+  signal s_fss_crc_fes_manch_ok_p, s_rx_fss_decoded_p, s_wb_rst      : std_logic;
+  signal s_crc_or_manch_wrong_p, s_reset_nFIP_and_FD_p               : std_logic;
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy, s_assert_RSTON_p, s_wb_ack_prod           : std_logic;
-  signal s_rst_rx_unit_p, s_nfip_status_r_tler, s_signif_edge_window , s_wb_we_synch   : std_logic;
-  signal s_fd_rxd_synch, s_fd_rxd_edge_p, s_fd_rxd_r_edge_p, s_fd_rxd_f_edge_p         : std_logic;
-  signal s_wb_stb_r_edge, s_adjac_bits_window, s_wb_cyc_synch, s_prod_byte_ready_p     : std_logic;
+  signal s_rx_rst_p, s_nfip_status_r_tler        : std_logic;
+  signal s_prod_byte_ready_p     : std_logic;
   signal s_var_from_control                                                            : t_var;
-  signal s_data_length_from_control, s_subs_synch                  : std_logic_vector (7 downto 0);
-  signal s_rx_byte, s_model_id_dec, s_constr_id_dec                : std_logic_vector (7 downto 0);
+  signal s_data_length_from_control                  : std_logic_vector (7 downto 0);
+  signal s_rx_byte, s_byte_to_tx, s_model_id_dec, s_constr_id_dec                : std_logic_vector (7 downto 0);
   signal s_cons_prod_byte_index_from_control                       : std_logic_vector (7 downto 0);
-  signal s_slone_dati_synch                                        : std_logic_vector(15 downto 0);
-  signal s_m_id_synch, s_c_id_synch                                : std_logic_vector (3 downto 0);
-  signal s_p3_lgth_synch                                           : std_logic_vector (2 downto 0);
-  signal s_rate_synch                                              : std_logic_vector (1 downto 0);
-  signal s_tx_clk_p_buff                       : std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0);
+
+
+
 
 
 --=================================================================================================
---                                       architecture begin                                        
+--                                        architecture begin                                      
 --=================================================================================================  
 begin
-
-
----------------------------------------------------------------------------------------------------
---                                     WF_inputs_synchronizer                                    --
----------------------------------------------------------------------------------------------------
-  synchronizer: WF_inputs_synchronizer
-  port map(
-    uclk_i            => uclk_i,
-    wb_clk_i          => wclk_i,
-    nfip_rst_i        => s_rst, 
-    rstin_a_i         => rstin_i,
-    wb_rst_i          => s_wb_rst,
-    slone_a_i         => slone_i,
-    nostat_a_i        => nostat_i,
-    fd_wdgn_a_i       => fd_wdgn_i,
-    fd_txer_a_i       => fd_txer_i,
-    fd_rxd_a_i        => fd_rxd_i,
-    fd_rxcdn_a_i      => fd_rxcdn_i, 
-    wb_cyc_a_i        => cyc_i,
-    wb_we_a_i         => we_i,
-    wb_stb_a_i        => stb_i,
-    var1_access_a_i   => var1_acc_i,
-    var2_access_a_i   => var2_acc_i,
-    var3_access_a_i   => var3_acc_i,
-    dat_a_i           => dat_i,
-    rate_a_i          => rate_i,
-    subs_a_i          => subs_i,
-    m_id_a_i          => m_id_i,
-    c_id_a_i          => c_id_i,
-    p3_lgth_a_i       => p3_lgth_i,
-    ---------------------------------------------------------
-    rstin_o           => s_rstin_synch,
-    slone_o           => s_slone_synch,
-    nostat_o          => s_nostat_synch,
-    fd_wdgn_o         => s_fd_wdgn_synch,
-    fd_txer_o         => s_fd_txer_synch,
-    fd_rxd_o          => s_fd_rxd_synch,
-    fd_rxd_edge_p_o   => s_fd_rxd_edge_p,
-    fd_rxd_r_edge_p_o => s_fd_rxd_r_edge_p,
-    fd_rxd_f_edge_p_o => s_fd_rxd_f_edge_p, 
-    wb_cyc_o          => s_wb_cyc_synch,
-    wb_we_o           => s_wb_we_synch,
-    wb_stb_o          => s_wb_stb_synch,
-    wb_stb_r_edge_p_o => s_wb_stb_r_edge,
-    var1_access_o     => s_var1_access_synch,
-    var2_access_o     => s_var2_access_synch,
-    var3_access_o     => s_var3_access_synch,
-    slone_dati_o      => s_slone_dati_synch,
-    rate_o            => s_rate_synch,
-    subs_o            => s_subs_synch,
-    m_id_o            => s_m_id_synch,
-    c_id_o            => s_c_id_synch,
-    p3_lgth_o         => s_p3_lgth_synch
-    ---------------------------------------------------------
-      );
-
 
 
 ---------------------------------------------------------------------------------------------------
 --                                         WF_reset_unit                                         --
 ---------------------------------------------------------------------------------------------------
   reset_unit : WF_reset_unit 
-    port map(
+    port map (
       uclk_i                => uclk_i,
-      rstin_i               => s_rstin_synch,
+      wb_clk_i              => wclk_i,
+      rstin_a_i             => rstin_i,
       rstpon_i              => rstpon_i,
-      rate_i                => s_rate_synch,
+      rate_i                => rate_i,
       rst_i                 => rst_i,
       var_i                 => s_var_from_control,
       rst_nFIP_and_FD_p_i   => s_reset_nFIP_and_FD_p,
@@ -421,33 +355,8 @@ begin
       nFIP_rst_o            => s_rst, 
       wb_rst_o              => s_wb_rst,
       rston_o               => rston_o,
-      fd_rstn_o             => fd_rstn_o  
+      fd_rstn_o             => fd_rstn_o);  
     ---------------------------------------------------------
-      );
-
-
-
----------------------------------------------------------------------------------------------------
---                                          WF_rx_tx_osc                                         --
----------------------------------------------------------------------------------------------------
-  rx_tx_osc :WF_rx_tx_osc
-    generic map(C_PERIODS_COUNTER_LENGTH => 11,
-                c_TX_CLK_BUFF_LGTH       => 4)
-    port map(
-      uclk_i                  => uclk_i,
-      nfip_rst_i              => s_rst, 
-      rxd_edge_p_i            => s_fd_rxd_edge_p,      
-      rst_rx_osc_i            => s_rst_rx_osc, 
-      rate_i                  => s_rate_synch,  
-    ---------------------------------------------------------
-      tx_clk_p_buff_o         => s_tx_clk_p_buff,
-      tx_clk_o                => fd_txck_o,
-      rx_manch_clk_p_o        => s_rx_manch_clk_p,
-      rx_bit_clk_p_o          => s_rx_bit_clk_p, 
-      rx_signif_edge_window_o => s_signif_edge_window,
-      rx_adjac_bits_window_o  => s_adjac_bits_window
-    ---------------------------------------------------------
-      );
 
 
 
@@ -455,38 +364,47 @@ begin
 --                                         WF_consumption                                        --
 ---------------------------------------------------------------------------------------------------
   Consumption: WF_consumption
-  port map(
-    uclk_i                  => uclk_i,
-    slone_i                 => slone_i,
-    nfip_rst_i              => s_rst,
-    subs_i                  => s_subs_synch,
-    fd_rxd_i                => s_fd_rxd_synch,
-    fd_rxd_r_edge_p_i       => s_fd_rxd_r_edge_p,
-    fd_rxd_f_edge_p_i       => s_fd_rxd_f_edge_p,
-    wb_clk_i                => wclk_i,
-    wb_adr_i                => adr_i (8 downto 0),
-    var_i                   => s_var_from_control,
-    byte_index_i            => s_cons_prod_byte_index_from_control,
-    rst_rx_unit_p_i         => s_rst_rx_unit_p,
-    signif_edge_window_i    => s_signif_edge_window,
-    adjac_bits_window_i     => s_adjac_bits_window,
-    sample_bit_p_i          => s_rx_bit_clk_p,
-    sample_manch_bit_p_i    => s_rx_manch_clk_p,
+  port map (
+    uclk_i                      => uclk_i,
+    slone_i                     => slone_i,
+    nfip_rst_i                  => s_rst,
+    subs_i                      => subs_i,
+    rx_byte_i                   => s_rx_byte,
+    rx_byte_ready_p_i           => s_rx_byte_ready,
+    rx_fss_crc_fes_manch_ok_p_i => s_fss_crc_fes_manch_ok_p,
+    rx_crc_or_manch_wrong_p_i   => s_crc_or_manch_wrong_p,
+    wb_clk_i                    => wclk_i,
+    wb_adr_i                    => adr_i (8 downto 0),
+    var_i                       => s_var_from_control,
+    byte_index_i                => s_cons_prod_byte_index_from_control,
+     ---------------------------------------------------------
+    var1_rdy_o                  => s_var1_rdy,
+    var2_rdy_o                  => s_var2_rdy,
+    data_o                      => dat_o,
+    nfip_status_r_tler_o        => s_nfip_status_r_tler,
+    assert_rston_p_o            => s_assert_RSTON_p,
+    rst_nfip_and_fd_p_o         => s_reset_nFIP_and_FD_p);
     ---------------------------------------------------------
-    var1_rdy_o              => s_var1_rdy,
-    var2_rdy_o              => s_var2_rdy,
-    data_o                  => dat_o,
-    byte_o                  => s_rx_byte,
-    byte_ready_p_o          => s_rx_byte_ready,
-    fss_received_p_o        => s_cons_fss_decoded_p, 
-    crc_or_manch_wrong_p_o  => s_crc_or_manch_wrong_p,
-    fss_crc_fes_manch_ok_p_o=> s_fss_crc_fes_manch_ok_p,
-    nfip_status_r_tler_o    => s_nfip_status_r_tler,
-    assert_rston_p_o        => s_assert_RSTON_p,
-    rst_nfip_and_fd_p_o     => s_reset_nFIP_and_FD_p,
-    rst_rx_osc_o            => s_rst_rx_osc
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                         WF_fd_receiver                                        --
+---------------------------------------------------------------------------------------------------
+  FIELDRIVE_Receiver: WF_fd_receiver
+  port map (
+    uclk_i                      => uclk_i,
+    rate_i                      => rate_i,
+    fd_rxd_a_i                  => fd_rxd_i,
+    nfip_rst_i                  => s_rst,
+    rx_rst_p_i                  => s_rx_rst_p,
     ---------------------------------------------------------
-       );
+    rx_byte_o                   => s_rx_byte,
+    rx_byte_ready_p_o           => s_rx_byte_ready,
+    rx_fss_crc_fes_manch_ok_p_o => s_fss_crc_fes_manch_ok_p,
+    rx_fss_received_p_o         => s_rx_fss_decoded_p,
+    rx_crc_or_manch_wrong_p_o   => s_crc_or_manch_wrong_p);
+    ---------------------------------------------------------
 
 
 
@@ -494,7 +412,7 @@ begin
 --                                         WF_production                                         --
 ---------------------------------------------------------------------------------------------------
   Production: WF_production
-  port map(
+  port map (
     uclk_i                  => uclk_i,
     slone_i                 => slone_i,
     nostat_i                => nostat_i,
@@ -503,36 +421,52 @@ begin
     wb_data_i               => dat_i(7 downto 0),
     wb_adr_i                => adr_i(8 downto 0),
     wb_ack_prod_p_i         => s_wb_ack_prod,  
-    slone_data_i            => s_slone_dati_synch,
-    var1_acc_i              => s_var1_access_synch,
-    var2_acc_i              => s_var2_access_synch,
-    var3_acc_i              => s_var3_access_synch,
-    fd_txer_i               => s_fd_txer_synch,
-    fd_wdgn_i               => s_fd_wdgn_synch,
+    slone_data_i            => dat_i,
+    var1_acc_a_i            => var1_acc_i,
+    var2_acc_a_i            => var2_acc_i,
+    var3_acc_a_i            => var3_acc_i,
+    fd_txer_a_i             => fd_txer_i,
+    fd_wdgn_a_i             => fd_wdgn_i,
     var_i                   => s_var_from_control,
     data_length_i           => s_data_length_from_control,
     byte_index_i            => s_cons_prod_byte_index_from_control,
-    start_prod_p_i          => s_start_prod_p,
     byte_request_accept_p_i => s_prod_byte_ready_p,
-    last_byte_p_i           => s_prod_last_byte_p,
     nfip_status_r_tler_i    => s_nfip_status_r_tler,
     nfip_status_r_fcser_p_i => s_crc_or_manch_wrong_p,
     var1_rdy_i              => s_var1_rdy,
     var2_rdy_i              => s_var2_rdy,
-    tx_clk_p_buff_i         => s_tx_clk_p_buff,
     model_id_dec_i          => s_model_id_dec,
     constr_id_dec_i         => s_constr_id_dec,
     ---------------------------------------------------------
-    byte_request_p_o        => s_prod_request_byte_p,
-    tx_data_o               => fd_txd_o,
-    tx_enable_o             => fd_txena_o,
+    byte_o                  => s_byte_to_tx,
     u_cacer_o               => u_cacer_o,
     u_pacer_o               => u_pacer_o,
     r_tler_o                => r_tler_o,
     r_fcser_o               => r_fcser_o,
-    var3_rdy_o              => s_var3_rdy
+    var3_rdy_o              => s_var3_rdy);
     ---------------------------------------------------------
-       );
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                         WF_fd_Transmitter                                     --
+---------------------------------------------------------------------------------------------------
+  FIELDRIVE_Transmitter: WF_fd_transmitter
+  port map (
+    uclk_i                     => uclk_i,
+    rate_i                     => rate_i,
+    nfip_rst_i                 => s_rst,
+    tx_byte_i                  => s_byte_to_tx,
+    tx_byte_request_accept_p_i => s_prod_byte_ready_p,
+    tx_last_byte_p_i           => s_prod_last_byte_p,
+    tx_start_p_i               => s_start_tx_p,
+    tx_rst_p_i                 => s_rst_tx_p,
+    ---------------------------------------------------------
+    tx_byte_request_p_o        => s_prod_request_byte_p,
+    tx_data_o                  => fd_txd_o,
+    tx_enable_o                => fd_txena_o,
+    tx_clk_o                   => fd_txck_o);
+    ---------------------------------------------------------
 
 
 
@@ -541,31 +475,30 @@ begin
 ---------------------------------------------------------------------------------------------------
 
   engine_control : WF_engine_control 
-    generic map( c_QUARTZ_PERIOD => c_QUARTZ_PERIOD)
-    port map(
+    port map (
       uclk_i                      => uclk_i,
       nfip_rst_i                   => s_rst, 
       tx_byte_request_p_i          => s_prod_request_byte_p, 
-      rx_fss_received_p_i          => s_cons_fss_decoded_p,   
+      rx_fss_received_p_i          => s_rx_fss_decoded_p,   
       rx_byte_i                    => s_rx_byte, 
       rx_byte_ready_p_i            => s_rx_byte_ready,
       rx_fss_crc_fes_manch_ok_p_i  => s_fss_crc_fes_manch_ok_p,
       rx_crc_or_manch_wrong_p_i    => s_crc_or_manch_wrong_p,
-      rate_i                       => s_rate_synch,
-      subs_i                       => s_subs_synch,
-      p3_lgth_i                    => s_p3_lgth_synch, 
-      slone_i                      => s_slone_synch, 
-      nostat_i                     => s_nostat_synch, 
+      rate_i                       => rate_i,
+      subs_i                       => subs_i,
+      p3_lgth_i                    => p3_lgth_i, 
+      slone_i                      => slone_i, 
+      nostat_i                     => nostat_i, 
     ---------------------------------------------------------
       var_o                       => s_var_from_control,
-      tx_start_prod_p_o           => s_start_prod_p , 
+      tx_start_p_o                => s_start_tx_p , 
       tx_byte_request_accept_p_o  => s_prod_byte_ready_p, 
       tx_last_byte_p_o            => s_prod_last_byte_p, 
       prod_cons_byte_index_o      => s_cons_prod_byte_index_from_control,
       prod_data_length_o          => s_data_length_from_control,
-      rst_rx_unit_p_o             => s_rst_rx_unit_p
+      rx_rst_p_o                  => s_rx_rst_p,
+      rst_tx_p_o                  => s_rst_tx_p);
     ---------------------------------------------------------
-      );
 
       var1_rdy_o <= s_var1_rdy; 
       var2_rdy_o <= s_var2_rdy; 
@@ -577,17 +510,17 @@ begin
 --                                    WF_model_constr_decoder                                    --
 ---------------------------------------------------------------------------------------------------
  model_constr_decoder : WF_model_constr_decoder 
-  port map(
+  port map (
     uclk_i          => uclk_i,
     nfip_rst_i      => s_rst,
-    model_id_i      => s_m_id_synch,
-    constr_id_i     => s_c_id_synch,
+    model_id_i      => m_id_i,
+    constr_id_i     => c_id_i,
     ---------------------------------------------------------
     select_id_o     => s_id_o,
     model_id_dec_o  => s_model_id_dec,
-    constr_id_dec_o => s_constr_id_dec
+    constr_id_dec_o => s_constr_id_dec);
     ---------------------------------------------------------
-    );
+
 
 
 
@@ -596,17 +529,17 @@ begin
 ---------------------------------------------------------------------------------------------------
   WISHBONE_controller: WF_wb_controller
   port map (
-    wb_clk_i          => wclk_i,
-    wb_rst_i          => rst_i,
-    wb_cyc_i          => s_wb_cyc_synch,      
-    wb_stb_r_edge_p_i => s_wb_stb_r_edge,
-    wb_we_i           => s_wb_we_synch,
-    wb_adr_id_i       => adr_i (9 downto 7),   
+    wb_clk_i        => wclk_i,
+    wb_rst_i        => rst_i,
+    wb_stb_i        => stb_i,
+    wb_cyc_i        => cyc_i,      
+    wb_we_i         => we_i,
+    wb_adr_id_i     => adr_i (9 downto 7),   
     ---------------------------------------------------------------
-    wb_ack_prod_p_o   => s_wb_ack_prod,
-    wb_ack_p_o        => ack_o
+    wb_ack_prod_p_o => s_wb_ack_prod,
+    wb_ack_p_o      => ack_o);
     ---------------------------------------------------------------  
-      );
+
 
 
 ---------------------------------------------------------------------------------------------------
@@ -615,8 +548,8 @@ begin
 
 end architecture struc;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

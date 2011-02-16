@@ -87,7 +87,7 @@ entity WF_cons_bytes_to_dato is
 
   port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    -- nanoFIP User Interface, General signals
     uclk_i            : in std_logic;                     --! 40 MHz clock
 
     -- Signal from the WF_reset_unit unit
@@ -108,13 +108,13 @@ end entity WF_cons_bytes_to_dato;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_cons_bytes_to_dato is
 
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -152,8 +152,8 @@ Data_Transfer_To_Dat_o: process (uclk_i)
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

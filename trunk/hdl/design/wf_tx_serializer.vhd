@@ -31,9 +31,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @brief     The unit is generating the nanoFIP FIELDRIVE outputs FD_TXD and FD_TXENA. It is
 --!            retreiving bytes of data from:
---!              o the WF_prod_bytes_retriever (from the Ctrl until the MPS)
---!              o WF_package                  (FSS, FES)
---!              o and the WF_CRC              (CRC bytes).
+--!              o the WF_production (from the Ctrl until the MPS)
+--!              o WF_package        (FSS, FES)
+--!              o and the WF_CRC    (CRC bytes).
 --!            It encodes the bytes to the Manchester 2 scheme and outputs one by one the encoded
 --!            bits on the moments indicated by the tx_clk_p_buff signal.
 --!            After the delivery of a byte, it is requesting from the WF_engine_control for a new
@@ -51,7 +51,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!             ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
 --!            |____FSS____|_Ctrl_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|
 --!
---!                        |--------- Bytes from the WF_prod_bytes_retriever -------|
+--!                        |------------- Bytes from the WF_production -------------|
 --!                                                                                 
 --
 --
@@ -66,11 +66,11 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details\n 
 --
---!   \n<b>Dependencies:</b>           \n
---!            WF_engine_control       \n
---!            WF_prod_bytes_retriever \n
---!            WF_rx_tx_osc            \n
---!            WF_reset_unit           \n
+--!   \n<b>Dependencies:</b>     \n
+--!            WF_engine_control \n
+--!            WF_production     \n
+--!            WF_tx_osc         \n
+--!            WF_reset_unit     \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -86,8 +86,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                            renamed from tx to tx_serializer; 
 --!                            stop_transmission state added for the synch of txena  
 --!     -> v0.04  01/2011  EG  sync_to_txck state added to start always with the bits 1,2,3 of the
---!                            clock buffer available(start_prod_p_i may arrive at any time)        
- 
+--!                            clock buffer available(tx_start_p_i may arrive at any time)        
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -100,24 +99,24 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                               Entity declaration for WF_tx_serializer
 --=================================================================================================
 entity WF_tx_serializer is
-  generic (c_TX_CLK_BUFF_LGTH: natural);
   port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;                     --! 40 MHz clock
 
     -- Signal from the WF_reset_unit
     nfip_rst_i              : in std_logic;                     --! nanoFIP internal reset
     
-    -- Signals from the WF_prod_bytes_retriever
-    byte_i                  : in std_logic_vector (7 downto 0); --! data byte to be delivered 
+    -- Signals from the WF_production
+    byte_i                  : in std_logic_vector (7 downto 0); --! byte to be delivered 
 
     -- Signals from the WF_engine_control
-    start_prod_p_i          : in std_logic;  --! indication for the start of the production
+    tx_rst_p_i              : in std_logic;
+    tx_start_p_i            : in std_logic;  --! indication for the start of the production
     byte_request_accept_p_i : in std_logic;  --! indication that a byte is ready to be delivered   
     last_byte_p_i           : in std_logic;  --! indication of the last byte before the CRC bytes
 
-     -- Signal from the WF_rx_tx_osc    
+     -- Signal from the WF_tx_osc    
     tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
                                              --! clk for the transmission synchronization 
 
@@ -137,7 +136,7 @@ end entity WF_tx_serializer;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_tx_serializer is
 
@@ -146,16 +145,16 @@ architecture rtl of WF_tx_serializer is
 
   signal tx_state, nx_tx_state                                                     : tx_state_t;
   signal s_prepare_to_produce, s_sending_fss, s_sending_data, s_sending_crc        : std_logic;
-  signal s_sending_fes, s_start_crc_p, s_data_bit_to_crc_p, s_stop_transmission    : std_logic;
+  signal s_sending_fes, s_stop_transmission, s_start_crc_p, s_data_bit_to_crc_p    : std_logic;
   signal s_txd, s_decr_index_p, s_bit_index_load, s_bit_index_is_zero, s_tx_enable : std_logic;
-  signal s_bit_index, s_bit_index_top                                   : unsigned(4 downto 0);
-  signal s_byte                                                : std_logic_vector (7 downto 0);
-  signal s_crc_bytes_manch                                     : std_logic_vector(31 downto 0);
-  signal s_crc_bytes,s_data_byte_manch                         : std_logic_vector(15 downto 0);
+  signal s_bit_index, s_bit_index_top                                   : unsigned (4 downto 0);
+  signal s_byte                                                : std_logic_vector  (7 downto 0);
+  signal s_crc_bytes_manch                                     : std_logic_vector (31 downto 0);
+  signal s_crc_bytes, s_data_byte_manch                        : std_logic_vector (15 downto 0);
 
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -215,14 +214,14 @@ begin
 --! transitions of the FSM
 
   Serializer_FSM_Comb_State_Transitions: process (tx_state, last_byte_p_i, s_bit_index_is_zero,
-                                                             start_prod_p_i,  tx_clk_p_buff_i)
+                                                  tx_rst_p_i, tx_start_p_i,  tx_clk_p_buff_i)
   begin
     nx_tx_state <= idle;
 
     case tx_state is 
 
       when idle =>
-                           if start_prod_p_i = '1' then
+                           if tx_start_p_i = '1' then
                              nx_tx_state <= sync_to_txck;
                            else
                              nx_tx_state <= idle;
@@ -232,6 +231,10 @@ begin
       when sync_to_txck =>
                            if tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4) = '1' then 
                              nx_tx_state <= send_fss;
+            
+                           elsif tx_rst_p_i = '1' then
+                             nx_tx_state <= idle;
+
                            else
                              nx_tx_state <= sync_to_txck;
                            end if;
@@ -240,6 +243,10 @@ begin
       when send_fss =>
                            if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1) = '1' then 
                              nx_tx_state <= send_data_byte;
+
+                           elsif tx_rst_p_i = '1' then
+                             nx_tx_state <= idle;
+
                            else
                              nx_tx_state <= send_fss;
                            end if;
@@ -248,6 +255,10 @@ begin
       when send_data_byte =>
                            if last_byte_p_i = '1' then
                              nx_tx_state <= send_crc_bytes;
+
+                           elsif tx_rst_p_i = '1' then
+                             nx_tx_state <= idle;
+
                            else
                              nx_tx_state <= send_data_byte;
                            end if;
@@ -256,22 +267,37 @@ begin
       when send_crc_bytes =>
                            if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= send_fes;      -- state change early enough (tx_clk_p_buff_i(2)) 
-                           else                            -- for the Outgoing_Bits_Index, that is loaded on
-                             nx_tx_state <= send_crc_bytes;-- tx_clk_p_buff_i(3), to get the 31 as top value
+                                                           -- for the Outgoing_Bits_Index, that is loaded on
+                                                           -- tx_clk_p_buff_i(3), to get the 31 as top value
+                           elsif tx_rst_p_i = '1' then
+                             nx_tx_state <= idle;
+
+                           else                            
+                             nx_tx_state <= send_crc_bytes;
+
                            end if;
 
 
       when send_fes =>
                            if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= stop_transmission; -- state change early enough (tx_clk_p_buff_i(2))
-                           else                                -- for the Outgoing_Bits_Index that is loaded on
-                             nx_tx_state <= send_fes;          -- tx_clk_p_buff_i(3) to get the 15 as top value
+                                                               -- for the Outgoing_Bits_Index that is loaded on
+                                                               -- tx_clk_p_buff_i(3) to get the 15 as top value
+                           elsif tx_rst_p_i = '1' then
+                             nx_tx_state <= idle;   
+
+                           else                                
+                             nx_tx_state <= send_fes;          
                            end if;   
 
 
       when stop_transmission =>
                            if tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= idle;
+
+                           elsif tx_rst_p_i = '1' then
+                             nx_tx_state <= idle;  
+
                            else
                              nx_tx_state <= stop_transmission;
                            end if;  
@@ -404,26 +430,10 @@ Input_Byte_Retrieval: process (uclk_i)
 --                                      Manchester Encoding                                      --
 ---------------------------------------------------------------------------------------------------
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---@brief Instantiation of a manchester encoder for a data byte (8 bits long)
-data_byte_manc_encoder: WF_manch_encoder 
-  generic map(word_length  => 8)
-  port map(
-    word_i       => s_byte,
-    word_manch_o => s_data_byte_manch
-      );
+  s_data_byte_manch <= f_manch_encoder (s_byte);
+  s_crc_bytes_manch <= f_manch_encoder (s_crc_bytes);
 
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---@brief Instantiation of a manchester encoder for the CRC bytes (16 bits long)
-crc_bytes_manc_encoder: WF_manch_encoder 
-  generic map(word_length => 16)
-  port map(
-    word_i       => s_crc_bytes,
-    word_manch_o => s_crc_bytes_manch
-      );
-
-  
+ 
 
 ---------------------------------------------------------------------------------------------------
 --                                        CRC calculation                                        --
@@ -431,18 +441,18 @@ crc_bytes_manc_encoder: WF_manch_encoder
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --!@brief Instantiation of the CRC unit 
-  crc_generation: WF_crc 
-    generic map( 
-      c_GENERATOR_POLY_length => 16)
-    port map(
-      uclk_i             => uclk_i,
-      nfip_rst_i         => nfip_rst_i,
-      start_crc_p_i      => s_start_crc_p,
-      data_bit_ready_p_i => s_data_bit_to_crc_p,
-      data_bit_i         => s_txd,
-      crc_o              => s_crc_bytes,
-      crc_ok_p           => open);
 
+  crc_generation: WF_crc 
+  port map (
+    uclk_i                => uclk_i,
+    nfip_rst_i            => nfip_rst_i,
+    start_crc_p_i         => s_start_crc_p,
+    data_bit_ready_p_i    => s_data_bit_to_crc_p,
+    data_bit_i            => s_txd,
+    crc_ok_p              => open,
+   -------------------------------------------------
+    crc_o                 => s_crc_bytes);
+   -------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 -- concurrent signals assignement for the crc_generator inputs
@@ -465,8 +475,8 @@ crc_bytes_manc_encoder: WF_manch_encoder
 --! CRC or a FES byte. 
  
   Outgoing_Bits_Index: WF_decr_counter
-  generic map(g_counter_lgth => 5)
-  port map(
+  generic map (g_counter_lgth => 5)
+  port map (
     uclk_i              => uclk_i,
     nfip_rst_i          => nfip_rst_i,      
     counter_top         => s_bit_index_top,
@@ -531,12 +541,12 @@ crc_bytes_manc_encoder: WF_manch_encoder
 --! The unit also generates the tx_enable_o signal.
 
   bits_to_txd: WF_bits_to_txd
-    port map(
+    port map (
       uclk_i              => uclk_i,
       nfip_rst_i          => nfip_rst_i,          
       txd_bit_index_i     => s_bit_index,
-      data_byte_manch_i   => s_data_byte_manch, 
-      crc_byte_manch_i    => s_crc_bytes_manch, 
+      data_byte_manch_i   => s_data_byte_manch,
+      crc_byte_manch_i    => s_crc_bytes_manch,
       sending_fss_i       => s_sending_fss,
       sending_data_i      => s_sending_data, 
       sending_crc_i       => s_sending_crc,
@@ -565,8 +575,8 @@ crc_bytes_manc_encoder: WF_manch_encoder
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

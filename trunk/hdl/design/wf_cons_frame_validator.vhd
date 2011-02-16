@@ -81,13 +81,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Synplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL246  Input port bits 0, 2, 5, 6 of var_i(0 to 6) are unused"                             --
--- var_i is one-hot encoded and has 7 values.                                                    -- 
--- The unit is treating only the consumed variables var_1, var_2 and var_rst.                    --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -107,6 +100,8 @@ entity WF_cons_frame_validator is
     rx_fss_crc_fes_manch_ok_p_i: in std_logic; --! indication of a frame with correct FSS, FES, CRC 
                                                --! and manch. encoding
 
+    rx_crc_or_manch_wrong_p_i  : in std_logic; --! indication .................
+
    -- Signals from the WF_engine_control unit
     rx_byte_index_i            : in std_logic_vector (7 downto 0); --! index of byte being received
     var_i                      : in t_var;      --! variable type that is being treated
@@ -125,14 +120,14 @@ end entity WF_cons_frame_validator;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_cons_frame_validator is
 
 signal s_cons_ctrl_byte_ok, s_cons_pdu_byte_ok, s_cons_lgth_byte_ok : std_logic;
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -145,7 +140,7 @@ begin
 --! the checks of the FSS, CRC, FES and of the manch. encoding. 
 
  Consumed_Frame_Validator: process (var_i, cons_ctrl_byte_i, rx_byte_index_i, cons_pdu_byte_i,
-                                    rx_fss_crc_fes_manch_ok_p_i, cons_lgth_byte_i)
+                                    rx_fss_crc_fes_manch_ok_p_i, cons_lgth_byte_i, rx_crc_or_manch_wrong_p_i)
   begin
   
   case var_i is
@@ -170,8 +165,10 @@ begin
 
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    if rx_fss_crc_fes_manch_ok_p_i = '1' then                   -- checking the RP_DAT.Data.Length
-                                                                -- byte, when the FES arrives.
+    if rx_fss_crc_fes_manch_ok_p_i = '1' or rx_crc_or_manch_wrong_p_i = '1' then -- checking the
+                                                                -- RP_DAT.Data.Length byte,
+                                                                -- when the FES arrives
+
       if unsigned(rx_byte_index_i ) = (unsigned(cons_lgth_byte_i) + 5) then 
         s_cons_lgth_byte_ok <= '1';                             -- rx_byte_index starts counting 
                                                                 -- from 0 and apart from the 
@@ -214,8 +211,8 @@ end process;
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

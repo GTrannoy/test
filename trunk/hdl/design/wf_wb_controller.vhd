@@ -79,65 +79,90 @@ entity WF_wb_controller is
   port (
   -- INPUTS 
     -- nanoFIP User Interface, WISHBONE Slave
-    wb_clk_i          : in std_logic;                      --! WISHBONE clock
-    wb_rst_i          : in std_logic;                      --! WISHBONE reset
-    wb_cyc_i          : in std_logic;                      --! WISHBONE cycle
-    wb_stb_r_edge_p_i : in std_logic;                      --! rising edge on WISHBONE strobe
-                                                           --! 1 wb-clk wide pulse
-
-    wb_we_i           : in std_logic;                      --! WISHBONE write enable
- 
-    wb_adr_id_i        : in  std_logic_vector (2 downto 0);--! 3 first bits of WISHBONE address
+    wb_clk_i        : in std_logic;                      --! WISHBONE clock
+    wb_rst_i        : in std_logic;                      --! WISHBONE reset
+    wb_stb_i        : in std_logic;                      --! WISHBONE strobe
+    wb_cyc_i        : in std_logic;                      --! WISHBONE cycle
+    wb_we_i         : in std_logic;                      --! WISHBONE write enable
+    wb_adr_id_i     : in  std_logic_vector (2 downto 0); --! 3 first bits of WISHBONE address
 
 
   -- OUTPUTS
 
     -- Signal from the WF_production_unit
-    wb_ack_prod_p_o : out std_logic;                       --! response to a write cycle
-                                                           -- latching moment of wb_dat_i
+    wb_ack_prod_p_o : out std_logic;                     --! response to a write cycle
+                                                         -- latching moment of wb_dat_i
 
     -- nanoFIP User Interface, WISHBONE Slave output
-    wb_ack_p_o      : out std_logic                        --! WISHBONE acknowledge
+    wb_ack_p_o      : out std_logic                      --! WISHBONE acknowledge
 
       );
 end entity WF_wb_controller;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_wb_controller is
 
-  signal s_wb_ack_write_p, s_wb_ack_read_p : std_logic;
+
+  signal s_wb_ack_write_p, s_wb_ack_read_p, s_wb_stb_r_edge_p : std_logic;
+  signal s_wb_we_d3, s_wb_cyc_d3                              : std_logic_vector (2 downto 0);
+  signal s_wb_stb_d4                                          : std_logic_vector (3 downto 0);
+
 
 begin
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+---------------------------------------------------------------------------------------------------
+--!@brief Triple buffering of the WISHBONE control signals: stb, cyc, we.
+
+  WISHBONE_inputs_synchronization: process (wb_clk_i)
+  begin
+   if rising_edge (wb_clk_i) then
+     if wb_rst_i = '1' then          -- wb_rst is not buffered to comply with WISHBONE rule 3.15
+       s_wb_stb_d4  <= (others => '0');
+       s_wb_cyc_d3  <= (others => '0');
+       s_wb_we_d3   <= (others => '0');
+
+      else
+        s_wb_stb_d4 <= s_wb_stb_d4 (2 downto 0) & wb_stb_i;   
+        s_wb_cyc_d3 <= s_wb_cyc_d3 (1 downto 0) & wb_cyc_i; 
+        s_wb_we_d3  <= s_wb_we_d3  (1 downto 0) & wb_we_i;   
+      end if;
+    end if;
+  end process;
+
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  s_wb_stb_r_edge_p  <= (not s_wb_stb_d4(3)) and s_wb_stb_d4(2); 
+
+
+---------------------------------------------------------------------------------------------------
 --!@brief Generate_wb_ack_write_p_o: Generation of the wb_ack_write_p signal
 --! (acknowledgement from WISHBONE Slave of the write cycle, as a response to the master's storbe).
 --! The 1 wb_clk-wide pulse is generated if the wb_cyc and wb_we are asserted and the WISHBONE input 
 --! address corresponds to an address in the Produced memory block.
   
-  Generate_wb_ack_write_p_o: s_wb_ack_write_p <= '1' when ((wb_stb_r_edge_p_i = '1') and 
-                                                           (wb_adr_id_i = "010")     and
-                                                           (wb_we_i = '1')           and 
-                                                           (wb_cyc_i = '1'))
+  Generate_wb_ack_write_p_o: s_wb_ack_write_p <= '1' when ((s_wb_stb_r_edge_p = '1') and 
+                                                           (s_wb_we_d3 (2)    = '1') and 
+                                                           (s_wb_cyc_d3(2)    = '1') and
+                                                           (wb_adr_id_i       = "010"))
                                             else '0';
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+---------------------------------------------------------------------------------------------------
 --!@brief Generate_wb_ack_read_p:  Generation of the wb_ack_read_p signal
 --! (acknowledgement from WISHBONE Slave of the read cycle, as a response to the master's strobe).
 --! The 1 wb_clk-wide pulse is generated if the wb_cyc is asserted and the WISHBONE input address
 --! corresponds to an address in the Consumed memory block.
 
-  Generate_wb_ack_read_p_o: s_wb_ack_read_p <= '1' when ((wb_stb_r_edge_p_i = '1')        and 
-                                                         (wb_adr_id_i(2 downto 1) = "00") and
-                                                         (wb_cyc_i = '1'))
+  Generate_wb_ack_read_p_o: s_wb_ack_read_p <= '1' when ((s_wb_stb_r_edge_p       = '1') and 
+                                                         (s_wb_cyc_d3(2)          = '1') and
+                                                         (s_wb_we_d3(2)           = '0') and
+                                                         (wb_adr_id_i(2 downto 1) = "00"))
                                           else '0';
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+---------------------------------------------------------------------------------------------------
 --!@brief Output_Register 
 
    WB_ACK: process (wb_clk_i) 
@@ -157,8 +182,8 @@ begin
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

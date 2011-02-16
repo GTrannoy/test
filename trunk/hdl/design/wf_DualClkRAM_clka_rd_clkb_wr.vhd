@@ -66,11 +66,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Synplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings                                           --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -78,30 +73,30 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --=================================================================================================
 
 entity WF_DualClkRAM_clka_rd_clkb_wr is
-  generic (C_RAM_DATA_LGTH : integer;  -- length of data word
-           c_RAM_ADDR_LGTH : integer); -- memory depth
+  generic (g_ram_data_lgth : integer;  -- length of data word
+           g_ram_addr_lgth : integer); -- memory depth
   port (
   -- INPUTS 
     -- Inputs concerning port A
     clk_porta_i      : in std_logic;
-    addr_porta_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
+    addr_porta_i     : in std_logic_vector (g_ram_addr_lgth - 1 downto 0);
 
     -- Inputs concerning port B        
     clk_portb_i      : in std_logic;
-    addr_portb_i     : in std_logic_vector (C_RAM_ADDR_LGTH - 1 downto 0);
-    data_portb_i     : in std_logic_vector (C_RAM_DATA_LGTH - 1 downto 0);
+    addr_portb_i     : in std_logic_vector (g_ram_addr_lgth - 1 downto 0);
+    data_portb_i     : in std_logic_vector (g_ram_data_lgth - 1 downto 0);
     write_en_portb_i : in std_logic;
 
 
   -- OUTPUT 
     -- Output concerning port A
-    data_porta_o     : out std_logic_vector (C_RAM_DATA_LGTH -1 downto 0)
+    data_porta_o     : out std_logic_vector (g_ram_data_lgth -1 downto 0)
 );
 end WF_DualClkRAM_clka_rd_clkb_wr; 
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is 
 
@@ -115,7 +110,7 @@ signal s_zeros          : std_logic_vector (7 downto 0);
 
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================
 begin 
 
@@ -160,8 +155,8 @@ Majority_Voter: data_porta_o <= (data_o_A_array(0) and data_o_A_array(1)) or
 
 end syn;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------
