@@ -858,50 +858,48 @@ begin
         -------------------------------------------------------------------------------------------
         elsif (s_id_dat_var_byte = '1') and (rx_byte_ready_p_i = '1') then      -- var byte arrived
 
-          case rx_byte_i  is
-
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).hexvalue =>
+          if rx_byte_i = c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).hexvalue then
             s_var_aux            <= var_presence;
             s_produce_or_consume <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).prod_or_cons;
             s_broadcast_var      <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).hexvalue =>
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).hexvalue then
             s_var_aux            <= var_identif;
             s_produce_or_consume <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).prod_or_cons;
             s_broadcast_var      <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when c_VARS_ARRAY(c_VAR_1_INDEX).hexvalue =>
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_1_INDEX).hexvalue then
             s_var_aux            <= var_1;
             s_produce_or_consume <= c_VARS_ARRAY(c_VAR_1_INDEX).prod_or_cons;
             s_broadcast_var      <= c_VARS_ARRAY(c_VAR_1_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when c_VARS_ARRAY(c_VAR_2_INDEX).hexvalue =>
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_2_INDEX).hexvalue then
             s_var_aux            <= var_2;
             s_produce_or_consume <= c_VARS_ARRAY(c_VAR_2_INDEX).prod_or_cons;
             s_broadcast_var      <= c_VARS_ARRAY(c_VAR_2_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when c_VARS_ARRAY(c_VAR_3_INDEX).hexvalue =>
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_3_INDEX).hexvalue then
             s_var_aux            <= var_3;
             s_produce_or_consume <= c_VARS_ARRAY(c_VAR_3_INDEX).prod_or_cons;
             s_broadcast_var      <= c_VARS_ARRAY(c_VAR_3_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when c_VARS_ARRAY(c_VAR_RST_INDEX).hexvalue =>
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_RST_INDEX).hexvalue then
             s_var_aux            <= var_rst;
             s_produce_or_consume <= c_VARS_ARRAY(c_VAR_RST_INDEX).prod_or_cons;
             s_broadcast_var      <= c_VARS_ARRAY(c_VAR_RST_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          when others =>
+          else
             s_var_aux            <= var_whatever;
             s_produce_or_consume <= "00";
             s_broadcast_var      <= '0';
-          end case;
+          end if;
 
 
         -------------------------------------------------------------------------------------------
