@@ -84,11 +84,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Synplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings                                           --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -99,10 +94,10 @@ entity WF_prod_data_lgth_calc is
 
   port (
   -- INPUTS 
-    -- nanoFIP WorldFIP Settings (synchronized with uclk) 
+    -- nanoFIP WorldFIP Settings
     p3_lgth_i          : in std_logic_vector (2 downto 0); --! produced var user-data length
 
-    -- User Interface, General signals (synchronized with uclk) 
+    -- User Interface, General signals
     nostat_i           : in std_logic;                     --! if negated, nFIP status is sent
     slone_i            : in std_logic;                     --! stand-alone mode
 
@@ -112,21 +107,21 @@ entity WF_prod_data_lgth_calc is
 
   -- OUTPUT
     -- Signal to the WF_engine_control and WF_production units
-    prod_data_length_o : out std_logic_vector(7 downto 0)
+    prod_data_length_o : out std_logic_vector (7 downto 0)
 
       );
 end entity WF_prod_data_lgth_calc;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_prod_data_lgth_calc is
 
-signal s_prod_data_length, s_p3_length_decoded : unsigned(7 downto 0);
+signal s_prod_data_length, s_p3_length_decoded : unsigned (7 downto 0);
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -211,8 +206,8 @@ begin
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

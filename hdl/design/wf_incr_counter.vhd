@@ -68,9 +68,6 @@ entity WF_incr_counter is
     -- nanoFIP User Interface general signal
     uclk_i           : in std_logic;                            --! 40 MHz clock
 
-    -- Signal from the WF_reset_unit
-    nfip_rst_i      : in std_logic;                             --! nanoFIP internal reset
-
    -- Signals from any unit
    incr_counter_i    : in std_logic;                            --! increment enable
    reinit_counter_i  : in std_logic;                            --! reinitializes counter to 0
@@ -86,15 +83,15 @@ end entity WF_incr_counter;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_incr_counter is
 
-constant c_COUNTER_FULL : unsigned(g_counter_lgth-1 downto 0) := (others => '1');
-signal   s_counter      : unsigned(g_counter_lgth-1 downto 0);
+constant c_COUNTER_FULL : unsigned (g_counter_lgth-1 downto 0) := (others => '1');
+signal   s_counter      : unsigned (g_counter_lgth-1 downto 0);
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -105,11 +102,7 @@ begin
   Incr_Counter: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-
-      if nfip_rst_i = '1' then
-        s_counter    <= (others => '0');
-
-      elsif reinit_counter_i = '1' then
+      if reinit_counter_i = '1' then
         s_counter    <= (others => '0');
 
       elsif incr_counter_i = '1' then
@@ -128,8 +121,8 @@ begin
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

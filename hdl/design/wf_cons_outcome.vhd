@@ -89,25 +89,25 @@ entity WF_cons_outcome is
 
   port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
-    uclk_i                : in std_logic;                   --! 40 MHz clock
-    slone_i               : in std_logic;                   --! stand-alone mode 
+    -- nanoFIP User Interface, General signals
+    uclk_i                : in std_logic;                    --! 40 MHz clock
+    slone_i               : in std_logic;                    --! stand-alone mode 
 
-    -- nanoFIP WorldFIP Settings (synchronized with uclk) 
-    subs_i                : in std_logic_vector(7 downto 0);--! subscriber number coding
+    -- nanoFIP WorldFIP Settings
+    subs_i                : in std_logic_vector (7 downto 0);--! subscriber number coding
  
     -- Signal from the WF_reset_unit
-    nfip_rst_i            : in std_logic;                   --! nanoFIP internal reset
+    nfip_rst_i            : in std_logic;                    --! nanoFIP internal reset
 
     -- Signals from the WF_cons_frame_validator
-    cons_frame_ok_p_i     : in std_logic;                   --! pulse after a correct cons frame
+    cons_frame_ok_p_i     : in std_logic;                    --! pulse after a correct cons frame
 
     -- Signal from the WF_engine_control unit
-    var_i                 : in t_var;                       --! variable type that is being treated
+    var_i                 : in t_var;                        --! variable type that is being treated
 
     -- Signals from the WF_cons_bytes_processor
-    cons_var_rst_byte_1_i : in std_logic_vector(7 downto 0);--! 1st data-byte of a received var_rst
-    cons_var_rst_byte_2_i : in std_logic_vector(7 downto 0);--! 2nd data-byte of a received var_rst
+    cons_var_rst_byte_1_i : in std_logic_vector (7 downto 0);--! 1st data-byte of a received var_rst
+    cons_var_rst_byte_2_i : in std_logic_vector (7 downto 0);--! 2nd data-byte of a received var_rst
 
 
   -- OUTPUTS
@@ -128,7 +128,7 @@ end entity WF_cons_outcome;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_cons_outcome is
 
@@ -136,7 +136,7 @@ signal s_var1_received, s_var2_received, cons_frame_ok_p_d1 : std_logic;
 signal s_rst_nfip_and_fd, s_assert_rston                    : std_logic;
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -294,8 +294,8 @@ begin
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

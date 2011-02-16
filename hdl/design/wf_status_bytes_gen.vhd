@@ -127,13 +127,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 ---------------------------------------------------------------------------------------------------
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Synplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL189 Register bits s_nFIP_status_byte(0), s_nFIP_status_byte(1) are always 0, optimizing" --
--- "W CL260 Pruning Register bits 0 and 1 of s_nFIP_status_byte(7 downto 0)"                     --
--- Bits 0 and 1 of nanoFIP status byte are reserved for future ideas.                            --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -143,21 +136,21 @@ entity WF_status_bytes_gen is
 
 port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;  --! 40 MHz Clock
     slone_i                 : in  std_logic; --! stand-alone mode
 
     -- Signal from the WF_reset_unit
     nfip_rst_i              : in std_logic;  --! nanaoFIP internal reset
 
-    -- nanoFIP FIELDRIVE (synchronized with uclk)
-    fd_txer_i               : in  std_logic; --! transmitter error
-    fd_wdgn_i               : in  std_logic; --! watchdog on transmitter
+    -- nanoFIP FIELDRIVE
+    fd_txer_a_i             : in  std_logic; --! transmitter error
+    fd_wdgn_a_i             : in  std_logic; --! watchdog on transmitter
 
-    -- nanoFIP User Interface, NON-WISHBONE (synchronized with uclk)
-    var1_acc_i              : in std_logic;  --! variable 1 access 
-    var2_acc_i              : in std_logic;  --! variable 2 access 
-    var3_acc_i              : in std_logic;  --! variable 3 access
+    -- nanoFIP User Interface, NON-WISHBONE
+    var1_acc_a_i            : in std_logic;  --! variable 1 access 
+    var2_acc_a_i            : in std_logic;  --! variable 2 access 
+    var3_acc_a_i            : in std_logic;  --! variable 3 access
 
    -- Signals from the WF_consumption unit 
     nfip_status_r_fcser_p_i : in std_logic;  --! wrong CRC bytes received
@@ -188,7 +181,7 @@ port (
 end entity WF_status_bytes_gen;
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_status_bytes_gen is
 
@@ -196,13 +189,52 @@ signal s_refreshment                                                            
 signal s_nFIP_status_byte : std_logic_vector (7 downto 0);
 signal s_var1_rdy_incr_c, s_var1_rdy_extended                                         : std_logic;
 signal s_var2_rdy_incr_c, s_var2_rdy_extended, s_var3_rdy_incr_c, s_var3_rdy_extended : std_logic; 
-signal s_var1_rdy_c, s_var2_rdy_c, s_var3_rdy_c                           : unsigned (3 downto 0);
+signal s_fd_txer_synch, s_fd_wdgn_synch, s_var1_acc_synch, s_var2_acc_synch, s_var3_acc_synch                                  : std_logic_vector (2 downto 0);
+signal s_var1_rdy_c, s_var2_rdy_c, s_var3_rdy_c                    : unsigned (3 downto 0);
 
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================
 begin
+
+---------------------------------------------------------------------------------------------------
+--                            FD_TXER, FD_WDGN, VARx_ACC Synchronizers                           --
+---------------------------------------------------------------------------------------------------
+  FIELDRIVE_inputs_synchronizer: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then
+       s_fd_wdgn_synch  <= (others => '0');
+       s_fd_txer_synch  <= (others => '0');
+
+      else
+       s_fd_wdgn_synch  <= s_fd_wdgn_synch (1 downto 0)  & fd_wdgn_a_i;
+       s_fd_txer_synch  <= s_fd_txer_synch (1 downto 0)  & fd_txer_a_i; 
+      end if; 
+    end if;
+  end process;
+
+
+---------------------------------------------------------------------------------------------------
+  VAR_ACC_synchronizer: process (uclk_i) 
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then
+        s_var1_acc_synch <= (others => '0');
+        s_var2_acc_synch <= (others => '0');
+        s_var3_acc_synch <= (others => '0');
+  
+      else
+        s_var1_acc_synch <= s_var1_acc_synch(1 downto 0) & var1_acc_a_i;
+        s_var2_acc_synch <= s_var2_acc_synch(1 downto 0) & var2_acc_a_i;
+        s_var3_acc_synch <= s_var3_acc_synch(1 downto 0) & var3_acc_a_i;
+
+      end if;
+    end if;
+  end process;
+
+
 
 ---------------------------------------------------------------------------------------------------
 --                                        MPS status byte                                        --
@@ -222,7 +254,7 @@ begin
         if rst_status_bytes_p_i = '1' then          -- bit reinitialized after a var production
           s_refreshment <= '0';  
 
-        elsif (var3_acc_i = '1') then               -- indication that the memory has been accessed
+        elsif (var3_acc_a_i = '1') then               -- indication that the memory has been accessed
           s_refreshment <= '1';
         end if;
 
@@ -279,8 +311,8 @@ end process;
         
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- u_cacer
-          if ((s_var1_rdy_extended = '0' and var1_acc_i = '1') or
-              (s_var2_rdy_extended = '0' and var2_acc_i = '1')) then
+          if ((s_var1_rdy_extended = '0' and s_var1_acc_synch(2) = '1') or
+              (s_var2_rdy_extended = '0' and s_var2_acc_synch(2) = '1')) then
                                                                  -- since the last time the status
                                                                  -- byte was delivered,
             s_nFIP_status_byte(c_U_CACER_INDEX) <= '1';          -- the user logic accessed a cons.
@@ -290,7 +322,7 @@ end process;
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- u_pacer
-          if (s_var3_rdy_extended = '0' and var3_acc_i = '1') then  
+          if (s_var3_rdy_extended = '0' and s_var3_acc_synch(2) = '1') then  
                                                                  -- since the last time the status 
             s_nFIP_status_byte(c_U_PACER_INDEX) <= '1';          -- byte was delivered,
                                                                  -- the user logic accessed a prod.
@@ -300,14 +332,14 @@ end process;
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- t_wder
-          if (fd_wdgn_i = '0') then                              -- FIELDRIVE transmission error 
+          if (s_fd_wdgn_synch(2) = '0') then                              -- FIELDRIVE transmission error 
             s_nFIP_status_byte(c_T_WDER_INDEX)  <= '1';
           end if;
 
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- t_rxer
-          if (fd_txer_i = '1') then                              -- FIELDRIVE watchdog timer problem
+          if (s_fd_txer_synch(2) = '1') then                              -- FIELDRIVE watchdog timer problem
             s_nFIP_status_byte(c_T_TXER_INDEX)  <= '1';
           end if;
 
@@ -337,9 +369,8 @@ end process;
                  
   Extend_VAR1_RDY: WF_incr_counter        -- VAR1_RDY            : __|---...---|___________________
   generic map (g_counter_lgth => 4)       -- s_var1_rdy_extended : __|---...------------------|____
-  port map(
+  port map (
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
     reinit_counter_i  => var1_rdy_i,
     incr_counter_i    => s_var1_rdy_incr_c,
     counter_is_full_o => open,
@@ -353,9 +384,8 @@ end process;
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR2_RDY: WF_incr_counter
   generic map (g_counter_lgth => 4)
-  port map(
+  port map (
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
     reinit_counter_i  => var2_rdy_i,
     incr_counter_i    => s_var2_rdy_incr_c,
     counter_is_full_o => open,
@@ -369,9 +399,8 @@ end process;
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR3_RDY: WF_incr_counter
   generic map (g_counter_lgth => 4)
-  port map(
+  port map (
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
     reinit_counter_i  => VAR3_RDY_i,
     incr_counter_i    => s_var3_rdy_incr_c,
     counter_is_full_o => open,
@@ -397,8 +426,8 @@ end process;
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

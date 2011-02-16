@@ -98,11 +98,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 ---------------------------------------------------------------------------------------------------
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                                    Synplify Premier Warnings                                  --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings                                           --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -112,7 +107,7 @@ entity WF_cons_bytes_processor is
 
 port (
   -- INPUTS 
-    -- nanoFIP User Interface, General signals (synchronized with uclk) 
+    -- nanoFIP User Interface, General signals
     uclk_i                : in std_logic;                      --! 40 MHz clock
     slone_i               : in  std_logic;                     --! stand-alone mode (active high)
 
@@ -156,7 +151,7 @@ end entity WF_cons_bytes_processor;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_cons_bytes_processor is
 
@@ -164,12 +159,12 @@ signal s_slone_data                     : std_logic_vector (15 downto 0);
 signal s_addr                           : std_logic_vector (8 downto 0);
 signal s_mem_data_out, s_cons_lgth_byte : std_logic_vector (7 downto 0);
 signal s_slone_write_byte_p             : std_logic_vector (1 downto 0);
-signal two                              : unsigned(7 downto 0);
-signal s_base_addr                      : unsigned(8 downto 0);
+signal two                              : unsigned (7 downto 0);
+signal s_base_addr                      : unsigned (8 downto 0);
 signal s_write_byte_to_mem_p            : std_logic;
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================
 begin
 
@@ -183,13 +178,13 @@ begin
 --! (for both the consumed and consumed broadcast variables)
 
     Consumed_Bytes_To_RAM:  WF_DualClkRAM_clka_rd_clkb_wr
-    generic map(
-      c_RAM_DATA_LGTH => 8,     -- 8 bits: length of data word
-      c_RAM_ADDR_LGTH => 9)     -- 2^9: depth of consumed RAM
+    generic map (
+      g_ram_data_lgth => 8,     -- 8 bits: length of data word
+      g_ram_addr_lgth => 9)     -- 2^9: depth of consumed RAM
                                 -- first 2 bits: identification of the memory block
                                 -- remaining 7 bits: address of a byte inside the block 
     -- port A: WISHBONE that reads from the Consumed RAM; port B: nanoFIP that writes
-    port map(
+    port map (
       clk_porta_i      => wb_clk_i,	               -- WISHBONE clock
       addr_porta_i     => wb_adr_i(8 downto 0),    -- address of byte to be read
       -----------------------------------------------------------------------------
@@ -209,7 +204,7 @@ begin
 --! to DAT_O;
 
   Consumed_Bytes_To_DATO: WF_cons_bytes_to_dato
-  port map(
+  port map (
     uclk_i            => uclk_i, 
     nfip_rst_i        => nfip_rst_i, 
     transfer_byte_p_i => s_slone_write_byte_p,
@@ -258,16 +253,17 @@ begin
 
 --! If the consumed variable is the reset one the process latches the first and second data bytes.
 
-Bytes_Processing: process (var_i, byte_index_i, slone_i, byte_i, two,
-                            byte_ready_p_i, s_base_addr, s_cons_lgth_byte)
-  
-  begin
 
-
-    s_addr <= std_logic_vector (unsigned(byte_index_i)+s_base_addr - 1);  -- memory address of
+  s_addr <= std_logic_vector (unsigned(byte_index_i)+s_base_addr - 1);    -- memory address of
                                                                           -- the byte to be written
                                                                           -- (-1 bc the Ctrl
                                                                           -- byte is not written) 
+
+  Bytes_Processing: process (var_i, byte_index_i, slone_i, byte_i, two,
+                              byte_ready_p_i, s_base_addr, s_cons_lgth_byte)
+  
+  begin
+
 
     case var_i is 
 
@@ -455,8 +451,8 @@ Register_Ctrl_PDU_Length_bytes: process (uclk_i)
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

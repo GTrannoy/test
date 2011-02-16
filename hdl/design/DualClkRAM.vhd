@@ -14,8 +14,8 @@
 library IEEE;
 
 --! Standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
+use IEEE.STD_LOGIC_1164.all;            --! std_logic definitions
+use IEEE.NUMERIC_STD.all;               --! conversion functions
 
 --! ProASIC3 library
 library PROASIC3;
@@ -73,39 +73,39 @@ use PROASIC3.all;
 --!                             Entity declaration for DualClkRAM
 --=================================================================================================
 
-entity DualClkRAM is 
+entity DualClkRAM is
   port(
   -- INPUTS 
     -- Inputs concerning port A 
-    CLKA   : in std_logic;                     --! clock A for synchronous read/ write operations
-    ADDRA  : in std_logic_vector (8 downto 0); --! address A
-    DINA   : in std_logic_vector (7 downto 0); --! data in A
-    RWA    : in std_logic;                     --! read/ write mode; 1 for reading, 0 for writing 
+    CLKA   : in std_logic;  --! clock A for synchronous read/ write operations
+    ADDRA  : in std_logic_vector (8 downto 0);  --! address A
+    DINA   : in std_logic_vector (7 downto 0);  --! data in A
+    RWA    : in std_logic;  --! read/ write mode; 1 for reading, 0 for writing 
 
     -- Inputs concerning port B
-    CLKB   : in std_logic;                     --! clock B for synchronous read/ write operations
-    ADDRB  : in std_logic_vector (8 downto 0); --! address B
-    DINB   : in std_logic_vector (7 downto 0); --! data in B
-    RWB    : in std_logic;                     --! read/ write mode; 1 for reading, 0 for writing
+    CLKB   : in std_logic;  --! clock B for synchronous read/ write operations
+    ADDRB  : in std_logic_vector (8 downto 0);  --! address B
+    DINB   : in std_logic_vector (7 downto 0);  --! data in B
+    RWB    : in std_logic;  --! read/ write mode; 1 for reading, 0 for writing
 
     -- Reset
-    RESETn : in std_logic;                     --! sets all outputs low; does not reset the memory
+    RESETn : in std_logic;  --! sets all outputs low; does not reset the memory
 
 
   -- OUTPUTS
     -- Output concerning port A          
-    DOUTA  : out std_logic_vector (7 downto 0);--! data out A
+    DOUTA  : out std_logic_vector (7 downto 0); --! data out A
 
     -- Output concerning port B  
-    DOUTB  : out std_logic_vector (7 downto 0) --! data out B
-      );
-    end DualClkRAM;
+    DOUTB  : out std_logic_vector (7 downto 0)  --! data out B
+    );
+end DualClkRAM;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
-architecture RAM4K9 of  DualClkRAM is
+architecture RAM4K9 of DualClkRAM is
 
 ---------------------------------------------------------------------------------------------------  
 -- !@brief component RAM4K9 :
@@ -137,7 +137,7 @@ architecture RAM4K9 of  DualClkRAM is
 --! pass-through behavior where the data being written will appear on the output immediately.
 
   component RAM4K9
-    generic (MEMORYFILE:string := "");
+    generic (MEMORYFILE : string := "");
 
     port(
       ADDRA11, ADDRA10, ADDRA9, ADDRA8, ADDRA7, ADDRA6,
@@ -153,12 +153,12 @@ architecture RAM4K9 of  DualClkRAM is
       BLKA, BLKB,
       WENA, WENB,
       CLKA, CLKB,
-      RESET                                                                  : in std_logic:= 'U';
+      RESET : in std_logic := 'U';
 
       DOUTA8, DOUTA7, DOUTA6, DOUTA5, DOUTA4, DOUTA3, DOUTA2, DOUTA1, DOUTA0,
       DOUTB8, DOUTB7, DOUTB6, DOUTB5, DOUTB4, DOUTB3, DOUTB2, DOUTB1, DOUTB0 : out std_logic
-        );
-    end component;
+      );
+  end component;
 
 ---------------------------------------------------------------------------------------------------  
 --!@brief Instantiation of the component VCC
@@ -176,15 +176,15 @@ architecture RAM4K9 of  DualClkRAM is
 
 ---------------------------------------------------------------------------------------------------
 
-  signal POWER, GROUND : std_logic ;
+  signal POWER, GROUND : std_logic;
 
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================
-begin   
-    power_supply_signal : VCC port map (Y => POWER);
-    ground_signal       : GND port map (Y => GROUND);
+begin
+  power_supply_signal : VCC port map (Y => POWER);
+  ground_signal       : GND port map (Y => GROUND);
 
 ---------------------------------------------------------------------------------------------------  
 --!@brief: Instantiation of the component RAM4K9.
@@ -196,9 +196,9 @@ begin
 --!  o PIPEA, PIPEB   : GND      (not pipelined read)
 --!  o WMODEA, WMODEB : GND      (in write mode the output retains the data from the previous read)
 
-    A9D8DualClkRAM_R0C0 : RAM4K9
-    port map(
-    -- INPUTS 
+  A9D8DualClkRAM_R0C0 : RAM4K9
+    port map (
+      -- INPUTS 
 
       -- INPUTS concerning port A
       -- data in A (1 byte, (7 downto 0))    
@@ -213,12 +213,12 @@ begin
       DINA0   => DINA(0),
       -- address A (512 bytes depth, (8 downto 0))
       ADDRA11 => GROUND,
-      ADDRA10 => GROUND, 
+      ADDRA10 => GROUND,
       ADDRA9  => GROUND,
       ADDRA8  => ADDRA(8),
       ADDRA7  => ADDRA(7),
       ADDRA6  => ADDRA(6),
-      ADDRA5  => ADDRA(5), 
+      ADDRA5  => ADDRA(5),
       ADDRA4  => ADDRA(4),
       ADDRA3  => ADDRA(3),
       ADDRA2  => ADDRA(2),
@@ -251,58 +251,58 @@ begin
       ADDRB10 => GROUND,
       ADDRB9  => GROUND,
       ADDRB8  => ADDRB(8),
-      ADDRB7  => ADDRB(7), 
+      ADDRB7  => ADDRB(7),
       ADDRB6  => ADDRB(6),
       ADDRB5  => ADDRB(5),
       ADDRB4  => ADDRB(4),
       ADDRB3  => ADDRB(3),
-      ADDRB2  => ADDRB(2), 
+      ADDRB2  => ADDRB(2),
       ADDRB1  => ADDRB(1),
       ADDRB0  => ADDRB(0),
       -- read/ write mode for B
-      WENB    => RWB, 
+      WENB    => RWB,
       -- clock for B
       CLKB    => CLKB,
       -- aspect ratio, block, pipeline, write mode configurations for port B
-      WIDTHB0 => POWER, 
+      WIDTHB0 => POWER,
       WIDTHB1 => POWER,
       BLKB    => GROUND,
       PIPEB   => GROUND,
-      WMODEB  => GROUND,  
+      WMODEB  => GROUND,
 
       -- reset
-      RESET   => RESETn,
+      RESET => RESETn,
 
-    -- Oututs 
-    -- output concerning port A
+      -- Oututs 
+      -- output concerning port A
       -- data out A (1 byte)    
-      DOUTA8  => OPEN,
-      DOUTA7  => DOUTA(7),
-      DOUTA6  => DOUTA(6),
-      DOUTA5  => DOUTA(5),
-      DOUTA4  => DOUTA(4),
-      DOUTA3  => DOUTA(3),
-      DOUTA2  => DOUTA(2),
-      DOUTA1  => DOUTA(1),
-      DOUTA0  => DOUTA(0),
+      DOUTA8 => open,
+      DOUTA7 => DOUTA(7),
+      DOUTA6 => DOUTA(6),
+      DOUTA5 => DOUTA(5),
+      DOUTA4 => DOUTA(4),
+      DOUTA3 => DOUTA(3),
+      DOUTA2 => DOUTA(2),
+      DOUTA1 => DOUTA(1),
+      DOUTA0 => DOUTA(0),
 
-    -- output concerning port B
+      -- output concerning port B
       -- data out B (1 byte) 
-      DOUTB8  => OPEN,
-      DOUTB7  => DOUTB(7),
-      DOUTB6  => DOUTB(6),
-      DOUTB5  => DOUTB(5),
-      DOUTB4  => DOUTB(4), 
-      DOUTB3  => DOUTB(3),
-      DOUTB2  => DOUTB(2),
-      DOUTB1  => DOUTB(1),
-      DOUTB0  => DOUTB(0)
-    );
+      DOUTB8 => open,
+      DOUTB7 => DOUTB(7),
+      DOUTB6 => DOUTB(6),
+      DOUTB5 => DOUTB(5),
+      DOUTB4 => DOUTB(4),
+      DOUTB3 => DOUTB(3),
+      DOUTB2 => DOUTB(2),
+      DOUTB1 => DOUTB(1),
+      DOUTB0 => DOUTB(0)
+      );
 
-  end RAM4K9;
+end RAM4K9;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------

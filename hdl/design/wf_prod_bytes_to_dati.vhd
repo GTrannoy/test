@@ -90,7 +90,7 @@ entity WF_prod_bytes_from_dati is
 
     -- nanoFIP User Interface, NON-WISHBONE
     slone_data_i : in  std_logic_vector (15 downto 0); --! input data bus for stand-alone mode
-                                                       -- (synchronized with uclk)  
+
    -- Signals from the WF_engine_control unit
     byte_index_i : in std_logic_vector (7 downto 0);   --! index of the byte to be produced
 
@@ -106,7 +106,7 @@ end entity WF_prod_bytes_from_dati;
 
 
 --=================================================================================================
---!                                  architecture declaration
+--!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_prod_bytes_from_dati is
 
@@ -114,7 +114,7 @@ architecture rtl of WF_prod_bytes_from_dati is
   signal s_sampled_data : std_logic_vector (15 downto 0); 
 
 --=================================================================================================
---                                      architecture begin
+--                                        architecture begin
 --=================================================================================================  
 begin
 
@@ -150,8 +150,8 @@ Sample_DAT_I_bus: process (uclk_i)
 
 end architecture rtl;
 --=================================================================================================
---                                      architecture end
+--                                        architecture end
 --=================================================================================================
 ---------------------------------------------------------------------------------------------------
---                                    E N D   O F   F I L E
+--                                      E N D   O F   F I L E
 ---------------------------------------------------------------------------------------------------
