@@ -1031,4 +1031,4 @@
 1,01,91,0	-- ID_DAT for Broadcast variable
 3048 us		-- stand-by time
 0,01,91,124	-- RP_DAT for Broadcast variable
-2000 ms		-- final stand-by time to end the simulation
+10000 ms		-- final stand-by time to end the simulation

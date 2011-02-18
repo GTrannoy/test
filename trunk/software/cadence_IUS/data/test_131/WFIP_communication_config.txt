@@ -12,4 +12,4 @@
 E0					-- Reset Variable address
 40					-- pdu_type byte
 05					-- mps byte
-2000 ms				-- time for which the configuration above is valid
+10000 ms				-- time for which the configuration above is valid
