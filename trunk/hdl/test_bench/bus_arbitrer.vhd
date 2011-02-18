@@ -49,6 +49,8 @@ begin
 	
 	begin
 		wait for 0 us;
+		wait for 0 us;
+		wait for 0 us;
 		readline	(schedule_file, schedule_line);
 		readline	(schedule_file, schedule_line);
 		readline	(schedule_file, schedule_line);

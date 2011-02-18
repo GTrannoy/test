@@ -211,7 +211,7 @@ begin
 	variable data_byte: std_logic_vector(7 downto 0);
 	begin
 		readline (data_file, data_line);
-		read (data_line, data_byte);
+		hread (data_line, data_byte);
 		data_for_mem		<= data_byte;
 		wait until clk_i ='1';
 	end process;

@@ -8,6 +8,7 @@ package tb_package is
 constant max_frame_length		: integer := 131;
 subtype byte_count_type			is integer range 0 to max_frame_length-1;
 type vector_type				is array (max_frame_length-1 downto 0) of std_logic_vector(7 downto 0);
+constant reset_max_latency				: time := 2 ms;
 
 component hex_byte_transcriber
 	port(

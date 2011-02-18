@@ -16,6 +16,7 @@ use work.tb_package.all;
 entity user_access_monitor is
 	port(
 		cyc					: in std_logic;
+		uclk_period			: in time;
 		urstn_from_nf		: in std_logic;
 		slone_access_read	: in std_logic;
 		slone_access_write	: in std_logic;
@@ -31,10 +32,11 @@ entity user_access_monitor is
 end user_access_monitor;
 
 architecture archi of user_access_monitor is
-constant reset_max_latency				: time := 100 us;
 signal station_adr						: std_logic_vector(7 downto 0);
 signal ucacerr							: boolean;
 signal upacerr							: boolean;
+signal rst_latency_reached				: boolean;
+signal urst_from_nf_asserted			: boolean;
 signal urst_from_nf_assertion			: time:=0 fs;
 signal var1_acc							: std_logic;
 signal var2_acc							: std_logic;
@@ -43,6 +45,7 @@ signal var3_fresh						: boolean;
 signal vreset_second_byte				: std_logic_vector(7 downto 0);
 signal vreset_hist_opened_ok			: boolean;
 signal vreset_time						: time;
+signal previous_vreset_time				: time;
 
 begin
 
@@ -143,7 +146,7 @@ begin
 	-- process extracting the history information for the reset
 	-- from temporary text files
 	-----------------------------------------------------------
-	check_for_reset_history: process(urstn_from_nf)
+	check_for_reset_history: process--(urstn_from_nf)
 	file vhist_file					: text;
 	variable vhist_line				: line;
 	variable vfile_status			: FILE_OPEN_STATUS;
@@ -153,7 +156,10 @@ begin
 	variable second_byte			: std_logic_vector(7 downto 0);
 	variable station_adr_tmp		: std_logic_vector(7 downto 0);
 	begin
-		if urstn_from_nf ='0' then
+--		if urstn_from_nf ='0' then
+		wait for 0 fs;
+		wait for 0 fs;
+		wait for 0 fs;
 			file_open(vfile_status, vhist_file,"data/tmp_vreset_hist.txt",read_mode);
 			if vfile_status = open_ok then
 				readline					(vhist_file, vhist_line);
@@ -181,39 +187,77 @@ begin
 			file_close(config_file);
 			
 			station_adr				<= station_adr_tmp;
+--		end if;
+		wait for uclk_period;
+	end process;
+	
+	process(urstn_from_nf)
+	begin
+		if urstn_from_nf'event and urstn_from_nf ='0' then
+			urst_from_nf_assertion			<= now;
 		end if;
 	end process;
 	
-	reset_reporting: process
-	variable urstfromnf_assertion		: time;
-	variable rst_allowed_source_time	: time;
+	reset_surveillance: process
 	begin
-		if urstn_from_nf'event and urstn_from_nf ='0' then
-			wait for 0 ps;
-			urstfromnf_assertion			:= now;
-			rst_allowed_source_time			:= urstfromnf_assertion - reset_max_latency;
-			urst_from_nf_assertion			<= urstfromnf_assertion;
+		wait for 0 ps;
+		wait for 0 ps;
+		wait for 0 ps;
+		previous_vreset_time	<= vreset_time;
+		
+		if previous_vreset_time /= vreset_time then
+			urst_from_nf_asserted		<= FALSE;
+			rst_latency_reached			<= FALSE;
+		elsif urstn_from_nf = '0' then
+			urst_from_nf_asserted		<= TRUE;
+		elsif vreset_hist_opened_ok and ((now - vreset_time) > reset_max_latency) and (vreset_second_byte = station_adr) then
+			rst_latency_reached			<= TRUE;
+		end if;
+		wait for uclk_period;
+	end process;
 
-			if vreset_hist_opened_ok 
-			and rst_allowed_source_time <= vreset_time and vreset_time <= urstfromnf_assertion 
-			and vreset_second_byte = station_adr then
-				report "            __ Check OK __ After " & time'image(urstfromnf_assertion - vreset_time)
-				& LF & "                           NanoFIP asserts the User Reset (RSTON)"
-				& LF & "                           in response to the presence of nanoFIP station address"
-				& LF & "                           in the second byte of the reset variable sent by the Bus Arbitrer" & LF;
-
-			else
-				report "               #### Check NOT OK #### NanoFIP has asserted the User Reset (RSTON)"
+	reset_reporting: process(urst_from_nf_asserted, rst_latency_reached, urst_from_nf_assertion)
+	begin
+		if rst_latency_reached and not urst_from_nf_asserted then
+			report "               #### Check NOT OK #### " & time'image(reset_max_latency) & " have passed and" 
+			& LF & "                                      nanoFIP has still not asserted the User reset (RSTON)" & LF
+			severity warning;
+		elsif urst_from_nf_asserted then
+			if not (vreset_hist_opened_ok and (vreset_second_byte = station_adr)) then
+				report "               #### Check NOT OK #### NanoFIP has asserted the User reset (RSTON)"
 				& LF & "                                      although no action or event prompted it" & LF
 				severity warning;
+			else
+				if vreset_time < urst_from_nf_assertion and urst_from_nf_assertion < vreset_time + reset_max_latency then
+					if vreset_second_byte = station_adr then
+						report "            __ Check OK __ After " & time'image(urst_from_nf_assertion - vreset_time) & " NanoFIP asserts" 
+						& LF & "                           the User reset (RSTON) in response to the presence of nanoFIP station address"
+						& LF & "                           in the second byte of the reset variable sent by the Bus Arbitrer" & LF;
+					else
+						report "               #### Check NOT OK #### NanoFIP has asserted the User reset (RSTON) in response to the Reset variable "
+						& LF & "                                      although the station address was not present in the second byte" & LF
+						severity warning;
+					end if;
+
+				elsif (urst_from_nf_assertion > (vreset_time + reset_max_latency)) and (vreset_second_byte = station_adr) then
+					report "               #### Check NOT OK #### NanoFIP has asserted now the User reset (RSTON). This is too late"
+					& LF & "                                      with respect to the generating event to consider it a proper reaction" & LF
+					severity warning;
+				end if;
 			end if;
 		end if;
-		wait on urstn_from_nf;
 	end process;
+
 
 	reset_reporting2: process(urstn_from_nf)
 	variable urstfromnf_deassertion			: time;
 	begin
+		if urstn_from_nf'event and urstn_from_nf ='0' and urst_from_nf_asserted then
+				report "               #### Check NOT OK #### NanoFIP has asserted the User reset (RSTON) again"
+				& LF & "                                      although no action or event prompted it" & LF
+				severity warning;
+		end if;
+			
 		if urstn_from_nf'event and urstn_from_nf ='1' and now /= 0 fs then
 			urstfromnf_deassertion	:= now;
 			report "            NanoFIP has kept the User Reset asserted for " 
@@ -221,5 +265,32 @@ begin
 		end if;
 	end process;
 			
+
+--	reset_reporting: process
+--	variable urstfromnf_assertion		: time;
+--	variable rst_allowed_source_time	: time;
+--	begin
+--		if urstn_from_nf'event and urstn_from_nf ='0' then
+--			wait for 0 ps;
+--			urstfromnf_assertion			:= now;
+--			rst_allowed_source_time			:= urstfromnf_assertion - reset_max_latency;
+--			urst_from_nf_assertion			<= urstfromnf_assertion;
+--
+--			if vreset_hist_opened_ok 
+--			and rst_allowed_source_time <= vreset_time and vreset_time <= urstfromnf_assertion 
+--			and vreset_second_byte = station_adr then
+--				report "            __ Check OK __ After " & time'image(urstfromnf_assertion - vreset_time)
+--				& LF & "                           NanoFIP asserts the User Reset (RSTON)"
+--				& LF & "                           in response to the presence of nanoFIP station address"
+--				& LF & "                           in the second byte of the reset variable sent by the Bus Arbitrer" & LF;
+--
+--			else
+--				report "               #### Check NOT OK #### NanoFIP has asserted the User Reset (RSTON)"
+--				& LF & "                                      although no action or event prompted it" & LF
+--				severity warning;
+--			end if;
+--		end if;
+--		wait on urstn_from_nf;
+--	end process;
 
 end archi;

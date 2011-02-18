@@ -94,9 +94,9 @@ begin
 	variable data_byte_lo: std_logic_vector(7 downto 0);
 	begin
 		readline (data_file, data_line);
-		read (data_line, data_byte_hi);
+		hread (data_line, data_byte_hi);
 		readline (data_file, data_line);
-		read (data_line, data_byte_lo);
+		hread (data_line, data_byte_lo);
 		data_for_slone_hi		<= data_byte_hi;
 		data_for_slone_lo		<= data_byte_lo;
 		wait until uclk ='1';
