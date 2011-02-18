@@ -83,6 +83,7 @@ architecture archi of user_interface is
 	component user_access_monitor is
 	port(
 		cyc					: in std_logic;
+		uclk_period			: in time;
 		urstn_from_nf		: in std_logic;
 		slone_access_read	: in std_logic;
 		slone_access_write	: in std_logic;
@@ -280,6 +281,7 @@ begin
 	user_acc_monitor: user_access_monitor
 	port map(
 		cyc						=> cyc,
+		uclk_period				=> uclk_period,
 		urstn_from_nf			=> urstn_from_nf,
 		slone_access_read		=> slone_access_read,
 		slone_access_write		=> slone_access_write,
