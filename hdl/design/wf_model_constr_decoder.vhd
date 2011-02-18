@@ -115,10 +115,10 @@ end entity WF_model_constr_decoder;
 architecture rtl of WF_model_constr_decoder is
 
 
-  signal s_counter_is_full                        : std_logic;
-  signal s_counter                                : unsigned (1 downto 0);
-  signal s_model_stage2, s_model_stage1           : std_logic_vector (3 downto 0);
-  signal s_constr_stage2, s_constr_stage1         : std_logic_vector (3 downto 0);
+  signal s_counter_is_full                : std_logic;
+  signal s_counter                        : unsigned (1 downto 0);
+  signal s_model_stage2, s_model_stage1   : std_logic_vector (3 downto 0); 
+  signal s_constr_stage2, s_constr_stage1 : std_logic_vector (3 downto 0);
 
 
 --=================================================================================================
@@ -155,10 +155,10 @@ begin
        s_constr_stage1   <= constr_id_i;           -- same for the constructor
 
 
-       if  s_counter = "01" then
+       if  s_counter = "10" then
 
          model_id_dec_o  <= s_model_stage2(3) & s_model_stage1(3) & -- putting together 
-                            s_model_stage2(2) & s_model_stage1(2) & -- odd and even bits
+                            s_model_stage2(2) & s_model_stage1(2) & -- even and odd bits
                             s_model_stage2(1) & s_model_stage1(1) &
                             s_model_stage2(0) & s_model_stage1(0);
 
