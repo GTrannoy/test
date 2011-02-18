@@ -685,20 +685,26 @@ free_counter: WF_incr_counter
 --                                         Output Signals                                        --
 ---------------------------------------------------------------------------------------------------
 
-  wb_rst_o       <= rst_i or s_wb_por;
-  nFIP_rst_o     <= s_intern_rst_from_RSTIN or s_intern_rst_from_var_rst or s_u_por;
+  wb_rst_o      <= rst_i or s_wb_por;
+  nFIP_rst_o    <= s_intern_rst_from_RSTIN or s_intern_rst_from_var_rst or s_u_por;
 
-
-  Outputs_Buffering: process (uclk_i)
+  -- Flip-flop with asynchronous reset to be sure that whenever nanoFIP is reset the user is not
+  RSTON_Buffering: process (uclk_i, s_u_por, s_intern_rst_from_RSTIN, s_intern_rst_from_var_rst)
   begin
-    if rising_edge (uclk_i) then
-     
-      rston_o    <= not s_rston; 
-      fd_rstn_o  <= not (s_FD_rst_from_RSTIN or s_FD_rst_from_var_rst or s_u_por); 
-                                               
+    if s_intern_rst_from_RSTIN = '1' or s_intern_rst_from_var_rst = '1' or s_u_por = '1' then
+      rston_o   <=  '1'; 
+    elsif rising_edge (uclk_i) then
+      rston_o   <= not s_rston; 
     end if;
   end process;
 
+
+  FD_RST_Buffering: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then
+      fd_rstn_o <= not (s_FD_rst_from_RSTIN or s_FD_rst_from_var_rst or s_u_por); 
+    end if;
+  end process;
 
 end architecture rtl;
 --=================================================================================================

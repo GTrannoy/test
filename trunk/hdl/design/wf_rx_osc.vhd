@@ -128,7 +128,7 @@ architecture rtl of WF_rx_osc is
 
   signal s_period_c, s_period, s_jitter           : unsigned (c_PERIODS_COUNTER_LENGTH-1 downto 0);
   signal s_half_period, s_one_forth_period        : unsigned (c_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_counter_reinit, s_counter_is_full                                           : std_logic;
+  signal s_reinit_counter, s_counter_is_full                                           : std_logic;
   signal s_adjac_bits_window, s_signif_edge_window                                     : std_logic;
   signal s_adjac_bits_edge_found, s_signif_edge_found                                  : std_logic;
   signal s_bit_clk, s_bit_clk_d1, s_manch_clk, s_manch_clk_d1                          : std_logic;
@@ -164,7 +164,7 @@ begin
   generic map (g_counter_lgth => c_PERIODS_COUNTER_LENGTH)
   port map (
     uclk_i            => uclk_i,
-    reinit_counter_i  => s_counter_reinit,
+    reinit_counter_i  => s_reinit_counter,
     incr_counter_i    => '1',
     counter_is_full_o => open,
     ------------------------------------------
@@ -176,7 +176,7 @@ begin
     --                         if the rx_osc_rst_i is active                 or
     --                         if an edge is detected in the expected window or
     --                         if it fills up
-    s_counter_reinit <= nfip_rst_i or rx_osc_rst_i or (s_signif_edge_window and fd_rxd_edge_p_i) or s_counter_is_full;
+    s_reinit_counter <= nfip_rst_i or rx_osc_rst_i or (s_signif_edge_window and fd_rxd_edge_p_i) or s_counter_is_full;
 
 
 

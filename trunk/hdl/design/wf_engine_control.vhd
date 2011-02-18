@@ -95,6 +95,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!     01/2011  v0.04  EG  signals named according to their origin; signals var_rdy (1,2,3),
 --!                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and
 --!                         rx_byte_ready_p_o removed cleaning-up+commenting
+--!     02/2011  v0.05  EG  session timeout counter added; time counter 18 digits instead of 15 
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -207,18 +208,18 @@ architecture rtl of WF_engine_control is
                          consume_wait_FSS, consume,
                          produce_wait_turnar_time, produce);
 
-  signal control_st, nx_control_st                                                  : control_st_t;
-  signal s_var_aux, s_var                                                           : t_var;
-  signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_id_dat_subs_byte    : std_logic;
-  signal s_id_dat_frame_ok, s_cons_wait_FSS, s_consuming, s_prod_wait_turnar_time   : std_logic;    
-  signal s_producing, s_rst_prod_bytes_counter, s_inc_prod_bytes_counter            : std_logic; 
-  signal s_rst_rx_bytes_counter, s_inc_rx_bytes_counter, s_var_identified           : std_logic;
-  signal s_load_time_counter, s_time_c_is_zero, s_session_timedout                  : std_logic;
-  signal s_tx_byte_request_accept_p, s_tx_byte_request_accept_p_d1                  : std_logic; 
-  signal s_tx_byte_request_accept_p_d2, s_tx_last_byte_p, s_tx_last_byte_p_d        : std_logic;
-  signal s_prod_data_length_match, s_tx_start_prod_p, s_broadcast_var               : std_logic;
-  signal s_time_counter_top, s_turnaround_time, s_silence_time             : unsigned (14 downto 0);
+  signal control_st, nx_control_st                                                     : control_st_t;
+  signal s_var_aux, s_var                                                              : t_var;
+  signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_id_dat_subs_byte       : std_logic;
+  signal s_id_dat_frame_ok, s_cons_wait_FSS, s_consuming, s_prod_wait_turnar_time      : std_logic;    
+  signal s_producing, s_rst_prod_bytes_counter, s_inc_prod_bytes_counter               : std_logic; 
+  signal s_rst_rx_bytes_counter, s_inc_rx_bytes_counter, s_var_identified              : std_logic;
+  signal s_load_time_counter, s_time_c_is_zero, s_session_timedout                     : std_logic;
+  signal s_tx_byte_request_accept_p, s_tx_byte_request_accept_p_d1                     : std_logic; 
+  signal s_tx_byte_request_accept_p_d2, s_tx_last_byte_p, s_tx_last_byte_p_d           : std_logic;
+  signal s_prod_data_length_match, s_tx_start_prod_p, s_broadcast_var                  : std_logic;
   signal s_rx_bytes_c, s_prod_bytes_c                                      : unsigned (7 downto 0);
+  signal s_time_counter_top, s_turnaround_time, s_silence_time            : unsigned (17 downto 0);
   signal s_tx_byte_index, s_rx_byte_index, s_prod_data_length      : std_logic_vector (7 downto 0);
   signal s_produce_or_consume                                      : std_logic_vector (1 downto 0);
 
@@ -764,7 +765,7 @@ begin
 --! states "produce_wait_turnar_time" and "consume_wait_FSS" respectively.
 
   Turnaround_and_Silence_Time_Counter: WF_decr_counter
-  generic map (g_counter_lgth => 15)
+  generic map (g_counter_lgth => 18)
   port map (
     uclk_i            => uclk_i,
     nfip_rst_i        => nfip_rst_i,

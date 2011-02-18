@@ -35,10 +35,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            status bits 2 to 5.
 --!
 --!            The information contained in the nanoFIP status byte is coming from :
---!            o the WF_consumption unit, for the bits 4 and 5
---!            o the "nanoFIP FIELDRIVE" inputs FD_WDGN and FD_TXER, for the bits 6 and 7
---!            o the "nanoFIP User Interface, NON_WISHBONE" inputs (VAR_ACC) and outputs (VAR_RDY),
---!              for the bits 2 and 3.
+--!              o the WF_consumption unit, for the bits 4 and 5
+--!              o the "nanoFIP FIELDRIVE" inputs FD_WDGN and FD_TXER, for the bits 6 and 7
+--!              o the "nanoFIP User Interface, NON_WISHBONE" inputs (VAR_ACC) and outputs
+--!                (VAR_RDY), for the bits 2 and 3.
 --!
 --!
 --!            For the refreshment and significance bits of the MPS status, the signal
@@ -49,40 +49,40 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!
 --!
 --!            Reminder:
---!                    ________________________  _________    ____________________________________
---!                   |   nanoFIP STATUS BIT       NAME                    CONTENTS               |
---!                   |________________________  _________    ____________________________________|
---!                   |           0                 r1                     reserved               |
---!                   |________________________  _________    ____________________________________|
---!                   |           1                 r2                     reserved               |
---!                   |________________________  _________    ____________________________________|
---!                   |           2               u_cacer           user cons var access error    |
---!                   |________________________  _________    ____________________________________|
---!                   |           3               u_pacer           user prod var access error    |
---!                   |________________________  _________    ____________________________________|
---!                   |           4               r_tler         received PDU_TYPE or Length error|
---!                   |________________________  _________    ____________________________________|
---!                   |           5               r_fcser              received FCS error         | // or manch. encoding
---!                   |________________________  _________    ____________________________________|
---!                   |           6               t_txer           transmit error (FIELDRIVE)     |
---!                   |________________________  _________    ____________________________________|
---!                   |           7               t_wder           watchdog error (FIELDRIVE)     |
---!                   |________________________  _________    ____________________________________|
+--!                    ______________________ __________ ____________________________________
+--!                   |  nanoFIP STATUS BIT  |   NAME   |             CONTENTS               |
+--!                   |______________________|__________|____________________________________|
+--!                   |          0           |    r1    |             reserved               |
+--!                   |______________________|__________|____________________________________|
+--!                   |          1           |    r2    |             reserved               |
+--!                   |______________________|__________|____________________________________|
+--!                   |          2           |  u_cacer |      user cons var access error    |
+--!                   |______________________|__________|____________________________________|
+--!                   |          3           |  u_pacer |      user prod var access error    |
+--!                   |______________________|__________|____________________________________|
+--!                   |          4           |  r_tler  |   received PDU_TYPE or Length error|
+--!                   |______________________|__________|____________________________________|
+--!                   |          5           |  r_fcser |        received FCS error          | // or manch. encoding
+--!                   |______________________|__________|____________________________________|
+--!                   |          6           |  t_txer  |     transmit error (FIELDRIVE)     |
+--!                   |______________________|__________|____________________________________|
+--!                   |          7           |  t_wder  |     watchdog error (FIELDRIVE)     |
+--!                   |______________________|__________|____________________________________|
 --!
 --!                    ---------------------------------------------------------------------------
---!                        __________________  _____________   ______________                
---!                       |  MPS STATUS BIT        NAME           CONTENTS   |
---!                       |__________________  _____________   ______________| 
---!                       |        0            refreshment         1/0      |  
---!                       |__________________  _____________   ______________| 
---!                       |        1                                 0       |  
---!                       |__________________  _____________   ______________| 
---!                       |        2           significance         1/0      |  
---!                       |__________________  _____________   ______________| 
---!                       |        3                                 0       |
---!                       |__________________  _____________   ______________| 
---!                       |       4-7                               000      |  
---!                       |__________________  _____________   ______________| 
+--!                        __________________ ______________ ______________                
+--!                       |  MPS STATUS BIT  |     NAME     |   CONTENTS   |
+--!                       |__________________|______________|______________| 
+--!                       |        0         | refreshment  |     1/0      |  
+--!                       |__________________|______________|______________| 
+--!                       |        1         |              |      0       |  
+--!                       |__________________|______________|______________| 
+--!                       |        2         | significance |     1/0      |  
+--!                       |__________________|______________|______________| 
+--!                       |        3         |              |      0       |
+--!                       |__________________|_____________ |______________| 
+--!                       |       4-7        |              |     000      |  
+--!                       |__________________|_____________ |______________| 
 --! 
 --!                  The refreshment and significance are set to 1 if the user has updated
 --!                   the produced variable since the last transmission of the variable 
@@ -185,12 +185,14 @@ end entity WF_status_bytes_gen;
 --=================================================================================================
 architecture rtl of WF_status_bytes_gen is
 
-signal s_refreshment                                                                  : std_logic;
-signal s_nFIP_status_byte : std_logic_vector (7 downto 0);
-signal s_var1_rdy_incr_c, s_var1_rdy_extended                                         : std_logic;
-signal s_var2_rdy_incr_c, s_var2_rdy_extended, s_var3_rdy_incr_c, s_var3_rdy_extended : std_logic; 
-signal s_fd_txer_synch, s_fd_wdgn_synch, s_var1_acc_synch, s_var2_acc_synch, s_var3_acc_synch                                  : std_logic_vector (2 downto 0);
-signal s_var1_rdy_c, s_var2_rdy_c, s_var3_rdy_c                    : unsigned (3 downto 0);
+  signal s_incr_var1_rdy_counter, s_reinit_var1_rdy_counter, s_var1_rdy_extended       : std_logic;
+  signal s_incr_var2_rdy_counter, s_reinit_var2_rdy_counter, s_var2_rdy_extended       : std_logic;
+  signal s_incr_var3_rdy_counter, s_reinit_var3_rdy_counter, s_var3_rdy_extended       : std_logic;  
+  signal s_refreshment                                                                 : std_logic;
+  signal s_nFIP_status_byte                                        : std_logic_vector (7 downto 0);
+  signal s_fd_txer_synch, s_fd_wdg_synch, s_var1_acc_synch         : std_logic_vector (2 downto 0);
+  signal s_var2_acc_synch, s_var3_acc_synch                        : std_logic_vector (2 downto 0);
+  signal s_var1_rdy_c, s_var2_rdy_c, s_var3_rdy_c                  :         unsigned (3 downto 0);
 
 
 --=================================================================================================
@@ -205,12 +207,12 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-       s_fd_wdgn_synch  <= (others => '0');
-       s_fd_txer_synch  <= (others => '0');
+       s_fd_wdg_synch  <= (others => '0');
+       s_fd_txer_synch <= (others => '0');
 
       else
-       s_fd_wdgn_synch  <= s_fd_wdgn_synch (1 downto 0)  & fd_wdgn_a_i;
-       s_fd_txer_synch  <= s_fd_txer_synch (1 downto 0)  & fd_txer_a_i; 
+       s_fd_wdg_synch  <= s_fd_wdg_synch (1 downto 0)  & not fd_wdgn_a_i;
+       s_fd_txer_synch <= s_fd_txer_synch (1 downto 0)  & fd_txer_a_i; 
       end if; 
     end if;
   end process;
@@ -297,13 +299,13 @@ end process;
 
     if rising_edge (uclk_i) then
   
-      if (nfip_rst_i = '1') then 
+      if nfip_rst_i = '1' then 
         s_nFIP_status_byte                      <= (others => '0'); 
 
-        else
+      else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- reinitialisation after the transmission of a produced variable
-        if (rst_status_bytes_p_i = '1') then                        -- bits 0 to 5 reinitialised
+        if rst_status_bytes_p_i = '1' then                          -- bits 0 to 5 reinitialised
           s_nFIP_status_byte(5 downto 0)        <= (others => '0'); -- after having been delivered
                                                                     -- bits 6 and 7 are only reset
                                                                     -- when nanoFIP is reset
@@ -332,14 +334,14 @@ end process;
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- t_wder
-          if (s_fd_wdgn_synch(2) = '0') then                              -- FIELDRIVE transmission error 
+          if (s_fd_wdg_synch(2) = '1') then                     -- FIELDRIVE transmission error 
             s_nFIP_status_byte(c_T_WDER_INDEX)  <= '1';
           end if;
 
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- t_rxer
-          if (s_fd_txer_synch(2) = '1') then                              -- FIELDRIVE watchdog timer problem
+          if (s_fd_txer_synch(2) = '1') then                     -- FIELDRIVE watchdog timer problem
             s_nFIP_status_byte(c_T_TXER_INDEX)  <= '1';
           end if;
 
@@ -371,45 +373,48 @@ end process;
   generic map (g_counter_lgth => 4)       -- s_var1_rdy_extended : __|---...------------------|____
   port map (
     uclk_i            => uclk_i,
-    reinit_counter_i  => var1_rdy_i,
-    incr_counter_i    => s_var1_rdy_incr_c,
+    reinit_counter_i  => s_reinit_var1_rdy_counter,
+    incr_counter_i    => s_incr_var1_rdy_counter,
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_var1_rdy_c);       
     ------------------------------------------ 
 
-    s_var1_rdy_incr_c   <= '1' when s_var1_rdy_c < "1111" else '0';
-    s_var1_rdy_extended <= '1' when var1_rdy_i= '1' or s_var1_rdy_incr_c = '1' else '0';
+    s_reinit_var1_rdy_counter <= var1_rdy_i or nfip_rst_i;
+    s_incr_var1_rdy_counter   <= '1' when s_var1_rdy_c < "1111" else '0';
+    s_var1_rdy_extended       <= '1' when var1_rdy_i= '1' or s_incr_var1_rdy_counter = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR2_RDY: WF_incr_counter
   generic map (g_counter_lgth => 4)
   port map (
     uclk_i            => uclk_i,
-    reinit_counter_i  => var2_rdy_i,
-    incr_counter_i    => s_var2_rdy_incr_c,
+    reinit_counter_i  => s_reinit_var2_rdy_counter,
+    incr_counter_i    => s_incr_var2_rdy_counter,
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_var2_rdy_c);
     ------------------------------------------
 
-    s_var2_rdy_incr_c   <= '1' when s_var2_rdy_c < "1111" else '0';
-    s_var2_rdy_extended <= '1' when var2_rdy_i= '1' or s_var2_rdy_incr_c = '1' else '0';
+    s_reinit_var2_rdy_counter <= var2_rdy_i or nfip_rst_i;
+    s_incr_var2_rdy_counter   <= '1' when s_var2_rdy_c < "1111" else '0';
+    s_var2_rdy_extended       <= '1' when var2_rdy_i= '1' or s_incr_var2_rdy_counter = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR3_RDY: WF_incr_counter
   generic map (g_counter_lgth => 4)
   port map (
     uclk_i            => uclk_i,
-    reinit_counter_i  => VAR3_RDY_i,
-    incr_counter_i    => s_var3_rdy_incr_c,
+    reinit_counter_i  => s_reinit_var3_rdy_counter,
+    incr_counter_i    => s_incr_var3_rdy_counter,
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_var3_rdy_c);
     ------------------------------------------
 
-    s_var3_rdy_incr_c   <= '1' when s_var3_rdy_c < "1111" else '0';
-    s_var3_rdy_extended <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_incr_c = '1' else '0';
+    s_reinit_var3_rdy_counter <= var3_rdy_i or nfip_rst_i;
+    s_incr_var3_rdy_counter   <= '1' when s_var3_rdy_c < "1111" else '0';
+    s_var3_rdy_extended       <= '1' when VAR3_RDY_i= '1' or s_incr_var3_rdy_counter = '1' else '0';
 
 
 
