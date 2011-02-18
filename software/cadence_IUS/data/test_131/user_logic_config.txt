@@ -1,6 +1,6 @@
 25 ns				-- User clock period (should not be modified during test)
 40 ns				-- Wishbone interface clock period (should not be modified during test)
-30 us				-- Power-on reset length
+90 us				-- Power-on reset length
 10 us				-- User reset length
 1 us				-- Wishbone interface reset length
-2000 ms				-- validity time: time for which the configuration above is valid
+10000 ms				-- validity time: time for which the configuration above is valid
