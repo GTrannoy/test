@@ -51,24 +51,32 @@ probe -create -shm -waveform :fieldrive:rx_block:dx
 #probe -create -shm -waveform :fieldrive:rx_block:fss_block:i
 
 
-probe -create -shm -waveform :dut:production:production_serializer:start_prod_p_i
-probe -create -shm -waveform :dut:production:production_serializer:s_sending_fss
-probe -create -shm -waveform :dut:production:production_serializer:s_bit_index_top
-probe -create -shm -waveform :dut:production:production_serializer:s_bit_index_load
-probe -create -shm -waveform :dut:production:production_serializer:s_decr_index_p
-probe -create -shm -waveform :dut:production:production_serializer:tx_clk_p_buff_i
-probe -create -shm -waveform :dut:production:production_serializer:s_bit_index
-probe -create -shm -waveform :dut:production:production_serializer:tx_state
+#probe -create -shm -waveform :dut:production:production_serializer:start_prod_p_i
+#probe -create -shm -waveform :dut:production:production_serializer:s_sending_fss
+#probe -create -shm -waveform :dut:production:production_serializer:s_bit_index_top
+#probe -create -shm -waveform :dut:production:production_serializer:s_bit_index_load
+#probe -create -shm -waveform :dut:production:production_serializer:s_decr_index_p
+#probe -create -shm -waveform :dut:production:production_serializer:tx_clk_p_buff_i
+#probe -create -shm -waveform :dut:production:production_serializer:s_bit_index
+#probe -create -shm -waveform :dut:production:production_serializer:tx_state
+probe -create -shm -waveform :dut:engine_control:control_st
+probe -create -shm -waveform :dut:engine_control:rx_byte_i
+probe -create -shm -waveform :dut:engine_control:rx_byte_ready_p_i
 
 
-
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:clk3
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:clk4
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:count_for_clk3
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:count_for_clk4
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:sel
 probe -create -shm -waveform :fieldrive:tx_block:decoder:extracted_clk
-probe -create -shm -waveform :fieldrive:tx_block:decoder:locked
-probe -create -shm -waveform :fieldrive:tx_block:decoder:locking
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:locked
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:locking
 probe -create -shm -waveform :fieldrive:tx_block:decoder:extracted_bits
 probe -create -shm -waveform :fieldrive:tx_block:decoder:violation
 
 probe -create -shm -waveform :fieldrive:tx_block:chopper:vx
+probe -create -shm -waveform :fieldrive:tx_block:detector:sof_detected
 probe -create -shm -waveform :fieldrive:tx_block:chopper:sof
 probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
 
@@ -77,6 +85,17 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:silence_time_reached
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:start_turn_around
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:end_turn_around
+
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:fd_reset_asserted
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:rst_latency_reached
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:fd_reset_assertion
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_preset_time
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:preset_time
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_ureset_time
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:ureset_time
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_vreset_time
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:vreset_time
+probe -create -shm -waveform :fieldrive:fip_bus_monitor:f_clk_period
 
 probe -create -shm -waveform :fieldrive:tx_block:fcs_check
 probe -create -shm -waveform :fieldrive:tx_block:fcs_ok
@@ -175,5 +194,5 @@ probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
 #probe -create -shm -waveform :dut:reset_unit:s_c
 
 
-run 20 ms
+run 200 ms
 
