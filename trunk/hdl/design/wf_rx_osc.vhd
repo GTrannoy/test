@@ -25,7 +25,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
---! @brief     Generation the clock signals needed for the reception (WF_rx_deserializer).
+--! @brief     Generation of the clock signals needed for the reception (WF_rx_deserializer).
 --!
 --!            Even if the bit rate of the communication is known, jitter is expected to affect the
 --!            arriving time of the incoming signal. The main idea of the unit is to recalculate
@@ -50,10 +50,10 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @version   v0.04
 --
 --
---!   \n<b>Dependencies:</b>     \n
---!            WF_reset_unit     \n
---!            WF_deglitcher     \n
---!            WF_rx_deserializer\n
+--!   \n<b>Dependencies:</b>      \n
+--!            WF_reset_unit      \n
+--!            WF_deglitcher      \n
+--!            WF_rx_deserializer \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -126,8 +126,8 @@ end entity WF_rx_osc;
 --=================================================================================================
 architecture rtl of WF_rx_osc is
 
-  signal s_period_c, s_period, s_jitter           : unsigned (c_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_half_period, s_one_forth_period        : unsigned (c_PERIODS_COUNTER_LENGTH-1 downto 0);
+  signal s_period_c, s_period, s_jitter           : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
+  signal s_half_period, s_one_forth_period        : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
   signal s_reinit_counter, s_counter_is_full                                           : std_logic;
   signal s_adjac_bits_window, s_signif_edge_window                                     : std_logic;
   signal s_adjac_bits_edge_found, s_signif_edge_found                                  : std_logic;
@@ -161,7 +161,7 @@ begin
 --! the counter is reinitialialized.
 
   rx_periods_count: WF_incr_counter
-  generic map (g_counter_lgth => c_PERIODS_COUNTER_LENGTH)
+  generic map (g_counter_lgth => c_PERIODS_COUNTER_LGTH)
   port map (
     uclk_i            => uclk_i,
     reinit_counter_i  => s_reinit_counter,
@@ -198,76 +198,76 @@ begin
   -- Edges between adjacent bits are expected inside the adjac_bits_window; if they do not arrive
   -- the rx_manch_clk and rx_bit_clk are inverted right after the end of the adjac_bits_window.
 
- rx_clks: process (uclk_i)
+  rx_clks: process (uclk_i)
   
-    begin
-      if rising_edge (uclk_i) then
-        if (nfip_rst_i = '1') then
-          s_manch_clk                 <='0';
-          s_bit_clk                   <='0';
-          s_bit_clk_d1                <='0';
-          s_manch_clk_d1              <='0';
-          s_signif_edge_found         <='0';
-          s_adjac_bits_edge_found     <='0';
+  begin
+    if rising_edge (uclk_i) then
+      if (nfip_rst_i = '1') then
+        s_manch_clk                 <='0';
+        s_bit_clk                   <='0';
+        s_bit_clk_d1                <='0';
+        s_manch_clk_d1              <='0';
+        s_signif_edge_found         <='0';
+        s_adjac_bits_edge_found     <='0';
 
 
-        else
-          --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-          -- regarding significant edges:
+      else
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+        -- regarding significant edges:
 
-          -- looking for a significant edge inside the corresponding window 
-          if (s_signif_edge_window = '1') and (fd_rxd_edge_p_i = '1') and (s_signif_edge_found = '0') then
+        -- looking for a significant edge inside the corresponding window 
+        if (s_signif_edge_window = '1') and (fd_rxd_edge_p_i = '1') and (s_signif_edge_found = '0') then
                                                    
-              s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk 
-              s_signif_edge_found     <= '1';             -- indication that the edge was found
-              s_adjac_bits_edge_found <= '0';
+            s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk 
+            s_signif_edge_found     <= '1';             -- indication that the edge was found
+            s_adjac_bits_edge_found <= '0';
 
-          -- if a significant edge is not found where expected (code violation), the rx_manch_clk
-          -- is inverted right after the end of the signif_edge_window.
-          elsif (s_signif_edge_found = '0') and (s_period_c = s_jitter) then
+        -- if a significant edge is not found where expected (code violation), the rx_manch_clk
+        -- is inverted right after the end of the signif_edge_window.
+        elsif (s_signif_edge_found = '0') and (s_period_c = s_jitter) then
 
-            s_manch_clk               <= not s_manch_clk; 
-            s_adjac_bits_edge_found   <= '0';             -- re-initialization before the
-                                                          -- next cycle
-
-
-          --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-          -- regarding edges between adjacent bits:
-
-          -- looking for an edge inside the corresponding window
-          elsif (s_adjac_bits_window = '1') and (fd_rxd_edge_p_i = '1') then 
-
-             s_manch_clk              <= not s_manch_clk; -- inversion of rx_manch_clk
-             s_bit_clk                <= not s_bit_clk;   -- inversion of rx_bit_clk
-             s_adjac_bits_edge_found  <= '1';             -- indication that an edge was found
-
-             s_signif_edge_found      <= '0';             -- re-initialization before next cycle
+          s_manch_clk               <= not s_manch_clk; 
+          s_adjac_bits_edge_found   <= '0';             -- re-initialization before the
+                                                        -- next cycle
 
 
-          -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
-          -- after the end of it
-          elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_jitter) then 
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+        -- regarding edges between adjacent bits:
 
-            s_manch_clk               <= not s_manch_clk;
-            s_bit_clk                 <= not s_bit_clk;        
+        -- looking for an edge inside the corresponding window
+        elsif (s_adjac_bits_window = '1') and (fd_rxd_edge_p_i = '1') then 
+
+           s_manch_clk              <= not s_manch_clk; -- inversion of rx_manch_clk
+           s_bit_clk                <= not s_bit_clk;   -- inversion of rx_bit_clk
+           s_adjac_bits_edge_found  <= '1';             -- indication that an edge was found
+
+           s_signif_edge_found      <= '0';             -- re-initialization before next cycle
+
+
+        -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
+        -- after the end of it
+        elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_jitter) then 
+
+          s_manch_clk               <= not s_manch_clk;
+          s_bit_clk                 <= not s_bit_clk;        
            
-            s_signif_edge_found       <= '0';             -- re-initialization before next cycle
-          end if;
-
-        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        s_manch_clk_d1                <= s_manch_clk;    
-                                                  -- s_manch_clk:      ____|-----|_____|-----|____
-                                                  -- s_manch_clk_d1:   ______|-----|_____|-----|__
-                                                  -- rx_manch_clk_p_o: ____|-|___|-|___|-|___|-|__
-
-        s_bit_clk_d1                  <= s_bit_clk;    
-                                                  -- s_bit_clk:        ____|-----------|___________
-                                                  -- s_bit_clk_d1:     ______|-----------|_________
-                                                  -- rx_bit_clk_p_o:   ____|-|_________|-|_________                           
-
+          s_signif_edge_found       <= '0';             -- re-initialization before next cycle
         end if;
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+      s_manch_clk_d1                <= s_manch_clk;    
+                                                -- s_manch_clk:      ____|-----|_____|-----|____
+                                                -- s_manch_clk_d1:   ______|-----|_____|-----|__
+                                                -- rx_manch_clk_p_o: ____|-|___|-|___|-|___|-|__
+
+      s_bit_clk_d1                  <= s_bit_clk;    
+                                                -- s_bit_clk:        ____|-----------|___________
+                                                -- s_bit_clk_d1:     ______|-----------|_________
+                                                -- rx_bit_clk_p_o:   ____|-|_________|-|_________                           
+
       end if;
-    end process;  
+    end if;
+  end process;  
 
 
 

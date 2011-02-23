@@ -25,16 +25,17 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
---! @brief     Generation the clock signals needed for the transmission (WF_tx_serializer)\n
+--! @brief     Generation of the clock signals needed for the transmission (WF_tx_serializer)\n
 --!
 --!            The unit generates the nanoFIP FIELDRIVE output FD_TXCK (line driver half bit clock)
 --!            and the nanoFIP internal signal tx_clk_p_buff:
---!
---!            FD_TXCK          : ___|--------...--------|________...________|--------...--------|_
---!            tx_clk_p_buff(3) :  |0|0|0|1                                |0|0|0|1
---!            tx_clk_p_buff(2) :  |0|0|1|0                                |0|0|1|0
---!            tx_clk_p_buff(1) :  |0|1|0|0                                |0|1|0|0
---!            tx_clk_p_buff(0) :  |1|0|0|0                                |1|0|0|0
+--!           
+--!            uclk             :  _|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|
+--!            FD_TXCK          :  _____|--------...--------|________...________|--------...--------|__
+--!            tx_clk_p_buff(3) :   0   0   0   1                           0   0   0   1
+--!            tx_clk_p_buff(2) :   0   0   1   0                           0   0   1   0
+--!            tx_clk_p_buff(1) :   0   1   0   0                           0   1   0   0
+--!            tx_clk_p_buff(0) :   1   0   0   0                           1   0   0   0
 --!             
 --
 --
@@ -64,7 +65,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!     -> 07/2010  v0.02  EG  tx counter changed from 20 bits signed, to 11 bits unsigned;
 --!                            c_TX_CLK_BUFF_LGTH got 1 bit more\n 
 --!     -> 12/2010  v0.03  EG  code cleaned-up   
---!     -> 01/2011  v0.04  EG  WF_tx_osc as different unit; use of WF_incr_counter;added tx_rst_p_i
+--!     -> 01/2011  v0.04  EG  WF_tx_osc as different unit; use of WF_incr_counter;added tx_osc_rst_p_i
 --         
 ---------------------------------------------------------------------------------------------------
 --
@@ -89,7 +90,7 @@ entity WF_tx_osc is
     nfip_rst_i      : in std_logic;                     --! nanoFIP internal reset
 
     -- Signals from the WF_engine_control
-    tx_rst_p_i      : in std_logic;                     --! transmitter timeout
+    tx_osc_rst_p_i  : in std_logic;                     --! transmitter timeout
 
 
   -- OUTPUTS  
@@ -110,8 +111,8 @@ end entity WF_tx_osc;
 --=================================================================================================
 architecture rtl of WF_tx_osc is
 
-  signal s_period_c, s_period                   : unsigned  (c_PERIODS_COUNTER_LENGTH -1 downto 0);
-  signal s_one_forth_period                     : unsigned  (c_PERIODS_COUNTER_LENGTH -1 downto 0);
+  signal s_period_c, s_period                   : unsigned  (c_PERIODS_COUNTER_LGTH -1 downto 0);
+  signal s_one_forth_period                     : unsigned  (c_PERIODS_COUNTER_LGTH -1 downto 0);
   signal s_tx_clk_p_buff                        : std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
   signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p, s_counter_is_full, s_reinit_counter        : std_logic;
 
@@ -132,7 +133,7 @@ begin
 --!@brief Instantiation of a WF_incr_counter counting transmission periods.
 
   tx_periods_count: WF_incr_counter
-  generic map (g_counter_lgth => c_PERIODS_COUNTER_LENGTH)
+  generic map (g_counter_lgth => c_PERIODS_COUNTER_LGTH)
   port map (
     uclk_i            => uclk_i,
     reinit_counter_i  => s_reinit_counter,
@@ -144,9 +145,9 @@ begin
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
     -- counter reinitialized : if the nfip_rst_i is active or
-    --                         if the tx_rst_p_i is active or
+    --                         if the tx_osc_rst_p_i is active or
     --                         if it fills up
-    s_reinit_counter <= nfip_rst_i or tx_rst_p_i or s_counter_is_full;
+    s_reinit_counter <= nfip_rst_i or tx_osc_rst_p_i or s_counter_is_full;
 
 
 
@@ -176,7 +177,7 @@ begin
   clk_Signals_Construction: process (uclk_i) 
   begin
     if rising_edge (uclk_i) then                                                  
-      if nfip_rst_i = '1' then
+      if (nfip_rst_i = '1') or (tx_osc_rst_p_i = '1') then
         s_tx_clk_p_buff <= (others => '0');
         s_tx_clk_d1     <= '0';
       else 

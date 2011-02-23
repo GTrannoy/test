@@ -140,11 +140,11 @@ entity WF_rx_deserializer is
     nfip_rst_i              : in std_logic; --! nanoFIP internal reset
 
     -- Signal from the WF_engine_control unit
-    rx_rst_p_i              : in std_logic; --! receiver timeout
+    rx_rst_p_i              : in std_logic; --! receiver reset
                                             --! in cases when more bytes than expected are being
                                             --! received (ID_DAT > 8 bytes, RP_DAT > 130 bytes)
 
-    -- Signals from the WF_fd_deglitcher
+    -- Signals from the WF_rx_deglitcher
     fd_rxd_f_edge_p_i       : in std_logic; --! indicates a falling edge on the deglitched fd_rxd  
     fd_rxd_r_edge_p_i       : in std_logic; --! indicates a rising edge on the deglitched fd_rxd
     fd_rxd_i                : in std_logic; --! deglitched fd_rxd
@@ -189,9 +189,9 @@ architecture rtl of WF_rx_deserializer is
 
   signal rx_st, nx_rx_st                                                               : rx_st_t;
   signal s_idle, s_receiving_pre, s_receiving_fsd, s_receiving_bytes                   : std_logic;
-  signal s_fsd_bit, s_fes_bit, s_fsd_wrong_bit                                         : std_logic;
+  signal s_fsd_bit, s_fes_bit, s_fsd_wrong_bit, s_session_timedout                     : std_logic;
   signal s_fsd_last_bit, s_fes_wrong_bit, s_fes_detected_p                             : std_logic;
-  signal s_byte_ready_p, s_byte_ready_p_d1, s_write_bit_to_byte                        : std_logic;
+  signal s_byte_ready_p, s_byte_ready_p_d1, s_write_bit_to_byte_p                      : std_logic;
   signal s_manch_r_edge_p, s_manch_f_edge_p, s_bit_r_edge_p, s_edge_out_manch_window_p : std_logic;
   signal s_manch_bit_index_load, s_decr_manch_bit_index_p, s_manch_bit_index_is_zero   : std_logic; 
   signal s_manch_not_ok, s_manch_code_viol_p,s_CRC_ok_p,s_CRC_ok_p_d, s_CRC_ok_p_found : std_logic;
@@ -235,7 +235,7 @@ architecture rtl of WF_rx_deserializer is
   Deserializer_FSM_Comb_State_Transitions: process (s_bit_r_edge_p, s_edge_out_manch_window_p,
                                                     rx_rst_p_i, fd_rxd_f_edge_p_i, s_manch_r_edge_p,
                                                     s_fsd_wrong_bit, s_manch_f_edge_p, rx_st,
-                                                    s_fsd_last_bit, s_fes_detected_p)
+                                                    s_fsd_last_bit, s_fes_detected_p, s_session_timedout)
   begin
 
     -- During the PRE, the WF_rx_osc is trying to synchronize to the transmitter's clock and every
@@ -252,6 +252,9 @@ architecture rtl of WF_rx_deserializer is
                         if fd_rxd_f_edge_p_i = '1' then        -- edge detection
                           nx_rx_st <= pre_field_first_f_edge;
 
+                        elsif s_session_timedout = '1' then    -- independant timeout
+                          nx_rx_st <= idle;
+
                         else
                           nx_rx_st <= idle;
                         end if;	
@@ -263,6 +266,9 @@ architecture rtl of WF_rx_deserializer is
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge 
                           nx_rx_st <= idle;                      
+
+                        elsif s_session_timedout = '1' then    -- independant timeout
+                          nx_rx_st <= idle;
 
                         else 
                           nx_rx_st <= pre_field_first_f_edge;
@@ -276,7 +282,10 @@ architecture rtl of WF_rx_deserializer is
                                                                -- expected for the PRE
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
-                           nx_rx_st <= idle;              
+                           nx_rx_st <= idle;
+    
+                        elsif s_session_timedout = '1' then    -- independant timeout
+                          nx_rx_st <= idle;          
        
                         else 
                            nx_rx_st <= pre_field_r_edge;
@@ -293,7 +302,10 @@ architecture rtl of WF_rx_deserializer is
                                                                -- of the FSD
                                                   
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
-                          nx_rx_st <= idle;                    
+                          nx_rx_st <= idle;       
+
+                        elsif s_session_timedout = '1' then    -- independant timeout
+                          nx_rx_st <= idle;             
      
                         else 
                           nx_rx_st <= pre_field_f_edge;
@@ -310,6 +322,9 @@ architecture rtl of WF_rx_deserializer is
 
                         elsif s_fsd_wrong_bit = '1' then       -- wrong bit
                           nx_rx_st <= idle;
+
+                        elsif s_session_timedout = '1' then    -- independant timeout
+                          nx_rx_st <= idle;
   
                         else
                           nx_rx_st <= fsd_field;		
@@ -324,7 +339,13 @@ architecture rtl of WF_rx_deserializer is
     -- of a correct FES, or until the arrival of a reset signal from the WF_engine_control.  
 
     when ctrl_data_fcs_fes_fields =>
-                        if (s_fes_detected_p = '1') or (rx_rst_p_i = '1') then
+                        if s_fes_detected_p = '1' then
+                          nx_rx_st <= idle;
+
+                        elsif rx_rst_p_i = '1' then            -- arrival of more bytes than expected
+                          nx_rx_st <= idle;
+
+                        elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
 
                         else
@@ -409,27 +430,27 @@ architecture rtl of WF_rx_deserializer is
 --! "sampling of a bit" moments.
 
   Append_Bit_To_Byte: process (uclk_i)
-    begin
-      if rising_edge (uclk_i) then
-        if nfip_rst_i = '1' then
-          s_byte_ready_p_d1 <='0'; 
-          s_byte            <= (others => '0');
-        else
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then
+        s_byte_ready_p_d1 <='0'; 
+        s_byte            <= (others => '0');
+      else
 
-          s_byte_ready_p_d1 <= s_byte_ready_p; 
+        s_byte_ready_p_d1 <= s_byte_ready_p; 
 
-          if s_write_bit_to_byte = '1' then
-           s_byte           <= s_byte(6 downto 0) & fd_rxd_i;  
-          end if;
+        if s_write_bit_to_byte_p = '1' then
+          s_byte           <= s_byte(6 downto 0) & fd_rxd_i;  
 
         end if;
       end if;
-    end process;
+    end if;
+  end process;
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  s_write_bit_to_byte <= s_receiving_bytes and sample_bit_p_i;
-  s_byte_ready_p      <= s_receiving_bytes and s_manch_bit_index_is_zero and sample_manch_bit_p_i
-                                                                         and (not s_fes_detected_p);
+  s_write_bit_to_byte_p <= s_receiving_bytes and sample_bit_p_i;
+  s_byte_ready_p        <= s_receiving_bytes and s_manch_bit_index_is_zero and sample_manch_bit_p_i
+                                                                           and (not s_fes_detected_p);
 
 
 
@@ -509,18 +530,18 @@ architecture rtl of WF_rx_deserializer is
 --! manch. encoded bits received and the s_fes_detected_p indicates whether they match the FES.  
  
   FES_Detector: process (uclk_i)
-    begin
-      if rising_edge (uclk_i) then
-        if s_receiving_bytes = '0' then 
-          s_arriving_fes <= (others =>'0');
+  begin
+    if rising_edge (uclk_i) then
+      if s_receiving_bytes = '0' then 
+        s_arriving_fes <= (others =>'0');
 
-        elsif s_receiving_bytes = '1' and sample_manch_bit_p_i = '1' then
+      elsif s_receiving_bytes = '1' and sample_manch_bit_p_i = '1' then
 
-          s_arriving_fes <= s_arriving_fes (14 downto 0) & fd_rxd_i;
+        s_arriving_fes <= s_arriving_fes (14 downto 0) & fd_rxd_i;
 
-        end if;
       end if;
-    end process;
+    end if;
+  end process;
 
   --  --  --  --  --  --  --  --  --  --  -- 
   -- 1 uclk-wide pulse after the FES detection
@@ -539,11 +560,11 @@ architecture rtl of WF_rx_deserializer is
     uclk_i             => uclk_i,
     nfip_rst_i         => nfip_rst_i,
     start_crc_p_i      => s_receiving_fsd,
-    data_bit_ready_p_i => s_write_bit_to_byte,
+    data_bit_ready_p_i => s_write_bit_to_byte_p,
     data_bit_i         => fd_rxd_i,
     crc_o              => open,
     ---------------------------------------------------
-    crc_ok_p           => s_CRC_ok_p);
+    crc_ok_p_o         => s_CRC_ok_p);
     ---------------------------------------------------
 
 
@@ -568,19 +589,19 @@ architecture rtl of WF_rx_deserializer is
 --! asserted until the end of the corresponding frame.    
 
   Code_viol: process (uclk_i)
-    begin
-      if rising_edge (uclk_i) then
-        if s_receiving_bytes = '0' then                         -- after the FSS
-          s_manch_not_ok   <= '0';
+  begin
+    if rising_edge (uclk_i) then
+      if s_receiving_bytes = '0' then                         -- after the FSS
+        s_manch_not_ok   <= '0';
 
-        else
-          if s_manch_code_viol_p ='1' and s_fes_wrong_bit ='1' then  
-            s_manch_not_ok <= '1';                              -- if a code violation appears                   
-                                                                -- that doesn't belong to the FES         
-          end if;                                            
-        end if;
+       else
+        if s_manch_code_viol_p ='1' and s_fes_wrong_bit ='1' then  
+          s_manch_not_ok <= '1';                              -- if a code violation appears                   
+                                                              -- that doesn't belong to the FES         
+        end if;                                            
       end if;
-    end process;
+    end if;
+  end process;
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
@@ -590,28 +611,52 @@ architecture rtl of WF_rx_deserializer is
 --! last bytes received before the FES were the correct CRC.
 
   CRC_OK_pulse_delay: process (uclk_i)
-    begin
-      if rising_edge (uclk_i) then
-        if s_receiving_bytes = '0' then
-          s_CRC_ok_p_d       <= '0';
-          s_CRC_ok_p_found   <= '0';
-        else
+  begin
+    if rising_edge (uclk_i) then
+      if s_receiving_bytes = '0' then
+        s_CRC_ok_p_d       <= '0';
+        s_CRC_ok_p_found   <= '0';
+      else
 
-          if s_CRC_ok_p = '1' then                      
-            s_CRC_ok_p_found <= '1';
-          end if;
-
-          if s_byte_ready_p = '1' and s_CRC_ok_p_found = '1' then -- arrival of the next byte
-            s_CRC_ok_p_d     <= '1';                              -- (FES normally)
-            s_CRC_ok_p_found <= '0';
- 
-          else 
-            s_CRC_ok_p_d     <= '0';
-          end if;
-
+        if s_CRC_ok_p = '1' then                      
+          s_CRC_ok_p_found <= '1';
         end if;
-      end if; 
-    end process;
+
+        if s_byte_ready_p = '1' and s_CRC_ok_p_found = '1' then -- arrival of the next byte
+          s_CRC_ok_p_d     <= '1';                              -- (FES normally)
+          s_CRC_ok_p_found <= '0';
+ 
+        else 
+          s_CRC_ok_p_d     <= '0';
+        end if;
+
+      end if;
+    end if; 
+  end process;
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                  Independant Timeout Counter                                  --
+---------------------------------------------------------------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+--! @brief Instantiation of a WF_decr_counter relying only on the system clock, as an additional
+--! way to go back to Idle state, in case any other logic is being stuck.
+
+  Session_Timeout_Counter: WF_decr_counter
+  generic map (g_counter_lgth => 21)
+  port map (
+    uclk_i            => uclk_i,
+    nfip_rst_i        => nfip_rst_i,
+    counter_top       => (others => '1'),
+    counter_load_i    => s_idle,
+    counter_decr_p_i  => '1', -- on each uclk tick
+    counter_o         => open,
+    ---------------------------------------------------
+    counter_is_zero_o => s_session_timedout);
+    ---------------------------------------------------
+
 
 
 

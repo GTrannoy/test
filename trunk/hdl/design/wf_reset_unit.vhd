@@ -213,13 +213,13 @@ end entity WF_reset_unit;
 architecture rtl of WF_reset_unit is
 
   signal s_counter_is_four, s_reinit_counter, s_rston, s_FD_rst_from_var_rst           : std_logic;
-  signal s_u_por_ff1, s_u_por, s_wb_por_ff1, s_wb_por                          : std_logic;
+  signal s_u_por_ff1, s_u_por, s_wb_por_ff1, s_wb_por                                  : std_logic;
   signal s_intern_rst_from_RSTIN, s_intern_rst_from_var_rst, s_fd_rst_from_RSTIN       : std_logic;
   signal s_counter_is_ten, s_counter_is_full, s_counter_full                           : std_logic;
   signal s_var_rst_counter_is_eight, s_var_rst_counter_is_two                          : std_logic;
   signal s_var_rst_reinit_counter, s_var_rst_counter_is_full, s_var_rst_counter_full   : std_logic;
-  signal s_transm_period                        : unsigned   (c_PERIODS_COUNTER_LENGTH-1 downto 0);
-  signal s_c, s_var_rst_c, s_txck_four_periods  : unsigned (c_2_PERIODS_COUNTER_LENGTH-1 downto 0);
+  signal s_transm_period                        : unsigned (c_PERIODS_COUNTER_LGTH - 1 downto 0);
+  signal s_c, s_var_rst_c, s_txck_four_periods  : unsigned (c_2_PERIODS_COUNTER_LGTH-1 downto 0);
 
   type rstin_st_t        is (idle, rstin_eval, intern_rst_ON_FD_rst_ON,intern_rst_OFF_FD_rst_ON);
   type after_a_var_rst_t is (after_a_var_rst_idle, after_a_var_rst_rston_ON,
@@ -447,13 +447,15 @@ begin
 --!@brief Instantiation of a WF_incr_counter: the counter counts from 0 to 4 FD_TXCK.
 
 RSTIN_free_counter: WF_incr_counter
-  generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LENGTH)
+  generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
   port map (
     uclk_i            => uclk_i,        
     reinit_counter_i  => s_reinit_counter,
     incr_counter_i    => '1',
-    counter_o         => s_c,
-    counter_is_full_o => open);
+    counter_is_full_o => open,
+   ----------------------------------------
+    counter_o         => s_c);
+   ----------------------------------------
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   s_counter_is_four  <= '1' when s_c = to_unsigned(4, s_c'length)  else '0'; 
@@ -468,12 +470,12 @@ RSTIN_free_counter: WF_incr_counter
 --!@brief Resets_after_a_var_rst FSM: the state machine is divided in three parts (a clocked process
 --! to store the current state, a combinatorial process to manage state transitions and finally a
 --! combinatorial process to manage the output signals), which are the three processes that follow.
---! If after the reception or a var_rst the signal assert_RSTON_p_i is asserted, the FSM
+--! If after the reception of a var_rst the signal assert_RSTON_p_i is asserted, the FSM
 --! asserts the "nanoFIP user Interface General signal" RSTON for 8 uclk cycles.
---! If after the reception or a var_rst the signal rst_nFIP_and_FD_p_i is asserted, the FSM
+--! If after the reception of a var_rst the signal rst_nFIP_and_FD_p_i is asserted, the FSM
 --! asserts the nanoFIP internal reset (s_intern_rst_from_var_rst) for 2 uclk cycles and the
 --! "nanoFIP FIELDRIVE" output (s_FD_rst_from_var_rst) for 4 FD_TXCK cycles.
---! If after the reception or a var_rst both assert_RSTON_p_i and rst_nFIP_and_FD_p_i
+--! If after the reception of a var_rst both assert_RSTON_p_i and rst_nFIP_and_FD_p_i
 --! are asserted, the FSM asserts the s_intern_rst_from_var_rst for 2 uclk cycles, the RSTON for 8
 --! uclk cycles and the s_FD_rst_from_var_rst for 4 FD_TXCK cycles.
 --! The same counter is used for all the countings!
@@ -666,13 +668,15 @@ RSTIN_free_counter: WF_incr_counter
 --!                    from 0 to 4 * FD_TXCK, if rst_nFIP_and_FD_p has been activated.
 
 free_counter: WF_incr_counter
-  generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LENGTH)
+  generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
   port map (
     uclk_i            => uclk_i,        
     reinit_counter_i  => s_var_rst_reinit_counter,
     incr_counter_i    => '1',
-    counter_o         => s_var_rst_c,
-    counter_is_full_o => open);
+    counter_is_full_o => open,
+   ----------------------------------------
+    counter_o         => s_var_rst_c);
+   ----------------------------------------
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   s_var_rst_counter_is_eight <= '1' when s_var_rst_c= to_unsigned(8, s_var_rst_c'length)  else '0'; 

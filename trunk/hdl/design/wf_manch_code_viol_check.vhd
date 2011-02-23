@@ -63,9 +63,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n  
 --
---!   \n<b>Dependencies:</b>\n
---!            WF_reset_unit       \n
---!            WF_rx_deglitcher    \n
+--!   \n<b>Dependencies:</b>    \n
+--!            WF_reset_unit    \n
+--!            WF_rx_deglitcher \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -117,6 +117,7 @@ architecture rtl of WF_rx_manch_code_check is
 
 signal s_sample_bit_p_d1,s_sample_bit_p_d2,s_check_code_viol_p,s_serial_input_signal_d : std_logic;
 
+
 --=================================================================================================
 --                                        architecture begin
 --=================================================================================================  
@@ -134,25 +135,25 @@ begin
 --   check_code_viol       :             ^    ^    ^
 
   Check_code_violations: process (uclk_i)
-    begin
-      if rising_edge (uclk_i) then 
-         if nfip_rst_i = '1' then
-           s_check_code_viol_p       <= '0';
-           s_sample_bit_p_d1         <= '0';
-           s_sample_bit_p_d2         <= '0';
-           s_serial_input_signal_d   <= '0';
+  begin
+    if rising_edge (uclk_i) then 
+       if nfip_rst_i = '1' then
+         s_check_code_viol_p       <= '0';
+         s_sample_bit_p_d1         <= '0';
+         s_sample_bit_p_d2         <= '0';
+         s_serial_input_signal_d   <= '0';
 
-         else
+       else
 
-           if sample_manch_bit_p_i = '1' then
-             s_serial_input_signal_d <= serial_input_signal_i; 
-           end if;
-
-            s_check_code_viol_p      <= s_sample_bit_p_d2; -- 2 uclk ticks delay
-            s_sample_bit_p_d2        <= s_sample_bit_p_d1;
-            s_sample_bit_p_d1        <= sample_bit_p_i;
+         if sample_manch_bit_p_i = '1' then
+           s_serial_input_signal_d <= serial_input_signal_i; 
          end if;
-      end if;
+
+          s_check_code_viol_p      <= s_sample_bit_p_d2; -- 2 uclk ticks delay
+          s_sample_bit_p_d2        <= s_sample_bit_p_d1;
+          s_sample_bit_p_d1        <= sample_bit_p_i;
+       end if;
+    end if;
   end process; 
 
 

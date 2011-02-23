@@ -43,8 +43,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details 
 --
---!   \n<b>Dependencies:</b>\n
---!            WF_reset_unit       \n
+--!   \n<b>Dependencies:</b> \n
+--!            WF_reset_unit \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -100,10 +100,12 @@ end WF_rx_deglitcher;
 --=================================================================================================
 architecture Behavioral of WF_rx_deglitcher is
 
-  signal s_rxd_filtered, s_rxd_filtered_d1                : std_logic;
-  signal s_rxd_filtered_r_edge_p, s_rxd_filtered_f_edge_p : std_logic;
-  signal s_deglitch_c                                     : unsigned (3 downto 0);
-  signal s_fd_rxd_synch                                   : std_logic_vector (1 downto 0);
+  signal s_rxd_filtered, s_rxd_filtered_d1      : std_logic;
+  signal s_rxd_filtered_r_edge_p                : std_logic;
+  signal s_rxd_filtered_f_edge_p                : std_logic;
+  signal s_fd_rxd_no_activity                   : std_logic;
+  signal s_deglitch_c                           : unsigned (3 downto 0);
+  signal s_fd_rxd_synch                         : std_logic_vector (1 downto 0);
 
 
 --=================================================================================================
@@ -166,6 +168,7 @@ begin
       end if;
     end if;
   end process;
+
 
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -

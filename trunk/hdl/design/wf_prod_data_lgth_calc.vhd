@@ -63,8 +63,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n  
 --
---!   \n<b>Dependencies:</b>\n
---!            WF_engine_control   \n
+--!   \n<b>Dependencies:</b>     \n
+--!            WF_engine_control \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -95,19 +95,19 @@ entity WF_prod_data_lgth_calc is
   port (
   -- INPUTS 
     -- nanoFIP WorldFIP Settings
-    p3_lgth_i          : in std_logic_vector (2 downto 0); --! produced var user-data length
+    p3_lgth_i        : in std_logic_vector (2 downto 0); --! produced var user-data length
 
     -- User Interface, General signals
-    nostat_i           : in std_logic;                     --! if negated, nFIP status is sent
-    slone_i            : in std_logic;                     --! stand-alone mode
+    nostat_i         : in std_logic;                     --! if negated, nFIP status is sent
+    slone_i          : in std_logic;                     --! stand-alone mode
 
     -- Signal from the WF_engine_control unit
-    var_i              : in t_var;                         --! variable type that is being treated
+    var_i            : in t_var;                         --! variable type that is being treated
 
 
   -- OUTPUT
     -- Signal to the WF_engine_control and WF_production units
-    prod_data_length_o : out std_logic_vector (7 downto 0)
+    prod_data_lgth_o : out std_logic_vector (7 downto 0)
 
       );
 end entity WF_prod_data_lgth_calc;
@@ -116,9 +116,10 @@ end entity WF_prod_data_lgth_calc;
 --=================================================================================================
 --!                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_prod_data_lgth_calc is
+architecture behavior of WF_prod_data_lgth_calc is
 
-signal s_prod_data_length, s_p3_length_decoded : unsigned (7 downto 0);
+  signal s_prod_data_lgth, s_p3_lgth_decoded : unsigned (7 downto 0);
+
 
 --=================================================================================================
 --                                        architecture begin
@@ -131,10 +132,10 @@ begin
 --! of the presence and the identification variables, the data length is predefined in the WF_package.
 --! In the case of a var3 the inputs SLONE, NOSTAT and P3_LGTH[] are accounted for the calculation.
  
-  data_length_calcul: process (var_i, s_p3_length_decoded, slone_i, nostat_i, p3_lgth_i)
+  data_length_calcul: process (var_i, s_p3_lgth_decoded, slone_i, nostat_i, p3_lgth_i)
   begin
 
-    s_p3_length_decoded  <= c_P3_LGTH_TABLE (to_integer(unsigned(p3_lgth_i)));
+    s_p3_lgth_decoded        <= c_P3_LGTH_TABLE (to_integer(unsigned(p3_lgth_i)));
 
     case var_i is
 
@@ -142,13 +143,13 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_presence => 
       -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
-        s_prod_data_length <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_length;
+        s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_lgth;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_identif => 
       -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
-        s_prod_data_length <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_length;
+        s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_lgth;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -162,7 +163,7 @@ begin
       --                                 1 byte MPS status
       --                      optionally 1 byte nFIP status
   
-      -- in memory mode the signal      "s_p3_length_decoded" indicates the amount of user-data
+      -- in memory mode the signal      "s_p3_lgth_decoded" indicates the amount of user-data
       -- to these, there should be added 1 byte Control
       --                                 1 byte PDU_TYPE
       --                                 1 byte Length
@@ -172,39 +173,40 @@ begin
         if slone_i = '1' then
 
           if nostat_i = '1' then                              -- 6 bytes (counting starts from 0)
-            s_prod_data_length <= to_unsigned(5, s_prod_data_length'length); 
+            s_prod_data_lgth <= to_unsigned(5, s_prod_data_lgth'length); 
 
           else                                                -- 7 bytes 
-            s_prod_data_length <= to_unsigned(6, s_prod_data_length'length); 
+            s_prod_data_lgth <= to_unsigned(6, s_prod_data_lgth'length); 
           end if;
 
 
         else
           if nostat_i = '0' then
-            s_prod_data_length <= s_p3_length_decoded + 4;
+            s_prod_data_lgth <= s_p3_lgth_decoded + 4;
 
-           else
-            s_prod_data_length <= s_p3_length_decoded + 3;
-           end if;          
-          end if;
+          else
+            s_prod_data_lgth <= s_p3_lgth_decoded + 3;
+          end if;          
+        end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 
       when var_1 | var_2 | var_rst =>                       
-        s_prod_data_length     <= (others => '0');
+        s_prod_data_lgth     <= (others => '0');
 
       when others => 
-        s_prod_data_length     <= (others => '0');
+        s_prod_data_lgth     <= (others => '0');
 
     end case;
   end process;
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
   -- Concurrent signal assignment for the output
-  prod_data_length_o           <= std_logic_vector (s_prod_data_length);
+
+  prod_data_lgth_o           <= std_logic_vector (s_prod_data_lgth);
 
 
-end architecture rtl;
+end architecture behavior;
 --=================================================================================================
 --                                        architecture end
 --=================================================================================================

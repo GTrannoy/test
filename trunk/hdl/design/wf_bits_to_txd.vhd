@@ -46,9 +46,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
---!            WF_reset_unit       \n
---!            WF_tx_rx_osc        \n
---!            WF_tx_serializer    \n
+--!            WF_reset_unit    \n
+--!            WF_tx_osc        \n
+--!            WF_tx_serializer \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -96,7 +96,7 @@ entity WF_bits_to_txd is
     txd_bit_index_i     : in unsigned(4 downto 0);          --! index of a bit inside a byte
     
 
-    -- Signals from the WF_tx_rx_osc unit
+    -- Signals from the WF_tx_osc unit
     tx_clk_p_i          : in std_logic;                     --!clk for transmission synchronization 
                                                             
  
@@ -112,7 +112,8 @@ end entity WF_bits_to_txd;
 --!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_bits_to_txd is
-signal s_fss : std_logic_vector (31 downto 0);
+
+
 --=================================================================================================
 --                                        architecture begin
 --=================================================================================================  
@@ -155,7 +156,7 @@ begin
     end if;
   end process;
 
-s_fss<=c_FSS;
+
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process FD_TXENA_Generator: The nanoFIP output FD_TXENA is activated at the
