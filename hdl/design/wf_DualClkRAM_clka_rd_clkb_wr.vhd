@@ -100,13 +100,10 @@ end WF_DualClkRAM_clka_rd_clkb_wr;
 --=================================================================================================
 architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is 
 
----------------------------------------------------------------------------------------------------
-
-type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
-
-signal data_o_A_array   : t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
-signal zero, one, s_rwB : std_logic;
-signal s_zeros          : std_logic_vector (7 downto 0);
+  type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
+  signal s_data_o_A_array : t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
+  signal s_one, s_rwB     : std_logic;
+  signal s_zeros          : std_logic_vector (7 downto 0);
 
 
 --=================================================================================================
@@ -114,44 +111,45 @@ signal s_zeros          : std_logic_vector (7 downto 0);
 --=================================================================================================
 begin 
 
-zero    <= '0';
-one     <= '1';
-s_zeros <= (others => '0');
-s_rwB   <= not write_en_portb_i;
+  s_one   <= '1';
+  s_zeros <= (others => '0');
+  s_rwB   <= not write_en_portb_i;
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief: memory triplication
 --! The component DualClkRam is generated three times.
 --! Port A is used for reading only, port B for writing only.
 --! The input DINB is written in the same position in the 3 memories.
---! The output DOUTA from each memory is kept in the array data_o_A_array.
+--! The output DOUTA from each memory is kept in the array s_data_o_A_array.
 
-G_memory_triplication: for I in 0 to 2 generate 
+  G_memory_triplication: for I in 0 to 2 generate 
 
-UDualClkRam : DualClkRam  
-   port map ( DINA   => s_zeros,
-              ADDRA  => addr_porta_i,
-              RWA    => one, 
-              CLKA   => clk_porta_i, 
+    UDualClkRam : DualClkRam  
+    port map (
+      DINA   => s_zeros,
+      ADDRA  => addr_porta_i,
+      RWA    => s_one, 
+      CLKA   => clk_porta_i, 
 
-              DINB   => data_portb_i,
-              ADDRB  => addr_portb_i, 
-              RWB    => s_rwB, 
-              CLKB   => clk_portb_i, 
+      DINB   => data_portb_i,
+      ADDRB  => addr_portb_i, 
+      RWB    => s_rwB, 
+      CLKB   => clk_portb_i, 
 
-              RESETn => one,
+      RESETn => s_one,
 
-              DOUTA  => data_o_A_array(I),
-              DOUTB  => open) ;
-end generate;
+      DOUTA  => s_data_o_A_array(I),
+      DOUTB  => open);
+
+  end generate;
 
 
 --------------------------------------------------------------------------------------------------- 
 --!@brief Combinatorial Majority_Voter
 
-Majority_Voter: data_porta_o <= (data_o_A_array(0) and data_o_A_array(1)) or
-                                (data_o_A_array(1) and data_o_A_array(2)) or
-                                (data_o_A_array(2) and data_o_A_array(0));
+Majority_Voter: data_porta_o <= (s_data_o_A_array(0) and s_data_o_A_array(1)) or
+                                (s_data_o_A_array(1) and s_data_o_A_array(2)) or
+                                (s_data_o_A_array(2) and s_data_o_A_array(0));
 
 end syn;
 --=================================================================================================

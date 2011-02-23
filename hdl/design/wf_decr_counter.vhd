@@ -90,7 +90,8 @@ end entity WF_decr_counter;
 --=================================================================================================
 architecture rtl of WF_decr_counter is
 
-signal s_counter : unsigned (g_counter_lgth-1 downto 0);
+  signal s_counter : unsigned (g_counter_lgth-1 downto 0);
+
 
 --=================================================================================================
 --                                        architecture begin

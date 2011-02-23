@@ -45,7 +45,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n<b>Dependencies:</b>  \n
 --!            WF_production  \n
---!            WF_consumption \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -63,11 +62,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings!                                          --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -107,10 +101,13 @@ architecture rtl of WF_wb_controller is
 
 
   signal s_wb_ack_write_p, s_wb_ack_read_p, s_wb_stb_r_edge_p : std_logic;
-  signal s_wb_we_d3, s_wb_cyc_d3                              : std_logic_vector (2 downto 0);
-  signal s_wb_stb_d4                                          : std_logic_vector (3 downto 0);
+  signal s_wb_we_synch, s_wb_cyc_synch                        : std_logic_vector (2 downto 0);
+  signal s_wb_stb_synch                                       : std_logic_vector (3 downto 0);
 
 
+--=================================================================================================
+--                                        architecture begin
+--=================================================================================================
 begin
 
 ---------------------------------------------------------------------------------------------------
@@ -120,20 +117,20 @@ begin
   begin
    if rising_edge (wb_clk_i) then
      if wb_rst_i = '1' then          -- wb_rst is not buffered to comply with WISHBONE rule 3.15
-       s_wb_stb_d4  <= (others => '0');
-       s_wb_cyc_d3  <= (others => '0');
-       s_wb_we_d3   <= (others => '0');
+       s_wb_stb_synch  <= (others => '0');
+       s_wb_cyc_synch  <= (others => '0');
+       s_wb_we_synch   <= (others => '0');
 
       else
-        s_wb_stb_d4 <= s_wb_stb_d4 (2 downto 0) & wb_stb_i;   
-        s_wb_cyc_d3 <= s_wb_cyc_d3 (1 downto 0) & wb_cyc_i; 
-        s_wb_we_d3  <= s_wb_we_d3  (1 downto 0) & wb_we_i;   
+        s_wb_stb_synch <= s_wb_stb_synch (2 downto 0) & wb_stb_i;   
+        s_wb_cyc_synch <= s_wb_cyc_synch (1 downto 0) & wb_cyc_i; 
+        s_wb_we_synch  <= s_wb_we_synch  (1 downto 0) & wb_we_i;   
       end if;
     end if;
   end process;
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  s_wb_stb_r_edge_p  <= (not s_wb_stb_d4(3)) and s_wb_stb_d4(2); 
+  s_wb_stb_r_edge_p  <= (not s_wb_stb_synch(3)) and s_wb_stb_synch(2); 
 
 
 ---------------------------------------------------------------------------------------------------
@@ -143,8 +140,8 @@ begin
 --! address corresponds to an address in the Produced memory block.
   
   Generate_wb_ack_write_p_o: s_wb_ack_write_p <= '1' when ((s_wb_stb_r_edge_p = '1') and 
-                                                           (s_wb_we_d3 (2)    = '1') and 
-                                                           (s_wb_cyc_d3(2)    = '1') and
+                                                           (s_wb_we_synch (2) = '1') and 
+                                                           (s_wb_cyc_synch(2) = '1') and
                                                            (wb_adr_id_i       = "010"))
                                             else '0';
 
@@ -156,8 +153,8 @@ begin
 --! corresponds to an address in the Consumed memory block.
 
   Generate_wb_ack_read_p_o: s_wb_ack_read_p <= '1' when ((s_wb_stb_r_edge_p       = '1') and 
-                                                         (s_wb_cyc_d3(2)          = '1') and
-                                                         (s_wb_we_d3(2)           = '0') and
+                                                         (s_wb_cyc_synch(2)       = '1') and
+                                                         (s_wb_we_synch(2)        = '0') and
                                                          (wb_adr_id_i(2 downto 1) = "00"))
                                           else '0';
 

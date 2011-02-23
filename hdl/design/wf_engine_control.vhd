@@ -71,10 +71,10 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --
 --! @details \n 
 --
---!   \n<b>Dependencies:</b>  \n
---!            WF_reset_unit  \n
---!            WF_production  \n
---!            WF_consumption \n
+--!   \n<b>Dependencies:</b>     \n
+--!            WF_reset_unit     \n
+--!            WF_fd_transmitter \n
+--!            WF_fd_receiver    \n
 --
 --
 --!   \n<b>Modified by:</b>   \n
@@ -95,7 +95,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!     01/2011  v0.04  EG  signals named according to their origin; signals var_rdy (1,2,3),
 --!                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and
 --!                         rx_byte_ready_p_o removed cleaning-up+commenting
---!     02/2011  v0.05  EG  session timeout counter added; time counter 18 digits instead of 15 
+--!     02/2011  v0.05  EG  Independant timeout counter added; time counter 18 digits instead of 15 
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -129,17 +129,15 @@ entity WF_engine_control is
 
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  
-    -- Signals from the WF_production
-    
-    -- Signal from the WF_tx_serializer unit
+    -- Signal from the WF_fd_transmitter unit
+
     tx_byte_request_p_i        : in std_logic;                    --! used for the counting of the 
                                                                   --! # produced bytes
 
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  
-    -- Signals from the WF_consumption
+    -- Signals from the WF_fd_receiver unit
 
-    -- Signals from the WF_rx_deserializer unit
     rx_byte_i                  : in std_logic_vector(7 downto 0);--!deserialized ID_DAT/ RP_DAT byte
     rx_byte_ready_p_i          : in std_logic;--! indication of a new byte on rx_byte_i
 
@@ -157,15 +155,14 @@ entity WF_engine_control is
   -- OUTPUTS
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  -- 
-    -- Signals to the WF_production
 
     -- Signal to the WF_tx_serializer unit
     tx_byte_request_accept_p_o : out std_logic;--! answer to tx_byte_request_p_i
     tx_last_byte_p_o           : out std_logic;--! indication that it is the last data-byte
     tx_start_p_o               : out std_logic;--! launches the transmitters's FSM 
 
-    -- Signal to the WF_prod_bytes_retriever
-    prod_data_length_o         : out std_logic_vector (7 downto 0);--! # bytes of the Conrol & Data
+    -- Signal to the WF_production unit
+    prod_data_lgth_o           : out std_logic_vector (7 downto 0);--! # bytes of the Conrol & Data
                                                                    --!fields of a prod RP_DAT frame
 
 
@@ -177,7 +174,6 @@ entity WF_engine_control is
                                                --!or after 134 bytes of a RP_DAT, the state machine
                                                --!of the WF_rx_deserializer returns to idle state 
 
-    rst_tx_p_o                 : out std_logic;
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  -- 
     -- Signals to the WF_production & WF_consumption
@@ -217,11 +213,11 @@ architecture rtl of WF_engine_control is
   signal s_load_time_counter, s_time_c_is_zero, s_session_timedout                     : std_logic;
   signal s_tx_byte_request_accept_p, s_tx_byte_request_accept_p_d1                     : std_logic; 
   signal s_tx_byte_request_accept_p_d2, s_tx_last_byte_p, s_tx_last_byte_p_d           : std_logic;
-  signal s_prod_data_length_match, s_tx_start_prod_p, s_broadcast_var                  : std_logic;
+  signal s_prod_data_lgth_match, s_tx_start_prod_p, s_broadcast_var                    : std_logic;
   signal s_rx_bytes_c, s_prod_bytes_c                                      : unsigned (7 downto 0);
   signal s_time_counter_top, s_turnaround_time, s_silence_time            : unsigned (17 downto 0);
-  signal s_tx_byte_index, s_rx_byte_index, s_prod_data_length      : std_logic_vector (7 downto 0);
-  signal s_produce_or_consume                                      : std_logic_vector (1 downto 0);
+  signal s_tx_byte_index, s_rx_byte_index, s_prod_data_lgth        : std_logic_vector (7 downto 0);
+  signal s_prod_or_cons                                            : std_logic_vector (1 downto 0);
 
 
 
@@ -273,7 +269,7 @@ begin
 --!@brief Combinatorial process Engine_Control_FSM_Comb_State_Transitions: definition of the state
 --! transitions of the FSM.
 
-  Engine_Control_FSM_Comb_State_Transitions: process (s_time_c_is_zero, s_produce_or_consume,subs_i, 
+  Engine_Control_FSM_Comb_State_Transitions: process (s_time_c_is_zero, s_prod_or_cons,subs_i, 
                                                       rx_crc_or_manch_wrong_p_i, s_session_timedout,
                                                       rx_fss_crc_fes_manch_ok_p_i, s_broadcast_var,
                                                       s_var_identified,rx_byte_ready_p_i,rx_byte_i, 
@@ -289,7 +285,7 @@ begin
       when idle                     =>
 
         if (rx_fss_received_p_i = '1') then    -- correct FSS arrived
-          nx_control_st <= id_dat_control_byte;-- session timeout counter starts counting
+          nx_control_st <= id_dat_control_byte;
 
         else
           nx_control_st <= idle;
@@ -357,10 +353,10 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
       when id_dat_frame_ok          =>
 
-        if (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_produce_or_consume = "10") then
+        if (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_prod_or_cons = "10") then
           nx_control_st <= produce_wait_turnar_time; -- CRC & FES check ok! station has to produce 
 
-        elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_produce_or_consume = "01") then
+        elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_prod_or_cons = "01") then
           nx_control_st <= consume_wait_FSS;         -- CRC & FES check ok! station has to consume
 
         elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_rx_bytes_c > 2)  then
@@ -622,9 +618,8 @@ begin
     p3_lgth_i          => p3_lgth_i,
     var_i              => s_var,
     -------------------------------------------------------
-    prod_data_length_o => s_prod_data_length
+    prod_data_lgth_o   => s_prod_data_lgth);
     -------------------------------------------------------
-      ); 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --! @brief Instantiation of a WF_incr_counter for the counting of the number of the bytes that are
@@ -639,13 +634,12 @@ begin
     incr_counter_i    => s_inc_prod_bytes_counter,
     -------------------------------------------------------
     counter_o         => s_prod_bytes_c,
-    counter_is_full_o => open  
+    counter_is_full_o => open ); 
     -------------------------------------------------------
-      );
 
   --  --  --  --  --  --  --  --  --  --  -- 
-  -- when s_prod_data_length bytes have been counted,the signal s_prod_data_length_match is activated
-  s_prod_data_length_match <= '1' when s_prod_bytes_c = unsigned (s_prod_data_length) else '0';
+  -- when s_prod_data_lgth bytes have been counted,the signal s_prod_data_lgth_match is activated
+  s_prod_data_lgth_match <= '1' when s_prod_bytes_c = unsigned (s_prod_data_lgth) else '0';
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
@@ -668,9 +662,8 @@ begin
     incr_counter_i    => s_inc_rx_bytes_counter,
     -------------------------------------------------------
     counter_o         => s_rx_bytes_c,
-    counter_is_full_o => open
+    counter_is_full_o => open);
     -------------------------------------------------------
-      );
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
 --! @brief Combinatorial process Arguments_For_Both_Bytes_Counters: The process gives values to
@@ -726,18 +719,14 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                      General Timeout Counter                                  --
+--                                  Independant Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
---! @brief Instantiation of a WF_decr_counter for the counting of turnaround and silence times.
---! The same counter is used in both cases. The signal s_time_counter_top initializes the counter
---! to either the turnaround or the silence time. If after the correct arrival of an ID_DAT frame
---! the identified variable is a produced one the counter loads to the turnaround time, whereas if
---! it had been a consumed variable it loads to the silence. The counting takes place during the
---! states "produce_wait_turnar_time" and "consume_wait_FSS" respectively.
+--! @brief Instantiation of a WF_decr_counter relying only on the system clock as an additional
+--! way to go back to Idle state, in case any other logic is being stuck.
 
-  General_Timeout_Counter: WF_decr_counter
+  Session_Timeout_Counter: WF_decr_counter
   generic map (g_counter_lgth => 21)
   port map (
     uclk_i            => uclk_i,
@@ -790,18 +779,18 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
 --! @brief Combinatorial process Turnaround_and_Silence_Time_Counter_Arg: The process gives values
 --! to the counter_top and counter_load_i inputs of the Turnaround_and_Silence_Time_Counter,
---! according to the state of the FSM and the type of received variable (s_produce_or_consume).
+--! according to the state of the FSM and the type of received variable (s_prod_or_cons).
 
   Turnaround_and_Silence_Time_Counter_Arg: process (s_prod_wait_turnar_time, s_turnaround_time,
-                                                    s_id_dat_frame_ok, s_produce_or_consume,
+                                                    s_id_dat_frame_ok, s_prod_or_cons,
                                                     s_cons_wait_FSS, s_silence_time)
   begin
 
-    if s_id_dat_frame_ok = '1'  and s_produce_or_consume = "10" then
+    if s_id_dat_frame_ok = '1'  and s_prod_or_cons = "10" then
       s_load_time_counter <= '1'; -- counter loads
       s_time_counter_top  <= s_turnaround_time;
 
-    elsif s_id_dat_frame_ok = '1'  and s_produce_or_consume = "01" then
+    elsif s_id_dat_frame_ok = '1'  and s_prod_or_cons = "01" then
       s_load_time_counter <= '1'; -- counter loads
       s_time_counter_top  <= s_silence_time;
 
@@ -841,19 +830,18 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then 
-        s_var_aux            <= var_whatever;
-        s_var                <= var_whatever;
-        s_produce_or_consume <= "00";
-        s_broadcast_var      <= '0';
+        s_var_aux           <= var_whatever;
+        s_var               <= var_whatever;
+        s_prod_or_cons      <= "00";
+        s_broadcast_var     <= '0';
       else
-
 
         -------------------------------------------------------------------------------------------
         if (s_idle_state = '1') or (s_id_dat_ctrl_byte = '1')  then    -- new frame initializations
-          s_var_aux            <= var_whatever; 
-          s_var                <= var_whatever;
-          s_produce_or_consume <= "00";
-          s_broadcast_var      <= '0';
+          s_var_aux         <= var_whatever; 
+          s_var             <= var_whatever;
+          s_prod_or_cons    <= "00";
+          s_broadcast_var   <= '0';
 
 
         -------------------------------------------------------------------------------------------
@@ -861,52 +849,52 @@ begin
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           if rx_byte_i = c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).hexvalue then
-            s_var_aux            <= var_presence;
-            s_produce_or_consume <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).prod_or_cons;
-            s_broadcast_var      <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).broadcast;
+            s_var_aux       <= var_presence;
+            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).prod_or_cons;
+            s_broadcast_var <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).hexvalue then
-            s_var_aux            <= var_identif;
-            s_produce_or_consume <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).prod_or_cons;
-            s_broadcast_var      <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).broadcast;
+            s_var_aux       <= var_identif;
+            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).prod_or_cons;
+            s_broadcast_var <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_1_INDEX).hexvalue then
-            s_var_aux            <= var_1;
-            s_produce_or_consume <= c_VARS_ARRAY(c_VAR_1_INDEX).prod_or_cons;
-            s_broadcast_var      <= c_VARS_ARRAY(c_VAR_1_INDEX).broadcast;
+            s_var_aux       <= var_1;
+            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_1_INDEX).prod_or_cons;
+            s_broadcast_var <= c_VARS_ARRAY(c_VAR_1_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_2_INDEX).hexvalue then
-            s_var_aux            <= var_2;
-            s_produce_or_consume <= c_VARS_ARRAY(c_VAR_2_INDEX).prod_or_cons;
-            s_broadcast_var      <= c_VARS_ARRAY(c_VAR_2_INDEX).broadcast;
+            s_var_aux       <= var_2;
+            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_2_INDEX).prod_or_cons;
+            s_broadcast_var <= c_VARS_ARRAY(c_VAR_2_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_3_INDEX).hexvalue then
-            s_var_aux            <= var_3;
-            s_produce_or_consume <= c_VARS_ARRAY(c_VAR_3_INDEX).prod_or_cons;
-            s_broadcast_var      <= c_VARS_ARRAY(c_VAR_3_INDEX).broadcast;
+            s_var_aux       <= var_3;
+            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_3_INDEX).prod_or_cons;
+            s_broadcast_var <= c_VARS_ARRAY(c_VAR_3_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_RST_INDEX).hexvalue then
-            s_var_aux            <= var_rst;
-            s_produce_or_consume <= c_VARS_ARRAY(c_VAR_RST_INDEX).prod_or_cons;
-            s_broadcast_var      <= c_VARS_ARRAY(c_VAR_RST_INDEX).broadcast;
+            s_var_aux       <= var_rst;
+            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_RST_INDEX).prod_or_cons;
+            s_broadcast_var <= c_VARS_ARRAY(c_VAR_RST_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           else
-            s_var_aux            <= var_whatever;
-            s_produce_or_consume <= "00";
-            s_broadcast_var      <= '0';
+            s_var_aux       <= var_whatever;
+            s_prod_or_cons  <= "00";
+            s_broadcast_var <= '0';
           end if;
 
 
         -------------------------------------------------------------------------------------------
         elsif (s_prod_wait_turnar_time = '1') or (s_consuming = '1') then             -- ID_DAT OK!
  
-         s_var <= s_var_aux; 
+         s_var              <= s_var_aux; 
 
         end if;
       end if;
@@ -956,7 +944,7 @@ begin
 
   s_tx_byte_request_accept_p   <= s_producing and (tx_byte_request_p_i or s_tx_start_prod_p);
 
-  s_tx_last_byte_p             <= s_producing and s_prod_data_length_match and tx_byte_request_p_i;
+  s_tx_last_byte_p             <= s_producing and s_prod_data_lgth_match and tx_byte_request_p_i;
 
 
 
@@ -967,7 +955,7 @@ begin
   var_o                  <= s_var;
 
 -- number of bytes of the Control & Data fields of a produced RP_DAT frame
-  prod_data_length_o     <= s_prod_data_length;
+  prod_data_lgth_o       <= s_prod_data_lgth;
 
 -- response to WF_tx_serializer request for a byte
   tx_byte_request_accept_p_o      <= s_tx_byte_request_accept_p_d2;
@@ -978,12 +966,11 @@ begin
 -- If the WF_rx_deserializer continues receiving bytes when the engine_control is idle, it has to
 -- be reset. This happens when the number of bytes that have arrived exceed the expected (ID_DAT >8
 -- bytes and consumed RP_DAT > 130 bytes) 
-  rx_rst_p_o             <= (s_idle_state and rx_byte_ready_p_i) or s_session_timedout; 
+  rx_rst_p_o             <= s_idle_state and rx_byte_ready_p_i; 
 
 -- Production starts after the expiration of the turnaround time
   tx_start_p_o           <= s_tx_start_prod_p;
 
-  rst_tx_p_o             <= s_session_timedout;
 ---------------------------------------------------------------------------------------------------
 
 

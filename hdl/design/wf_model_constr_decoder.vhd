@@ -49,8 +49,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details\n 
 --
---!   \n<b>Dependencies:</b>\n
---!            WF_reset_unit\n
+--!   \n<b>Dependencies:</b> \n
+--!            WF_reset_unit \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -107,13 +107,10 @@ entity WF_model_constr_decoder is
 end entity WF_model_constr_decoder;
 
 
-
-
 --=================================================================================================
 --!                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_model_constr_decoder is
-
 
   signal s_counter_is_full                : std_logic;
   signal s_counter                        : unsigned (1 downto 0);

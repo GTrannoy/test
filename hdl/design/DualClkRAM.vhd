@@ -18,7 +18,7 @@ use IEEE.STD_LOGIC_1164.all;            --! std_logic definitions
 use IEEE.NUMERIC_STD.all;               --! conversion functions
 
 --! ProASIC3 library
-library PROASIC3;
+library PROASIC3;                       --! component specific library
 
 --! ProASIC3 packages
 use PROASIC3.all;
@@ -31,7 +31,7 @@ use PROASIC3.all;
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Instantiation of a template RAM4K9 memory component with
+--! @brief     Instantiation of a template ProAsic3 RAM4K9 memory component with
 --!              o word width : 8 bits and 
 --!              o depth      : 512 bytes.
 -- 
@@ -183,6 +183,7 @@ architecture RAM4K9 of DualClkRAM is
 --                                        architecture begin
 --=================================================================================================
 begin
+
   power_supply_signal : VCC port map (Y => POWER);
   ground_signal       : GND port map (Y => GROUND);
 
@@ -197,107 +198,106 @@ begin
 --!  o WMODEA, WMODEB : GND      (in write mode the output retains the data from the previous read)
 
   A9D8DualClkRAM_R0C0 : RAM4K9
-    port map (
-      -- INPUTS 
+  port map (
+  -- INPUTS 
 
-      -- INPUTS concerning port A
-      -- data in A (1 byte, (7 downto 0))    
-      DINA8   => GROUND,
-      DINA7   => DINA(7),
-      DINA6   => DINA(6),
-      DINA5   => DINA(5),
-      DINA4   => DINA(4),
-      DINA3   => DINA(3),
-      DINA2   => DINA(2),
-      DINA1   => DINA(1),
-      DINA0   => DINA(0),
-      -- address A (512 bytes depth, (8 downto 0))
-      ADDRA11 => GROUND,
-      ADDRA10 => GROUND,
-      ADDRA9  => GROUND,
-      ADDRA8  => ADDRA(8),
-      ADDRA7  => ADDRA(7),
-      ADDRA6  => ADDRA(6),
-      ADDRA5  => ADDRA(5),
-      ADDRA4  => ADDRA(4),
-      ADDRA3  => ADDRA(3),
-      ADDRA2  => ADDRA(2),
-      ADDRA1  => ADDRA(1),
-      ADDRA0  => ADDRA(0),
-      -- read/ write mode for A
-      WENA    => RWA,
-      -- clock for A
-      CLKA    => CLKA,
-      -- aspect ratio, block, pipeline, write mode configurations for port A
-      WIDTHA0 => POWER,
-      WIDTHA1 => POWER,
-      BLKA    => GROUND,
-      PIPEA   => GROUND,
-      WMODEA  => GROUND,
+    -- inputs concerning port A
+    -- data in A (1 byte, (7 downto 0))    
+    DINA8   => GROUND,
+    DINA7   => DINA(7),
+    DINA6   => DINA(6),
+    DINA5   => DINA(5),
+    DINA4   => DINA(4),
+    DINA3   => DINA(3),
+    DINA2   => DINA(2),
+    DINA1   => DINA(1),
+    DINA0   => DINA(0),
+    -- address A (512 bytes depth, (8 downto 0))
+    ADDRA11 => GROUND,
+    ADDRA10 => GROUND,
+    ADDRA9  => GROUND,
+    ADDRA8  => ADDRA(8),
+    ADDRA7  => ADDRA(7),
+    ADDRA6  => ADDRA(6),
+    ADDRA5  => ADDRA(5),
+    ADDRA4  => ADDRA(4),
+    ADDRA3  => ADDRA(3),
+    ADDRA2  => ADDRA(2),
+    ADDRA1  => ADDRA(1),
+    ADDRA0  => ADDRA(0),
+    -- read/ write mode for A
+    WENA    => RWA,
+    -- clock for A
+    CLKA    => CLKA,
+    -- aspect ratio, block, pipeline, write mode configurations for port A
+    WIDTHA0 => POWER,
+    WIDTHA1 => POWER,
+    BLKA    => GROUND,
+    PIPEA   => GROUND,
+    WMODEA  => GROUND,
 
-      -- INPUTS concerning port B 
-      -- data in B (1 byte, (7 downto 0))
-      DINB8   => GROUND,
-      DINB7   => DINB(7),
-      DINB6   => DINB(6),
-      DINB5   => DINB(5),
-      DINB4   => DINB(4),
-      DINB3   => DINB(3),
-      DINB2   => DINB(2),
-      DINB1   => DINB(1),
-      DINB0   => DINB(0),
-      -- address B (512 bytes depth, (8 downto 0))
-      ADDRB11 => GROUND,
-      ADDRB10 => GROUND,
-      ADDRB9  => GROUND,
-      ADDRB8  => ADDRB(8),
-      ADDRB7  => ADDRB(7),
-      ADDRB6  => ADDRB(6),
-      ADDRB5  => ADDRB(5),
-      ADDRB4  => ADDRB(4),
-      ADDRB3  => ADDRB(3),
-      ADDRB2  => ADDRB(2),
-      ADDRB1  => ADDRB(1),
-      ADDRB0  => ADDRB(0),
-      -- read/ write mode for B
-      WENB    => RWB,
-      -- clock for B
-      CLKB    => CLKB,
-      -- aspect ratio, block, pipeline, write mode configurations for port B
-      WIDTHB0 => POWER,
-      WIDTHB1 => POWER,
-      BLKB    => GROUND,
-      PIPEB   => GROUND,
-      WMODEB  => GROUND,
+    -- inputs concerning port B 
+    -- data in B (1 byte, (7 downto 0))
+    DINB8   => GROUND,
+    DINB7   => DINB(7),
+    DINB6   => DINB(6),
+    DINB5   => DINB(5),
+    DINB4   => DINB(4),
+    DINB3   => DINB(3),
+    DINB2   => DINB(2),
+    DINB1   => DINB(1),
+    DINB0   => DINB(0),
+    -- address B (512 bytes depth, (8 downto 0))
+    ADDRB11 => GROUND,
+    ADDRB10 => GROUND,
+    ADDRB9  => GROUND,
+    ADDRB8  => ADDRB(8),
+    ADDRB7  => ADDRB(7),
+    ADDRB6  => ADDRB(6),
+    ADDRB5  => ADDRB(5),
+    ADDRB4  => ADDRB(4),
+    ADDRB3  => ADDRB(3),
+    ADDRB2  => ADDRB(2),
+    ADDRB1  => ADDRB(1),
+    ADDRB0  => ADDRB(0),
+    -- read/ write mode for B
+    WENB    => RWB,
+    -- clock for B
+    CLKB    => CLKB,
+    -- aspect ratio, block, pipeline, write mode configurations for port B
+    WIDTHB0 => POWER,
+    WIDTHB1 => POWER,
+    BLKB    => GROUND,
+    PIPEB   => GROUND,
+    WMODEB  => GROUND,
+     -- input reset
+    RESET => RESETn,
+   -------------------------------
+  -- OUTPUTS
+    -- output concerning port A
+    -- data out A (1 byte)    
+    DOUTA8 => open,
+    DOUTA7 => DOUTA(7),
+    DOUTA6 => DOUTA(6),
+    DOUTA5 => DOUTA(5),
+    DOUTA4 => DOUTA(4),
+    DOUTA3 => DOUTA(3),
+    DOUTA2 => DOUTA(2),
+    DOUTA1 => DOUTA(1),
+    DOUTA0 => DOUTA(0),
 
-      -- reset
-      RESET => RESETn,
-
-      -- Oututs 
-      -- output concerning port A
-      -- data out A (1 byte)    
-      DOUTA8 => open,
-      DOUTA7 => DOUTA(7),
-      DOUTA6 => DOUTA(6),
-      DOUTA5 => DOUTA(5),
-      DOUTA4 => DOUTA(4),
-      DOUTA3 => DOUTA(3),
-      DOUTA2 => DOUTA(2),
-      DOUTA1 => DOUTA(1),
-      DOUTA0 => DOUTA(0),
-
-      -- output concerning port B
-      -- data out B (1 byte) 
-      DOUTB8 => open,
-      DOUTB7 => DOUTB(7),
-      DOUTB6 => DOUTB(6),
-      DOUTB5 => DOUTB(5),
-      DOUTB4 => DOUTB(4),
-      DOUTB3 => DOUTB(3),
-      DOUTB2 => DOUTB(2),
-      DOUTB1 => DOUTB(1),
-      DOUTB0 => DOUTB(0)
-      );
+    -- output concerning port B
+    -- data out B (1 byte) 
+    DOUTB8 => open,
+    DOUTB7 => DOUTB(7),
+    DOUTB6 => DOUTB(6),
+    DOUTB5 => DOUTB(5),
+    DOUTB4 => DOUTB(4),
+    DOUTB3 => DOUTB(3),
+    DOUTB2 => DOUTB(2),
+    DOUTB1 => DOUTB(1),
+    DOUTB0 => DOUTB(0));
+  -------------------------------
 
 end RAM4K9;
 --=================================================================================================

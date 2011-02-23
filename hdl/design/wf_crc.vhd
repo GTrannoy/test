@@ -35,10 +35,10 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
 --
 --
---! @date      08/2010
+--! @date      23/02/2011
 --
 --
---! @version   v0.03
+--! @version   v0.04
 --
 --
 --! @details \n 
@@ -58,8 +58,11 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 07/08/2009  v0.02  PAS Entity Ports added, start of architecture content \n
 --!     -> 08/2010     v0.03  EG  Data_FCS_select and crc_ready_p_o signals removed,
---!                           variable v_q_check_mask replaced with a signal,
---!                           code cleaned-up+commented \n
+--!                               variable v_q_check_mask replaced with a signal,
+--!                               code cleaned-up+commented \n
+--!     -> 02/2011     v0.04  EG  s_q_check_mask was not in Syndrome_Verification sensitivity list!
+--!                               xor replaced with if(Syndrome_Verification); processes rewritten;
+--!                               delay on data_bit_ready_p_i removed.
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -73,7 +76,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                                 Entity declaration for WF_crc
 --=================================================================================================
 entity WF_crc is
-port (
+  port (
   -- INPUTS 
     -- nanoFIP User Interface, General signals
     uclk_i             : in std_logic;              --! 40 MHz clock
@@ -89,7 +92,7 @@ port (
     
   -- OUTPUTS 
     -- Signal to the WF_rx_deserializer unit
-    crc_ok_p           : out std_logic;             --! signals a correct received CRC syndrome
+    crc_ok_p_o         : out std_logic;             --! signals a correct received CRC syndrome
 
     -- Signal to the WF_tx_serializer unit
     crc_o              : out  std_logic_vector (c_CRC_GENER_POLY_LGTH-1 downto 0)--!calculated CRC
@@ -103,8 +106,8 @@ end entity WF_crc;
 --=================================================================================================
 architecture rtl of WF_crc is
 
-signal s_crc_bit_ready_p            : std_logic;
-signal s_q, s_q_nx, s_q_check_mask  : std_logic_vector (c_CRC_GENER_POLY_LGTH - 1 downto 0);
+  signal s_q, s_q_nx, s_q_check_mask       : std_logic_vector (c_CRC_GENER_POLY_LGTH - 1 downto 0);
+
 
 --=================================================================================================
 --                                        architecture begin
@@ -116,50 +119,43 @@ begin
 --! of the Annex A 61158-4-7 IEC:2007 and constructs a register of 16 master-slave flip-flops which
 --! are interconnected as a linear feedback shift register.
 
-Gen_16_bit_Register_and_Interconnections:
+  Generate_16_bit_Register_and_Interconnections:
 
-  for I in 0 to c_CRC_GENER_POLY'left generate
+    s_q_nx(0)   <= data_bit_i xor s_q(s_q'left);
 
-    iteration_0: if I = 0 generate
-      s_q_nx(I) <= ((data_bit_i) xor s_q(s_q'left));
-    end generate;
-  
-    next_iterations: if I > 0 generate
+    G: for I in 1 to c_CRC_GENER_POLY'left generate
       s_q_nx(I) <= s_q(I-1) xor (c_CRC_GENER_POLY(I) and (data_bit_i xor s_q(s_q'left)));      
     end generate;
 
-  end generate;
 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Synchronous process CRC_calculation: the process "moves" the shift register described
 --! above, for the calculation of the CRC.
 
-CRC_calculation: process (uclk_i)
-begin
-  if rising_edge (uclk_i) then
+  CRC_calculation: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then
 
-    if nfip_rst_i = '1' then
-      s_q <= (others => '0');
+      if nfip_rst_i = '1' then
+        s_q               <= (others => '0');
          
-    else
+      else
 
-      if start_crc_p_i = '1' then
-        s_q <= (others => '1');           -- register initialization
-                                          -- (initially preset, according to the Annex)
+        if start_crc_p_i = '1' then
+          s_q             <= (others => '1');-- register initialization
+                                             -- (initially preset, according to the Annex)
 
-      elsif data_bit_ready_p_i = '1' then -- new data bit to be considered for the CRC calculation
-        s_q <= s_q_nx;                    -- data propagation
+        elsif data_bit_ready_p_i = '1' then  -- new bit to be considered for the CRC calculation
+          s_q             <= s_q_nx;         -- data propagation
+
+        end if;
       end if;
-
-        s_crc_bit_ready_p <= data_bit_ready_p_i; 
-
     end if;
-  end if;
-end process;
+  end process;
 
---  --  --  --  --  
-crc_o <= not s_q;
+  --  --  --  --  --  
+  crc_o <= not s_q;
 
 
 ---------------------------------------------------------------------------------------------------
@@ -167,26 +163,23 @@ crc_o <= not s_q;
 --! calculated as data is arriving (same as in the transmission) and it is being compared to the
 --! predefined c_CRC_VERIFIC_MASK. When the CRC calculated from the received data matches the
 --! c_CRC_VERIFIC_MASK, it is implied that a correct CRC word has been received for the preceded
---! data and the signal crc_ok_p gives a 1 uclk-wide pulse. 
+--! data and the signal crc_ok_p_o gives a 1 uclk-wide pulse. 
 
-Syndrome_Verification: process (s_q, s_crc_bit_ready_p)
+  Syndrome_Verification: process (s_q, data_bit_ready_p_i)
+  begin
 
-begin
-  
-  s_q_check_mask <= s_q xor c_CRC_VERIFIC_MASK;------------
-  
-  if (unsigned(not s_q_check_mask)) = 0 then 
-    crc_ok_p     <= s_crc_bit_ready_p;
+    if s_q = not c_CRC_VERIFIC_MASK then 
 
-  else
-    crc_ok_p     <= '0';
+      crc_ok_p_o <= data_bit_ready_p_i;
 
-  end if;
-end process;
+    else
+      crc_ok_p_o <= '0';
+
+    end if;
+  end process;
 
 
 end architecture rtl;
-
 --=================================================================================================
 --                                        architecture end
 --=================================================================================================

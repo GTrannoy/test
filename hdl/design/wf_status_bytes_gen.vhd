@@ -100,16 +100,17 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details\n 
 --
---!   \n<b>Dependencies:</b>\n
---!            WF_consumption      \n
---!            WF_bytes_retriever  \n
---!            WF_prod_permit      \n
---!            WF_reset_unit       \n
+--!   \n<b>Dependencies:</b>            \n
+--!            WF_reset_unit            \n
+--!            WF_consumption           \n
+--!            WF_prod_bytes_retriever  \n
+--!            WF_prod_permit           \n
+
 --
 --
 --!   \n<b>Modified by:</b>\n
---!    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!    Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
+--!    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
+--!    Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -117,9 +118,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 07/07/2009  v0.01  PA  First version \n
 --!     ->    08/2010  v0.02  EG  Internal extention of the var_rdy signals to avoid nanoFIP status
 --!                               errors few cycles after var_rdy deactivation
---!     ->    01/2011  v0.03  EG  u_cacer,pacer etc outputs added; new input nfip_status_r_tler_i
+--!     ->    01/2011  v0.03  EG  u_cacer,pacer etc outputs added; new input nfip_status_r_tler_p_i
 --!                               for nanoFIP status bit 4; var_i input not needed as the signals
---!                               nfip_status_r_fcser_p_i and nfip_status_r_tler_i check the var
+--!                               nfip_status_r_fcser_p_i and nfip_status_r_tler_p_i check the var
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -154,7 +155,7 @@ port (
 
    -- Signals from the WF_consumption unit 
     nfip_status_r_fcser_p_i : in std_logic;  --! wrong CRC bytes received
-    nfip_status_r_tler_i    : in std_logic;  --! wrong PDU_TYPE, Control or Length bytes received
+    nfip_status_r_tler_p_i  : in std_logic;  --! wrong PDU_TYPE, Control or Length bytes received
     var1_rdy_i              : in std_logic;  --! variable 1 ready
     var2_rdy_i              : in std_logic;  --! variable 2 ready
 
@@ -334,7 +335,7 @@ end process;
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           -- t_wder
-          if (s_fd_wdg_synch(2) = '1') then                     -- FIELDRIVE transmission error 
+          if (s_fd_wdg_synch(2) = '1') then                      -- FIELDRIVE transmission error 
             s_nFIP_status_byte(c_T_WDER_INDEX)  <= '1';
           end if;
 
@@ -348,13 +349,15 @@ end process;
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           --r_tler
-          s_nFIP_status_byte(c_R_TLER_INDEX)    <= nfip_status_r_tler_i;
-
+          if (nfip_status_r_tler_p_i = '1') then   
+            s_nFIP_status_byte(c_R_TLER_INDEX)  <= '1';
+          end if;
 
            --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
           --r_fcser
-          s_nFIP_status_byte(c_R_FCSER_INDEX)   <= nfip_status_r_fcser_p_i; 
-
+          if (nfip_status_r_fcser_p_i = '1') then
+            s_nFIP_status_byte(c_R_FCSER_INDEX) <= '1'; 
+          end if;
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
  

@@ -79,8 +79,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @details \n  
 --
---!   \n<b>Dependencies:</b>\n
+--!   \n<b>Dependencies:</b>       \n
 --!            WF_reset_unit       \n
+--!            WF_wb_controller    \n
 --!            WF_engine_control   \n
 --!            WF_prod_permit      \n
 --!            WF_status_bytes_gen \n
@@ -103,6 +104,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 4/1/2011 v0.05  EG  unit renamed from WF_prod_bytes_to_tx to WF_prod_bytes_retriever;
 --!                            input byte_being_sent_p_i added, so that the reseting of status bytes
 --!                            does not pass from the engine; clening-up+commenting
+--!     ->   2/2011 v0.051 EG  WF_prod_bytes_from_dati unit removed.
 --
 --
 ---------------------------------------------------------------------------------------------------
@@ -112,13 +114,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL246  Input port bits 0, 1, 3, 4 of var_i(0 to 6) are unused"                             --
--- var_i is one-hot encoded and has 7 values.                                                    -- 
--- The unit is treating only the produced variables presence, identification and var_3.          --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -155,7 +150,7 @@ entity WF_prod_bytes_retriever is
     byte_being_sent_p_i  : in std_logic;                     --! pulse on the beginning of the
                                                              --! delivery of a new byte
 
-    data_length_i        : in std_logic_vector (7 downto 0); --! # bytes of the Conrol&Data fields
+    data_lgth_i          : in std_logic_vector (7 downto 0); --! # bytes of the Conrol&Data fields
                                                              -- of the RP_DAT frame; includes:
                                                              -- 1 byte RP_DAT.Control,
                                                              -- 1 byte RP_DAT.Data.PDU_type,
@@ -203,6 +198,7 @@ architecture rtl of WF_prod_bytes_retriever is
   signal s_lgth_byte, s_mem_byte, s_slone_byte : std_logic_vector (7 downto 0);
   signal s_byte_index_d                        : std_logic_vector (7 downto 0);       
   signal s_mem_addr_A                          : std_logic_vector (8 downto 0);
+  signal s_sampled_data                        : std_logic_vector (15 downto 0);
   
 
 --=================================================================================================
@@ -215,50 +211,58 @@ begin
 --                                          Produced RAM                                         --
 --                    Storage (by the user) & retreival (by the unit) of produced bytes          --
 --------------------------------------------------------------------------------------------------- 
---!@brief Instantiation of a Produced Dual Port RAM
+--!@brief Instantiation of a Produced Dual Port RAM.
+--! Port A is used by the nanoFIP for the readings from the Produced RSM;
+--! Port B is connected to the WISHBONE interface for the writings from the user.
 
-    Produced_Bytes_From_RAM:  WF_DualClkRAM_clka_rd_clkb_wr 
-    generic map (
-      g_ram_data_lgth => 8,                 -- 8 bits: length of data word
-      g_ram_addr_lgth => 9)                 -- 2^9: depth of produced ram
-                                            -- first 2 bits : identification of memory block
-                                            -- remaining 7  : address of a byte inside the blck 
-    -- port A corresponds to: nanoFIP that reads from the Produced ram & B to: WISHBONE that writes
-    port map (
-      clk_porta_i      => uclk_i,	            -- 40 MHz clock
-      addr_porta_i     => s_mem_addr_A,         -- address of byte to be read from memory
-      ------------------------------------------------------------------------------------
-      data_porta_o     => s_mem_byte,           -- output byte read
-      ------------------------------------------------------------------------------------
-      clk_portb_i      => wb_clk_i,             -- WISHBONE clock
-      addr_portb_i     => wb_adr_i (8 downto 0),-- address of byte to be written
-      data_portb_i     => wb_data_i,            -- byte to be written
-      write_en_portb_i => wb_ack_prod_p_i);     -- WISHBONE write enable
-             
-
-
----------------------------------------------------------------------------------------------------
---                                   Produced bytes from DAT_I                                   --
----------------------------------------------------------------------------------------------------
---!@brief Instantiation of the unit that in stand-alone mode is responsible for the sampling of the
---! input data bus DAT_I(15:0). The sampling takes place on the 1st clock cycle after the VAR3_RDY
---! has been de-asserted.
-
-    Produced_Bytes_From_DATI: WF_prod_bytes_from_dati
-    port map (
-      uclk_i       => uclk_i,
-      nfip_rst_i   => nfip_rst_i,
-      slone_data_i => slone_data_i,
-      var3_rdy_i   => var3_rdy_i,
-      byte_index_i => byte_index_i, 
-      ------------------------------
-      slone_byte_o => s_slone_byte);
-      ------------------------------
-
+  Produced_Bytes_From_RAM:  WF_DualClkRAM_clka_rd_clkb_wr 
+  generic map (
+    g_ram_data_lgth => 8,                      -- 8 bits: length of data word
+    g_ram_addr_lgth => 9)                      -- 2^9: depth of produced ram
+                                               -- first 2 bits : identification of memory block
+                                               -- remaining 7  : address of a byte inside the blck 
+  port map (
+    clk_porta_i      => uclk_i,	               -- 40 MHz clock
+    addr_porta_i     => s_mem_addr_A,          -- address of byte to be read from memory
+    clk_portb_i      => wb_clk_i,              -- WISHBONE clock
+    addr_portb_i     => wb_adr_i,              -- address of byte to be written
+    data_portb_i     => wb_data_i,             -- byte to be written
+    write_en_portb_i => wb_ack_prod_p_i,       -- WISHBONE write enable
+   -----------------------------------------
+    data_porta_o     => s_mem_byte);           -- output byte read
+   -----------------------------------------             
 
 
 ---------------------------------------------------------------------------------------------------
---                                          Bytes Retreival                                      --
+--                                       DAT_I bus Sampling                                      --
+--                               Retreival of bytes to be produced                               --
+---------------------------------------------------------------------------------------------------
+--!@brief Sampling of the input data bus DAT_I(15:0) for the operation in stand-alone mode.
+--! The sampling takes place on the 1st clock cycle after the VAR3_RDY has been de-asserted.
+
+  Sample_DAT_I_bus: process (uclk_i) 
+  begin
+    if rising_edge (uclk_i) then 
+      if nfip_rst_i = '1' then
+        s_sampled_data   <= (others=>'0');
+ 
+     else 
+        if var3_rdy_i = '1' then   -- data latching
+          s_sampled_data <= slone_data_i; 
+        end if;
+
+      end if;                                 
+    end if;  
+  end process;
+
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  s_slone_byte           <= s_sampled_data(7 downto 0) when byte_index_i = c_1st_DATA_BYTE_INDEX
+                       else s_sampled_data(15 downto 8); 
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                        Bytes Generation                                       --
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial process Bytes_Generation: Generation of bytes for the Control and Data
 --! fields of an RP_DAT frame:\n If the variable requested in the ID_DAT is of "produced" type 
@@ -269,7 +273,7 @@ begin
 --! WF_status_bytes_gen or the WF_model_constr_decoder units.\n The output byte "byte_o" is sent to
 --! the WF_tx_serializer unit for manchester encoding and serialization.
    
-  Bytes_Generation: process (var_i, s_byte_index_d, data_length_i, constr_id_dec_i, model_id_dec_i, 
+  Bytes_Generation: process (var_i, s_byte_index_d, data_lgth_i, constr_id_dec_i, model_id_dec_i, 
                              nFIP_status_byte_i, mps_status_byte_i, s_slone_byte, s_byte_index_d_aux,
                              s_mem_byte, nostat_i, byte_being_sent_p_i, s_lgth_byte, slone_i)
   
@@ -332,14 +336,14 @@ begin
         -- The first (Control) and second (PDU_TYPE) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package 
 
-        if unsigned(s_byte_index_d) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length  then  -- less or eq                   
+        if unsigned(s_byte_index_d) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_lgth  then  -- less or eq                   
           byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_d_aux);
           rst_status_bytes_p_o <= '0'; 
        
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-        -- The c_LENGTH_BYTE_INDEX byte is the Length
+        -- The c_LGTH_BYTE_INDEX byte is the Length
 
-        elsif s_byte_index_d = c_LENGTH_BYTE_INDEX then       
+        elsif s_byte_index_d = c_LGTH_BYTE_INDEX then       
           byte_o               <= s_lgth_byte;                                              
           rst_status_bytes_p_o <= '0';
 
@@ -347,13 +351,13 @@ begin
         -- The one but last byte if the input nostat_i is negated is the nanoFIP status byte
         -- (if nostat_i is not negated, the "else" condition takes place) 
 
-        elsif (unsigned(s_byte_index_d) = (unsigned(data_length_i)-1 )) and nostat_i = '0' then
+        elsif (unsigned(s_byte_index_d) = (unsigned(data_lgth_i)-1 )) and nostat_i = '0' then
           byte_o               <= nFIP_status_byte_i;                            
           rst_status_bytes_p_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The last byte is the MPS status
-        elsif s_byte_index_d = (data_length_i)  then    
+        elsif s_byte_index_d = (data_lgth_i)  then    
           byte_o               <= mps_status_byte_i;
           rst_status_bytes_p_o <= byte_being_sent_p_i; -- reset signal for both status bytes.
                                                        -- The reset arrives after having sent 
@@ -377,14 +381,14 @@ begin
         -- The first (Control) and second (PDU type) bytes to be sent 
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
-        if unsigned(s_byte_index_d) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_length then -- less or eq                             
+        if unsigned(s_byte_index_d) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_lgth then -- less or eq                             
           byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_d_aux);
           rst_status_bytes_p_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-        -- The c_LENGTH_BYTE_INDEX byte is the Length
+        -- The c_LGTH_BYTE_INDEX byte is the Length
 
-        elsif s_byte_index_d = c_LENGTH_BYTE_INDEX then       
+        elsif s_byte_index_d = c_LGTH_BYTE_INDEX then       
           byte_o               <= s_lgth_byte;                                              
           rst_status_bytes_p_o <= '0';
        
@@ -392,13 +396,13 @@ begin
         -- The one but last byte if the input nostat_i is negated is the nanoFIP status byte
         -- (if nostat_i is not negated, the "else" condition takes place) 
 
-        elsif unsigned(s_byte_index_d) = (unsigned(data_length_i)-1 ) and nostat_i = '0' then 
+        elsif unsigned(s_byte_index_d) = (unsigned(data_lgth_i)-1 ) and nostat_i = '0' then 
           byte_o               <= nFIP_status_byte_i;                            
           rst_status_bytes_p_o <= '0'; 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
         -- The last byte is the MPS status
-        elsif s_byte_index_d = data_length_i then    
+        elsif s_byte_index_d = data_lgth_i then    
           byte_o               <= mps_status_byte_i;
           rst_status_bytes_p_o <= byte_being_sent_p_i; -- reset signal for both status bytes. 
                                                        -- The reset arrives after having sent the 
@@ -459,22 +463,22 @@ begin
 --                                         Auxiliary signals                                     --
 ---------------------------------------------------------------------------------------------------
 
-  s_mem_addr_A      <= std_logic_vector (s_base_addr + s_mem_addr_offset - 1);
+  s_mem_addr_A       <= std_logic_vector (s_base_addr + s_mem_addr_offset - 1);
   -- address of the byte to be read from memory: base_address(from WF_package) + byte_index_i - 1
   -- (the -1 is because the byte_index_i counts also the Control byte, that is not part of the
   -- memory (for example when byte_index_i is 3 which means that the Control, PDU_TYPE and Length
   -- bytes have preceeded and a byte from the memory is now requested, the byte from the memory cell
   -- 2 (00000010) has to be retrieved).
                                                                                   
-  s_mem_addr_offset <= (resize((unsigned(byte_index_i)), s_mem_addr_offset'length));
+  s_mem_addr_offset  <= (resize((unsigned(byte_index_i)), s_mem_addr_offset'length));
 
-  s_byte_index_d_aux  <= (to_integer(unsigned(s_byte_index_d(3 downto 0))));
+  s_byte_index_d_aux <= (to_integer(unsigned(s_byte_index_d(3 downto 0))));
                                                       -- index of byte to be sent(range restricted)
                                                       -- used to retreive bytes from the matrix
                                                       -- c_VARS_ARRAY.byte_array, with a predefined
                                                       -- width of 15 bytes
   
-  s_lgth_byte      <= std_logic_vector (resize((unsigned(data_length_i)-2),byte_o'length));   
+  s_lgth_byte        <= std_logic_vector (resize((unsigned(data_lgth_i)-2),byte_o'length));   
                                                       -- represents the RP_DAT.Data.LENGTH byte
                                                       -- it includes the # bytes of user-data
                                                       -- (P3_LGTH) plus 1 byte of MPS_status

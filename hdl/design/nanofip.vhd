@@ -156,7 +156,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details\n 
 --
 --!   \n<b>Dependencies:</b>   \n
---!            WF_inputs_synchronizer \n
 --!            WF_reset_unit          \n
 --!            WF_model_constr_dec    \n
 --!            WF_tx_rx_osc           \n
@@ -323,7 +322,7 @@ architecture struc of nanofip is
   signal s_rx_rst_p, s_nfip_status_r_tler        : std_logic;
   signal s_prod_byte_ready_p     : std_logic;
   signal s_var_from_control                                                            : t_var;
-  signal s_data_length_from_control                  : std_logic_vector (7 downto 0);
+  signal s_data_lgth_from_control                  : std_logic_vector (7 downto 0);
   signal s_rx_byte, s_byte_to_tx, s_model_id_dec, s_constr_id_dec                : std_logic_vector (7 downto 0);
   signal s_cons_prod_byte_index_from_control                       : std_logic_vector (7 downto 0);
 
@@ -381,7 +380,7 @@ begin
     var1_rdy_o                  => s_var1_rdy,
     var2_rdy_o                  => s_var2_rdy,
     data_o                      => dat_o,
-    nfip_status_r_tler_o        => s_nfip_status_r_tler,
+    nfip_status_r_tler_p_o      => s_nfip_status_r_tler,
     assert_rston_p_o            => s_assert_RSTON_p,
     rst_nfip_and_fd_p_o         => s_reset_nFIP_and_FD_p);
     ---------------------------------------------------------
@@ -428,10 +427,10 @@ begin
     fd_txer_a_i             => fd_txer_i,
     fd_wdgn_a_i             => fd_wdgn_i,
     var_i                   => s_var_from_control,
-    data_length_i           => s_data_length_from_control,
+    data_lgth_i             => s_data_lgth_from_control,
     byte_index_i            => s_cons_prod_byte_index_from_control,
     byte_request_accept_p_i => s_prod_byte_ready_p,
-    nfip_status_r_tler_i    => s_nfip_status_r_tler,
+    nfip_status_r_tler_p_i  => s_nfip_status_r_tler,
     nfip_status_r_fcser_p_i => s_crc_or_manch_wrong_p,
     var1_rdy_i              => s_var1_rdy,
     var2_rdy_i              => s_var2_rdy,
@@ -460,7 +459,6 @@ begin
     tx_byte_request_accept_p_i => s_prod_byte_ready_p,
     tx_last_byte_p_i           => s_prod_last_byte_p,
     tx_start_p_i               => s_start_tx_p,
-    tx_rst_p_i                 => s_rst_tx_p,
     ---------------------------------------------------------
     tx_byte_request_p_o        => s_prod_request_byte_p,
     tx_data_o                  => fd_txd_o,
@@ -495,9 +493,8 @@ begin
       tx_byte_request_accept_p_o  => s_prod_byte_ready_p, 
       tx_last_byte_p_o            => s_prod_last_byte_p, 
       prod_cons_byte_index_o      => s_cons_prod_byte_index_from_control,
-      prod_data_length_o          => s_data_length_from_control,
-      rx_rst_p_o                  => s_rx_rst_p,
-      rst_tx_p_o                  => s_rst_tx_p);
+      prod_data_lgth_o            => s_data_lgth_from_control,
+      rx_rst_p_o                  => s_rx_rst_p);
     ---------------------------------------------------------
 
       var1_rdy_o <= s_var1_rdy; 

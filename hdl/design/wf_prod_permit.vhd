@@ -44,8 +44,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @details \n  
 --
 --!   \n<b>Dependencies:</b>\n
---!            WF_engine_control  \n
---!            WF_reset_unit      \n
+--!            WF_engine_control \n
+--!            WF_reset_unit     \n
 --
 --
 --!   \n<b>Modified by:</b>\n
@@ -62,13 +62,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
--- "W CL246  Input port bits 0, 5, 6 of var_i(0 to 6) are unused"                                --
--- var_i is one-hot encoded and has 7 values.                                                    -- 
--- The unit is treating only the variables var_1, var_2, var_3 and var_rst.                      --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================

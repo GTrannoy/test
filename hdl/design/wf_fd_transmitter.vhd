@@ -39,28 +39,28 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o WF_tx_osc        : that generates the nanoFIP FIELDRIVE output FD_TXCK
 --!                                   and the array of pulses tx_clk_p_buff (used for the
 --!                                   synchronization of the WF_tx_serializer). 
---!                                    ___________________________________________________________
---!                                   |                                                           | 
---!                                   |                       WF_Production                       |
---!                                   |___________________________________________________________|
---!                                                                \/
---!                                    ___________________________________________________________
---!                                   |                     WF_fd_transmitter                     |
---!                                   |                                                           |
---!                                   |      ________________________________________________     |
---!                                   |     |                                                |    |
---!                                   |     |                  WF_tx_osc                     |    |
---!                                   |     |________________________________________________|    |
---!                                   |                            \/                             |
---!                                   |     _________________________________________________     |
---!                                   |    |                                                 |    |
---!                                   |    |                 WF_tx_serializer                |    |
---!                                   |    |                                                 |    |
---!                                   |    |_________________________________________________|    |
---!                                   |___________________________________________________________|
---!                                                                \/
---!                                       ______________________________________________________
---!                                     0______________________FIELDBUS________________________O    
+--!                                ___________________________________________________________
+--!                               |                                                           | 
+--!                               |                       WF_Production                       |
+--!                               |___________________________________________________________|
+--!                                                            \/
+--!                                ___________________________________________________________
+--!                               |                     WF_fd_transmitter                     |
+--!                               |                                                           |
+--!                               |      ________________________________________________     |
+--!                               |     |                                                |    |
+--!                               |     |                  WF_tx_osc                     |    |
+--!                               |     |________________________________________________|    |
+--!                               |                            \/                             |
+--!                               |     _________________________________________________     |
+--!                               |    |                                                 |    |
+--!                               |    |                 WF_tx_serializer                |    |
+--!                               |    |                                                 |    |
+--!                               |    |_________________________________________________|    |
+--!                               |___________________________________________________________|
+--!                                                            \/
+--!                            ___________________________________________________________________
+--!                          0_____________________________FIELDBUS______________________________O      
 --!
 --!
 --!
@@ -98,11 +98,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings!                                          --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -129,7 +124,6 @@ entity WF_fd_transmitter is
     tx_byte_request_accept_p_i : in std_logic; --! indication that a byte is ready to be delivered   
     tx_last_byte_p_i           : in std_logic; --! indication of the last byte before the CRC bytes
     tx_start_p_i               : in std_logic; --! indication for the start of the production
-    tx_rst_p_i                 : in std_logic; --! transmitter timeout
 
 
   -- OUTPUTS
@@ -151,6 +145,7 @@ end entity WF_fd_transmitter;
 architecture struc of WF_fd_transmitter is
 
   signal s_tx_clk_p_buff : std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
+  signal s_tx_osc_rst_p  : std_logic;
  
 
 --=================================================================================================
@@ -170,7 +165,7 @@ begin
     uclk_i          => uclk_i,                   
     rate_i          => rate_i,
     nfip_rst_i      => nfip_rst_i,
-    tx_rst_p_i      => tx_rst_p_i,
+    tx_osc_rst_p_i  => s_tx_osc_rst_p,
    -----------------------------------------------
     tx_clk_o        => tx_clk_o,
     tx_clk_p_buff_o => s_tx_clk_p_buff);
@@ -188,15 +183,15 @@ begin
   port map (
     uclk_i                   => uclk_i,
     nfip_rst_i               => nfip_rst_i,
-    tx_rst_p_i               => tx_rst_p_i,
     tx_start_p_i             => tx_start_p_i,
     byte_request_accept_p_i  => tx_byte_request_accept_p_i,
     byte_i                   => tx_byte_i,
     last_byte_p_i            => tx_last_byte_p_i,
     tx_clk_p_buff_i          => s_tx_clk_p_buff,
    -----------------------------------------------
-    tx_data_o                => tx_data_o,
     byte_request_p_o         => tx_byte_request_p_o,
+    tx_data_o                => tx_data_o,
+    tx_osc_rst_p_o           => s_tx_osc_rst_p,
     tx_enable_o              => tx_enable_o );
    -----------------------------------------------
 

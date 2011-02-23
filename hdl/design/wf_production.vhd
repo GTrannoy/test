@@ -47,28 +47,28 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o WF_prod_permit          : that signals the user that user-data bytes can safely be
 --!                                          written
 --!
---!                                    ___________________________________________________________
---!                                   |                       WF_production                       |
---!                                   |                                                           |
---!                                   |   _________________________________                       |
---!                                   |  |                                 |                      |
---!                                   |  |          WF_prod_permit         |                      |
---!                                   |  |_________________________________|                      |
---!                                   |                                                           |
---!                                   |   _________________________________     ________________  |
---!                                   |  |                                 |   |                | |
---!                                   |  |      WF_prod_bytes_retriever    | < | WF_status_bytes| |
---!                                   |  |                                 |   |      _gen      | |
---!                                   |  |_________________________________|   |________________| |
---!                                   |___________________________________________________________|
---!                                                                \/
---!                                    ___________________________________________________________
---!                                   |                                                           | 
---!                                   |                     WF_fd_transmitter                     |
---!                                   |___________________________________________________________|
---!                                                                \/
---!                                       ______________________________________________________
---!                                     0______________________FIELDBUS________________________O    
+--!                                ___________________________________________________________
+--!                               |                       WF_production                       |
+--!                               |                                                           |
+--!                               |   _________________________________                       |
+--!                               |  |                                 |                      |
+--!                               |  |          WF_prod_permit         |                      |
+--!                               |  |_________________________________|                      |
+--!                               |                                                           |
+--!                               |   _________________________________     ________________  |
+--!                               |  |                                 |   |                | |
+--!                               |  |      WF_prod_bytes_retriever    | < | WF_status_bytes| |
+--!                               |  |                                 |   |      _gen      | |
+--!                               |  |_________________________________|   |________________| |
+--!                               |___________________________________________________________|
+--!                                                            \/
+--!                                ___________________________________________________________
+--!                               |                                                           | 
+--!                               |                     WF_fd_transmitter                     |
+--!                               |___________________________________________________________|
+--!                                                            \/
+--!                             ___________________________________________________________________
+--!                           0_____________________________FIELDBUS______________________________O    
 --!
 --!            Note: In the entity declaration of this unit, below each input signal, we mark
 --!            which of the instantiated units needs it.     
@@ -91,6 +91,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            WF_reset_unit           \n
 --!            WF_consumption          \n
 --!            WF_engine_control       \n
+--!            WF_wb_controller        \n
 --!            WF_fd_transmitter       \n
 --!            WF_model_constr_decoder \n
 --
@@ -109,11 +110,6 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --------------------------------------------------------------------------------------------------- 
 
----/!\----------------------------/!\----------------------------/!\-------------------------/!\---
---                               Sunplify Premier D-2009.12 Warnings                             --
--- -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
---                                         No Warnings!                                          --
----------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -185,7 +181,7 @@ entity WF_production is
     -- Signals from the WF_engine_control
 
       byte_index_i            : in std_logic_vector (7 downto 0);
-      data_length_i           : in std_logic_vector (7 downto 0);
+      data_lgth_i             : in std_logic_vector (7 downto 0);
       byte_request_accept_p_i : in std_logic;
       var_i                   : in t_var;-- also for the WF_prod_permit for the VAR3_RDY generation
       -- used by: WF_prod_bytes_retriever for the definition of the bytes to be delivered
@@ -197,7 +193,7 @@ entity WF_production is
       var1_rdy_i              : in std_logic;
       var2_rdy_i              : in std_logic;
       nfip_status_r_fcser_p_i : in std_logic;
-      nfip_status_r_tler_i    : in std_logic;
+      nfip_status_r_tler_p_i  : in std_logic;
       -- used by: WF_status_bytes_gen for the generation of the nanoFIP status byte, bits 2, 4, 5 
 
  
@@ -280,7 +276,7 @@ begin
     var_i                => var_i,  
     byte_index_i         => byte_index_i,  
     byte_being_sent_p_i  => byte_request_accept_p_i,
-    data_length_i        => data_length_i, 
+    data_lgth_i          => data_lgth_i, 
     wb_data_i            => wb_data_i,
     slone_data_i         => slone_data_i,
     var3_rdy_i           => s_var3_rdy,
@@ -311,7 +307,7 @@ begin
     var1_acc_a_i            => var1_acc_a_i,
     var2_acc_a_i            => var2_acc_a_i,
     var3_acc_a_i            => var3_acc_a_i,
-    nfip_status_r_tler_i    => nfip_status_r_tler_i,
+    nfip_status_r_tler_p_i  => nfip_status_r_tler_p_i,
     rst_status_bytes_p_i    => s_rst_status_bytes_p,
    -----------------------------------------------
     u_cacer_o               => u_cacer_o,

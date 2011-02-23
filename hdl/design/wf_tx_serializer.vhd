@@ -110,8 +110,7 @@ entity WF_tx_serializer is
     -- Signals from the WF_production
     byte_i                  : in std_logic_vector (7 downto 0); --! byte to be delivered 
 
-    -- Signals from the WF_engine_control
-    tx_rst_p_i              : in std_logic;
+    -- Signals from the WF_engine_control unit
     tx_start_p_i            : in std_logic;  --! indication for the start of the production
     byte_request_accept_p_i : in std_logic;  --! indication that a byte is ready to be delivered   
     last_byte_p_i           : in std_logic;  --! indication of the last byte before the CRC bytes
@@ -125,6 +124,9 @@ entity WF_tx_serializer is
 
     -- Signal to the WF_engine_control unit
     byte_request_p_o        : out std_logic;
+
+    -- Signal to the WF_tx_osc unit
+    tx_osc_rst_p_o          : out std_logic;
 
     -- nanoFIP FIELDRIVE outputs
     tx_data_o               : out std_logic; --! transmitter serial data
@@ -144,6 +146,7 @@ architecture rtl of WF_tx_serializer is
                                                      send_fes, stop_transmission);
 
   signal tx_state, nx_tx_state                                                     : tx_state_t;
+  signal s_session_timedout : std_logic;
   signal s_prepare_to_produce, s_sending_fss, s_sending_data, s_sending_crc        : std_logic;
   signal s_sending_fes, s_stop_transmission, s_start_crc_p, s_data_bit_to_crc_p    : std_logic;
   signal s_txd, s_decr_index_p, s_bit_index_load, s_bit_index_is_zero, s_tx_enable : std_logic;
@@ -214,7 +217,7 @@ begin
 --! transitions of the FSM
 
   Serializer_FSM_Comb_State_Transitions: process (tx_state, last_byte_p_i, s_bit_index_is_zero,
-                                                  tx_rst_p_i, tx_start_p_i,  tx_clk_p_buff_i)
+                                                  s_session_timedout,tx_start_p_i, tx_clk_p_buff_i)
   begin
     nx_tx_state <= idle;
 
@@ -232,7 +235,7 @@ begin
                            if tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4) = '1' then 
                              nx_tx_state <= send_fss;
             
-                           elsif tx_rst_p_i = '1' then
+                           elsif s_session_timedout = '1' then
                              nx_tx_state <= idle;
 
                            else
@@ -241,10 +244,10 @@ begin
 
 
       when send_fss =>
-                           if s_bit_index_is_zero = '1'  and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1) = '1' then 
+                           if (s_bit_index_is_zero = '1')  and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1) = '1') then 
                              nx_tx_state <= send_data_byte;
 
-                           elsif tx_rst_p_i = '1' then
+                           elsif s_session_timedout = '1' then
                              nx_tx_state <= idle;
 
                            else
@@ -256,7 +259,7 @@ begin
                            if last_byte_p_i = '1' then
                              nx_tx_state <= send_crc_bytes;
 
-                           elsif tx_rst_p_i = '1' then
+                           elsif s_session_timedout = '1' then
                              nx_tx_state <= idle;
 
                            else
@@ -265,11 +268,11 @@ begin
 
 
       when send_crc_bytes =>
-                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
+                           if (s_bit_index_is_zero = '1') and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1') then 
                              nx_tx_state <= send_fes;      -- state change early enough (tx_clk_p_buff_i(2)) 
                                                            -- for the Outgoing_Bits_Index, that is loaded on
                                                            -- tx_clk_p_buff_i(3), to get the 31 as top value
-                           elsif tx_rst_p_i = '1' then
+                           elsif s_session_timedout = '1' then
                              nx_tx_state <= idle;
 
                            else                            
@@ -279,11 +282,11 @@ begin
 
 
       when send_fes =>
-                           if s_bit_index_is_zero = '1' and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
+                           if (s_bit_index_is_zero = '1') and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1') then 
                              nx_tx_state <= stop_transmission; -- state change early enough (tx_clk_p_buff_i(2))
                                                                -- for the Outgoing_Bits_Index that is loaded on
                                                                -- tx_clk_p_buff_i(3) to get the 15 as top value
-                           elsif tx_rst_p_i = '1' then
+                           elsif s_session_timedout = '1' then
                              nx_tx_state <= idle;   
 
                            else                                
@@ -295,7 +298,7 @@ begin
                            if tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1' then 
                              nx_tx_state <= idle;
 
-                           elsif tx_rst_p_i = '1' then
+                           elsif s_session_timedout = '1' then
                              nx_tx_state <= idle;  
 
                            else
@@ -449,7 +452,7 @@ Input_Byte_Retrieval: process (uclk_i)
     start_crc_p_i         => s_start_crc_p,
     data_bit_ready_p_i    => s_data_bit_to_crc_p,
     data_bit_i            => s_txd,
-    crc_ok_p              => open,
+    crc_ok_p_o              => open,
    -------------------------------------------------
     crc_o                 => s_crc_bytes);
    -------------------------------------------------
@@ -541,23 +544,45 @@ Input_Byte_Retrieval: process (uclk_i)
 --! The unit also generates the tx_enable_o signal.
 
   bits_to_txd: WF_bits_to_txd
-    port map (
-      uclk_i              => uclk_i,
-      nfip_rst_i          => nfip_rst_i,          
-      txd_bit_index_i     => s_bit_index,
-      data_byte_manch_i   => s_data_byte_manch,
-      crc_byte_manch_i    => s_crc_bytes_manch,
-      sending_fss_i       => s_sending_fss,
-      sending_data_i      => s_sending_data, 
-      sending_crc_i       => s_sending_crc,
-      sending_fes_i       => s_sending_fes,
-      stop_transmission_i => s_stop_transmission,
-      tx_clk_p_i          => tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-3), 
-     ---------------------------------------------
-      txd_o               => s_txd,     
-      tx_enable_o         => s_tx_enable);
-     ---------------------------------------------
+  port map (
+    uclk_i              => uclk_i,
+    nfip_rst_i          => nfip_rst_i,          
+    txd_bit_index_i     => s_bit_index,
+    data_byte_manch_i   => s_data_byte_manch,
+    crc_byte_manch_i    => s_crc_bytes_manch,
+    sending_fss_i       => s_sending_fss,
+    sending_data_i      => s_sending_data, 
+    sending_crc_i       => s_sending_crc,
+    sending_fes_i       => s_sending_fes,
+    stop_transmission_i => s_stop_transmission,
+    tx_clk_p_i          => tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-3), 
+   ---------------------------------------------
+    txd_o               => s_txd,     
+    tx_enable_o         => s_tx_enable);
+   ---------------------------------------------
 
+
+
+---------------------------------------------------------------------------------------------------
+--                                  Independant Timeout Counter                                  --
+---------------------------------------------------------------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+--! @brief Instantiation of a WF_decr_counter relying only on the system clock as an additional
+--! way to go back to Idle state,  in case any other logic is being stuck.
+
+  Session_Timeout_Counter: WF_decr_counter
+  generic map (g_counter_lgth => 21)
+  port map (
+    uclk_i            => uclk_i,
+    nfip_rst_i        => nfip_rst_i,
+    counter_top       => (others => '1'),
+    counter_load_i    => s_prepare_to_produce,
+    counter_decr_p_i  => '1', -- on each uclk tick
+    counter_o         => open,
+    ---------------------------------------------------
+    counter_is_zero_o => s_session_timedout);
+    ---------------------------------------------------
 
 
 
@@ -568,6 +593,8 @@ Input_Byte_Retrieval: process (uclk_i)
   tx_data_o           <= s_txd;
 
   tx_enable_o         <= s_tx_enable;
+
+  tx_osc_rst_p_o      <= s_session_timedout;
 
   byte_request_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4);
   -- request for a new byte from the WF_prod_bytes_retriever unit (passing from WF_engine_control)
