@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -37,23 +37,23 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --! @version   v0.01
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>\n
 --
 --
 --!   \n<b>Modified by:</b>\n
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
---!   -> 
+--! @todo
+--!   ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -64,7 +64,7 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 entity WF_decr_counter is
   generic (g_counter_lgth : natural := 4);                        --! default length
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i            : in std_logic;                             --! 40 MHz clock
 
@@ -75,11 +75,11 @@ entity WF_decr_counter is
     counter_decr_p_i  : in std_logic;                             --! decrement enable
     counter_load_i    : in std_logic;                             --! load enable
     counter_top       : in unsigned (g_counter_lgth-1 downto 0);  --! load value
-     
+
 
   -- OUTPUTS
     -- Signal to any unit
-    counter_o         : out unsigned (g_counter_lgth-1 downto 0); --! counter 
+    counter_o         : out unsigned (g_counter_lgth-1 downto 0); --! counter
     counter_is_zero_o : out std_logic                             --! empty counter indication
       );
 end entity WF_decr_counter;
@@ -95,7 +95,7 @@ architecture rtl of WF_decr_counter is
 
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 ---------------------------------------------------------------------------------------------------
@@ -121,12 +121,12 @@ begin
   end process;
 
 
- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- Concurrent assignments for the output signals
 
   counter_o         <= s_counter;
   counter_is_zero_o <= '1' when s_counter = to_unsigned(0,s_counter'length) else '0';
-  
+
 
 end architecture rtl;
 --=================================================================================================

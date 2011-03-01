@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -41,13 +41,13 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                sampling is that of the half-bit-clock.
 --!
 --!              o the sampling of a bit             : for the sampling of only the 1st part,
---!                before the transition (the period is the double of the manch. sampling) 
+--!                before the transition (the period is the double of the manch. sampling)
 --!
 --!                Example:
---!                  bits               :   0     1 
+--!                  bits               :   0     1
 --!                  manch. encoded     : __|-- --|__
 --!                  significant edge   :  ^     ^
---!                  sample_manch_bit_p :  ^ ^   ^ ^ 
+--!                  sample_manch_bit_p :  ^ ^   ^ ^
 --!                  sample_bit_p       :  ^     ^   (this sampling will give the 0 and the 1)
 --
 --
@@ -61,7 +61,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.02
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>    \n
 --!            WF_reset_unit    \n
@@ -71,17 +71,17 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n<b>Modified by:</b>\n
 --!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 12/12/2010  v0.02  EG  cleaning-up+commenting
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
---!   -> 
+--! @todo
+--!   ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -90,8 +90,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 entity WF_rx_manch_code_check is
   port (
-  -- INPUTS 
-    -- nanoFIP User Interface general signal 
+  -- INPUTS
+    -- nanoFIP User Interface general signal
     uclk_i                : in std_logic; --! 40 MHz clock
 
     -- Signal from the WF_reset_unit
@@ -100,9 +100,9 @@ entity WF_rx_manch_code_check is
     -- Signals from the WF_rx_deglitcher unit
     sample_bit_p_i        : in std_logic; --! pulse for the sampling of a new bit
     sample_manch_bit_p_i  : in std_logic; --! pulse for the sampling of a new manch. bit
-    serial_input_signal_i : in std_logic; --! input signal 
-  
- 
+    serial_input_signal_i : in std_logic; --! input signal
+
+
   -- OUTPUTS
     -- Signal to the WF_rx_deserializer unit
     manch_code_viol_p_o  : out std_logic  --! pulse indicating a code violation
@@ -120,7 +120,7 @@ signal s_sample_bit_p_d1,s_sample_bit_p_d2,s_check_code_viol_p,s_serial_input_si
 
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 ---------------------------------------------------------------------------------------------------
@@ -130,13 +130,13 @@ begin
 --! A violation exists if the signal and its delayed version are identical on the
 --! check_code_viol_p moments.
 --                                     0    V-    1
---   rxd_filtered          :         __|--|____|--|__ 
+--   rxd_filtered          :         __|--|____|--|__
 --   serial_input_signal_d :           __|--|____|--|__
 --   check_code_viol       :             ^    ^    ^
 
   Check_code_violations: process (uclk_i)
   begin
-    if rising_edge (uclk_i) then 
+    if rising_edge (uclk_i) then
        if nfip_rst_i = '1' then
          s_check_code_viol_p       <= '0';
          s_sample_bit_p_d1         <= '0';
@@ -146,7 +146,7 @@ begin
        else
 
          if sample_manch_bit_p_i = '1' then
-           s_serial_input_signal_d <= serial_input_signal_i; 
+           s_serial_input_signal_d <= serial_input_signal_i;
          end if;
 
           s_check_code_viol_p      <= s_sample_bit_p_d2; -- 2 uclk ticks delay
@@ -154,15 +154,15 @@ begin
           s_sample_bit_p_d1        <= sample_bit_p_i;
        end if;
     end if;
-  end process; 
+  end process;
 
 
- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- Concurrent signal assignment
 
-  manch_code_viol_p_o                <= s_check_code_viol_p and 
+  manch_code_viol_p_o                <= s_check_code_viol_p and
                                         (not (serial_input_signal_i xor s_serial_input_signal_d));
-  
+
 
 end architecture rtl;
 --=================================================================================================

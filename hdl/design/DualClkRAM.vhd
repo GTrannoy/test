@@ -32,10 +32,10 @@ use PROASIC3.all;
 --
 --
 --! @brief     Instantiation of a template ProAsic3 RAM4K9 memory component with
---!              o word width : 8 bits and 
+--!              o word width : 8 bits and
 --!              o depth      : 512 bytes.
--- 
--- 
+--
+--
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
@@ -50,23 +50,23 @@ use PROASIC3.all;
 --
 --!   \n<b>Dependencies:</b>\n
 --!            ProASIC3 lib        \n
--- 
+--
 --!   \n<b>Modified by:</b>\n
 --!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes: </b>\n
---!     ->   08/2010  v0.01  EG  pepeline not used! data appears in output 1 clock cycle after the 
---!                              address is given (otherwise it was 2 clock cycles later) slack 
+--!     ->   08/2010  v0.01  EG  pepeline not used! data appears in output 1 clock cycle after the
+--!                              address is given (otherwise it was 2 clock cycles later) slack
 --!                              checked and is ok! code cleaned-up and commented \n
 --!     ->15/12/2010  v0.02  EG  comments for BLKA, BLKB; cleaning-up
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
+--! @todo
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -75,12 +75,12 @@ use PROASIC3.all;
 
 entity DualClkRAM is
   port(
-  -- INPUTS 
-    -- Inputs concerning port A 
+  -- INPUTS
+    -- Inputs concerning port A
     CLKA   : in std_logic;  --! clock A for synchronous read/ write operations
     ADDRA  : in std_logic_vector (8 downto 0);  --! address A
     DINA   : in std_logic_vector (7 downto 0);  --! data in A
-    RWA    : in std_logic;  --! read/ write mode; 1 for reading, 0 for writing 
+    RWA    : in std_logic;  --! read/ write mode; 1 for reading, 0 for writing
 
     -- Inputs concerning port B
     CLKB   : in std_logic;  --! clock B for synchronous read/ write operations
@@ -93,10 +93,10 @@ entity DualClkRAM is
 
 
   -- OUTPUTS
-    -- Output concerning port A          
+    -- Output concerning port A
     DOUTA  : out std_logic_vector (7 downto 0); --! data out A
 
-    -- Output concerning port B  
+    -- Output concerning port B
     DOUTB  : out std_logic_vector (7 downto 0)  --! data out B
     );
 end DualClkRAM;
@@ -107,7 +107,7 @@ end DualClkRAM;
 --=================================================================================================
 architecture RAM4K9 of DualClkRAM is
 
----------------------------------------------------------------------------------------------------  
+---------------------------------------------------------------------------------------------------
 -- !@brief component RAM4K9 :
 --! General information concerning RAM4K9: a fully synchronous, true dual-port RAM with an optional
 --! pipeline stage. It provides variable aspect ratios of 4096 x 1, 2048 x 2, 1024 x 4 and 512 x 9.
@@ -122,7 +122,7 @@ architecture RAM4K9 of DualClkRAM is
 --! Switching between Read and Write modes for the respective ports.
 --! A Low indicates Write operation and a High indicates a Read.
 
---! BLKA, BLKB : 
+--! BLKA, BLKB :
 --! Active low enable for the respective ports.
 
 --! PIPEA, PIPEB :
@@ -133,7 +133,7 @@ architecture RAM4K9 of DualClkRAM is
 
 --! WMODEA, WMODEB :
 --! Configuration of the behavior of the output when the RAM is in the Write mode.
---! A Low on this signal makes the output retain data from the previous Read. A High indicates a 
+--! A Low on this signal makes the output retain data from the previous Read. A High indicates a
 --! pass-through behavior where the data being written will appear on the output immediately.
 
   component RAM4K9
@@ -160,14 +160,14 @@ architecture RAM4K9 of DualClkRAM is
       );
   end component;
 
----------------------------------------------------------------------------------------------------  
+---------------------------------------------------------------------------------------------------
 --!@brief Instantiation of the component VCC
 
   component VCC
     port (Y : out std_logic);
   end component;
 
----------------------------------------------------------------------------------------------------  
+---------------------------------------------------------------------------------------------------
 --!@brief Instantiation of the component GND
 
   component GND
@@ -187,9 +187,9 @@ begin
   power_supply_signal : VCC port map (Y => POWER);
   ground_signal       : GND port map (Y => GROUND);
 
----------------------------------------------------------------------------------------------------  
+---------------------------------------------------------------------------------------------------
 --!@brief: Instantiation of the component RAM4K9.
---! The following configuration has been applied: 
+--! The following configuration has been applied:
 --!  o aspect ratio   : 9 x 512  (WIDTHA0, WIDTHA1, WIDTHB0, WIDTHB1                 : VCC)
 --!  o word width     : 8 bits   (DINA8, DINB8: GND, DOUTA8, DOUTB8                  : open)
 --!  o memory depth   : 512 bytes(ADDRA11, ADDRA10, ADDRA9, ADDRB11, ADDRB10, ADDRB9 : GND)
@@ -199,10 +199,10 @@ begin
 
   A9D8DualClkRAM_R0C0 : RAM4K9
   port map (
-  -- INPUTS 
+  -- INPUTS
 
     -- inputs concerning port A
-    -- data in A (1 byte, (7 downto 0))    
+    -- data in A (1 byte, (7 downto 0))
     DINA8   => GROUND,
     DINA7   => DINA(7),
     DINA6   => DINA(6),
@@ -236,7 +236,7 @@ begin
     PIPEA   => GROUND,
     WMODEA  => GROUND,
 
-    -- inputs concerning port B 
+    -- inputs concerning port B
     -- data in B (1 byte, (7 downto 0))
     DINB8   => GROUND,
     DINB7   => DINB(7),
@@ -275,7 +275,7 @@ begin
    -------------------------------
   -- OUTPUTS
     -- output concerning port A
-    -- data out A (1 byte)    
+    -- data out A (1 byte)
     DOUTA8 => open,
     DOUTA7 => DOUTA(7),
     DOUTA6 => DOUTA(6),
@@ -287,7 +287,7 @@ begin
     DOUTA0 => DOUTA(0),
 
     -- output concerning port B
-    -- data out B (1 byte) 
+    -- data out B (1 byte)
     DOUTB8 => open,
     DOUTB7 => DOUTB(7),
     DOUTB6 => DOUTB(6),

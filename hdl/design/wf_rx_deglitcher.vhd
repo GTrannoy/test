@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -41,7 +41,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.03
 --
 --
---! @details 
+--! @details
 --
 --!   \n<b>Dependencies:</b> \n
 --!            WF_reset_unit \n
@@ -49,7 +49,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n<b>Modified by:</b>\n
 --!            Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n 
+--!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -61,7 +61,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo 
+--! @todo
 --
 ---------------------------------------------------------------------------------------------------
 
@@ -73,19 +73,19 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 entity WF_rx_deglitcher is
 
-  port( 
-  -- INPUTS  
-    -- nanoFIP User Interface general signal   
+  port(
+  -- INPUTS
+    -- nanoFIP User Interface general signal
     uclk_i                     : in std_logic;  --! 40 MHz clock
 
-    -- Signal from the WF_reset_unit  
+    -- Signal from the WF_reset_unit
     nfip_rst_i                 : in std_logic;  --! nanoFIP internal reset
 
     -- nanoFIP FIELDRIVE (synchronized with uclk)
-    fd_rxd_a_i                 : in std_logic;  --! receiver data     
+    fd_rxd_a_i                 : in std_logic;  --! receiver data
 
 
-  -- OUTPUTS  
+  -- OUTPUTS
     -- Signals to the WF_rx_deserializer unit
     fd_rxd_filtered_o          : out std_logic; --! filtered output signal
     fd_rxd_filtered_edge_p_o   : out std_logic; --! indicates an edge on the filtered signal
@@ -125,7 +125,7 @@ begin
 
       else
        s_fd_rxd_synch   <= s_fd_rxd_synch(0) & fd_rxd_a_i;
-      end if; 
+      end if;
     end if;
   end process;
 
@@ -158,7 +158,7 @@ begin
 
           if s_deglitch_c /= c_DEGLITCH_THRESHOLD then
             s_deglitch_c   <= s_deglitch_c + 1; -- counter updated
- 
+
           else
             s_rxd_filtered <= '1';              -- output updated
           end if;                               -- if counter = c_DEGLITCH_THRESHOLD

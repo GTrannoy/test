@@ -29,7 +29,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --! @brief     Generation of the nanoFIP output S_ID and decoding of the inputs C_ID and M_ID.
 --!            The output S_ID0 is a clock with period the double of uclk's period and the S_ID1
---!            is the opposite clock (it is '0' when S_ID0 is '1' and '1' when S_ID0 is '0').  
+--!            is the opposite clock (it is '0' when S_ID0 is '1' and '1' when S_ID0 is '0').
 --!            Each one of the 4 pins of the M_ID and C_ID can be connected to either Vcc, Gnd,
 --!            S_ID1 or S_ID0. Like this (after 2 uclk periods) the 8 bits of the Model and
 --!            Constructor words take a value, according to the table: Gnd    00
@@ -47,7 +47,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.03
 --
 --
---! @details\n 
+--! @details\n
 --
 --!   \n<b>Dependencies:</b> \n
 --!            WF_reset_unit \n
@@ -62,7 +62,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 11/09/2009  v0.01  PAS First version \n
 --!     -> 20/08/2010  v0.02  EG  S_ID corrected so that S_ID0 is always the opposite of S_ID1
---!                               "for" loop replaced with signals concatenation; 
+--!                               "for" loop replaced with signals concatenation;
 --!                               Counter is of c_RELOAD_MID_CID bits; Code cleaned-up \n
 --!     -> 06/10/2010  v0.03  EG  generic c_RELOAD_MID_CID removed;
 --!                               counter unit instantiated
@@ -70,8 +70,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo 
---!  -> select_id_o not the output of a dff:-s 
+--! @todo
+--!  -> select_id_o not the output of a dff:-s
 --
 ---------------------------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_model_constr_decoder is
 
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i          : in std_logic;                      --! 40 Mhz clock
 
@@ -114,7 +114,7 @@ architecture rtl of WF_model_constr_decoder is
 
   signal s_counter_is_full                : std_logic;
   signal s_counter                        : unsigned (1 downto 0);
-  signal s_model_stage2, s_model_stage1   : std_logic_vector (3 downto 0); 
+  signal s_model_stage2, s_model_stage1   : std_logic_vector (3 downto 0);
   signal s_constr_stage2, s_constr_stage1 : std_logic_vector (3 downto 0);
 
 
@@ -144,7 +144,7 @@ begin
        s_constr_stage2 <= (others => '0');
 
       else
-      
+
        s_model_stage2    <= s_model_stage1;        -- after 2 uclk ticks stage1 keeps the even bits
        s_model_stage1    <= model_id_i;            -- and stage2 the odd ones
 
@@ -154,12 +154,12 @@ begin
 
        if  s_counter = "10" then
 
-         model_id_dec_o  <= s_model_stage2(3) & s_model_stage1(3) & -- putting together 
+         model_id_dec_o  <= s_model_stage2(3) & s_model_stage1(3) & -- putting together
                             s_model_stage2(2) & s_model_stage1(2) & -- even and odd bits
                             s_model_stage2(1) & s_model_stage1(1) &
                             s_model_stage2(0) & s_model_stage1(0);
 
-         constr_id_dec_o <= s_constr_stage2(3) & s_constr_stage1(3) & 
+         constr_id_dec_o <= s_constr_stage2(3) & s_constr_stage1(3) &
                             s_constr_stage2(2) & s_constr_stage1(2) &
                             s_constr_stage2(1) & s_constr_stage1(1) &
                             s_constr_stage2(0) & s_constr_stage1(0);
@@ -183,13 +183,13 @@ begin
     counter_o         => s_counter,
     counter_is_full_o => s_counter_is_full);
     -----------------------------------------
-      
+
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Concurrent signal assignment for the output select_id_o
 
    select_id_o <=  ((not s_counter(0)) & s_counter(0));-- 2 opposite clocks generated using
-                                                       -- the LSB of the counter 
+                                                       -- the LSB of the counter
                                                        -- uclk_i: |-|__|-|__|-|__|-|__|-|__|-|_
                                                        -- S_ID0 : |----|____|----|____|----|___
                                                        -- S_ID1 : |____|----|____|----|____|---
