@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -61,7 +61,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.02
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>     \n
 --!            WF_engine_control \n
@@ -70,19 +70,19 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n<b>Modified by:</b>\n
 --!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 12/2010 v0.02 EG  code cleaned-up+commented
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
---!   -> 
+--! @todo
+--!   ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -93,7 +93,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_prod_data_lgth_calc is
 
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP WorldFIP Settings
     p3_lgth_i        : in std_logic_vector (2 downto 0); --! produced var user-data length
 
@@ -123,15 +123,15 @@ architecture behavior of WF_prod_data_lgth_calc is
 
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 ---------------------------------------------------------------------------------------------------
 --!@brief: Combinatorial process data_length_calcul: calculation of the amount of bytes, after the
---! FSS and before the FCS, that have to be transferred when a variable is produced. In the case  
+--! FSS and before the FCS, that have to be transferred when a variable is produced. In the case
 --! of the presence and the identification variables, the data length is predefined in the WF_package.
 --! In the case of a var3 the inputs SLONE, NOSTAT and P3_LGTH[] are accounted for the calculation.
- 
+
   data_length_calcul: process (var_i, s_p3_lgth_decoded, slone_i, nostat_i, p3_lgth_i)
   begin
 
@@ -141,19 +141,19 @@ begin
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-      when var_presence => 
-      -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
+      when var_presence =>
+      -- data length information retreival from the c_VARS_ARRAY matrix (WF_package)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_lgth;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-      when var_identif => 
-      -- data length information retreival from the c_VARS_ARRAY matrix (WF_package) 
+      when var_identif =>
+      -- data length information retreival from the c_VARS_ARRAY matrix (WF_package)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_lgth;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-      when var_3 =>  
+      when var_3 =>
       -- data length calculation according to the operational mode (memory or stand-alone)
 
       -- in slone mode                   2 bytes of user-data are produced(independently of P3_LGTH)
@@ -162,21 +162,21 @@ begin
       --                                 1 byte Length
       --                                 1 byte MPS status
       --                      optionally 1 byte nFIP status
-  
+
       -- in memory mode the signal      "s_p3_lgth_decoded" indicates the amount of user-data
       -- to these, there should be added 1 byte Control
       --                                 1 byte PDU_TYPE
       --                                 1 byte Length
       --                                 1 byte MPS status
-      --                      optionally 1 byte nFIP status  
+      --                      optionally 1 byte nFIP status
 
         if slone_i = '1' then
 
           if nostat_i = '1' then                              -- 6 bytes (counting starts from 0)
-            s_prod_data_lgth <= to_unsigned(5, s_prod_data_lgth'length); 
+            s_prod_data_lgth <= to_unsigned(5, s_prod_data_lgth'length);
 
-          else                                                -- 7 bytes 
-            s_prod_data_lgth <= to_unsigned(6, s_prod_data_lgth'length); 
+          else                                                -- 7 bytes
+            s_prod_data_lgth <= to_unsigned(6, s_prod_data_lgth'length);
           end if;
 
 
@@ -186,21 +186,21 @@ begin
 
           else
             s_prod_data_lgth <= s_p3_lgth_decoded + 3;
-          end if;          
+          end if;
         end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 
-      when var_1 | var_2 | var_rst =>                       
+      when var_1 | var_2 | var_rst =>
         s_prod_data_lgth     <= (others => '0');
 
-      when others => 
+      when others =>
         s_prod_data_lgth     <= (others => '0');
 
     end case;
   end process;
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- Concurrent signal assignment for the output
 
   prod_data_lgth_o           <= std_logic_vector (s_prod_data_lgth);

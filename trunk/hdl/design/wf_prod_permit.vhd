@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -28,7 +28,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --
 --! @brief     Generation of the "nanoFIP User Interface, NON_WISHBONE" output signal VAR3_RDY,
---!            according to the variable (var_i) that is being treated.   
+--!            according to the variable (var_i) that is being treated.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -41,7 +41,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.01
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>\n
 --!            WF_engine_control \n
@@ -51,16 +51,16 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n<b>Modified by:</b>\n
 --!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 1/2011  v0.01  EG  First version \n
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
+--! @todo
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -71,7 +71,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_prod_permit is
 
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                : in std_logic;      --! 40 MHz clock
 
@@ -97,11 +97,11 @@ architecture rtl of WF_prod_permit is
 
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 ---------------------------------------------------------------------------------------------------
---!@brief Synchronous process VAR3_RDY_Generation: 
+--!@brief Synchronous process VAR3_RDY_Generation:
 
 --! VAR3_RDY (for produced vars): signals that the user can safely write to the produced variable
 --! memory or access the DAT_I bus. It is deasserted right after the end of the reception of a
@@ -115,7 +115,7 @@ begin
 --! transmission of the corresponding RP_DAT (in detail, until the end of the transmission of the
 --! RP_DAT.data field;var_i becomes var_whatever during the RP_DAT.FCS and RP_DAT.FES transmission).
 
-  VAR_RDY_Generation: process (uclk_i) 
+  VAR_RDY_Generation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
@@ -125,17 +125,17 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
         case var_i is
 
-         when var_3 =>                     -- nanoFIP is producing 
+         when var_3 =>                     -- nanoFIP is producing
                                               ---------------------
           var3_rdy_o <= '0';               -- while producing, VAR3_RDY is 0
-     
+
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
         when others =>
 
-          var3_rdy_o <= '1';               
-      
-        end case;	 	 
+          var3_rdy_o <= '1';
+
+        end case;
       end if;
     end if;
   end process;

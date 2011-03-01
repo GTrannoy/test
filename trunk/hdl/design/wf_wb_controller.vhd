@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -27,8 +27,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit generates the "User Interface WISHBONE" signal ACK, nanoFIP's answer to 
---!            the user's STBs. 
+--! @brief     The unit generates the "User Interface WISHBONE" signal ACK, nanoFIP's answer to
+--!            the user's STBs.
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
@@ -41,7 +41,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.01
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>  \n
 --!            WF_production  \n
@@ -57,10 +57,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo 
---! ->  
+--! @todo
+--! ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -71,7 +71,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_wb_controller is
 
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface, WISHBONE Slave
     wb_clk_i        : in std_logic;                      --! WISHBONE clock
     wb_rst_i        : in std_logic;                      --! WISHBONE reset
@@ -122,25 +122,25 @@ begin
        s_wb_we_synch   <= (others => '0');
 
       else
-        s_wb_stb_synch <= s_wb_stb_synch (2 downto 0) & wb_stb_i;   
-        s_wb_cyc_synch <= s_wb_cyc_synch (1 downto 0) & wb_cyc_i; 
-        s_wb_we_synch  <= s_wb_we_synch  (1 downto 0) & wb_we_i;   
+        s_wb_stb_synch <= s_wb_stb_synch (2 downto 0) & wb_stb_i;
+        s_wb_cyc_synch <= s_wb_cyc_synch (1 downto 0) & wb_cyc_i;
+        s_wb_we_synch  <= s_wb_we_synch  (1 downto 0) & wb_we_i;
       end if;
     end if;
   end process;
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  s_wb_stb_r_edge_p  <= (not s_wb_stb_synch(3)) and s_wb_stb_synch(2); 
+  s_wb_stb_r_edge_p  <= (not s_wb_stb_synch(3)) and s_wb_stb_synch(2);
 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Generate_wb_ack_write_p_o: Generation of the wb_ack_write_p signal
 --! (acknowledgement from WISHBONE Slave of the write cycle, as a response to the master's storbe).
---! The 1 wb_clk-wide pulse is generated if the wb_cyc and wb_we are asserted and the WISHBONE input 
+--! The 1 wb_clk-wide pulse is generated if the wb_cyc and wb_we are asserted and the WISHBONE input
 --! address corresponds to an address in the Produced memory block.
-  
-  Generate_wb_ack_write_p_o: s_wb_ack_write_p <= '1' when ((s_wb_stb_r_edge_p = '1') and 
-                                                           (s_wb_we_synch (2) = '1') and 
+
+  Generate_wb_ack_write_p_o: s_wb_ack_write_p <= '1' when ((s_wb_stb_r_edge_p = '1') and
+                                                           (s_wb_we_synch (2) = '1') and
                                                            (s_wb_cyc_synch(2) = '1') and
                                                            (wb_adr_id_i       = "010"))
                                             else '0';
@@ -152,7 +152,7 @@ begin
 --! The 1 wb_clk-wide pulse is generated if the wb_cyc is asserted and the WISHBONE input address
 --! corresponds to an address in the Consumed memory block.
 
-  Generate_wb_ack_read_p_o: s_wb_ack_read_p <= '1' when ((s_wb_stb_r_edge_p       = '1') and 
+  Generate_wb_ack_read_p_o: s_wb_ack_read_p <= '1' when ((s_wb_stb_r_edge_p       = '1') and
                                                          (s_wb_cyc_synch(2)       = '1') and
                                                          (s_wb_we_synch(2)        = '0') and
                                                          (wb_adr_id_i(2 downto 1) = "00"))
@@ -160,17 +160,17 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---!@brief Output_Register 
+--!@brief Output_Register
 
-   WB_ACK: process (wb_clk_i) 
+   WB_ACK: process (wb_clk_i)
    begin
      if rising_edge (wb_clk_i) then
        if wb_rst_i = '1' then
          wb_ack_p_o      <= '0';
          wb_ack_prod_p_o <= '0';
-       else  
-         wb_ack_p_o      <= s_wb_ack_read_p or s_wb_ack_write_p; 
-         wb_ack_prod_p_o <= s_wb_ack_write_p;               
+       else
+         wb_ack_p_o      <= s_wb_ack_read_p or s_wb_ack_write_p;
+         wb_ack_prod_p_o <= s_wb_ack_write_p;
        end if;
      end if;
    end process;

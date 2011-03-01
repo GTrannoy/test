@@ -67,13 +67,13 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!     -> 07/2010  v0.02  EG  rx counter changed from 20 bits signed, to 11 bits unsigned;
 --!                            rx clk generation depends on edge detection;code cleanedup+commented
 --!                            rst_rx_osc signal clearified
---!     -> 12/2010  v0.03  EG  code cleaned-up   
+--!     -> 12/2010  v0.03  EG  code cleaned-up
 --!     -> 01/2011  v0.031 EG  rxd_edge_i became fd_rxd_edge_p_i; small correctiond on comments
 --!     -> 02/2011  v0.04  EG  2 units WF_rx_osc and WF_tx_osc; process replaced by WF_incr_counter
---         
+--
 ---------------------------------------------------------------------------------------------------
 --
---! @todo --> 
+--! @todo -->
 --
 ---------------------------------------------------------------------------------------------------
 
@@ -88,22 +88,22 @@ entity WF_rx_osc is
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;                      --! 40 MHz clock
-    rate_i                  : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate 
+    rate_i                  : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate
 
-    -- Signal from the WF_reset_unit  
+    -- Signal from the WF_reset_unit
     nfip_rst_i              : in std_logic;   --! nanoFIP internal reset
 
-    -- Signal from the WF_deglitcher unit    
+    -- Signal from the WF_deglitcher unit
     fd_rxd_edge_p_i         : in std_logic;   --! indication of an edge on fd_rxd
 
-    -- Signal from WF_rx_deserializer unit  
+    -- Signal from WF_rx_deserializer unit
     rx_osc_rst_i            : in std_logic;   --! resets the clock recovery procedure of the rx_osc
 
 
-  -- OUTPUTS  
+  -- OUTPUTS
     -- Signals to the WF_rx_deserializer
     rx_manch_clk_p_o        : out std_logic;  --! signal with uclk-wide pulses
-                                              --!  o  on a significant edge 
+                                              --!  o  on a significant edge
                                               --!  o  between adjacent bits
                                               --!  ____|-|___|-|___|-|___
 
@@ -112,7 +112,7 @@ entity WF_rx_osc is
                                               --!  __________|-|_________
 
     rx_signif_edge_window_o : out std_logic;  --! time window where a significant edge is expected
-    
+
     rx_adjac_bits_window_o  : out std_logic   --! time window where a transition between adjacent
                                               --! bits is expected
     );
@@ -139,8 +139,8 @@ architecture rtl of WF_rx_osc is
 --=================================================================================================
 begin
 
-                     -- # uclock ticks for a bit period, defined by the WorldFIP bit rate 
-  s_period           <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i))); 
+                     -- # uclock ticks for a bit period, defined by the WorldFIP bit rate
+  s_period           <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));
 
   s_counter_is_full  <= '1' when s_period_c = s_period -1 else '0'; -- counter full indicator
   s_half_period      <= s_period srl 1;                             -- 1/2 s_period
@@ -168,10 +168,10 @@ begin
     incr_counter_i    => '1',
     counter_is_full_o => open,
     ------------------------------------------
-    counter_o         => s_period_c);       
+    counter_o         => s_period_c);
     ------------------------------------------
 
-    --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+    --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- counter reinitialized : if nfip_rst_i is active                       or
     --                         if the rx_osc_rst_i is active                 or
     --                         if an edge is detected in the expected window or
@@ -185,21 +185,21 @@ begin
 --! nanoFIP FIELDRIVE input fd_rxd and constructs two clock signals: rx_manch_clk & rx_bit_clk.
 
 -- In detail, the process is looking for moments :
-  -- o of significant edges 
+  -- o of significant edges
   -- o between boundary bits
-    
+
   -- the signal rx_manch_clk: is inverted on each significant edge,as well as between adjacent bits
   -- the signal rx_bit_clk  : is inverted only between adjacent bits
 
   -- The significant edges are normally expected inside the signif_edge_window. In the cases of a
   -- code violation (V+ or V-) no edge will arrive in this window. In this situation rx_manch_clk
-  -- is inverted right after the end of the signif_edge_window. 
+  -- is inverted right after the end of the signif_edge_window.
 
   -- Edges between adjacent bits are expected inside the adjac_bits_window; if they do not arrive
   -- the rx_manch_clk and rx_bit_clk are inverted right after the end of the adjac_bits_window.
 
   rx_clks: process (uclk_i)
-  
+
   begin
     if rising_edge (uclk_i) then
       if (nfip_rst_i = '1') then
@@ -215,10 +215,10 @@ begin
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
         -- regarding significant edges:
 
-        -- looking for a significant edge inside the corresponding window 
+        -- looking for a significant edge inside the corresponding window
         if (s_signif_edge_window = '1') and (fd_rxd_edge_p_i = '1') and (s_signif_edge_found = '0') then
-                                                   
-            s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk 
+
+            s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk
             s_signif_edge_found     <= '1';             -- indication that the edge was found
             s_adjac_bits_edge_found <= '0';
 
@@ -226,7 +226,7 @@ begin
         -- is inverted right after the end of the signif_edge_window.
         elsif (s_signif_edge_found = '0') and (s_period_c = s_jitter) then
 
-          s_manch_clk               <= not s_manch_clk; 
+          s_manch_clk               <= not s_manch_clk;
           s_adjac_bits_edge_found   <= '0';             -- re-initialization before the
                                                         -- next cycle
 
@@ -235,7 +235,7 @@ begin
         -- regarding edges between adjacent bits:
 
         -- looking for an edge inside the corresponding window
-        elsif (s_adjac_bits_window = '1') and (fd_rxd_edge_p_i = '1') then 
+        elsif (s_adjac_bits_window = '1') and (fd_rxd_edge_p_i = '1') then
 
            s_manch_clk              <= not s_manch_clk; -- inversion of rx_manch_clk
            s_bit_clk                <= not s_bit_clk;   -- inversion of rx_bit_clk
@@ -246,38 +246,38 @@ begin
 
         -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
         -- after the end of it
-        elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_jitter) then 
+        elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_jitter) then
 
           s_manch_clk               <= not s_manch_clk;
-          s_bit_clk                 <= not s_bit_clk;        
-           
+          s_bit_clk                 <= not s_bit_clk;
+
           s_signif_edge_found       <= '0';             -- re-initialization before next cycle
         end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      s_manch_clk_d1                <= s_manch_clk;    
+      s_manch_clk_d1                <= s_manch_clk;
                                                 -- s_manch_clk:      ____|-----|_____|-----|____
                                                 -- s_manch_clk_d1:   ______|-----|_____|-----|__
                                                 -- rx_manch_clk_p_o: ____|-|___|-|___|-|___|-|__
 
-      s_bit_clk_d1                  <= s_bit_clk;    
+      s_bit_clk_d1                  <= s_bit_clk;
                                                 -- s_bit_clk:        ____|-----------|___________
                                                 -- s_bit_clk_d1:     ______|-----------|_________
-                                                -- rx_bit_clk_p_o:   ____|-|_________|-|_________                           
+                                                -- rx_bit_clk_p_o:   ____|-|_________|-|_________
 
       end if;
     end if;
-  end process;  
+  end process;
 
 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Concurrent signal assignments: creation of the windows where
 --! "significant edges" and "adjacent bits transitions" are expected on the input signal.
---! o s_signif_edge_window : extends s_jitter uclk ticks before and s_jitter uclk ticks after  
+--! o s_signif_edge_window : extends s_jitter uclk ticks before and s_jitter uclk ticks after
 --!   the completion of a period, where significant edges are expected.
---! o s_adjac_bits_window      : extends s_jitter uclk ticks before and s_jitter uclk ticks after 
---!   the middle of a period, where transitions between adjacent bits are expected.   
+--! o s_adjac_bits_window      : extends s_jitter uclk ticks before and s_jitter uclk ticks after
+--!   the middle of a period, where transitions between adjacent bits are expected.
 
   s_signif_edge_window <= '1' when ((s_period_c < s_jitter) or
                                         (s_period_c  > s_period-1 - s_jitter-1))
@@ -293,7 +293,7 @@ begin
 -- Output signals concurrent assignments
 
   rx_manch_clk_p_o         <= s_manch_clk_d1 xor s_manch_clk; -- a 1 uclk-wide pulse, after
-                                                              --  o a significant edge 
+                                                              --  o a significant edge
                                                               --  o a new bit
                                                               -- ___|-|___|-|___|-|___
 

@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -40,7 +40,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY and VAR2_RDY.
 --!              o "nanoFIP User Interface, NON_WISHBONE" output signal r_tler_o, also used by
 --!                the WF_status_bytes_generator unit (nanoFIP status byte, bit 4).
---!              o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the WF_reset_unit. 
+--!              o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the WF_reset_unit.
 --!
 --!
 --!            Reminder:
@@ -62,7 +62,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.05
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>           \n
 --!            WF_reset_unit           \n
@@ -74,7 +74,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!   \n<b>Modified by:</b>\n
 --!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch)
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
 --!     -> 10/2010  v0.01  EG  First version \n
@@ -85,11 +85,11 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                            (for var1_rdy,var2_rdy+var_rst outcome) & WF_prod_permit (for var3)
 --!     -> 02/2010  v0.05  EG  Added here functionality of wf_cons_frame_validator
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
+--! @todo
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -100,19 +100,19 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_cons_outcome is
 
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                      : in std_logic;                    --! 40 MHz clock
-    slone_i                     : in std_logic;                    --! stand-alone mode 
+    slone_i                     : in std_logic;                    --! stand-alone mode
 
     -- nanoFIP WorldFIP Settings
     subs_i                      : in std_logic_vector (7 downto 0);--! subscriber number coding
- 
+
     -- Signal from the WF_reset_unit
     nfip_rst_i                  : in std_logic;                    --! nanoFIP internal reset
 
     -- Signal from the WF_fd_receiver unit
-    rx_fss_crc_fes_manch_ok_p_i : in std_logic; --! indication of a frame with correct FSS, FES, CRC 
+    rx_fss_crc_fes_manch_ok_p_i : in std_logic; --! indication of a frame with correct FSS, FES, CRC
                                                 --! and manch. encoding; pulse upon FES detection
 
     rx_crc_or_manch_wrong_p_i   : in std_logic; --! indication of a frame with a wrong CRC or manch.
@@ -121,7 +121,7 @@ entity WF_cons_outcome is
     -- Signals from the WF_consumption unit
     cons_ctrl_byte_i            : in std_logic_vector (7 downto 0);--! received RP_DAT Control byte
     cons_lgth_byte_i            : in std_logic_vector (7 downto 0);--! received RP_DAT Length byte
-    cons_pdu_byte_i             : in std_logic_vector (7 downto 0);--! received RP_DAT PDU_TYPE byte    
+    cons_pdu_byte_i             : in std_logic_vector (7 downto 0);--! received RP_DAT PDU_TYPE byte
     cons_var_rst_byte_1_i       : in std_logic_vector (7 downto 0);--! received var_rst RP_DAT, 1st data-byte
     cons_var_rst_byte_2_i       : in std_logic_vector (7 downto 0);--! received var_rst RP_DAT, 2nd data-byte
 
@@ -163,28 +163,28 @@ architecture rtl of WF_cons_outcome is
 
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 
---------------------------------------------------------------------------------------------------- 
---!@brief  Sequential process Frame_Validation: validation of a consumed RP_DAT frame, with 
+---------------------------------------------------------------------------------------------------
+--!@brief  Sequential process Frame_Validation: validation of a consumed RP_DAT frame, with
 --! respect to the Ctrl, PDU_TYPE and Length bytes as well as to the CRC, FSS, FES and to the
 --! Manchester encoding. The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that
 --! arrive at the beginning of a frame, have been registered and keep their values until the end
 --! of it. The signal rx_fss_crc_fes_manch_ok_p_i, is a pulse at the end of the FES that combines
---! the checks of the FSS, CRC, FES and of the manch. encoding. 
+--! the checks of the FSS, CRC, FES and of the manch. encoding.
 --! To check the correctness of the the RP_DAT.Data.Length byte, we compare it to the value of the
 --! rx_byte_index, when the FES is detected (pulse rx_fss_crc_fes_manch_ok_p_i).
 --! Note: In addition to the &Length bytes, the rx_byte_index also counts the Control, PDU_TYPE,
 --! Length, the 2 CRC and the FES bytes (and counting starts from 0!).
 -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- --
 --! The same process is also used for the generation of the of the nanoFIP status byte, bit 4, that
---! indicates a received PDU_TYPE or Length byte error in a consumed RP_DAT frame. 
---! Note: The end of a frame is marked by either the signal rx_fss_crc_fes_manch_ok_p_i or by the 
+--! indicates a received PDU_TYPE or Length byte error in a consumed RP_DAT frame.
+--! Note: The end of a frame is marked by either the signal rx_fss_crc_fes_manch_ok_p_i or by the
 --! rx_crc_or_manch_wrong_p_i.
 
-  Frame_Validation: process (uclk_i) 
+  Frame_Validation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
@@ -199,7 +199,7 @@ begin
              (unsigned(rx_byte_index_i ) = (unsigned(cons_lgth_byte_i) + 5)) then --LGTH byte check
 
             s_cons_frame_ok_p <= '1';
-          else 
+          else
             s_cons_frame_ok_p <= '0';
           end if;
 
@@ -221,7 +221,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---!@brief Synchronous process VAR_RDY_Generation: 
+--!@brief Synchronous process VAR_RDY_Generation:
 
 --! Memory Mode:
   --! Since the three memories (consumed, consumed broadcast, produced) are independent, when a
@@ -230,16 +230,16 @@ begin
 
   --! VAR1_RDY (for consumed vars): signals that the user can safely read from the consumed memory.
   --! The signal is asserted only after the reception of a correct RP_DAT frame.
-  --! It is de-asserted after the reception of a correct var_1 ID_DAT frame. 
+  --! It is de-asserted after the reception of a correct var_1 ID_DAT frame.
 
   --! VAR2_RDY (for broadcast consumed vars): signals that the user can safely read from the
   --! consumed broadcast memory. The signal is asserted only after the reception of a correct
   --! consumed broadcast RP_DAT frame. It is de-asserted after the reception of a correct var_2
-  --! ID_DAT frame. 
+  --! ID_DAT frame.
 
 
 --! Stand-alone Mode:
-  --! Similarly, in stand-alone mode, the DAT_I and DAT_O buses for the produced and the consumed 
+  --! Similarly, in stand-alone mode, the DAT_I and DAT_O buses for the produced and the consumed
   --! bytes are independent. Stand-alone mode though does not treat the consumed broadcast variable.
 
   --! VAR1_RDY (for consumed vars): signals that the user can safely retrieve data from the DAT_O
@@ -254,7 +254,7 @@ begin
 --! correct ID_DAT frame and of a correct FSS of the corresponding RP_DAT frame and it retains it
 --! until the end of the reception.
 
-  VAR_RDY_Generation: process (uclk_i) 
+  VAR_RDY_Generation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
@@ -268,14 +268,14 @@ begin
         case var_i is
 
         when var_1 =>                              -- nanoFIP consuming
-                                                   --------------------   
+                                                   --------------------
           var1_rdy_o        <= '0';                -- while consuming a var_1, VAR1_RDY is 0
           var2_rdy_o        <= s_var2_received;    -- VAR2_RDY retains its value
 
 
           --  --  --  --  --  --  --  --  --  --  --
           if s_cons_frame_ok_p = '1' then         -- only if the received RP_DAT frame is correct,
-                                                  -- the nanoFIP signals the user to retreive data 
+                                                  -- the nanoFIP signals the user to retreive data
             s_var1_received <= '1';               -- note:the signal s_var1_received remains asser-
                                                   -- ted after the end of the cons_frame_ok_p pulse
           end if;
@@ -283,29 +283,29 @@ begin
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
-        when var_2 =>                             -- nanoFIP consuming broadcast     
-                                                  ------------------------------ 
+        when var_2 =>                             -- nanoFIP consuming broadcast
+                                                  ------------------------------
           var2_rdy_o        <= '0';               -- while consuming a var_2, VAR2_RDY is 0
           var1_rdy_o        <= s_var1_received;   -- VAR1_RDY retains its value
 
-          if slone_i = '0' and s_cons_frame_ok_p = '1' then        
+          if slone_i = '0' and s_cons_frame_ok_p = '1' then
                                                   -- only in memory mode and if the received RP_DAT
             s_var2_received <= '1';               -- frame is correct, the nanoFIP signals the user
                                                   -- to retreive data.
                                                   -- note:the signal s_var2_received remains asser-
-          end if;                                 -- ted after the end of the cons_frame_ok_p pulse 
+          end if;                                 -- ted after the end of the cons_frame_ok_p pulse
 
-    
+
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
 
         when others =>
 
           var1_rdy_o        <= s_var1_received;
-          var2_rdy_o        <= s_var2_received; 
-           
-      
-        end case;	 	 
+          var2_rdy_o        <= s_var2_received;
+
+
+        end case;
       end if;
     end if;
   end process;
@@ -313,31 +313,31 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---!@ brief: Generation of the signals rst_nfip_and_fd : signals that the 1st byte of a consumed 
---!                                                     reset var contains the station address   
+--!@ brief: Generation of the signals rst_nfip_and_fd : signals that the 1st byte of a consumed
+--!                                                     reset var contains the station address
 --!                                  and assert_rston : signals that the 2nd byte of a consumed
---!                                                     reset var contains the station address 
+--!                                                     reset var contains the station address
 
-  Cons_Reset_Signals: process (uclk_i) 
+  Cons_Reset_Signals: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
 
       if nfip_rst_i = '1' then
         s_rst_nfip_and_fd     <= '0';
         s_assert_rston        <= '0';
- 
+
       else
 
         if var_i = var_rst then
- 
+
           if cons_var_rst_byte_1_i = subs_i then
 
-            s_rst_nfip_and_fd <= '1';   -- rst_nFIP_and_FD_o stays asserted until 
+            s_rst_nfip_and_fd <= '1';   -- rst_nFIP_and_FD_o stays asserted until
           end if;                       -- the end of the current RP_DAT frame
 
-          if cons_var_rst_byte_2_i = subs_i then  
+          if cons_var_rst_byte_2_i = subs_i then
 
-            s_assert_rston    <= '1'; -- assert_RSTON_o stays asserted until 
+            s_assert_rston    <= '1'; -- assert_RSTON_o stays asserted until
           end if;                     -- the end of the current RP_DAT frame
         else
           s_rst_nfip_and_fd   <= '0';

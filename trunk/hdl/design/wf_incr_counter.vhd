@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -37,24 +37,24 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --! @version   v0.01
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>\n
 --
 --
 --!   \n<b>Modified by:</b>\n
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> 01/2011  EG  v0.011  counter_full became a constant 
+--!     -> 01/2011  EG  v0.011  counter_full became a constant
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
---!   -> 
+--! @todo
+--!   ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 --=================================================================================================
@@ -62,22 +62,22 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 --=================================================================================================
 
 entity WF_incr_counter is
-  generic (g_counter_lgth : natural := 4);                      --! default length 
+  generic (g_counter_lgth : natural := 4);                       --! default length
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface general signal
-    uclk_i           : in std_logic;                            --! 40 MHz clock
+    uclk_i           : in std_logic;                             --! 40 MHz clock
 
    -- Signals from any unit
-   incr_counter_i    : in std_logic;                            --! increment enable
-   reinit_counter_i  : in std_logic;                            --! reinitializes counter to 0
+   incr_counter_i    : in std_logic;                             --! increment enable
+   reinit_counter_i  : in std_logic;                             --! reinitializes counter to 0
 
 
   -- OUTPUT
     -- Signal to any unit
-   counter_o         : out unsigned(g_counter_lgth-1 downto 0); --! counter
-   counter_is_full_o : out std_logic                            --! counter full indication
-      );                                                        --! (all bits to '1') 
+   counter_o         : out unsigned (g_counter_lgth-1 downto 0); --! counter
+   counter_is_full_o : out std_logic                             --! counter full indication
+      );                                                         --! (all bits to '1')
 
 end entity WF_incr_counter;
 
@@ -90,14 +90,13 @@ architecture rtl of WF_incr_counter is
 constant c_COUNTER_FULL : unsigned (g_counter_lgth-1 downto 0) := (others => '1');
 signal   s_counter      : unsigned (g_counter_lgth-1 downto 0);
 
-
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
   -- Synchronous process Incr_Counter
 
   Incr_Counter: process (uclk_i)
@@ -114,7 +113,7 @@ begin
   end process;
 
 
- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+ --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- Concurrent assignments for output signals
 
   counter_o         <= s_counter;

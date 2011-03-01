@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -33,14 +33,14 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o WF_tx_serializer : that receives bytes from the WF_Production, encodes them
 --!                                   (Manchester 2), adds the FSS, FCS & FES fields and puts one
 --!                                   by one bits to the FIELDRIVE output FD_TXD, following the
---!                                   synchronization signals from the WF_tx_osc unit. 
---!                                   Also generates the nanoFIP output FD_TXENA.   
+--!                                   synchronization signals from the WF_tx_osc unit.
+--!                                   Also generates the nanoFIP output FD_TXENA.
 --!
 --!              o WF_tx_osc        : that generates the nanoFIP FIELDRIVE output FD_TXCK
 --!                                   and the array of pulses tx_clk_p_buff (used for the
---!                                   synchronization of the WF_tx_serializer). 
+--!                                   synchronization of the WF_tx_serializer).
 --!                                ___________________________________________________________
---!                               |                                                           | 
+--!                               |                                                           |
 --!                               |                       WF_Production                       |
 --!                               |___________________________________________________________|
 --!                                                            \/
@@ -60,7 +60,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                               |___________________________________________________________|
 --!                                                            \/
 --!                            ___________________________________________________________________
---!                          0_____________________________FIELDBUS______________________________O      
+--!                          0_____________________________FIELDBUS______________________________O
 --!
 --!
 --!
@@ -76,7 +76,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.01
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>     \n
 --!            WF_reset_unit     \n
@@ -89,14 +89,14 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> 
+--!     ->
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo 
---! ->  
+--! @todo
+--! ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -107,7 +107,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_fd_transmitter is
 
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface, General signal
     uclk_i                     : in std_logic; --! 40 MHz clock
 
@@ -118,10 +118,10 @@ entity WF_fd_transmitter is
     nfip_rst_i                 : in std_logic; --! nanoFIP internal reset
 
     -- Signals from the WF_production unit
-    tx_byte_i                  : in std_logic_vector (7 downto 0); --! byte to be delivered 
+    tx_byte_i                  : in std_logic_vector (7 downto 0); --! byte to be delivered
 
     -- Signals from the WF_engine_control
-    tx_byte_request_accept_p_i : in std_logic; --! indication that a byte is ready to be delivered   
+    tx_byte_request_accept_p_i : in std_logic; --! indication that a byte is ready to be delivered
     tx_last_byte_p_i           : in std_logic; --! indication of the last byte before the CRC bytes
     tx_start_p_i               : in std_logic; --! indication for the start of the production
 
@@ -146,11 +146,11 @@ architecture struc of WF_fd_transmitter is
 
   signal s_tx_clk_p_buff : std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
   signal s_tx_osc_rst_p  : std_logic;
- 
+
 
 --=================================================================================================
 --                                        architecture begin
---=================================================================================================  
+--=================================================================================================
 begin
 
 
@@ -160,9 +160,9 @@ begin
 
 --!@brief Instantiation of the WF_tx_osc unit
 
-  tx_oscillator: WF_tx_osc 
+  tx_oscillator: WF_tx_osc
   port map (
-    uclk_i          => uclk_i,                   
+    uclk_i          => uclk_i,
     rate_i          => rate_i,
     nfip_rst_i      => nfip_rst_i,
     tx_osc_rst_p_i  => s_tx_osc_rst_p,
@@ -175,11 +175,11 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                           Serializer                                          --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 --!@brief Instantiation of the WF_tx_serializer unit
 
-  tx_serializer: WF_tx_serializer 
+  tx_serializer: WF_tx_serializer
   port map (
     uclk_i                   => uclk_i,
     nfip_rst_i               => nfip_rst_i,

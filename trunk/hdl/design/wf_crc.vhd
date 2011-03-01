@@ -41,7 +41,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @version   v0.04
 --
 --
---! @details \n 
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>\n
 --!            WF_reset_unit       \n
@@ -77,11 +77,11 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --=================================================================================================
 entity WF_crc is
   port (
-  -- INPUTS 
+  -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i             : in std_logic;              --! 40 MHz clock
 
-    -- Signal from the WF_reset_unit  
+    -- Signal from the WF_reset_unit
     nfip_rst_i         : in std_logic;              --! nanoFIP internal reset
 
     -- Signals from the WF_rx_deserializer/ WF_tx_serializer units
@@ -89,14 +89,14 @@ entity WF_crc is
     data_bit_ready_p_i : in std_logic;              --! indicates the sampling moment of data_bit_i
     start_crc_p_i      : in std_logic;              --! beginning of the CRC calculation
 
-    
-  -- OUTPUTS 
+
+  -- OUTPUTS
     -- Signal to the WF_rx_deserializer unit
     crc_ok_p_o         : out std_logic;             --! signals a correct received CRC syndrome
 
     -- Signal to the WF_tx_serializer unit
-    crc_o              : out  std_logic_vector (c_CRC_GENER_POLY_LGTH-1 downto 0)--!calculated CRC
-     );                                                         
+    crc_o              : out  std_logic_vector (c_CRC_POLY_LGTH-1 downto 0)--!calculated CRC
+     );
 
 end entity WF_crc;
 
@@ -106,7 +106,7 @@ end entity WF_crc;
 --=================================================================================================
 architecture rtl of WF_crc is
 
-  signal s_q, s_q_nx, s_q_check_mask       : std_logic_vector (c_CRC_GENER_POLY_LGTH - 1 downto 0);
+  signal s_q, s_q_nx : std_logic_vector (c_CRC_POLY_LGTH - 1 downto 0);
 
 
 --=================================================================================================
@@ -115,7 +115,7 @@ architecture rtl of WF_crc is
 begin
 
 ---------------------------------------------------------------------------------------------------
---!@brief The Gen_16_bit_Register_and_Interconnections generator, follows the scheme of figure A.1  
+--!@brief The Gen_16_bit_Register_and_Interconnections generator, follows the scheme of figure A.1
 --! of the Annex A 61158-4-7 IEC:2007 and constructs a register of 16 master-slave flip-flops which
 --! are interconnected as a linear feedback shift register.
 
@@ -124,7 +124,7 @@ begin
     s_q_nx(0)   <= data_bit_i xor s_q(s_q'left);
 
     G: for I in 1 to c_CRC_GENER_POLY'left generate
-      s_q_nx(I) <= s_q(I-1) xor (c_CRC_GENER_POLY(I) and (data_bit_i xor s_q(s_q'left)));      
+      s_q_nx(I) <= s_q(I-1) xor (c_CRC_GENER_POLY(I) and (data_bit_i xor s_q(s_q'left)));
     end generate;
 
 
@@ -139,7 +139,7 @@ begin
 
       if nfip_rst_i = '1' then
         s_q               <= (others => '0');
-         
+
       else
 
         if start_crc_p_i = '1' then
@@ -154,21 +154,21 @@ begin
     end if;
   end process;
 
-  --  --  --  --  --  
+  --  --  --  --  --
   crc_o <= not s_q;
 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial process Syndrome_Verification: On the reception, the CRC is being
 --! calculated as data is arriving (same as in the transmission) and it is being compared to the
---! predefined c_CRC_VERIFIC_MASK. When the CRC calculated from the received data matches the
---! c_CRC_VERIFIC_MASK, it is implied that a correct CRC word has been received for the preceded
---! data and the signal crc_ok_p_o gives a 1 uclk-wide pulse. 
+--! predefined c_CRC_VERIF_POLY. When the CRC calculated from the received data matches the
+--! c_CRC_VERIF_POLY, it is implied that a correct CRC word has been received for the preceded
+--! data and the signal crc_ok_p_o gives a 1 uclk-wide pulse.
 
   Syndrome_Verification: process (s_q, data_bit_ready_p_i)
   begin
 
-    if s_q = not c_CRC_VERIFIC_MASK then 
+    if s_q = not c_CRC_VERIF_POLY then
 
       crc_ok_p_o <= data_bit_ready_p_i;
 

@@ -10,7 +10,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --! standard library
-library IEEE; 
+library IEEE;
 
 --! standard packages
 use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
@@ -37,7 +37,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            o WF_rx_osc          : for the clock recovery
 --!
 --!            o WF_rx_deglitcher   : for the filtering of the input FD_RXD
---!                                     
+--!
 --!
 --!                                _________________________         _________________________
 --!                               |                         |       |                         |
@@ -61,7 +61,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                               |___________________________________________________________|
 --!                                                            \/
 --!                            ___________________________________________________________________
---!                          0_____________________________FIELDBUS______________________________O     
+--!                          0_____________________________FIELDBUS______________________________O
 --
 --
 --! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
@@ -74,7 +74,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.01
 --
 --
---! @details \n  
+--! @details \n
 --
 --!   \n<b>Dependencies:</b>     \n
 --!            WF_reset_unit     \n
@@ -83,17 +83,17 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --
 --!   \n<b>Modified by:</b>\n
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --!   \n\n<b>Last changes:</b>\n
---!     -> 
+--!     ->
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo 
---! ->  
+--! @todo
+--! ->
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -103,11 +103,11 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 entity WF_fd_receiver is
 
   port (
-  -- INPUTS 
-    -- nanoFIP User Interface, General signals 
+  -- INPUTS
+    -- nanoFIP User Interface, General signals
     uclk_i                      : in std_logic; --! 40 MHZ clock
 
-    -- nanoFIP WorldFIP Settings 
+    -- nanoFIP WorldFIP Settings
     rate_i                      : in std_logic_vector (1 downto 0); --! WorldFIP bit rate
 
     -- nanoFIP FIELDRIVE
@@ -122,17 +122,17 @@ entity WF_fd_receiver is
                                                 --! received (ID_DAT > 8 bytes, RP_DAT > 130 bytes)
 
 
-  -- OUTPUTS 
+  -- OUTPUTS
     -- Signals to the WF_engine_control and WF_consumption
     rx_byte_o                   : out std_logic_vector (7 downto 0);   --! retrieved data byte
     rx_byte_ready_p_o           : out std_logic;--! pulse indicating a new retrieved data byte
     rx_fss_crc_fes_manch_ok_p_o : out std_logic;--! indication of a frame (ID_DAT or RP_DAT) with
                                                 --! correct FSS, FES, CRC and manch. encoding
 
-    -- Signals to the WF_engine_control 
+    -- Signals to the WF_engine_control
     rx_fss_received_p_o         : out std_logic;--! pulse after the reception of a correct FSS(ID/RP)
 
-    -- Signal to the WF_engine_control and the WF_production units 
+    -- Signal to the WF_engine_control and the WF_production units
     rx_crc_or_manch_wrong_p_o   : out std_logic --! indication of a wrong CRC or manch. encoding on
                                                 --!a ID_DAT or RP_DAT;pulse after the FES detection
     );
@@ -153,7 +153,7 @@ architecture struc of WF_fd_receiver is
 
 --=================================================================================================
 --                                        architecture begin
---================================================================================================= 
+--=================================================================================================
 
 begin
 
@@ -164,7 +164,7 @@ begin
 
 --! @brief Instantiation of the WF_rx_deglitcher unit.
 
-  FIELDRIVE_Receiver_Deglitcher: WF_rx_deglitcher 
+  FIELDRIVE_Receiver_Deglitcher: WF_rx_deglitcher
   port map (
     uclk_i                     => uclk_i,
     nfip_rst_i                 => nfip_rst_i,
@@ -181,7 +181,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                          Oscillator                                           --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 --! @brief Instantiation of the WF_rx_osc unit.
 
@@ -203,11 +203,11 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                         Deserializer                                          --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 --! @brief Instantiation of the WF_rx_deserializer unit.
 
-  FIELDRIVE_Receiver_Deserializer: WF_rx_deserializer 
+  FIELDRIVE_Receiver_Deserializer: WF_rx_deserializer
   port map (
     uclk_i                   => uclk_i,
     nfip_rst_i               => nfip_rst_i,
@@ -229,7 +229,7 @@ begin
    ------------------------------------------------------
 
 
- 
+
 end architecture struc;
 
 --=================================================================================================

@@ -21,14 +21,14 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 
 
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                              nanoFIP                                          --
 --                                                                                               --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
 --
---! @brief    
+--! @brief
 --! The nanoFIP is an FPGA component implementing the WorldFIP protocol that can be used in field
 --! devices. The nanoFIP is designed to be radiation tolerant by using different single event upset
 --! mitigation techniques such as Triple Module Redundancy and several reset possibilities. The
@@ -43,7 +43,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! frame:
 --!                   ___________ ______  _______ ______  ___________ _______
 --!                  |____FSS____|_Ctrl_||__Var__|_Subs_||____FCS____|__FES__|
---! 
+--!
 --!                           Figure 1 : ID_DAT frame structure
 --!
 --! nanoFIP is handling the following set of variables addressed by:
@@ -84,7 +84,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!    (E0..h), validated by station address as data
 --!  o FIELDRIVE reset output (FD_RSTN) by the reset broadcast consumed variable (E0..h),
 --!    validated by station address as data
---! 
+--!
 --! nanoFIP's main building blocks are (Figure 3):
 --!  o WF_inputs_synchronizer : for the synchronization of the input signals with the user
 --!    or the WISHBONE clock.
@@ -93,17 +93,17 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!  o WF_tx_rx_osc           : for the generation of the clocks used by the transmitter and
 --!    receiver for the data serialization and deserialization.
 --!  o WF_consumption         : for the processing of consumed variables, from the deserialization
---!    to the bytes storage and validation.     
+--!    to the bytes storage and validation.
 --!  o WF_production          : for the processing of produced variables, from the bytes
 --!    retrieval to the serialization.
 --!  o WF_engine_control      : for the processing of the ID_DAT frames and the coordination of the
---!    WF_consumption and WF_production units. 
+--!    WF_consumption and WF_production units.
 --!  o WF_model_constr_dec    : for the decoding of the WorldFIP settings M_ID and C_ID and the
 --!    generation of the S_ID.
 --!  o WF_wb_controller       : for the handling of the "User Interface WISHBONE Slave" control
 --!                             signals.
 --!
---!                 _____________     __________________________     _____________                  
+--!                 _____________     __________________________     _____________
 --!                |             |   |                          |   |             |
 --!                |             |   |       WF_tx_rx_osc       |   |             |
 --!                |             |   |                          |   |             |
@@ -134,7 +134,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                | constr_dec  |    ___________________________   |             |
 --!                |             |   |      WF_wb_controller     |  |             |
 --!                |_____________|   |___________________________|  |_____________|
---!                                    
+--!
 --!                                Figure 3: nanoFIP block diagram
 --!
 --! The design is based on the NanoFIP functional specification v1.3 document, available at:
@@ -145,7 +145,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @authors   Erik Van der Bij      (Erik.Van.der.Bij@cern.ch)     \n
 --!            Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
 --!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
---        
+--
 --
 --! @date      15/01/2011
 --
@@ -153,7 +153,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! @version   v0.04
 --
 --
---! @details\n 
+--! @details\n
 --
 --!   \n<b>Dependencies:</b>   \n
 --!            WF_reset_unit          \n
@@ -175,16 +175,16 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     ->  30/06/2009  v0.010  EB  First version \n
 --!     ->  06/07/2009  v0.011  EB  Dummy blocks  \n
 --!     ->  07/07/2009  v0.011  EB  Comments      \n
---!     ->  15/09/2009  v0.v2   PA  
+--!     ->  15/09/2009  v0.v2   PA
 --!     ->  09/12/2010  v0.v3   EG  Logic removed (new unit inputs_synchronizer added)
---!     ->  7/01/2011   v0.04   EG  major restructuring; only 7 units on top level 
+--!     ->  7/01/2011   v0.04   EG  major restructuring; only 7 units on top level
 --!     ->  20/01/2011  v0.05   EG  new unit WF_wb_controller(removes the or gate from top level)
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 --
---! @todo 
+--! @todo
 --
---------------------------------------------------------------------------------------------------- 
+---------------------------------------------------------------------------------------------------
 
 
 
@@ -207,19 +207,19 @@ entity nanofip is
   subs_i     : in std_logic_vector (7 downto 0); --! Subscriber number coding (station address)
 
 
-  --  FIELDRIVE 
+  --  FIELDRIVE
 
   fd_rxcdn_i : in std_logic;                     --! Reception activity detection, active low
   fd_rxd_i   : in std_logic;                     --! Receiver data
   fd_txer_i  : in std_logic;                     --! Transmitter error
   fd_wdgn_i  : in std_logic;                     --! Watchdog on transmitter
 
- 
+
   --  User Interface, General signals
- 
+
   nostat_i   : in std_logic;                     --! No NanoFIP status with produced data
 
-  rstin_i    : in std_logic;                     --! Initialisation control, active low
+  rstin_i    : in std_logic;                     --! Initialization control, active low
                                                  --! Resets nanoFIP & the FIELDRIVE
 
   rstpon_i   : in std_logic;                     --! Power On Reset, active low
@@ -238,7 +238,7 @@ entity nanofip is
   --  User Interface, WISHBONE Slave
   wclk_i     : in std_logic;                     --! WISHBONE clock; may be independent of uclk
   adr_i      : in std_logic_vector (9 downto 0); --! WISHBONE address
-  cyc_i      : in std_logic;                     --! WISHBONE cycle 
+  cyc_i      : in std_logic;                     --! WISHBONE cycle
 
   dat_i      : in std_logic_vector (15 downto 0);--! dat_i(7 downto 0) : WISHBONE data in, memory mode
                                                  --! dat_i(15 downto 0): data in, stand-alone mode
@@ -255,18 +255,18 @@ entity nanofip is
   -- WorldFIP settings
 
   s_id_o     : out std_logic_vector (1 downto 0);--! Identification selection
- 
+
 
   --  FIELDRIVE
 
-  fd_rstn_o  : out std_logic;                    --! Initialisation control, active low
+  fd_rstn_o  : out std_logic;                    --! Initialization control, active low
   fd_txck_o  : out std_logic;                    --! Line driver half bit clock
   fd_txd_o   : out std_logic;                    --! Transmitter data
   fd_txena_o : out std_logic;                    --! Transmitter enable
 
 
   --  User Interface, General signals
- 
+
   rston_o    : out std_logic;                    --! Reset output, active low
 
 
@@ -331,30 +331,29 @@ architecture struc of nanofip is
 
 
 --=================================================================================================
---                                        architecture begin                                      
---=================================================================================================  
+--                                        architecture begin
+--=================================================================================================
 begin
 
 
 ---------------------------------------------------------------------------------------------------
 --                                         WF_reset_unit                                         --
 ---------------------------------------------------------------------------------------------------
-  reset_unit : WF_reset_unit 
+  reset_unit : WF_reset_unit
     port map (
       uclk_i                => uclk_i,
       wb_clk_i              => wclk_i,
       rstin_a_i             => rstin_i,
-      rstpon_i              => rstpon_i,
+      rstpon_a_i            => rstpon_i,
       rate_i                => rate_i,
       rst_i                 => rst_i,
-      var_i                 => s_var_from_control,
       rst_nFIP_and_FD_p_i   => s_reset_nFIP_and_FD_p,
       assert_RSTON_p_i      => s_assert_RSTON_p,
     ---------------------------------------------------------
-      nFIP_rst_o            => s_rst, 
+      nFIP_rst_o            => s_rst,
       wb_rst_o              => s_wb_rst,
       rston_o               => rston_o,
-      fd_rstn_o             => fd_rstn_o);  
+      fd_rstn_o             => fd_rstn_o);
     ---------------------------------------------------------
 
 
@@ -419,7 +418,7 @@ begin
     wb_clk_i                => wclk_i,
     wb_data_i               => dat_i(7 downto 0),
     wb_adr_i                => adr_i(8 downto 0),
-    wb_ack_prod_p_i         => s_wb_ack_prod,  
+    wb_ack_prod_p_i         => s_wb_ack_prod,
     slone_data_i            => dat_i,
     var1_acc_a_i            => var1_acc_i,
     var2_acc_a_i            => var2_acc_i,
@@ -472,33 +471,33 @@ begin
 --                                       WF_engine_control                                       --
 ---------------------------------------------------------------------------------------------------
 
-  engine_control : WF_engine_control 
+  engine_control : WF_engine_control
     port map (
       uclk_i                      => uclk_i,
-      nfip_rst_i                   => s_rst, 
-      tx_byte_request_p_i          => s_prod_request_byte_p, 
-      rx_fss_received_p_i          => s_rx_fss_decoded_p,   
-      rx_byte_i                    => s_rx_byte, 
+      nfip_rst_i                   => s_rst,
+      tx_byte_request_p_i          => s_prod_request_byte_p,
+      rx_fss_received_p_i          => s_rx_fss_decoded_p,
+      rx_byte_i                    => s_rx_byte,
       rx_byte_ready_p_i            => s_rx_byte_ready,
       rx_fss_crc_fes_manch_ok_p_i  => s_fss_crc_fes_manch_ok_p,
       rx_crc_or_manch_wrong_p_i    => s_crc_or_manch_wrong_p,
       rate_i                       => rate_i,
       subs_i                       => subs_i,
-      p3_lgth_i                    => p3_lgth_i, 
-      slone_i                      => slone_i, 
-      nostat_i                     => nostat_i, 
+      p3_lgth_i                    => p3_lgth_i,
+      slone_i                      => slone_i,
+      nostat_i                     => nostat_i,
     ---------------------------------------------------------
       var_o                       => s_var_from_control,
-      tx_start_p_o                => s_start_tx_p , 
-      tx_byte_request_accept_p_o  => s_prod_byte_ready_p, 
-      tx_last_byte_p_o            => s_prod_last_byte_p, 
+      tx_start_p_o                => s_start_tx_p ,
+      tx_byte_request_accept_p_o  => s_prod_byte_ready_p,
+      tx_last_byte_p_o            => s_prod_last_byte_p,
       prod_cons_byte_index_o      => s_cons_prod_byte_index_from_control,
       prod_data_lgth_o            => s_data_lgth_from_control,
       rx_rst_p_o                  => s_rx_rst_p);
     ---------------------------------------------------------
 
-      var1_rdy_o <= s_var1_rdy; 
-      var2_rdy_o <= s_var2_rdy; 
+      var1_rdy_o <= s_var1_rdy;
+      var2_rdy_o <= s_var2_rdy;
       var3_rdy_o <= s_var3_rdy;
 
 
@@ -506,7 +505,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                    WF_model_constr_decoder                                    --
 ---------------------------------------------------------------------------------------------------
- model_constr_decoder : WF_model_constr_decoder 
+ model_constr_decoder : WF_model_constr_decoder
   port map (
     uclk_i          => uclk_i,
     nfip_rst_i      => s_rst,
@@ -529,13 +528,13 @@ begin
     wb_clk_i        => wclk_i,
     wb_rst_i        => rst_i,
     wb_stb_i        => stb_i,
-    wb_cyc_i        => cyc_i,      
+    wb_cyc_i        => cyc_i,
     wb_we_i         => we_i,
-    wb_adr_id_i     => adr_i (9 downto 7),   
+    wb_adr_id_i     => adr_i (9 downto 7),
     ---------------------------------------------------------------
     wb_ack_prod_p_o => s_wb_ack_prod,
     wb_ack_p_o      => ack_o);
-    ---------------------------------------------------------------  
+    ---------------------------------------------------------------
 
 
 

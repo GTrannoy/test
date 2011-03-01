@@ -45,13 +45,13 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                                         |__________|          \  \
 --!                                          __________            |  \
 --!                      rst_nFIP_and_FD_p  |          |           |   |      nFIP_rst
---!                                 ________|   FSM    |________   |OR |  _______________ 
+--!                                 ________|   FSM    |________   |OR |  _______________
 --!                                         |  var_rst |           |   |
 --!                                         |__________|           |  /
 --!                                                               /  /
 --!                                 RSTPON                       /  /
 --!                                 __________________________  / /
---!                                                            / / 
+--!                                                            / /
 --!
 --!
 --!              o FIELDRIVE reset: nanoFIP FIELDRIVE output FD_RSTN
@@ -67,32 +67,31 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                                         |__________|          \  \
 --!                                          __________            |  \
 --!                      rst_nFIP_and_FD_p  |          |           |   |      FD_RSTN
---!                                 ________|   FSM    |________   |OR |  _______________ 
+--!                                 ________|   FSM    |________   |OR |  _______________
 --!                                         |  var_rst |           |   |
 --!                                         |__________|           |  /
 --!                                                               /  /
 --!                                 RSTPON                       /  /
 --!                                 __________________________  / /
---!                                                            / / 
---!
---!
---!              o reset to the external logic: nanoFIP User Interface, General signal RSTON 
+--!                                                            / /
+--!--!
+--!              o reset to the external logic: nanoFIP User Interface, General signal RSTON
 --!                  It is asserted after the reception of a valid var_rst with its 2nd data byte
 --!                  containing the station's address. It stays active for 8 uclk cycles.
---!                                          __________            
---!                           assert_RSTON  |          |                       RSTON   
---!                                 ________|   FSM    |_________________________________   
---!                                         |  var_rst |          
---!                                         |__________| 
---! 
+--!                                          _________
+--!                         assert_RSTON_p  |          |                       RSTON
+--!                                 ________|   FSM    |_________________________________
+--!                                         |  var_rst |
+--!                                         |__________|
 --!
---!              o nanoFIP internal reset for the WISHBONE logic: 
+--!
+--!              o nanoFIP internal reset for the WISHBONE logic:
 --!                  It is asserted after the assertion of the "nanoFIP User Interface, WISHBONE
 --!                  Slave" input RST_I (not synchronized, to comply with with WISHBONE rule 3.15)
 --!                  or of the "nanoFIP User Interface General signal" RSTPON.
 --!                  It stays asserted for as long as the RST_I or RSTPON stay asserted.
---!    
---!                                 RSTPON                       
+--!
+--!                                 RSTPON
 --!                                 __________________________ \ \
 --!                                                             \  \           wb_rst
 --!                                 RST_I                        |OR|____________________
@@ -105,18 +104,15 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!              only after the sucessful validation of the frame structure and of the application-
 --!              data bytes of a var_rst; in this unit they are used here directly,
 --!              without any handling.
---!            o The Power On Reset signal is used directly, without any handling. 
+--!            o The Power On Reset signal is used directly, without any handling.
 --!              --->>Still missing the synchronization with the uclk and wb_clk of the falling edge
 --                    of RSTPON
 --!
 --!            The unit implements 2 state machines: one for resets coming from RSTIN
 --!                                                  and one for resets coming from a var_rst.
-
 --!
 --!
-
 --!
-
 --
 --
 --! @author    Erik van der Bij      (Erik.van.der.Bij@cern.ch)      \n
@@ -130,11 +126,11 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --! @version   v0.03
 --
 --
---! @details 
+--! @details
 --
 --!   \n<b>Dependencies:</b>           \n
 --!            WF_cons_bytes_processor \n
--- 
+--
 --
 --!   \n<b>Modified by:</b>          \n
 --!            Pablo Alvarez Sanchez \n
@@ -148,12 +144,12 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                         fd_rstn_o, nFIP_rst_o enabled only if rstin has been active for>4 uclk
 --!     01/2011  v0.03  EG  PoR added; signals assert_RSTON_p_i & rst_nFIP_and_FD_p_i are inputs
 --!                         treated in the wf_cons_outcome; 2 state machines created; clean-up
---!                         PoR also for internal WISHBONE resets 
+--!                         PoR also for internal WISHBONE resets
 --
 ---------------------------------------------------------------------------------------------------
 --
 --! @todo -> synchronize falling edge (@ deactivation) of asynchronous RSTPON to uclk and wb_clk
---!          here for the moment we just use rstpon_i for both worlds
+--!          here for the moment we just use rstpon_a_i for both worlds
 --
 ---------------------------------------------------------------------------------------------------
 
@@ -165,20 +161,15 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 entity WF_reset_unit is
   port (
   -- INPUTS
-    -- nanoFIP User Interface General signals 
-    uclk_i              : in std_logic;     --! 40 MHz clock
-    rstin_a_i           : in std_logic;     --! initialisation control, active low (synch/ed with uclk)
-    rstpon_i            : in std_logic;     --! Power On Reset, active low
-    rate_i              : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate (synch/ed with uclk)
-
-
-    wb_clk_i            : in std_logic;
+    -- nanoFIP User Interface General signals
+    uclk_i                                : in std_logic;     --! 40 MHz clock
+    rstin_a_i           : in std_logic;     --! initialization control, active low
+    rstpon_a_i          : in std_logic;     --! Power On Reset, active low
+    rate_i              : in  std_logic_vector (1 downto 0); --! WorldFIP bit rate
 
     -- nanoFIP User Interface WISHBONE Slave
     rst_i               : in std_logic;     --! WISHBONE reset
-
-    -- Signal from the WF_engine_control unit
-    var_i               : in t_var;         --! variable type that is being treated
+    wb_clk_i            : in std_logic;     --! WISHBONE clock
 
     -- Signal from the WF_consumption unit
     rst_nFIP_and_FD_p_i : in std_logic;     --! indicates that a var_rst with its 1st byte
@@ -198,7 +189,7 @@ entity WF_reset_unit is
     -- Signal to the WF_wb_controller
     wb_rst_o            : out std_logic;    --! reset of the WISHBONE logic
 
-    -- nanoFIP User Interface General signal output 
+    -- nanoFIP User Interface General signal output
     rston_o             : out std_logic;    --! reset output, active low
 
     -- nanoFIP FIELDRIVE output
@@ -212,29 +203,27 @@ end entity WF_reset_unit;
 --=================================================================================================
 architecture rtl of WF_reset_unit is
 
-  signal s_counter_is_four, s_reinit_counter, s_rston, s_FD_rst_from_var_rst           : std_logic;
+  type rstin_st_t   is (idle, rstin_eval, nfip_on_fd_on, nfip_off_fd_on);
+  type var_rst_st_t is (var_rst_idle, var_rst_rston_on, var_rst_nfip_on_fd_on_rston_on,
+                        var_rst_nfip_off_fd_on_rston_on, var_rst_nfip_on_fd_on,
+                        var_rst_nfip_off_fd_on_rston_off);
+
+  signal var_rst_st, nx_var_rst_st                                                  : var_rst_st_t;
+  signal rstin_st, nx_rstin_st                                                        : rstin_st_t;
+  signal s_counter_is_four, s_reinit_counter, s_rston, s_var_rst_fd_rst           : std_logic;
   signal s_u_por_ff1, s_u_por, s_wb_por_ff1, s_wb_por                                  : std_logic;
-  signal s_intern_rst_from_RSTIN, s_intern_rst_from_var_rst, s_fd_rst_from_RSTIN       : std_logic;
-  signal s_counter_is_ten, s_counter_is_full, s_counter_full                           : std_logic;
+  signal s_rstin_nfip_rst, s_var_rst_nfip_rst, s_rstin_fd_rst       : std_logic;
+  signal s_counter_is_ten, s_counter_is_full                                           : std_logic;
   signal s_var_rst_counter_is_eight, s_var_rst_counter_is_two                          : std_logic;
-  signal s_var_rst_reinit_counter, s_var_rst_counter_is_full, s_var_rst_counter_full   : std_logic;
-  signal s_transm_period                        : unsigned (c_PERIODS_COUNTER_LGTH - 1 downto 0);
-  signal s_c, s_var_rst_c, s_txck_four_periods  : unsigned (c_2_PERIODS_COUNTER_LGTH-1 downto 0);
+  signal s_var_rst_reinit_counter, s_var_rst_counter_is_full                           : std_logic;
+  signal s_transm_period                          : unsigned (c_PERIODS_COUNTER_LGTH - 1 downto 0);
+  signal s_rstin_c, s_var_rst_c, s_txck_four_periods    : unsigned (c_2_PERIODS_COUNTER_LGTH-1 downto 0);
+  signal s_rsti_synch                                              : std_logic_vector (2 downto 0);
 
-  type rstin_st_t        is (idle, rstin_eval, intern_rst_ON_FD_rst_ON,intern_rst_OFF_FD_rst_ON);
-  type after_a_var_rst_t is (after_a_var_rst_idle, after_a_var_rst_rston_ON,
-                             after_a_var_rst_nFIP_ON_fd_ON_rston_ON,
-                             after_a_var_rst_nFIP_OFF_fd_ON_rston_ON,
-                             after_a_var_rst_nFIP_ON_fd_ON,
-                             after_a_var_rst_nFIP_OFF_fd_ON_rston_OFF);
-
-  signal after_a_var_rst_st, nx_after_a_var_rst_st : after_a_var_rst_t;
-  signal rstin_st, nx_rstin_st                     : rstin_st_t;
-  signal s_rsti_synch : std_logic_vector (2 downto 0);
 
 --=================================================================================================
 --                                        architecture begin
---================================================================================================= 
+--=================================================================================================
 begin
 
   s_transm_period     <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));-- # uclk ticks of a
@@ -244,23 +233,19 @@ begin
                                                                                    -- of 2 transm.
                                                                                    -- periods = 4
                                                                                    -- FD_TXCK periods
-  s_counter_full         <= '1' when s_c         = s_txck_four_periods else '0';                   
-  s_var_rst_counter_full <= '1' when s_var_rst_c = s_txck_four_periods else '0';
-
-
 
 
 ---------------------------------------------------------------------------------------------------
 --                                  Power On Reset Synchronizers                                 --
 ---------------------------------------------------------------------------------------------------
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief Synchronization of the de-assertion of the Power On reset, with the wb_clk.
---! The second flip-flop is used to remove metastabilities. 
+--! The second flip-flop is used to remove metastabilities.
 
-  PoR_wb_clk_Synchronizer: process (wb_clk_i, rstpon_i)
+  PoR_wb_clk_Synchronizer: process (wb_clk_i, rstpon_a_i)
     begin
-      if rstpon_i = '0' then
+      if rstpon_a_i = '0' then
         s_wb_por_ff1 <= '1';
         s_wb_por     <= '1';
       elsif rising_edge (wb_clk_i) then
@@ -270,13 +255,13 @@ begin
     end process;
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief Synchronization of the de-assertion of the Power On reset, with the uclk.
---! The second flip-flop is used to remove metastabilities. 
+--! The second flip-flop is used to remove metastabilities.
 
-  PoR_uclk_Synchronizer: process (uclk_i, rstpon_i)
+  PoR_uclk_Synchronizer: process (uclk_i, rstpon_a_i)
     begin
-      if rstpon_i = '0' then
+      if rstpon_a_i = '0' then
         s_u_por_ff1 <= '1';
         s_u_por     <= '1';
       elsif rising_edge (uclk_i) then
@@ -308,138 +293,137 @@ begin
 --! combinatorial process to manage the output signals), which are the three processes that follow.
 --! The FSM is following the "User Interface, General signal" RSTIN (after synchronization) and
 --! checks whether it stays active for more than 4 uclk cycles; if so, it enables the nanoFIP
---! internal reset (s_intern_rst_from_RSTIN) and the FIELDRIVE reset (s_FD_rst_from_RSTIN). The
+--! internal reset (s_rstin_nfip_rst) and the FIELDRIVE reset (s_rstin_fd_rst). The
 --! nanoFIP internal reset stays active for 2 uclk cycles and the  FIELDRIVE for 4 FD_TXCK cycles.
 --! The same counter is used for the evaluation of the RSTIN (if it is > 4 uclk) and for the
 --! generation of the two reset signals.
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief synchronous process RSTIN_FSM_Sync: Storage of the current state of the FSM.
 --! The state machine can be reset by the Power On Reset and the variable reset.
   RSTIN_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
         if s_u_por = '1' or rst_nFIP_and_FD_p_i = '1' then
-          rstin_st <= idle; 
+          rstin_st <= idle;
         else
           rstin_st <= nx_rstin_st;
         end if;
       end if;
     end process;
- 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief Combinatorial process RSTIN_FSM_Comb_State_Transitions: definition of the state
 --! transitions of the FSM.
-  
+
   RSTIN_FSM_Comb_State_Transitions: process (rstin_st, s_rsti_synch(2), s_counter_is_four,
                                              s_counter_is_ten, s_counter_is_full)
-  
+
   begin
-  
-  case rstin_st is 
 
-    when idle =>                                                        
-                        if s_rsti_synch(2) = '1' then              -- RSTIN active
-                          nx_rstin_st   <= rstin_eval;  
+  case rstin_st is
 
-                        else 
+    when idle =>
+                        if s_rsti_synch(2) = '1' then     -- RSTIN active
+                          nx_rstin_st   <= rstin_eval;
+
+                        else
                           nx_rstin_st   <= idle;
                         end if;
- 
-  
-    when rstin_eval => 
-                        if s_rsti_synch(2) = '0' then              -- RSTIN deactivated
+
+
+    when rstin_eval =>
+                        if s_rsti_synch(2) = '0' then     -- RSTIN deactivated
                           nx_rstin_st   <= idle;
 
                         else
-                          if s_counter_is_four = '1' then          -- counting the uclk cycles that 
-                            nx_rstin_st <= intern_rst_ON_fd_rst_ON;-- RSTIN is active 
+                          if s_counter_is_four = '1' then -- counting the uclk cycles that
+                            nx_rstin_st <= nfip_on_fd_on; -- RSTIN is active
 
-                          else 
+                          else
                             nx_rstin_st <= rstin_eval;
-                          end if;	
-                        end if;  
-
-
-    when intern_rst_ON_fd_rst_ON =>                   
-
-                        if s_counter_is_ten = '1' then             -- nanoFIP internal reset and             
-                          nx_rstin_st <= intern_rst_OFF_fd_rst_ON; -- FIELDRIVE reset active for
-                                                                   -- 2 uclk cycles
-
-                        else
-                          nx_rstin_st <= intern_rst_ON_fd_rst_ON;
+                          end if;
                         end if;
 
 
-    when intern_rst_OFF_fd_rst_ON =>                              
+    when nfip_on_fd_on =>
+
+                        if s_counter_is_ten = '1' then    -- nanoFIP internal reset and
+                          nx_rstin_st <= nfip_off_fd_on;  -- FIELDRIVE reset active for
+                                                          -- 2 uclk cycles
+
+                        else
+                          nx_rstin_st <= nfip_on_fd_on;
+                        end if;
+
+
+    when nfip_off_fd_on =>
                                                           -- nanoFIP internal reset deactivated
                         if s_counter_is_full = '1' then   -- FIELDRIVE reset continues being active
                            nx_rstin_st <= idle;           -- unitl 4 FD_TXCK cycles have passed
 
                         else
-                           nx_rstin_st <= intern_rst_OFF_FD_rst_ON;
+                           nx_rstin_st <= nfip_off_fd_on;
                         end if;
 
-                      
-    when others => 
+
+    when others =>
                         nx_rstin_st <= idle;
-  end case;	
+  end case;
   end process;
-  
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief combinatorial process RSTIN_FSM_Comb_Output_Signals: definition of the output signals of
---! the FSM. The process is handling the signals for the nanoFIP internal reset
---! (s_intern_rst_from_RSTIN) and the FIELDRIVE reset (s_FD_rst_from_RSTIN), as well as the inputs
---! of the RSTIN_free_counter.
+--! the FSM. The process is handling the signals for the nanoFIP internal reset (s_rstin_nfip_rst)
+--! and the FIELDRIVE reset (s_rstin_fd_rst), as well as the inputs of the RSTIN_free_counter.
 
   RSTIN_FSM_Comb_Output_Signals: process (rstin_st)
 
   begin
-  
-    case rstin_st is 
-  
-    when idle =>           
-                  s_reinit_counter        <= '1';    -- counter initialized 
 
-                  s_intern_rst_from_RSTIN <= '0'; 
-                  s_FD_rst_from_RSTIN     <= '0';  
- 
-                                
-    when rstin_eval => 
-                  s_reinit_counter        <= '0';    -- counting until 4 
-                                                     -- if RSTIN is active
-                  s_intern_rst_from_RSTIN <= '0';  
-                  s_FD_rst_from_RSTIN     <= '0';
+    case rstin_st is
+
+    when idle =>
+                  s_reinit_counter <= '1';    -- counter initialized
+
+                  s_rstin_nfip_rst <= '0';
+                  s_rstin_fd_rst   <= '0';
 
 
-    when intern_rst_ON_fd_rst_ON =>
-                  s_reinit_counter        <= '0';    -- free counter counting 2 uclk cycles
-
-                 ------------------------------------- 
-                  s_FD_rst_from_RSTIN     <= '1';    -- FIELDRIVE     active 
-                  s_intern_rst_from_RSTIN <= '1';    -- nFIP internal active  
-                 ------------------------------------- 
+    when rstin_eval =>
+                  s_reinit_counter <= '0';    -- counting until 4
+                                              -- if RSTIN is active
+                  s_rstin_nfip_rst <= '0';
+                  s_rstin_fd_rst   <= '0';
 
 
-    when intern_rst_OFF_fd_rst_ON =>
-                  s_reinit_counter        <= '0';    -- free counter counting 4 FD_TXCK cycles
+    when nfip_on_fd_on =>
+                  s_reinit_counter <= '0';    -- free counter counting 2 uclk cycles
 
-                  s_intern_rst_from_RSTIN <= '0';
-                 ------------------------------------- 
-                  s_FD_rst_from_RSTIN     <= '1';    -- FIELDRIVE     active 
-                 ------------------------------------- 
+                 -------------------------------------
+                  s_rstin_fd_rst   <= '1';    -- FIELDRIVE     active
+                  s_rstin_nfip_rst <= '1';    -- nFIP internal active
+                 -------------------------------------
+
+
+    when nfip_off_fd_on =>
+                  s_reinit_counter <= '0';    -- free counter counting 4 FD_TXCK cycles
+
+                  s_rstin_nfip_rst <= '0';
+                 -------------------------------------
+                  s_rstin_fd_rst   <= '1';    -- FIELDRIVE     active
+                 -------------------------------------
 
 
     when others =>
-                  s_reinit_counter        <= '1';    -- no counting
+                  s_reinit_counter <= '1';    -- no counting
 
-                  s_FD_rst_from_RSTIN     <= '0'; 
-                  s_intern_rst_from_RSTIN <= '0';
- 
+                  s_rstin_fd_rst   <= '0';
+                  s_rstin_nfip_rst <= '0';
 
-    end case;	
+
+    end case;
   end process;
 
 
@@ -449,19 +433,19 @@ begin
 RSTIN_free_counter: WF_incr_counter
   generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
   port map (
-    uclk_i            => uclk_i,        
+    uclk_i            => uclk_i,
     reinit_counter_i  => s_reinit_counter,
     incr_counter_i    => '1',
     counter_is_full_o => open,
    ----------------------------------------
-    counter_o         => s_c);
+    counter_o         => s_rstin_c);
    ----------------------------------------
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  s_counter_is_four  <= '1' when s_c = to_unsigned(4, s_c'length)  else '0'; 
-  s_counter_is_ten   <= '1' when s_c = to_unsigned(10, s_c'length) else '0'; 
-  s_counter_is_full  <= s_counter_full;
-  
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  s_counter_is_four  <= '1' when s_rstin_c = to_unsigned(4, s_rstin_c'length)  else '0';
+  s_counter_is_ten   <= '1' when s_rstin_c = to_unsigned(10, s_rstin_c'length) else '0';
+  s_counter_is_full  <= '1' when s_rstin_c = s_txck_four_periods         else '0';
+
 
 
 ---------------------------------------------------------------------------------------------------
@@ -473,191 +457,190 @@ RSTIN_free_counter: WF_incr_counter
 --! If after the reception of a var_rst the signal assert_RSTON_p_i is asserted, the FSM
 --! asserts the "nanoFIP user Interface General signal" RSTON for 8 uclk cycles.
 --! If after the reception of a var_rst the signal rst_nFIP_and_FD_p_i is asserted, the FSM
---! asserts the nanoFIP internal reset (s_intern_rst_from_var_rst) for 2 uclk cycles and the
---! "nanoFIP FIELDRIVE" output (s_FD_rst_from_var_rst) for 4 FD_TXCK cycles.
+--! asserts the nanoFIP internal reset (s_var_rst_nfip_rst) for 2 uclk cycles and the
+--! "nanoFIP FIELDRIVE" output (s_var_rst_fd_rst) for 4 FD_TXCK cycles.
 --! If after the reception of a var_rst both assert_RSTON_p_i and rst_nFIP_and_FD_p_i
---! are asserted, the FSM asserts the s_intern_rst_from_var_rst for 2 uclk cycles, the RSTON for 8
---! uclk cycles and the s_FD_rst_from_var_rst for 4 FD_TXCK cycles.
+--! are asserted, the FSM asserts the s_var_rst_nfip_rst for 2 uclk cycles, the RSTON for 8
+--! uclk cycles and the s_var_rst_fd_rst for 4 FD_TXCK cycles.
 --! The same counter is used for all the countings!
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief Synchronous process Resets_after_a_var_rst_synch: Storage of the current state of the FSM
 --! The state machine can be reset by the Power On Reset and the nanoFIP internal reset from RSTIN.
    Resets_after_a_var_rst_synch: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if s_u_por = '1' or s_intern_rst_from_RSTIN = '1' then
-          after_a_var_rst_st <= after_a_var_rst_idle; 
+        if s_u_por = '1' or s_rstin_nfip_rst = '1' then
+          var_rst_st <= var_rst_idle;
         else
-          after_a_var_rst_st <= nx_after_a_var_rst_st;
+          var_rst_st <= nx_var_rst_st;
         end if;
       end if;
   end process;
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
---!@brief Combinatorial process Resets_after_a_var_rst_Comb_State_Transitions: definition of the 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+--!@brief Combinatorial process Resets_after_a_var_rst_Comb_State_Transitions: definition of the
 --! state transitions of the FSM.
-  
-  Resets_after_a_var_rst_Comb_State_Transitions: process (after_a_var_rst_st,var_i,rst_nFIP_and_FD_p_i,
+
+  Resets_after_a_var_rst_Comb_State_Transitions: process (var_rst_st, rst_nFIP_and_FD_p_i,
                                                           assert_RSTON_p_i, s_var_rst_counter_is_two,
                                                           s_var_rst_counter_is_eight,
                                                           s_var_rst_counter_is_full)
-  
+
   begin
-  
-  case after_a_var_rst_st is 
 
-    when after_a_var_rst_idle =>      
-                                                             
-                        if (var_i = var_rst) and (assert_RSTON_p_i = '1')     
-                                             and (rst_nFIP_and_FD_p_i = '1') then
-                          nx_after_a_var_rst_st   <= after_a_var_rst_nFIP_ON_fd_ON_rston_ON; 
+  case var_rst_st is
 
-                        elsif (var_i = var_rst) and (assert_RSTON_p_i = '1') then
-                          nx_after_a_var_rst_st   <= after_a_var_rst_rston_ON;   
+    when var_rst_idle =>
 
-                        elsif (var_i = var_rst) and (rst_nFIP_and_FD_p_i = '1') then
-                          nx_after_a_var_rst_st   <= after_a_var_rst_nFIP_ON_fd_ON;                            
-                                                          
-                        else 
-                          nx_after_a_var_rst_st   <= after_a_var_rst_idle;
-                        end if;
+                        if assert_RSTON_p_i = '1' and rst_nFIP_and_FD_p_i = '1' then
+                          nx_var_rst_st   <= var_rst_nfip_on_fd_on_rston_on;
 
-   
-    when after_a_var_rst_rston_ON =>                              -- for 8 uclk cycles
+                        elsif assert_RSTON_p_i = '1' then
+                          nx_var_rst_st   <= var_rst_rston_on;
 
-                        if s_var_rst_counter_is_eight = '1' then 
-                          nx_after_a_var_rst_st   <= after_a_var_rst_idle;
+                        elsif rst_nFIP_and_FD_p_i = '1' then
+                          nx_var_rst_st   <= var_rst_nfip_on_fd_on;
 
                         else
-                          nx_after_a_var_rst_st <= after_a_var_rst_rston_ON;
-                        end if;  
-
-
-    when after_a_var_rst_nFIP_ON_fd_ON_rston_ON =>                -- for 2 uclk cycles
-                             
-                        if s_var_rst_counter_is_two = '1' then          
-                          nx_after_a_var_rst_st <= after_a_var_rst_nFIP_OFF_fd_ON_rston_ON;
-                                                                   
-                        else
-                          nx_after_a_var_rst_st <= after_a_var_rst_nFIP_ON_fd_ON_rston_ON;
+                          nx_var_rst_st   <= var_rst_idle;
                         end if;
 
 
-    when after_a_var_rst_nFIP_OFF_fd_ON_rston_ON =>              -- for 6 uclk cycles  
-   
-                        if s_var_rst_counter_is_eight = '1' then          
-                          nx_after_a_var_rst_st <= after_a_var_rst_nFIP_OFF_fd_ON_rston_OFF;
-                                                                   
+    when var_rst_rston_on =>                              -- for 8 uclk cycles
+
+                        if s_var_rst_counter_is_eight = '1' then
+                          nx_var_rst_st   <= var_rst_idle;
+
                         else
-                          nx_after_a_var_rst_st <= after_a_var_rst_nFIP_OFF_fd_ON_rston_ON;
+                          nx_var_rst_st <= var_rst_rston_on;
                         end if;
 
 
-    when after_a_var_rst_nFIP_ON_fd_ON =>                        -- for 2 uclk cycles   
-              
-                        if s_var_rst_counter_is_two = '1' then          
-                          nx_after_a_var_rst_st <= after_a_var_rst_nFIP_OFF_fd_ON_rston_OFF;
-                                                                   
+    when var_rst_nfip_on_fd_on_rston_on =>                -- for 2 uclk cycles
+
+                        if s_var_rst_counter_is_two = '1' then
+                          nx_var_rst_st <= var_rst_nfip_off_fd_on_rston_on;
+
                         else
-                          nx_after_a_var_rst_st <= after_a_var_rst_nFIP_ON_fd_ON;
+                          nx_var_rst_st <= var_rst_nfip_on_fd_on_rston_on;
                         end if;
 
 
-    when after_a_var_rst_nFIP_OFF_fd_ON_rston_OFF =>             -- until the filling-up of the counter 
-                 
-                        if s_var_rst_counter_is_full = '1' then  
-                           nx_after_a_var_rst_st <= after_a_var_rst_idle;
+    when var_rst_nfip_off_fd_on_rston_on =>              -- for 6 uclk cycles
+
+                        if s_var_rst_counter_is_eight = '1' then
+                          nx_var_rst_st <= var_rst_nfip_off_fd_on_rston_off;
 
                         else
-                           nx_after_a_var_rst_st <= after_a_var_rst_nFIP_OFF_fd_ON_rston_OFF;
+                          nx_var_rst_st <= var_rst_nfip_off_fd_on_rston_on;
                         end if;
 
-	
-    when others => 
-                        nx_after_a_var_rst_st <= after_a_var_rst_idle;
-  end case;	
+
+    when var_rst_nfip_on_fd_on =>                        -- for 2 uclk cycles
+
+                        if s_var_rst_counter_is_two = '1' then
+                          nx_var_rst_st <= var_rst_nfip_off_fd_on_rston_off;
+
+                        else
+                          nx_var_rst_st <= var_rst_nfip_on_fd_on;
+                        end if;
+
+
+    when var_rst_nfip_off_fd_on_rston_off =>             -- until the filling-up of the counter
+
+                        if s_var_rst_counter_is_full = '1' then
+                           nx_var_rst_st <= var_rst_idle;
+
+                        else
+                           nx_var_rst_st <= var_rst_nfip_off_fd_on_rston_off;
+                        end if;
+
+
+    when others =>
+                        nx_var_rst_st <= var_rst_idle;
+  end case;
   end process;
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief combinatorial process RSTIN_FSM_Comb_Output_Signals: definition of the output signals of
 --! the FSM. The process is managing the signals for the nanoFIP internal reset and the FIELDRIVE
 --! reset, as well as the arguments of the counter.
 
-  rst_var_FSM_Comb_Output_Signals: process (after_a_var_rst_st)
+  rst_var_FSM_Comb_Output_Signals: process (var_rst_st)
 
   begin
-  
-    case after_a_var_rst_st is 
-  
-    when after_a_var_rst_idle =>  
-                                     s_var_rst_reinit_counter  <= '1';    -- counter initialized
 
-                                     s_rston                   <= '0';
-                                     s_intern_rst_from_var_rst <= '0'; 
-                                     s_FD_rst_from_var_rst     <= '0';  
+    case var_rst_st is
 
-                                 
-    when after_a_var_rst_rston_ON => 
-                                     s_var_rst_reinit_counter  <= '0';    -- counting 8 uclk cycles
+    when var_rst_idle =>
+                                     s_var_rst_reinit_counter <= '1';    -- counter initialized
 
-                                    -------------------------------------
-                                     s_rston                   <= '1';    -- RSTON         active
-                                    -------------------------------------
-                                     s_intern_rst_from_var_rst <= '0';  
-                                     s_FD_rst_from_var_rst     <= '0';
+                                     s_rston                  <= '0';
+                                     s_var_rst_nfip_rst       <= '0';
+                                     s_var_rst_fd_rst         <= '0';
 
 
-    when after_a_var_rst_nFIP_ON_fd_ON_rston_ON =>
-                                     s_var_rst_reinit_counter  <= '0';    -- counting 2 uclk cycles
+    when var_rst_rston_on =>
+                                     s_var_rst_reinit_counter <= '0';    -- counting 8 uclk cycles
 
                                     -------------------------------------
-                                     s_rston                   <= '1';    -- RSTON         active
-                                     s_intern_rst_from_var_rst <= '1';    -- nFIP internal active
-                                     s_FD_rst_from_var_rst     <= '1';    -- FIELDRIVE     active
+                                     s_rston                  <= '1';    -- RSTON         active
                                     -------------------------------------
+                                     s_var_rst_nfip_rst       <= '0';
+                                     s_var_rst_fd_rst         <= '0';
 
 
-    when after_a_var_rst_nFIP_OFF_fd_ON_rston_ON =>
-                                     s_var_rst_reinit_counter  <= '0';    -- counting 6 uclk cycles
+    when var_rst_nfip_on_fd_on_rston_on =>
+                                     s_var_rst_reinit_counter <= '0';    -- counting 2 uclk cycles
 
-                                     s_intern_rst_from_var_rst <= '0'; 
                                     -------------------------------------
-                                     s_rston                   <= '1';    -- RSTON         active
-                                     s_FD_rst_from_var_rst     <= '1';    -- FIELDRIVE     active
+                                     s_rston                  <= '1';    -- RSTON         active
+                                     s_var_rst_nfip_rst       <= '1';    -- nFIP internal active
+                                     s_var_rst_fd_rst         <= '1';    -- FIELDRIVE     active
                                     -------------------------------------
 
 
-    when after_a_var_rst_nFIP_ON_fd_ON =>
-                                     s_var_rst_reinit_counter  <= '0';    -- counting 2 uclk cycles 
+    when var_rst_nfip_off_fd_on_rston_on =>
+                                     s_var_rst_reinit_counter <= '0';    -- counting 6 uclk cycles
 
-                                     s_rston                   <= '0';
-                                    ------------------------------------- 
-                                     s_intern_rst_from_var_rst <= '1';    -- nFIP internal active
-                                     s_FD_rst_from_var_rst     <= '1';    -- FIELDRIVE     active
-                                    ------------------------------------- 
+                                     s_var_rst_nfip_rst       <= '0';
+                                    -------------------------------------
+                                     s_rston                  <= '1';    -- RSTON         active
+                                     s_var_rst_fd_rst         <= '1';    -- FIELDRIVE     active
+                                    -------------------------------------
 
 
-    when after_a_var_rst_nFIP_OFF_fd_ON_rston_OFF =>
-                                     s_var_rst_reinit_counter  <= '0';    -- counting 4 FD_TXCK cycles
- 
-                                     s_rston                   <= '0';   
-                                     s_intern_rst_from_var_rst <= '0';
-                                    -------------------------------------  
-                                    s_FD_rst_from_var_rst      <= '1';    -- FIELDRIVE     active
-                                    -------------------------------------    
+    when var_rst_nfip_on_fd_on =>
+                                     s_var_rst_reinit_counter <= '0';    -- counting 2 uclk cycles
+
+                                     s_rston                  <= '0';
+                                    -------------------------------------
+                                     s_var_rst_nfip_rst       <= '1';    -- nFIP internal active
+                                     s_var_rst_fd_rst         <= '1';    -- FIELDRIVE     active
+                                    -------------------------------------
+
+
+    when var_rst_nfip_off_fd_on_rston_off =>
+                                     s_var_rst_reinit_counter <= '0';    -- counting 4 FD_TXCK cycles
+
+                                     s_rston                  <= '0';
+                                     s_var_rst_nfip_rst       <= '0';
+                                    -------------------------------------
+                                    s_var_rst_fd_rst          <= '1';    -- FIELDRIVE     active
+                                    -------------------------------------
 
 
     when others =>
-                                     s_var_rst_reinit_counter  <= '1';    -- no counting
+                                     s_var_rst_reinit_counter <= '1';    -- no counting
 
-                                     s_rston                   <= '0';   
-                                     s_intern_rst_from_var_rst <= '0'; 
-                                     s_FD_rst_from_var_rst     <= '0';   
- 
+                                     s_rston                  <= '0';
+                                     s_var_rst_nfip_rst       <= '0';
+                                     s_var_rst_fd_rst         <= '0';
 
-    end case;	
+
+    end case;
   end process;
 
 
@@ -670,7 +653,7 @@ RSTIN_free_counter: WF_incr_counter
 free_counter: WF_incr_counter
   generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
   port map (
-    uclk_i            => uclk_i,        
+    uclk_i            => uclk_i,
     reinit_counter_i  => s_var_rst_reinit_counter,
     incr_counter_i    => '1',
     counter_is_full_o => open,
@@ -678,10 +661,10 @@ free_counter: WF_incr_counter
     counter_o         => s_var_rst_c);
    ----------------------------------------
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
-  s_var_rst_counter_is_eight <= '1' when s_var_rst_c= to_unsigned(8, s_var_rst_c'length)  else '0'; 
-  s_var_rst_counter_is_two   <= '1' when s_var_rst_c= to_unsigned(10, s_var_rst_c'length) else '0'; 
-  s_var_rst_counter_is_full  <= s_var_rst_counter_full;
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  s_var_rst_counter_is_eight <= '1' when s_var_rst_c= to_unsigned(8, s_var_rst_c'length)  else '0';
+  s_var_rst_counter_is_two   <= '1' when s_var_rst_c= to_unsigned(10, s_var_rst_c'length) else '0';
+  s_var_rst_counter_is_full  <= '1' when s_var_rst_c= s_txck_four_periods                 else '0';
 
 
 
@@ -690,15 +673,15 @@ free_counter: WF_incr_counter
 ---------------------------------------------------------------------------------------------------
 
   wb_rst_o      <= rst_i or s_wb_por;
-  nFIP_rst_o    <= s_intern_rst_from_RSTIN or s_intern_rst_from_var_rst or s_u_por;
+  nFIP_rst_o    <= s_rstin_nfip_rst or s_var_rst_nfip_rst or s_u_por;
 
   -- Flip-flop with asynchronous reset to be sure that whenever nanoFIP is reset the user is not
-  RSTON_Buffering: process (uclk_i, s_u_por, s_intern_rst_from_RSTIN, s_intern_rst_from_var_rst)
+  RSTON_Buffering: process (uclk_i, s_u_por, s_rstin_nfip_rst, s_var_rst_nfip_rst)
   begin
-    if s_intern_rst_from_RSTIN = '1' or s_intern_rst_from_var_rst = '1' or s_u_por = '1' then
-      rston_o   <=  '1'; 
+    if s_rstin_nfip_rst = '1' or s_var_rst_nfip_rst = '1' or s_u_por = '1' then
+      rston_o   <=  '1';
     elsif rising_edge (uclk_i) then
-      rston_o   <= not s_rston; 
+      rston_o   <= not s_rston;
     end if;
   end process;
 
@@ -706,7 +689,7 @@ free_counter: WF_incr_counter
   FD_RST_Buffering: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      fd_rstn_o <= not (s_FD_rst_from_RSTIN or s_FD_rst_from_var_rst or s_u_por); 
+      fd_rstn_o <= not (s_rstin_fd_rst or s_var_rst_fd_rst or s_u_por);
     end if;
   end process;
 
