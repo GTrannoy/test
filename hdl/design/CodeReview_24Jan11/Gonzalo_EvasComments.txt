@@ -1,0 +1,99 @@
+General comments:
+----------------
+I don't agree with Matthieu's and Tom's comments about entities ports. 
+I don't know if you have a guideline on this, but in my case I prefer having 
+inputs all together and outputs all together, then maybe organized by interface 
+but only within the inputs or the within the outputs.
+
+wf_cons_frame_validator.vhd
+---------------------------
+Line 173: why does s_cons_lgth_byte_ok depend on rx_fss_crc_fes_manch_ok_p_i?
+In any case the output cons_frame_ok_p_o will only be valid when 
+rx_fss_crc_fec_manch_ok_p_i is valid.
+In my opinion s_cons_lgth_byte_ok should not be forced to 0 because there 
+is (for example) an error on the crc. When debugging a simulation it is easy
+assume that if s_cons_lgth_byte_ok is 0, it's only because the length was wrong.
+In fact as the file is written now, the AND between rx_fss_crc_fes_manch_ok_p_i
+and s_cons_lgth_byte_ok on lines 205 and 206 is redundant with the 
+"if then else"  of the lines 173, 185 and 187.
+
+---> bug  corrected! input rx_crc_or_manch_wrong_p_i added and the Length byte
+     is checked if either rx_fss_crc_fec_manch_ok_p_i OR rx_crc_or_manch_wrong_p_i
+     (the output of this OR signals the end of a frame) is activated
+
+
+wf_cons_bytes_processor.vhd
+---------------------------
+Line 191: the comment could be re-phrased to 
+PORT A: connected to Wishbone interface for reading by the user.
+PORT B: used by nanoFIP memory to write into memory.
+
+---> OK! 
+
+
+Line 267: s_base_addr is an input and an output of the combinatorial process.
+Synplify should give a "combinatorial loop" warning about this.
+This line could be written as a separate process.
+
+---> s_base_addr is out of the process, as a concurrent statement
+
+
+Lines 290 to 294: the comment is not very clear. Is this to avoid writing
+the CRC in the memory?
+
+---> Yes! Extra comment added.
+
+
+In general for this module, the only reason to have the RAM block memory - and
+therefore the Wishbone interface signals wb_clk_i, wb_adr_i and data_o - 
+instantiated in this entity is to be able to integrate the multiplexor of lines
+226 and 227.
+In my opinion it would much clearer for the general structure, and for the
+functionality of this particular block, to take out the memory and instantiate
+it in an independent block along with the multiplexor for data_o.
+
+---> I think i will not follow that:-s
+
+
+wf_engine_control.vhd
+---------------------
+Line 377-380: What happens if 2 consecutive ID_DAT arrive within the silence time. 
+The second one will not be processed correctly since it will be treated as an 
+RP_DAT and therefore discarded because of wrong CTRL byte. But if the second was 
+a correct ID_DAT, nanoFIP should interpret it correctly.
+
+---> ..........................................................................
+
+
+Line 775: 
+One signal is assigned in statements that are not mutually exclusive.
+Is this process going to be synthesized the same way by all the tools?
+Inside the FOR loop there is an IF-THEN without an ELSE.
+Does it generate a latch?
+Is the construction with FOR and EXIT statement necessary?
+Line 817: The same as above
+
+---> Processes for the var identification rewritten!
+
+
+wf_rx_tx_osc.vhd
+----------------
+
+
+wf_rx_deserializer.vhd
+----------------------
+I am not sure if in case a frame is received with one bit missing inside the 
+data, but with a CRC that is correct with respect to the bits actually
+received, the frame would effectively be discarded as it should.
+(As responsible for the testbench, I take note that I should check that :-)
+
+---> bug corrected! The FES_detected_p pulse is combined with the byte_ready_p pulse, 
+     that arrives only after the reception of 8 bits.
+
+
+nanofip.vhd
+-----------
+Line 480: Coherency in signal names (the _p, or the _rx_)
+Line 474: the same....
+
+---> OK!
