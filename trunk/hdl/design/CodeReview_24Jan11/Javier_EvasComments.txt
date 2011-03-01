@@ -1,0 +1,175 @@
+Comments on NanoFIP VHDL code from Javier Serrano
+
+General comments
+----------------
+
+The code is very clear and the abundance of comments makes it easy to
+follow. Some signal names are way too long though. It would be more
+useful in general to give some good comments about the meaning of
+signals next to their declaration, instead of trying to embed too much
+info in the signal name.
+
+The guidelines specify that active low signals should be suffixed with
+_n. Sometimes we see signals or ports were the underscore has been ommitted,
+like rstpon_i, which make it difficult to figure out if the n if part
+of the name ("power oN reset") or if it is there to mark the signal as
+active low (which in this particular case it is).
+---> signals of nanoFIP's pinout couldn't be changed:-s
+     corrections applied to the rest!   
+
+If a file is not listed below it does not mean all is good, just that
+I did not have time to look at it ;)
+
+Question for Eva (did not have time to look): we know all inputs are
+well registered. Are all outputs registered as well?
+---> Yes!
+
+nanofip.vhd
+-----------
+
+Line 313 and 314. Synplify attributes make code less portable. Could
+they be pushed out of the code into some Synplify config file? I don't
+have strong feelings about this though.
+---> OK!
+
+wf_engine_control.vhd
+---------------------
+
+Line 198. It is preferable to have all ports be std_logic or
+std_logic_vector, see comment on line 178 of the reset unit.
+---> Pablo: "Using std_logic on entity ports is a strong rule in cores.
+     As wf_engine_control.vhd is interfaced with other custom entities
+     this rule should become only a recomendation. Passing var as a custom
+     type gives the possibility to the designer to chose the suitible encoding
+     scheme easily wich is very handy for this critical signal."
+
+Line 290. This state machine can be stuck in a given state for a
+number of reasons, most notably the physical interruption of the wfip
+traffic. Granted, things should go back to normal (i.e. Idle) once the
+link is re-established, thanks to the appearance of rx_byte_ready_p_i
+pulses with incoherent byte contents, but that's a bit weak in terms
+of protection. I would favor timeouts relying only on the system clock
+as an additional way to go back to Idle. In fact this is probably a
+comment that applies to other state machines in the design. The
+"finger-crossing" nature of the current protection is even more
+apparent in the id_dat_frame_ok state, where after a link cut you have
+to wait until a valid received frame while the counter (free running)
+is more than 2 in value. Again, not a high risk for things to go
+wrong, but we can get quite a lot of peace of mind with independent
+timeouts. After a bit of thinking, something worse could happen: the
+state machine could be stopped in the id_dat_frame_ok state and
+re-awakened after a while (when the link is back) and then go to
+consumption of some dummy data that was not even destined to this
+station. IMHO independent timeouts should be mandatory in all states
+of all state machines bound to have this type of problems, unless the
+cost in logic is prohibitive.
+---> OK! Timeouts relying only on system clock applied to all state machines.
+
+
+wf_incr_counter.vhd
+-------------------
+
+Line 72. The ports nfip_rst_i and reinit_counter_i do exactly the same
+thing. One should go. Also, the counter does not know it's inside a
+nanofip, I think a reset should be called rst_i and not nfip_rst_i. 
+---> OK! nfip_rst_i removed.
+
+Line 81. Minor point. The output port counter_o should be
+std_logic_vector.  See similar comment for line 178 of
+wf_reset_unit.vhd.
+---> I think i won't follow this one:-s; the output of the counter is usually
+     used for further calculations+making it a std_logic_vector would mean
+     applying several conversions.
+
+
+wf_inputs_synchronizer.vhd
+--------------------------
+
+Line 240. These two signals are very critical: the fd_rxd_edge_p_o
+output is made from them. And then this edge detection signal is fed
+to the wf_rx_tx_osc block, where it is used to manufacture very
+critical "clock" signals whose malfunctioning would compromise the
+deglitcher block. It is therefore important to try to have these edge
+detectors as robust as possible, and add deglitching here. With the
+current implementation if there is a glitch in the rx line, even
+narrower than one uclk period, there is a risk of generating a
+spurious edge pulse. Making something much more robust is easy and
+cheap: add four more stages to the pipeline (for a total of six usable
+signals) and do a super-robust edge detector by requiring that at
+least two signals are zero (out of the first three) and at least two
+are one (out of the last three). Viceversa of course for detecting the
+other edge. For extra-robustness, inhibit detection for a while after
+a detected edge. This will induce a delay, which might have to be
+compensated in other signals (fd_rxd_o) so the whole thing is
+coherent.
+---> OK! New deglitcher at the entrance of FD_RXD.
+
+Line 250 onwards. Cosmetics: the vector notation is shorter, so I'd
+stick to it for all cases, including the varX_access.
+---> OK!
+
+Line 326. I don't think it's a good idea to synchronize the data from
+the user in slone mode. If there is an incoherent state (i.e. some
+bits have flipped and others haven't) this state will propagate
+through the pipeline. Only control signals need to be synchronized (as
+is done for the wishbone). The user *must* ensure the data are stable
+by the time VAR3_RDY goes to zero, so the 3*16 FFs spent here can only
+get us trouble. Incidentally, I think we should change the spec so it
+does not say we sample the data on the first clock tick after VAR3_RDY
+goes down. We can also sample a couple of ticks later, the user should
+not care.
+---> OK! No synchronization buffers for DAT_I.
+
+Oops, now I see these lines are also used in wishbone mode
+for data_in. I am pretty sure the argument still applies. In fact we
+are not synchronizing the WB address, why synchronize the data_in?
+---> JFTR these lines were only used for the slone operation; in memory mode
+     only the control signals were synched (neither the address nor the data)
+
+Line 347. One could argue about the need for these. We know these
+inputs are static. While I can't really think how these FFs could get
+us in trouble, they are certainly not needed, so why risk it?
+---> OK! Removed synch of constant signals.
+
+wf_reset_unit.vhd
+-----------------
+
+Line 178. Minor point. It is better to use only std_logic and
+std_logic_vector for ports, for the reasons explained in paragraph
+4.15 in the guidelines. This is most important for the top entity, so
+not very important here. Internal conversion to t_var should be
+simple.
+
+
+Line 419. Minor detail. "reception or" -> "reception of"
+Line 421. Same thing.
+---> OK!
+
+wf_rx_deglitcher.vhd
+--------------------
+
+Line 90. Minor point. It should be "g_DEGLITCH_LGTH" instead of
+"c_DEGLITCH_LGTH".
+---> OK!
+
+Line 103. Minor: it should be "WF_rx_tx_osc" instead of "WF_tx_rx_osc".
+---> OK!
+
+
+wf_rx_deserializer.vhd (only looked at part of it)
+----------------------
+
+Line 240. I wonder if we should have an additional condition which
+takes this state machine to Idle, namely the wfip link being inactive,
+i.e. maintaining a constant level for a long (to be defined)
+time. This would ensure the state machine is always sitting in the
+Idle state before the beginning of a frame. With the current
+implementation, it might well be the case, but there are many
+scenarios to analyze and we risk forgetting something.
+--->................................................................
+
+wf_rx_tx_osc.vhd
+----------------
+
+Line 106. Minor point. Generics should start with "g_".
+---> OK!

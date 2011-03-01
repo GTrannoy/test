@@ -1,0 +1,391 @@
+Comments on NanoFIP VHDL code from Matthieu Cattin
+
+
+general comments
+--------------------------------------------------------------------------------
+* Entities inputs and outputs grouping -> group by interface.
+---> I think i won't follow this one:-s (prefer 1st grouping by direction and
+     then by interface) 
+
+
+* Several signal declaration per line.
+
+
+* According to coding guidelines generics shoud be named g_MY_GENERIC
+  and constants c_MY_CONSTANT.
+---> OK! clarified generics and package constants.
+
+
+* The coding style is not consistant.
+---> ??..Corrected some inconsistencies:-s
+
+
+* Synplify warnings in the code. Why?
+---> OK! Removed
+
+
+* In the comments, the following figure:
+        _
+     __| |__
+
+  is perhaps clearer than:
+
+     __|-|__
+
+  The line in the middle can be taken for a high impedance state.
+  ==> BAD IDEA, it takes 2 lines.
+---> Bad idea!
+
+
+* Use @details for big descriptions and @brief just for a summary.
+---> The details in the @details are the dependencies, modified by, etc
+
+
+* To clean file layout, in emacs you could use C-c C-b and M-x delete-trailing-whitespace
+---> OK! Trailing whitespaces deleted; the beautifier though changes many other things 
+     (arrows alignment, comments location etc) that i prefer in my way:-s
+
+* Remove todo list from files header.
+---> OK! (finished with the 'do's)
+
+
+
+WF_package.vhd
+--------------------------------------------------------------------------------
+Lines 220->227. Turnaround and silence constants don't corresponds to the
+      		functional spec!
+---> specs updated version
+
+
+Line 239. What is var_whatever used for?
+---> makes simulation debugging clearer
+
+
+nanofip.vhd
+--------------------------------------------------------------------------------
+Lines 313, 314. Avoid synthesizer specific attibute inside source code.
+     	        You can probably use a constraint file.
+---> OK!
+
+
+WF_inputs_synchronizer.vhd
+--------------------------------------------------------------------------------
+All file. Sometimes signals are synchronized like that:
+    	    s_slone_d3  <= s_slone_d3 (1 downto 0) & slone_a_i;
+	  And sometime like this:
+	    s_var1_access_d1 <= var1_access_a_i;
+            s_var1_access_d2 <= s_var1_access_d1;
+            s_var1_access_d3 <= s_var1_access_d2;
+	  The result is the same, but why two coding style then?
+---> OK! only vector notation used
+
+
+Line 238. The comment "to clean rxd from txd" is not clear for me.
+Lines 60->62. What do you mean by;
+     	      "in nanoFIP input fd_rxd we also see the nanoFIP output fd_txd"
+	      Is it due to cross-talk?
+	      Or is it a normal behaviour of the FieldDrive?
+---> It is the normal behaviour of the FIELDRIVE!
+     However, finally the signal FD_RXCDN is not used at all in order to make
+     nanoFIP compatible with any other tranceiver. 
+
+
+Lines 72->76. I would commit the Synplify report (and all other reports)
+     	      to the SVN and remove this comment.
+---> OK!
+
+
+
+wf_reset_unit.vhd
+--------------------------------------------------------------------------------
+Line 83. assert_RSTON should be replaced by assert_RSTON_p
+---> OK!
+
+
+Lines 269, 435. Use of s_por (asynchronous) in a synchronous process!
+---> Was not a completed processs (mentioned in the todo list)!
+     Now the falling edge of RSTPON is synched with the uclk and the wb_clk.
+
+
+Line 408. Assignment of s_counter_full is far from here.
+     	  Consider removing the signal s_counter_full.
+---> OK!
+
+
+Lines 419, 421, 424. Typo "If after the reception or a var_rst [..]".
+      	   	     Should be "If after the reception OF a var_rst [..]".
+---> OK!
+
+
+Line 460. Just in case of what?
+---> Removed! (was just in case..i had not done the check of var_i before:-s)
+
+
+Line 484. An the winner of the biggest variable name is ....
+---> Reduced!
+
+
+Line 629. Assignment of s_var_rst_counter_full is really far from here.
+     	  Consider removing the signal s_var_rst_counter_full.
+---> OK!
+
+
+
+wf_incr_counter.vhd
+--------------------------------------------------------------------------------
+Line 81. All entity port must be std_logic or std_logic_vector.
+
+Line 109. nfip_rst_i is equal to reinit_counter_i.
+---> OK! nfip_rst_i removed
+
+
+
+wf_rx_tx_osc.vhd
+--------------------------------------------------------------------------------
+Line 28. Typo "Generation the clock signals needed [..]".
+     	 Should be "Generation OF the clock signals needed [..]".
+---> OK!
+
+
+Lines 49->53. This figure is not clear to me.
+---> OK! small clearification added
+
+
+Lines 106, 114. Inconsistent generic names. _LENGTH and _LGTH
+---> OK! only LGTH used
+
+
+Line 187. Not clear "# uclock ticks for a period".
+     	  Should be "# uclock ticks for a bit period".
+	  Or "# uclock ticks for a manchester bit period".
+---> OK! Is "# uclock ticks for a bit period".
+
+
+Line 189. Divide by 2 would be a more useful comment ;)
+Line 190. Divide by 4 ...
+---> OK! (..but the names are half_period, one_forth_period:-pp)
+
+
+Line 191. Is s_jitter a good name for this signal?
+---> OK! renamed to s_margin.
+
+
+#################### IMPORTANT ####################
+Line 252. When the first falling edge arrives (or the following significant edges)
+          s_rx_counter is reset and start counting.
+	  And the significant edge window is valid as long as s_rx_counter is
+	  smaller than s_jitter.
+	  It means that just after an edge if another comes before
+	  s_rx_counter = s_jitter, the edge is valid.
+	  There is probalby something wrong here.
+#################### IMPORTANT ####################
+---> Bug corrected; if 1 edge is found in the window, no other edge is considered
+     within it (check "s_signif_edge_found=1" added)  
+
+
+
+wf_consumption.vhd
+--------------------------------------------------------------------------------
+Line 266. Not useful to put the generic map, the default value is also 10.
+---> OK!
+
+
+Line 301. sample_manch_bit_p_i can be connected directly to sample_manch_bit_p_i
+     	  without going through wf_rx_deglitcher, which is just forwarding
+	  sample_manch_bit_p_i to sample_manch_bit_p_o. -> more readable.
+Line 294. Same remark as for sample_manch_bit_p_i.
+---> OK!
+
+
+
+wf_rx_deglitcher.vhd
+--------------------------------------------------------------------------------
+Line 90. What is the unit of the deglitch length?
+     	 That whould be nice to add a comment.
+---> deglitcher changed
+
+
+Lines 112, 113. These two ports can be removed, see wf_consumption.vhd comments
+     	        Line 294 and 301.
+---> OK!
+
+
+Line 176. There is a TAB at the begining of the line.
+---> OK!
+
+
+Line 177. Nice trick!
+
+
+
+wf_rx_deserializer.vhd
+--------------------------------------------------------------------------------
+Line 374. Ouputs of the FSM are ~= to the FSM state.
+     	  FSM states could be used in other processes, this would make the code
+	  easier to read.
+---> I think i won't follow this one:-s
+
+
+#################### IMPORTANT ####################
+Line 323. The only way to get out of switch_to_deglitched is to receive a
+     	  filtered falling edge. What append if you don't?
+	  -> A reset is needed.
+	  All other states can return to IDLE, but not this one!
+#################### IMPORTANT ####################
+---> OK! state removed (deglitcher changed) and general timeout relying only on
+     the system clock added.
+
+
+Line 474. s_write_bit_to_byte is a pulse -> add _p
+---> OK!
+
+
+Line 586. Instance value same as default value.
+---> OK!
+
+
+Line 631. You say "that doesn't belong to the FES" but in the if there is
+     	  s_fes_wrong_bit = '1'. So either the comment or the test is wrong.
+---> I think it is all correct! If s_fes_wrong_bit=1, the bit does not
+     belong to the FES
+
+
+Line 692. (not s_manch_not_ok) = manchester ok, which is probalby not what you want.
+---> Bug corrected!
+
+
+
+wf_cons_bytes_processor.vhd
+--------------------------------------------------------------------------------
+Line 95. Still some stuff to do...
+
+Line 292. two can be replaced by 2 as you're dealing with unsigned.
+---> OK!
+
+
+Line 392. Here is the var_whatever!
+
+
+
+WF_DualClkRAM_clka_rd_clkb_wr.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+
+DualClkRAM.vhd
+--------------------------------------------------------------------------------
+You should mention that this entity is vendor/component specific.
+---> OK!
+
+
+
+WF_cons_bytes_to_dato.vhd
+--------------------------------------------------------------------------------
+Lines 136, 143. how could "it" stays there if the signal in the test is a pulse?
+---> There is no "else" in the "if"
+
+
+
+WF_engine_control.vhd
+--------------------------------------------------------------------------------
+Line 640. This should be the FSM outputs.
+---> I think i won't follow this one:-s
+
+
+Lines 827, 829. Use constants instead of "01" and "10", it will be more readable.
+---> I think i won't follow this one:-s
+
+
+
+WF_prod_data_lgth_calc.vhd
+--------------------------------------------------------------------------------
+Line 110. You should only use std_logic and std_logic_vector for entity ports.
+
+
+Lines 177->194. if/end if missaligned.
+---> OK!
+
+
+Line 198. Same as line 201.
+
+
+
+WF_cons_frame_validator.vhd
+--------------------------------------------------------------------------------
+Line 112. You should only use std_logic and std_logic_vector for entity ports.
+
+
+
+WF_cons_outcome.vhd
+--------------------------------------------------------------------------------
+Line 106. You should only use std_logic and std_logic_vector for entity ports.
+
+
+
+WF_production.vhd
+--------------------------------------------------------------------------------
+Line 
+
+
+
+WF_prod_permit.vhd
+--------------------------------------------------------------------------------
+Line 89. You should only use std_logic and std_logic_vector for entity ports.
+
+
+
+WF_prod_bytes_retriever.vhd
+--------------------------------------------------------------------------------
+Line 169. You should only use std_logic and std_logic_vector for entity ports.
+
+Line 234. (8 downto 0) is useless here.
+---> OK!
+
+Line 419. Same as line 427.
+
+
+
+WF_prod_bytes_from_dati.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+
+WF_status_bytes_gen.vhd
+--------------------------------------------------------------------------------
+Line 303. Once there is a fieldrive transmission error, the status bit stays at
+     	  one. Is that what you want?
+Line 310. Same as for line 303.
+---> Yes!
+
+
+
+WF_tx_serializer.vhd
+--------------------------------------------------------------------------------
+Line 94. Yes ;)
+
+
+
+WF_bits_to_txd.vhd
+--------------------------------------------------------------------------------
+Line 103 You should only use std_logic and std_logic_vector for entity ports.
+
+
+
+WF_manch_encoder.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+
+WF_model_constr_decoder.vhd
+--------------------------------------------------------------------------------
+No comment.
+
+
+
+WF_wb_controller.vhd
+--------------------------------------------------------------------------------
+Lines 122, 135. Why is the address used to generate the ack?
+---> The address is essential for both a read and a write ACK.

@@ -1,0 +1,80 @@
+WF_inputs_synchronizer.vhd
+
+Considering radiation hardness registering constant inputs on three flip flops stages is probably a weekness. Proabably only one TMR flip-flop per input would be enough.
+---> Corrected! Removed the 3ple registration for the constant inputs; only TMR.
+
+
+The wishbone bus is actually properly implemented as it removes any flip-flops from the data and address bus. Notice that the traditional synchronous implementation would require to register the data and address on the IOs, preventing the use of TMR flip-flops.
+
+
+I made a synthesis with XST on an Spartan6. No serious problems. It only found the following warnings: 
+WARNING:HDLCompiler:92 - "E:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd" Line 184: s_q_check_mask should be on the sensitivity list of the process
+WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_DualClkRAM_clka_rd_clkb_wr.vhd" Line 122: Assignment to zero ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd" Line 165: Assignment to s_fss ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "E:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd" Line 424: Assignment to s_id_dat_ctrl_byte ignored, since the identifier is never used
+---> Bugs (which were not reported in Synplify!) corrected!
+
+
+
+wf.crc.vhd
+
+c_GENERATOR_POLY_length and c_VERIFICATION_MASK should both come from a generic]
+---> I think i wont follow this:-s It would be clear if the: poly_lgth, gener_poly and verif_poly were generics, but this is not possible as gener_poly and verif_poly depend on poly_lgth.
+Leaving the 3 signals as constants in the package i think is clearer.
+
+
+To tom.  crc_ok_p is not registered to reduce the number of flip flops, remember this is a rad hard design. It is marcked as p because it is generated using  s_crc_bit_ready_p which is already a pulse. 
+
+
+wf_cons_bytes_processor.vhd
+line 422. Isn't it possible to check c_CTRL_BYTE_INDEX, c_PDU_BYTE_INDEX upon reception? That would save 16 flip-flops. 
+---> I think i won't follow that:-s
+
+wf_rx_tx_oscillator.vhd
+
+Interesting note from IEC 61158-2
+
+9.2.6 Preamble
+In order to synchronize bit times a preamble shall be transmitted at the beginning of each
+PhPDU consisting of the following sequence of bits, shown from left to right in order of
+transmission:
+1, 0, 1, 0, 1, 0, 1, 0.
+(shown as a waveform in Figure 32)
+NOTE 1 Received preamble can contain as few as four bits due to loss of one bit through each of four repeaters
+(as specified in the MAU Network Configuration Rules).
+The period may be extended, but not reduced, by Systems management as given in Table 4.
+A preamble extension sequence as listed in Table 4 shall be defined as the following
+sequence of bits, shown from left to right in order of transmission:
+1, 0, 1, 0, 1, 0, 1, 0.
+
+
+
+wf_engine_control.vhd
+
+To Javier. Using std_logic on entity ports is a strong rule in cores. As wf_engine_control.vhd is interfaced with other custom entities this rule should become only a recomendation. Passing var as a custom type gives the possibility to the designer to chose the suitible encoding scheme easily wich is very handy for this critical signal. 
+
+To Gonzalo. Receiving to consecutive ID_DAT would be a legal situation? I only see it happening in case an RP_DAT is lost. In that case the watchdog should have reset the control state machine.
+
+Line 775: This process is equivalent to a case statement. The exit is needed to select the case that is driving s_var_id.
+
+
+WF_status_bytes_gen.vhd
+
+L293. 
+          if (s_var3_rdy_extended = '0' and var3_acc_i = '1') then  
+                                                                 -- since the last time the status 
+            s_nFIP_status_byte(c_U_PACER_INDEX) <= '1';          -- byte was delivered,
+                                                                 -- the user logic accessed a prod.
+                                                                 -- var. when it was not ready
+          end if;  
+
+Would it not be easier to use some kind of 
+---> didnt get that?
+
+wf_rx.vhd
+
+LINE 569: The  16 bit register s_arriving_fes could be removed if the FES arrival is verified bit by bit upon arrival. 
+---> I think i won't follow that:-s
+
+LINE 663: Is s_CRC_ok_p_buff really needed? I think a flag (or inserting a new state) would be enough. 
+---> OK! Buffer removed.
