@@ -135,11 +135,21 @@ begin
 
 	-- process for the user_acc register to be expected on the Produced Frames
 	------------------------------------------------------------------------------------
-	reporting: process(ucacerr, upacerr)
+--	reporting: process(ucacerr, upacerr)
+--	begin
+--		assert not(ucacerr or upacerr)
+--		report "               The user logic access violates the VAR_RDY condition "
+--				& "and should generate a nanoFIP status error" & LF
+--		severity warning;
+--	end process;
+
+	reporting: process(var1_acc, var2_acc, var3_acc)
 	begin
-		assert not(ucacerr or upacerr)
-		report "               The user logic access violates the VAR_RDY condition "
-				& "and should generate a nanoFIP status error" & LF
+	assert not((var1_acc ='1' and var1_rdy_i ='0') 
+				or (var2_acc ='1' and var2_rdy_i ='0') 
+				or (var3_acc ='1' and var3_rdy_i ='0'))
+		report "               The user logic access violates the VAR_RDY condition " & LF &
+				"               This should activate the corresponding access error flag on the nanoFIP status byte" & LF
 		severity warning;
 	end process;
 
