@@ -84,6 +84,8 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 01/2010  v0.04  EG  Unit WF_var_rdy_generator separated in WF_cons_outcome
 --!                            (for var1_rdy,var2_rdy+var_rst outcome) & WF_prod_permit (for var3)
 --!     -> 02/2010  v0.05  EG  Added here functionality of wf_cons_frame_validator
+--!                            Bug on var1_rdy, var2_rdy generation corrected (the s_varX_received
+--!                            was always set to 1!)
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -156,9 +158,8 @@ end entity WF_cons_outcome;
 --=================================================================================================
 architecture rtl of WF_cons_outcome is
 
-  signal s_var_type_match, s_cons_frame_ok_p : std_logic;
-  signal s_var1_received, s_var2_received    : std_logic;
-  signal s_rst_nfip_and_fd, s_assert_rston   : std_logic;
+  signal s_cons_frame_ok_p                 : std_logic;
+  signal s_rst_nfip_and_fd, s_assert_rston : std_logic;
 
 
 --=================================================================================================
@@ -260,52 +261,38 @@ begin
       if nfip_rst_i = '1' then
         var1_rdy_o          <= '0';
         var2_rdy_o          <= '0';
-        s_var1_received     <= '0';
-        s_var2_received     <= '0';
 
       else
-      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
-        case var_i is
 
-        when var_1 =>                              -- nanoFIP consuming
-                                                   --------------------
-          var1_rdy_o        <= '0';                -- while consuming a var_1, VAR1_RDY is 0
-          var2_rdy_o        <= s_var2_received;    -- VAR2_RDY retains its value
+        -- VAR1_RDY --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  
+        if (var_i = var_1) and (s_cons_frame_ok_p = '1') then
+                                             -- only if the received var_1 RP_DAT frame is correct
+          var1_rdy_o <= '1';                 -- the nanoFIP signals the user to retreive data
+                                             -- note: the signal var1_rdy_o remains asserted
+                                             -- until the beginning of the arrival of a new var_1
 
+        elsif (var_i = var_1) then
 
-          --  --  --  --  --  --  --  --  --  --  --
-          if s_cons_frame_ok_p = '1' then         -- only if the received RP_DAT frame is correct,
-                                                  -- the nanoFIP signals the user to retreive data
-            s_var1_received <= '1';               -- note:the signal s_var1_received remains asser-
-                                                  -- ted after the end of the cons_frame_ok_p pulse
-          end if;
+          var1_rdy_o <= '0';                 -- while consuming a var_1, VAR1_RDY is 0
+
+        end if;      
 
 
+        -- VAR2_RDY --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  -- 
+        if (var_i = var_2) and (s_cons_frame_ok_p = '1') and (slone_i = '0') then
+                                             -- only in memory mode and if the received var_2 
+          var2_rdy_o <= '1';                 -- RP_DAT is correct the nanoFIP signals the user
+                                             -- to retreive data
+                                             -- note: the signal var2_rdy_o remains asserted
+                                             -- until the beginning of the arrival of a new var_2
 
-      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
-        when var_2 =>                             -- nanoFIP consuming broadcast
-                                                  ------------------------------
-          var2_rdy_o        <= '0';               -- while consuming a var_2, VAR2_RDY is 0
-          var1_rdy_o        <= s_var1_received;   -- VAR1_RDY retains its value
+        elsif (var_i = var_2) then
 
-          if slone_i = '0' and s_cons_frame_ok_p = '1' then
-                                                  -- only in memory mode and if the received RP_DAT
-            s_var2_received <= '1';               -- frame is correct, the nanoFIP signals the user
-                                                  -- to retreive data.
-                                                  -- note:the signal s_var2_received remains asser-
-          end if;                                 -- ted after the end of the cons_frame_ok_p pulse
+          var2_rdy_o <= '0';                 -- while consuming a var_2, VAR2_RDY is 0
 
+        end if;      
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  -- -- 
 
-
-      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --
-
-        when others =>
-
-          var1_rdy_o        <= s_var1_received;
-          var2_rdy_o        <= s_var2_received;
-
-
-        end case;
       end if;
     end if;
   end process;

@@ -42,7 +42,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --! the stations connected to the same network segment. Figure 1 shows the structure of an ID_DAT
 --! frame:
 --!                   ___________ ______  _______ ______  ___________ _______
---!                  |____FSS____|_Ctrl_||__Var__|_Subs_||____FCS____|__FES__|
+--!                  |____FSS____|_Ctrl_||__Var__|_SUBS_||____FCS____|__FES__|
 --!
 --!                           Figure 1 : ID_DAT frame structure
 --!
@@ -86,54 +86,48 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!    validated by station address as data
 --!
 --! nanoFIP's main building blocks are (Figure 3):
---!  o WF_inputs_synchronizer : for the synchronization of the input signals with the user
---!    or the WISHBONE clock.
---!  o WF_reset_unit          : for the treatment of the reset input signals and the generation
---!    of the reset outputs.
---!  o WF_tx_rx_osc           : for the generation of the clocks used by the transmitter and
---!    receiver for the data serialization and deserialization.
---!  o WF_consumption         : for the processing of consumed variables, from the deserialization
---!    to the bytes storage and validation.
---!  o WF_production          : for the processing of produced variables, from the bytes
---!    retrieval to the serialization.
---!  o WF_engine_control      : for the processing of the ID_DAT frames and the coordination of the
---!    WF_consumption and WF_production units.
---!  o WF_model_constr_dec    : for the decoding of the WorldFIP settings M_ID and C_ID and the
---!    generation of the S_ID.
---!  o WF_wb_controller       : for the handling of the "User Interface WISHBONE Slave" control
---!                             signals.
 --!
---!                 _____________     __________________________     _____________
---!                |             |   |                          |   |             |
---!                |             |   |       WF_tx_rx_osc       |   |             |
---!                |             |   |                          |   |             |
---!                |             |   |__________________________|   |             |
---!                |             |                                  |             |
---!                | WF_inputs_  |    ___________   ____________    |
---!                | synchroniser|   |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |             |   |           | |            |   |  WF_engine  |
---!                |_____________|   |           | |            |   |  _control   |
---!                                  |           | |            |   |             |
---!                 _____________    |    WF_    | |     WF_    |   |             |
---!                |             |   |consumption| | production |   |             |
---!                |             |   |           | |            |   |             |
---!                |   WF_reset  |   |           | |            |   |             |
---!                |   _unit     |   |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |_____________|   |           | |            |   |             |
---!                                  |           | |            |   |             |
---!                 _____________    |           | |            |   |             |
---!                |             |   |           | |            |   |             |
---!                |             |   |___________| |____________|   |             |
---!                |  WF_model_  |                                  |             |
---!                | constr_dec  |    ___________________________   |             |
---!                |             |   |      WF_wb_controller     |  |             |
---!                |_____________|   |___________________________|  |_____________|
+--!  o WF_reset_unit       : for the treatment of the reset input signals & the generation
+--!                          of the reset outputs
+--!
+--!  o WF_consumption      : for the processing, storage & validation of consumed RP_DAT frames
+--!
+--!  o WF_fd_receiver      : for the deserialization of the FIELDRIVE input and the formation
+--!                          of ID_DAT or RP_DAT bytes of data
+--!
+--!  o WF_production       : for the retreival of the bytes that form produced RP_DAT frames
+--!
+--!  o WF_fd_transmitter   : for the serialization of produced RP_DAT frames
+--!
+--!  o WF_engine_control   : for the processing of the ID_DAT frames and the coordination of the
+--!                          WF_consumption, WF_fd_receiver, WF_production & WF_fd_transmitter units
+--!
+--!  o WF_model_constr_dec : for the decoding of the WorldFIP settings M_ID and C_ID and the
+--!                          generation of the S_ID
+--!
+--!  o WF_wb_controller    : for the handling of the "User Interface WISHBONE Slave" control
+--!                          signals.
+--!
+--!                 _____________      ____________________________________________________
+--!                |             |    |                WF_WB_controller                    |   
+--!                |             |    |____________________________________________________|
+--!                |             |     _____________                          _____________   
+--!                |             |    |             |     ______________     |             |
+--!                |   WF_reset  |    |             |    |              |    |             |
+--!                |    _unit    |    |     WF_     |    |              |    |     WF_     |
+--!                |             |    | consumption |    |              |    |  production |
+--!                |             |    |             |    |              |    |             |
+--!                |             |    |             |    |              |    |             |
+--!                |             |    |_____________|    |      WF_     |    |_____________|
+--!                |_____________|     _____________     |engine_control|     _____________
+--!                                   |             |    |              |    |             |
+--!                 _____________     |             |    |              |    |             |
+--!                |             |    |             |    |              |    |             |
+--!                |             |    |    WF_FD_   |    |              |    |   WF_FD_    |
+--!                |  WF_model_  |    |  receiver   |    |              |    | transmitter |
+--!                | constr_dec  |    |             |    |              |    |             |
+--!                |             |    |             |    |              |    |             |
+--!                |_____________|    |_____________|    |______________|    |_____________|
 --!
 --!                                Figure 3: nanoFIP block diagram
 --!
@@ -300,34 +294,28 @@ end entity nanofip;
 
 architecture struc of nanofip is
 
----------------------------------------------------------------------------------------------------
---                                    Triple Module Redundancy                                   --
----------------------------------------------------------------------------------------------------
- attribute syn_radhardlevel          : string;                                                   --
- attribute syn_radhardlevel of struc : architecture is "tmr";                                    --
----------------------------------------------------------------------------------------------------
-
-
-  component CLKBUF
-    port (PAD : in std_logic;
-          Y   : out std_logic);
-  end component;
-
-
-  signal s_rst, s_rx_byte_ready, s_start_tx_p, s_prod_request_byte_p   : std_logic;
-  signal s_prod_last_byte_p, s_rst_tx_p                                                : std_logic;
-  signal s_fss_crc_fes_manch_ok_p, s_rx_fss_decoded_p, s_wb_rst      : std_logic;
-  signal s_crc_or_manch_wrong_p, s_reset_nFIP_and_FD_p               : std_logic;
-  signal s_var1_rdy, s_var2_rdy, s_var3_rdy, s_assert_RSTON_p, s_wb_ack_prod           : std_logic;
-  signal s_rx_rst_p, s_nfip_status_r_tler        : std_logic;
-  signal s_prod_byte_ready_p     : std_logic;
-  signal s_var_from_control                                                            : t_var;
-  signal s_data_lgth_from_control                  : std_logic_vector (7 downto 0);
-  signal s_rx_byte, s_byte_to_tx, s_model_id_dec, s_constr_id_dec                : std_logic_vector (7 downto 0);
-  signal s_cons_prod_byte_index_from_control                       : std_logic_vector (7 downto 0);
-
-
-
+  -- WF_reset_unit iutputs
+  signal s_nfip_intern_rst, s_wb_rst                                                   : std_logic;
+  -- WF_consumption outputs
+  signal s_var1_rdy, s_var2_rdy, s_var3_rdy                                            : std_logic;
+  signal s_assert_RSTON_p, s_reset_nFIP_and_FD_p, s_nfip_status_r_tler                 : std_logic;
+  -- WF_fd_receiver outputs
+  signal s_rx_fss_received_p, s_rx_fss_crc_fes_manch_ok_p, s_rx_crc_or_manch_wrong_p   : std_logic;
+  signal s_rx_byte_ready_p                                                             : std_logic;
+  signal s_rx_byte                                                 : std_logic_vector (7 downto 0);
+  -- WF_production outputs
+  signal  s_byte_to_tx                                             : std_logic_vector (7 downto 0);
+  -- WF_fd_transmitter outputs
+  signal s_tx_last_byte_p                                                              : std_logic;
+  -- WF_engine_control outputs
+  signal s_tx_start_p, s_tx_request_byte_p, s_byte_request_accepted_p                  : std_logic;
+  signal s_rx_rst_p                                                                    : std_logic;
+  signal s_var                                                                         : t_var;
+  signal s_prod_data_lgth, s_prod_cons_byte_index                  : std_logic_vector (7 downto 0);
+  -- WF_model_constr_dec outputs
+  signal s_model_id_dec, s_constr_id_dec                           : std_logic_vector (7 downto 0);
+  -- WF_wb_controller outputs
+  signal s_wb_ack_prod                                                                 : std_logic;
 
 
 --=================================================================================================
@@ -341,20 +329,20 @@ begin
 ---------------------------------------------------------------------------------------------------
   reset_unit : WF_reset_unit
     port map (
-      uclk_i                => uclk_i,
-      wb_clk_i              => wclk_i,
-      rstin_a_i             => rstin_i,
-      rstpon_a_i            => rstpon_i,
-      rate_i                => rate_i,
-      rst_i                 => rst_i,
-      rst_nFIP_and_FD_p_i   => s_reset_nFIP_and_FD_p,
-      assert_RSTON_p_i      => s_assert_RSTON_p,
-    ---------------------------------------------------------
-      nFIP_rst_o            => s_rst,
-      wb_rst_o              => s_wb_rst,
-      rston_o               => rston_o,
-      fd_rstn_o             => fd_rstn_o);
-    ---------------------------------------------------------
+      uclk_i              => uclk_i,
+      wb_clk_i            => wclk_i,
+      rstin_a_i           => rstin_i,
+      rstpon_a_i          => rstpon_i,
+      rate_i              => rate_i,
+      rst_i               => rst_i,
+      rst_nFIP_and_FD_p_i => s_reset_nFIP_and_FD_p,
+      assert_RSTON_p_i    => s_assert_RSTON_p,
+  -------------------------------------------------------------
+      nFIP_rst_o          => s_nfip_intern_rst,
+      wb_rst_o            => s_wb_rst,
+      rston_o             => rston_o,
+      fd_rstn_o           => fd_rstn_o);
+  -------------------------------------------------------------
 
 
 
@@ -365,24 +353,24 @@ begin
   port map (
     uclk_i                      => uclk_i,
     slone_i                     => slone_i,
-    nfip_rst_i                  => s_rst,
+    nfip_rst_i                  => s_nfip_intern_rst,
     subs_i                      => subs_i,
     rx_byte_i                   => s_rx_byte,
-    rx_byte_ready_p_i           => s_rx_byte_ready,
-    rx_fss_crc_fes_manch_ok_p_i => s_fss_crc_fes_manch_ok_p,
-    rx_crc_or_manch_wrong_p_i   => s_crc_or_manch_wrong_p,
+    rx_byte_ready_p_i           => s_rx_byte_ready_p,
+    rx_fss_crc_fes_manch_ok_p_i => s_rx_fss_crc_fes_manch_ok_p,
+    rx_crc_or_manch_wrong_p_i   => s_rx_crc_or_manch_wrong_p,
     wb_clk_i                    => wclk_i,
     wb_adr_i                    => adr_i (8 downto 0),
-    var_i                       => s_var_from_control,
-    byte_index_i                => s_cons_prod_byte_index_from_control,
-     ---------------------------------------------------------
+    var_i                       => s_var,
+    byte_index_i                => s_prod_cons_byte_index,
+  -------------------------------------------------------------
     var1_rdy_o                  => s_var1_rdy,
     var2_rdy_o                  => s_var2_rdy,
     data_o                      => dat_o,
     nfip_status_r_tler_p_o      => s_nfip_status_r_tler,
     assert_rston_p_o            => s_assert_RSTON_p,
     rst_nfip_and_fd_p_o         => s_reset_nFIP_and_FD_p);
-    ---------------------------------------------------------
+  -------------------------------------------------------------
 
 
 
@@ -394,15 +382,15 @@ begin
     uclk_i                      => uclk_i,
     rate_i                      => rate_i,
     fd_rxd_a_i                  => fd_rxd_i,
-    nfip_rst_i                  => s_rst,
+    nfip_rst_i                  => s_nfip_intern_rst,
     rx_rst_p_i                  => s_rx_rst_p,
-    ---------------------------------------------------------
+  -------------------------------------------------------------
     rx_byte_o                   => s_rx_byte,
-    rx_byte_ready_p_o           => s_rx_byte_ready,
-    rx_fss_crc_fes_manch_ok_p_o => s_fss_crc_fes_manch_ok_p,
-    rx_fss_received_p_o         => s_rx_fss_decoded_p,
-    rx_crc_or_manch_wrong_p_o   => s_crc_or_manch_wrong_p);
-    ---------------------------------------------------------
+    rx_byte_ready_p_o           => s_rx_byte_ready_p,
+    rx_fss_crc_fes_manch_ok_p_o => s_rx_fss_crc_fes_manch_ok_p,
+    rx_fss_received_p_o         => s_rx_fss_received_p,
+    rx_crc_or_manch_wrong_p_o   => s_rx_crc_or_manch_wrong_p);
+  -------------------------------------------------------------
 
 
 
@@ -414,7 +402,7 @@ begin
     uclk_i                  => uclk_i,
     slone_i                 => slone_i,
     nostat_i                => nostat_i,
-    nfip_rst_i              => s_rst,
+    nfip_rst_i              => s_nfip_intern_rst,
     wb_clk_i                => wclk_i,
     wb_data_i               => dat_i(7 downto 0),
     wb_adr_i                => adr_i(8 downto 0),
@@ -425,24 +413,24 @@ begin
     var3_acc_a_i            => var3_acc_i,
     fd_txer_a_i             => fd_txer_i,
     fd_wdgn_a_i             => fd_wdgn_i,
-    var_i                   => s_var_from_control,
-    data_lgth_i             => s_data_lgth_from_control,
-    byte_index_i            => s_cons_prod_byte_index_from_control,
-    byte_request_accept_p_i => s_prod_byte_ready_p,
+    var_i                   => s_var,
+    data_lgth_i             => s_prod_data_lgth,
+    byte_index_i            => s_prod_cons_byte_index,
+    byte_request_accept_p_i => s_byte_request_accepted_p,
     nfip_status_r_tler_p_i  => s_nfip_status_r_tler,
-    nfip_status_r_fcser_p_i => s_crc_or_manch_wrong_p,
+    nfip_status_r_fcser_p_i => s_rx_crc_or_manch_wrong_p,
     var1_rdy_i              => s_var1_rdy,
     var2_rdy_i              => s_var2_rdy,
     model_id_dec_i          => s_model_id_dec,
     constr_id_dec_i         => s_constr_id_dec,
-    ---------------------------------------------------------
+  -------------------------------------------------------------
     byte_o                  => s_byte_to_tx,
     u_cacer_o               => u_cacer_o,
     u_pacer_o               => u_pacer_o,
     r_tler_o                => r_tler_o,
     r_fcser_o               => r_fcser_o,
     var3_rdy_o              => s_var3_rdy);
-    ---------------------------------------------------------
+  -------------------------------------------------------------
 
 
 
@@ -453,17 +441,17 @@ begin
   port map (
     uclk_i                     => uclk_i,
     rate_i                     => rate_i,
-    nfip_rst_i                 => s_rst,
+    nfip_rst_i                 => s_nfip_intern_rst,
     tx_byte_i                  => s_byte_to_tx,
-    tx_byte_request_accept_p_i => s_prod_byte_ready_p,
-    tx_last_byte_p_i           => s_prod_last_byte_p,
-    tx_start_p_i               => s_start_tx_p,
-    ---------------------------------------------------------
-    tx_byte_request_p_o        => s_prod_request_byte_p,
+    tx_byte_request_accept_p_i => s_byte_request_accepted_p,
+    tx_last_byte_p_i           => s_tx_last_byte_p,
+    tx_start_p_i               => s_tx_start_p,
+  -------------------------------------------------------------
+    tx_byte_request_p_o        => s_tx_request_byte_p,
     tx_data_o                  => fd_txd_o,
     tx_enable_o                => fd_txena_o,
     tx_clk_o                   => fd_txck_o);
-    ---------------------------------------------------------
+  -------------------------------------------------------------
 
 
 
@@ -472,51 +460,50 @@ begin
 ---------------------------------------------------------------------------------------------------
 
   engine_control : WF_engine_control
-    port map (
-      uclk_i                      => uclk_i,
-      nfip_rst_i                   => s_rst,
-      tx_byte_request_p_i          => s_prod_request_byte_p,
-      rx_fss_received_p_i          => s_rx_fss_decoded_p,
-      rx_byte_i                    => s_rx_byte,
-      rx_byte_ready_p_i            => s_rx_byte_ready,
-      rx_fss_crc_fes_manch_ok_p_i  => s_fss_crc_fes_manch_ok_p,
-      rx_crc_or_manch_wrong_p_i    => s_crc_or_manch_wrong_p,
-      rate_i                       => rate_i,
-      subs_i                       => subs_i,
-      p3_lgth_i                    => p3_lgth_i,
-      slone_i                      => slone_i,
-      nostat_i                     => nostat_i,
-    ---------------------------------------------------------
-      var_o                       => s_var_from_control,
-      tx_start_p_o                => s_start_tx_p ,
-      tx_byte_request_accept_p_o  => s_prod_byte_ready_p,
-      tx_last_byte_p_o            => s_prod_last_byte_p,
-      prod_cons_byte_index_o      => s_cons_prod_byte_index_from_control,
-      prod_data_lgth_o            => s_data_lgth_from_control,
-      rx_rst_p_o                  => s_rx_rst_p);
-    ---------------------------------------------------------
+  port map (
+    uclk_i                      => uclk_i,
+    nfip_rst_i                  => s_nfip_intern_rst,
+    tx_byte_request_p_i         => s_tx_request_byte_p,
+    rx_fss_received_p_i         => s_rx_fss_received_p,
+    rx_byte_i                   => s_rx_byte,
+    rx_byte_ready_p_i           => s_rx_byte_ready_p,
+    rx_fss_crc_fes_manch_ok_p_i => s_rx_fss_crc_fes_manch_ok_p,
+    rx_crc_or_manch_wrong_p_i   => s_rx_crc_or_manch_wrong_p,
+    rate_i                      => rate_i,
+    subs_i                      => subs_i,
+    p3_lgth_i                   => p3_lgth_i,
+    slone_i                     => slone_i,
+    nostat_i                    => nostat_i,
+  -------------------------------------------------------------
+    var_o                       => s_var,
+    tx_start_p_o                => s_tx_start_p,
+    tx_byte_request_accept_p_o  => s_byte_request_accepted_p,
+    tx_last_byte_p_o            => s_tx_last_byte_p,
+    prod_cons_byte_index_o      => s_prod_cons_byte_index,
+    prod_data_lgth_o            => s_prod_data_lgth,
+    rx_rst_p_o                  => s_rx_rst_p);
+  -------------------------------------------------------------
 
-      var1_rdy_o <= s_var1_rdy;
-      var2_rdy_o <= s_var2_rdy;
-      var3_rdy_o <= s_var3_rdy;
+    var1_rdy_o <= s_var1_rdy;
+    var2_rdy_o <= s_var2_rdy;
+    var3_rdy_o <= s_var3_rdy;
 
 
 
 ---------------------------------------------------------------------------------------------------
 --                                    WF_model_constr_decoder                                    --
 ---------------------------------------------------------------------------------------------------
- model_constr_decoder : WF_model_constr_decoder
+  model_constr_decoder : WF_model_constr_decoder
   port map (
     uclk_i          => uclk_i,
-    nfip_rst_i      => s_rst,
+    nfip_rst_i      => s_nfip_intern_rst,
     model_id_i      => m_id_i,
     constr_id_i     => c_id_i,
-    ---------------------------------------------------------
+  -------------------------------------------------------------
     select_id_o     => s_id_o,
     model_id_dec_o  => s_model_id_dec,
     constr_id_dec_o => s_constr_id_dec);
-    ---------------------------------------------------------
-
+  -------------------------------------------------------------
 
 
 
@@ -526,20 +513,15 @@ begin
   WISHBONE_controller: WF_wb_controller
   port map (
     wb_clk_i        => wclk_i,
-    wb_rst_i        => rst_i,
+    wb_rst_i        => s_wb_rst,
     wb_stb_i        => stb_i,
     wb_cyc_i        => cyc_i,
     wb_we_i         => we_i,
     wb_adr_id_i     => adr_i (9 downto 7),
-    ---------------------------------------------------------------
+  -------------------------------------------------------------
     wb_ack_prod_p_o => s_wb_ack_prod,
     wb_ack_p_o      => ack_o);
-    ---------------------------------------------------------------
-
-
-
----------------------------------------------------------------------------------------------------
-
+  -------------------------------------------------------------
 
 
 end architecture struc;

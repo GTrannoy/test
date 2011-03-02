@@ -112,7 +112,6 @@ end entity WF_model_constr_decoder;
 --=================================================================================================
 architecture rtl of WF_model_constr_decoder is
 
-  signal s_counter_is_full                : std_logic;
   signal s_counter                        : unsigned (1 downto 0);
   signal s_model_stage2, s_model_stage1   : std_logic_vector (3 downto 0);
   signal s_constr_stage2, s_constr_stage1 : std_logic_vector (3 downto 0);
@@ -179,10 +178,10 @@ begin
     uclk_i            => uclk_i,
     reinit_counter_i  => nfip_rst_i,
     incr_counter_i    => '1',
-    -----------------------------------------
-    counter_o         => s_counter,
-    counter_is_full_o => s_counter_is_full);
-    -----------------------------------------
+    counter_is_full_o => open,
+   -----------------------------------------
+    counter_o         => s_counter);
+   -----------------------------------------
 
 
 ---------------------------------------------------------------------------------------------------

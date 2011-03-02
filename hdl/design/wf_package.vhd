@@ -236,16 +236,16 @@ package WF_package is
   constant c_TIMEOUTS_TABLE : t_timeouts_table(3 downto 0) :=
 
                               (c_31K25_INDEX   => (turnaround => integer (480000.0  / c_QUARTZ_PERIOD),
-                                                   silence    => integer (5160000.0 / c_QUARTZ_PERIOD)),
+                                                   silence    => integer (4096000.0 / c_QUARTZ_PERIOD)),
 
                                c_1M_INDEX      => (turnaround => integer (14000.0   / c_QUARTZ_PERIOD),
                                                    silence    => integer (150000.0  / c_QUARTZ_PERIOD)),
 
                                c_2M5_INDEX     => (turnaround => integer (6000.0   / c_QUARTZ_PERIOD),
-                                                   silence    => integer (100000.0 / c_QUARTZ_PERIOD)),
+                                                   silence    => integer (96000.0 / c_QUARTZ_PERIOD)),
 
                                c_RESERVE_INDEX => (turnaround => integer (480000.0  /C_QUARTZ_PERIOD),
-                                                   silence    => integer (5160000.0 /C_QUARTZ_PERIOD)));
+                                                   silence    => integer (4096000.0 /C_QUARTZ_PERIOD)));
 
 
 

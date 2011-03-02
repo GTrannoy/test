@@ -126,8 +126,8 @@ end entity WF_rx_osc;
 --=================================================================================================
 architecture rtl of WF_rx_osc is
 
-  signal s_period_c, s_period, s_jitter           : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
-  signal s_half_period, s_one_forth_period        : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
+  signal s_period_c, s_period, s_margin             : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
+  signal s_half_period                              : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
   signal s_reinit_counter, s_counter_is_full                                           : std_logic;
   signal s_adjac_bits_window, s_signif_edge_window                                     : std_logic;
   signal s_adjac_bits_edge_found, s_signif_edge_found                                  : std_logic;
@@ -144,8 +144,8 @@ begin
 
   s_counter_is_full  <= '1' when s_period_c = s_period -1 else '0'; -- counter full indicator
   s_half_period      <= s_period srl 1;                             -- 1/2 s_period
-  s_one_forth_period <= s_period srl 2;                             -- 1/4 s_period
-  s_jitter           <= s_period srl 3;                             -- jitter defined as 1/8 s_period
+  s_margin           <= s_period srl 3;                             -- margin for jitter defined
+                                                                    -- as 1/8 s_period
 
 
 ---------------------------------------------------------------------------------------------------
@@ -176,7 +176,8 @@ begin
     --                         if the rx_osc_rst_i is active                 or
     --                         if an edge is detected in the expected window or
     --                         if it fills up
-    s_reinit_counter <= nfip_rst_i or rx_osc_rst_i or (s_signif_edge_window and fd_rxd_edge_p_i) or s_counter_is_full;
+    s_reinit_counter <= nfip_rst_i or rx_osc_rst_i or (s_signif_edge_window and fd_rxd_edge_p_i)
+                        or s_counter_is_full;
 
 
 
@@ -216,7 +217,7 @@ begin
         -- regarding significant edges:
 
         -- looking for a significant edge inside the corresponding window
-        if (s_signif_edge_window = '1') and (fd_rxd_edge_p_i = '1') and (s_signif_edge_found = '0') then
+        if (s_signif_edge_window='1') and (fd_rxd_edge_p_i='1') and (s_signif_edge_found='0') then
 
             s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk
             s_signif_edge_found     <= '1';             -- indication that the edge was found
@@ -224,7 +225,7 @@ begin
 
         -- if a significant edge is not found where expected (code violation), the rx_manch_clk
         -- is inverted right after the end of the signif_edge_window.
-        elsif (s_signif_edge_found = '0') and (s_period_c = s_jitter) then
+        elsif (s_signif_edge_found = '0') and (s_period_c = s_margin) then
 
           s_manch_clk               <= not s_manch_clk;
           s_adjac_bits_edge_found   <= '0';             -- re-initialization before the
@@ -246,7 +247,7 @@ begin
 
         -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
         -- after the end of it
-        elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_jitter) then
+        elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_margin) then
 
           s_manch_clk               <= not s_manch_clk;
           s_bit_clk                 <= not s_bit_clk;
@@ -274,17 +275,17 @@ begin
 ---------------------------------------------------------------------------------------------------
 --!@brief Concurrent signal assignments: creation of the windows where
 --! "significant edges" and "adjacent bits transitions" are expected on the input signal.
---! o s_signif_edge_window : extends s_jitter uclk ticks before and s_jitter uclk ticks after
+--! o s_signif_edge_window : extends s_margin uclk ticks before and s_margin uclk ticks after
 --!   the completion of a period, where significant edges are expected.
---! o s_adjac_bits_window      : extends s_jitter uclk ticks before and s_jitter uclk ticks after
+--! o s_adjac_bits_window      : extends s_margin uclk ticks before and s_margin uclk ticks after
 --!   the middle of a period, where transitions between adjacent bits are expected.
 
-  s_signif_edge_window <= '1' when ((s_period_c < s_jitter) or
-                                        (s_period_c  > s_period-1 - s_jitter-1))
+  s_signif_edge_window <= '1' when ((s_period_c < s_margin) or
+                                        (s_period_c  > s_period-1 - s_margin-1))
                          else '0';
 
-  s_adjac_bits_window      <= '1' when ((s_period_c >= s_half_period-s_jitter-1) and
-                                        (s_period_c <  s_half_period+s_jitter))
+  s_adjac_bits_window      <= '1' when ((s_period_c >= s_half_period-s_margin-1) and
+                                        (s_period_c <  s_half_period+s_margin))
 
                          else '0';
 
