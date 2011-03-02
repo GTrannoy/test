@@ -38,7 +38,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!
 --!            ID_DAT frame structure :
 --!             ___________ ______  _______ ______  ___________ _______
---!            |____FSS____|_Ctrl_||__Var__|_Subs_||____FCS____|__FES__|
+--!            |____FSS____|_Ctrl_||__Var__|_SUBS_||____FCS____|__FES__|
 --!
 --!
 --!            Produced RP_DAT frame structure :
@@ -208,7 +208,7 @@ architecture rtl of WF_engine_control is
 
   signal control_st, nx_control_st                                                     : control_st_t;
   signal s_var_aux, s_var                                                              : t_var;
-  signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_id_dat_subs_byte       : std_logic;
+  signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte                           : std_logic;
   signal s_id_dat_frame_ok, s_cons_wait_FSS, s_consuming, s_prod_wait_turnar_time      : std_logic;
   signal s_producing, s_rst_prod_bytes_counter, s_inc_prod_bytes_counter               : std_logic;
   signal s_rst_rx_bytes_counter, s_inc_rx_bytes_counter, s_var_identified              : std_logic;
@@ -457,7 +457,6 @@ begin
                  ---------------------------------
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -472,7 +471,6 @@ begin
                   s_id_dat_ctrl_byte      <= '1';
                  ---------------------------------
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -487,7 +485,6 @@ begin
                  ---------------------------------
                   s_id_dat_var_byte       <= '1';
                  ---------------------------------
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -500,9 +497,6 @@ begin
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                 ---------------------------------
-                  s_id_dat_subs_byte      <= '1';
-                 ---------------------------------
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -515,7 +509,6 @@ begin
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                  ---------------------------------
                   s_id_dat_frame_ok       <= '1';
                  ---------------------------------
@@ -530,7 +523,6 @@ begin
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                  ---------------------------------
                   s_prod_wait_turnar_time <= '1';
@@ -545,7 +537,6 @@ begin
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                  ---------------------------------
@@ -560,7 +551,6 @@ begin
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -575,7 +565,6 @@ begin
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -592,7 +581,6 @@ begin
                  ---------------------------------
                   s_id_dat_ctrl_byte      <= '0';
                   s_id_dat_var_byte       <= '0';
-                  s_id_dat_subs_byte      <= '0';
                   s_id_dat_frame_ok       <= '0';
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
@@ -649,7 +637,7 @@ begin
 --! being received by the WF_rx_deserializer unit. The same counter is used for the bytes of an
 --! ID_DAT frame or a consumed RP_DAT frame (that is why the name of the counter is s_rx_bytes_c
 --! and not s_cons_bytes_c!)
---! Regarding an ID_DAT frame : the FSS,Control, var and subs bytes are being followed by the state
+--! Regarding an ID_DAT frame : the FSS,Control, var and SUBS bytes are being followed by the state
 --! machine and the counter is used for the counting of the bytes from then on until the arrival
 --! of a FES. Therefore, the counter is reset at the "id_dat_subs_byte" state and counts bytes
 --! following the "rx_byte_ready_p_i" pulse in the "id_dat_frame_ok" state.
@@ -857,39 +845,39 @@ begin
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).hexvalue then
-            s_var_aux       <= var_identif;
-            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).prod_or_cons;
-            s_broadcast_var <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).broadcast;
+             s_var_aux       <= var_identif;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_1_INDEX).hexvalue then
-            s_var_aux       <= var_1;
-            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_1_INDEX).prod_or_cons;
-            s_broadcast_var <= c_VARS_ARRAY(c_VAR_1_INDEX).broadcast;
+             s_var_aux       <= var_1;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_1_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_1_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_2_INDEX).hexvalue then
-            s_var_aux       <= var_2;
-            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_2_INDEX).prod_or_cons;
-            s_broadcast_var <= c_VARS_ARRAY(c_VAR_2_INDEX).broadcast;
+             s_var_aux       <= var_2;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_2_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_2_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_3_INDEX).hexvalue then
-            s_var_aux       <= var_3;
-            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_3_INDEX).prod_or_cons;
-            s_broadcast_var <= c_VARS_ARRAY(c_VAR_3_INDEX).broadcast;
+             s_var_aux       <= var_3;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_3_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_3_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            elsif rx_byte_i = c_VARS_ARRAY(c_VAR_RST_INDEX).hexvalue then
-            s_var_aux       <= var_rst;
-            s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_RST_INDEX).prod_or_cons;
-            s_broadcast_var <= c_VARS_ARRAY(c_VAR_RST_INDEX).broadcast;
+             s_var_aux       <= var_rst;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_RST_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_RST_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          else
-            s_var_aux       <= var_whatever;
-            s_prod_or_cons  <= "00";
-            s_broadcast_var <= '0';
+           else
+             s_var_aux       <= var_whatever;
+             s_prod_or_cons  <= "00";
+             s_broadcast_var <= '0';
           end if;
 
 
@@ -905,7 +893,7 @@ begin
 
 
 --  --  --  --  --  --  --  --  --  --  --   --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Concurrent signal assignment (needed by the FSM)
+-- Concurrent signal assignment (used by the FSM)
 
   s_var_identified <= '1' when rx_byte_i = c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).hexvalue or
                                rx_byte_i = c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).hexvalue  or
