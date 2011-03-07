@@ -48,9 +48,9 @@
 3048 us		-- stand-by time
 0,01,91,10	-- RP_DAT for Broadcast variable
 5895 us		-- stand-by time
-1,5A,05,0	-- ID_DAT for Consumed variable
+1,5A,45,0	-- ID_DAT for Consumed variable
 3048 us		-- stand-by time
-0,5A,05,10	-- RP_DAT for Consumed variable
+0,5A,45,10	-- RP_DAT for Consumed variable
 5895 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 7208 us		-- stand-by time
