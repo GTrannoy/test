@@ -143,13 +143,13 @@ begin
 --		severity warning;
 --	end process;
 
-	reporting: process(var1_acc, var2_acc, var3_acc)
+	reporting: process(var1_rdy_i, var1_acc, var2_rdy_i, var2_acc, var3_rdy_i, var3_acc)
 	begin
 	assert not((var1_acc ='1' and var1_rdy_i ='0') 
 				or (var2_acc ='1' and var2_rdy_i ='0') 
 				or (var3_acc ='1' and var3_rdy_i ='0'))
 		report "               The user logic access violates the VAR_RDY condition " & LF &
-				"               This should activate the corresponding access error flag on the nanoFIP status byte" & LF
+			   "               This should activate the corresponding access error flag on the nanoFIP status byte" & LF
 		severity warning;
 	end process;
 

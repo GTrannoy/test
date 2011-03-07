@@ -202,9 +202,6 @@ begin
 			end loop;
 			file_close(data_file);
 			out_produced		<= data_vector;
-			compare_data		<= '1';
-		else
-			compare_data		<= '0';
 		end if;
 	end process;
 
@@ -431,5 +428,8 @@ begin
 
 	last_data			<= bytes_total - 4 when nostat ='1' and frame_received = '1'
 						else bytes_total - 5 when nostat = '0' and frame_received = '1';
+
+	compare_data		<= '1' after 1 ps when frame_received ='1' and pdu_type_byte = pdu_produced
+						else '0';
 
 end archi;
