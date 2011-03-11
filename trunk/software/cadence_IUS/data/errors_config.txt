@@ -21,27 +21,27 @@
 0					-- Number of bits per byte truncated in reception (integer 1 to 8)
 230 us				-- TXERR error length
 0 us				-- WDGN error length
-794 us				--++ time for which the configuration above is valid
+818 us				--++ time for which the configuration above is valid
 1					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 us				-- TXERR error length
 0 us				-- WDGN error length
-188 us				--++ time for which the configuration above is valid
+19 us				--++ time for which the configuration above is valid
 0					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 us				-- TXERR error length
 0 us				-- WDGN error length
-595 us				--++ time for which the configuration above is valid
+764 us				--++ time for which the configuration above is valid
 1					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 us				-- TXERR error length
 0 us				-- WDGN error length
-188 us				--++ time for which the configuration above is valid
+19 us				--++ time for which the configuration above is valid
 0					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 us				-- TXERR error length
 0 us				-- WDGN error length
-595 us				--++ time for which the configuration above is valid
+764 us				--++ time for which the configuration above is valid
 1					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 us				-- TXERR error length
 0 us				-- WDGN error length
-236 us				--++ time for which the configuration above is valid
+54 us				--++ time for which the configuration above is valid
 0					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 us				-- TXERR error length
 0 us				-- WDGN error length
