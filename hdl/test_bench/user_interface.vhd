@@ -189,8 +189,13 @@ begin
 	user_reset: process
 	begin
 		wait for 0 us;			-- wait needed for the config text file to be read
-		ureset			<= '1';
-		wait for ureset_length;
+		if ureset_length > 0 ps then
+			ureset			<= '1';
+			wait for ureset_length;
+		else
+			ureset			<= '0';
+			wait for ureset_length;
+		end if;
 		ureset			<= '0';
 		wait for config_validity_time - ureset_length;
 	end process;
@@ -205,8 +210,13 @@ begin
 	wb_reset: process
 	begin
 		wait for 0 us;			-- wait needed for the config text file to be read
-		wreset			<= '1';
-		wait for wreset_length;
+		if wreset_length > 0 ps then
+			wreset			<= '1';
+			wait for wreset_length;
+		else
+			wreset			<= '0';
+			wait for wreset_length;
+		end if;
 		wreset			<= '0';
 		wait for config_validity_time - wreset_length;
 	end process;
@@ -214,8 +224,13 @@ begin
 	por_reset: process
 	begin
 		wait for 0 us;			-- wait needed for the config text file to be read
-		preset			<= '1';
-		wait for preset_length;
+		if preset_length > 0 ps then
+			preset			<= '1';
+			wait for preset_length;
+		else
+			preset			<= '0';
+			wait for preset_length;
+		end if;
 		preset			<= '0';
 		wait for config_validity_time - preset_length;
 	end process;
