@@ -297,10 +297,12 @@ begin
 							severity warning;
 						end if;						
 						assert nfip_status(4) ='0'
-						report "               The nanoFIP status byte indicates a PDU_type or Length byte error on reception"
+						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               a wrong PDU_type byte or a wrong Control byte or an incoherent Length byte"
 						severity warning;
 						assert nfip_status(5) ='0'
-						report "               The nanoFIP status byte indicates a CRC error on reception"
+						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               a wrong CRC or an error on the Manchester encoding or a number of bits in the frame that is not multiple of 8"
 						severity warning;
 						assert nfip_status(6) ='0'
 						report "               The nanoFIP status byte reports a Fieldrive transmit error"
@@ -396,10 +398,12 @@ begin
 							severity warning;
 						end if;						
 						assert nfip_status(4) ='0'
-						report "               The nanoFIP status byte indicates a PDU_type or Length byte error on reception"
+						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               a wrong PDU_type byte or a wrong Control byte or an incoherent Length byte"
 						severity warning;
 						assert nfip_status(5) ='0'
-						report "               The nanoFIP status byte indicates a CRC error on reception"
+						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               a wrong CRC or an error on the Manchester encoding or a number of bits in the frame that is not multiple of 8"
 						severity warning;
 						assert nfip_status(6) ='0'
 						report "               The nanoFIP status byte reports a Fieldrive transmit error"

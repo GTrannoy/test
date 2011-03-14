@@ -94,6 +94,9 @@ begin
 	variable truncated_bits_config	: width_slice;
 	begin
 		readline	(config_file, config_line);
+		readline	(config_file, config_line);
+		
+		readline	(config_file, config_line);
 		read		(config_line, truncated_bits_config);
 
 		readline	(config_file, config_line);
