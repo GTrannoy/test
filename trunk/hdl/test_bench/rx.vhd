@@ -189,6 +189,17 @@ architecture archi of rx is
 	);
 	end component;
 
+	component reception_meddler
+	port(
+		clk							: in std_logic;
+		
+		jitter						: out time;
+		v_minus_err					: out std_logic;
+		v_plus_err					: out std_logic
+	);
+	end component;
+
+
 signal fss							: std_logic;
 signal fes							: std_logic;
 
@@ -222,9 +233,13 @@ signal v_plus_fes					: std_logic;
 signal v_minus						: std_logic;
 signal v_plus						: std_logic;
 
+signal v_minus_err					: std_logic;
+signal v_plus_err					: std_logic;
+
 signal dx_en						: std_logic;
 signal dx_final						: std_logic;
 signal dx_half						: std_logic;
+signal jitter						: time;
 
 begin
 
@@ -357,6 +372,15 @@ begin
 		cd				=> cd,
 		data_out		=> dx_half
 	);
+	
+	meddler: reception_meddler
+	port map(
+		clk				=> clk,
+		
+		jitter			=> jitter,
+		v_minus_err		=> v_minus_err,
+		v_plus_err		=> v_plus_err
+	);
 
 	delayer: process
 	begin
@@ -392,7 +416,7 @@ begin
 	crc_gen_end				<= msg_new_data_req when en_crc_end ='1'
 								else '0';
 
-	v_minus					<= v_minus_fss or v_minus_fes;
-	v_plus					<= v_plus_fss or v_plus_fes;
+	v_minus					<= v_minus_fss or v_minus_fes or v_minus_err;
+	v_plus					<= v_plus_fss or v_plus_fes or v_plus_err;
 	
 end archi;

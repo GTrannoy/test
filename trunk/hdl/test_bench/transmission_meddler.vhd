@@ -45,6 +45,8 @@ begin
 	variable wdgn_length_config		: time;
 	begin
 		readline	(config_file, config_line);
+		readline	(config_file, config_line);
+		readline	(config_file, config_line);
 
 		readline	(config_file, config_line);
 		read		(config_line, txerr_length_config);
