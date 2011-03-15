@@ -1,5 +1,0 @@
-
-Suggestions
------------
-
-Currently no way to verify what firmware is used in the NanoFIP. Is it possible to put this in the status data or so? (Pablo, 12/4/10)
