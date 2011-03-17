@@ -96,49 +96,50 @@ architecture archi of rx is
 
 	component crc_gen
 	generic(
-		crc_l			: integer:=16								-- polinomial length in bits
+		crc_l					: integer:=16								-- polinomial length in bits
 	);
 	port(
-		clk				: in std_logic;
-		gx				: in std_logic_vector(crc_l downto 0);		-- polinomial divisor
-		crc_gen_start	: in std_logic;								-- launches the FCS calculation
-		crc_gen_end		: in std_logic;								-- ends the FCS calculation
-		mx				: in std_logic;								-- message incoming bits
-		reset			: in std_logic;
+		clk						: in std_logic;
+		gx						: in std_logic_vector(crc_l downto 0);		-- polinomial divisor
+		crc_gen_start			: in std_logic;								-- launches the FCS calculation
+		crc_gen_end				: in std_logic;								-- ends the FCS calculation
+		mx						: in std_logic;								-- message incoming bits
+		reset					: in std_logic;
 		
-		fcs				: out std_logic_vector(crc_l-1 downto 0);	-- FCS sequence
-		fcs_ready		: out std_logic;
-		fcs_valid		: out std_logic
+		fcs						: out std_logic_vector(crc_l-1 downto 0);	-- FCS sequence
+		fcs_ready				: out std_logic;
+		fcs_valid				: out std_logic
 	);
 	end component;
 
 	component serializer
 	generic(
-		width			: integer:=8
+		width					: byte_width:=8
 	);
 	port(
-		clk				: in std_logic;
-		data_in			: in std_logic_vector(width-1 downto 0);
-		go				: in std_logic;
-		reset			: in std_logic;
+		clk						: in std_logic;
+		data_in					: in std_logic_vector(width-1 downto 0);
+		go						: in std_logic;
+		nb_truncated_bits		: in byte_slice;
+		reset					: in std_logic;
 
-		data_out		: out std_logic;
-		done			: out std_logic
+		data_out				: out std_logic;
+		done					: out std_logic
 	);
 	end component;
 
 	component onetime_serializer
 	generic(
-		width			: integer:=8
+		width					: integer:=8
 	);
 	port(
-		clk				: in std_logic;
-		data_in			: in std_logic_vector(width-1 downto 0);
-		go				: in std_logic;
-		reset			: in std_logic;
+		clk						: in std_logic;
+		data_in					: in std_logic_vector(width-1 downto 0);
+		go						: in std_logic;
+		reset					: in std_logic;
 
-		data_out		: out std_logic;
-		done			: out std_logic
+		data_out				: out std_logic;
+		done					: out std_logic
 	);
 	end component;
 
@@ -148,7 +149,7 @@ architecture archi of rx is
 	);
 	port(
 		clk						: in std_logic;
-		fss_value				: in std_logic_vector(15 downto 0);
+		fss_value				: in std_logic_vector(width-1 downto 0);
 		start_delimiter			: in std_logic;
 		reset					: in std_logic;
 		
@@ -164,7 +165,7 @@ architecture archi of rx is
 	);
 	port(
 		clk						: in std_logic;
-		fes_value				: in std_logic_vector(7 downto 0);
+		fes_value				: in std_logic_vector(width-1 downto 0);
 		start_delimiter			: in std_logic;
 		reset					: in std_logic;
 		
@@ -176,16 +177,16 @@ architecture archi of rx is
 
 	component manchester_encoder is
 	port(
-		clk				: in std_logic;
-		data_in			: in std_logic;
-		dx_en			: in std_logic;
-		h_clk			: in std_logic;
-		reset			: in std_logic;
-		v_minus			: in std_logic;
-		v_plus			: in std_logic;
+		clk						: in std_logic;
+		data_in					: in std_logic;
+		dx_en					: in std_logic;
+		h_clk					: in std_logic;
+		reset					: in std_logic;
+		v_minus					: in std_logic;
+		v_plus					: in std_logic;
 		
-		cd				: out std_logic;
-		data_out		: out std_logic
+		cd						: out std_logic;
+		data_out				: out std_logic
 	);
 	end component;
 
@@ -194,6 +195,8 @@ architecture archi of rx is
 		clk							: in std_logic;
 		
 		jitter						: out time;
+		nb_truncated_bits			: out byte_slice;
+		truncated_preamble			: out boolean;
 		v_minus_err					: out std_logic;
 		v_plus_err					: out std_logic
 	);
@@ -225,6 +228,8 @@ signal crc_gen_start				: std_logic;
 signal crc_gen_end					: std_logic;
 
 signal mux_select					: std_logic_vector(1 downto 0);
+signal nb_truncated_bits			: byte_slice;
+signal truncated_preamble			: boolean;
 
 signal v_minus_fss					: std_logic;
 signal v_plus_fss					: std_logic;
@@ -291,17 +296,15 @@ begin
 	);
 	
 	msg_serializer: serializer
-	generic map(
-		width			=> 8
-	)
 	port map(
-		clk				=> clk,
-		data_in			=> msg_data,
-		go				=> msg_go,
-		reset			=> reset,
+		clk						=> clk,
+		data_in					=> msg_data,
+		go						=> msg_go,
+		nb_truncated_bits		=> nb_truncated_bits,
+		reset					=> reset,
 		
-		data_out		=> mx,
-		done			=> msg_new_data_req
+		data_out				=> mx,
+		done					=> msg_new_data_req
 	);
 
 	crc_block: crc_gen
@@ -309,30 +312,30 @@ begin
 		crc_l	=> crc_l
 	)
 	port map(
-		clk				=> clk,
-		gx				=> gx,
-		crc_gen_start	=> crc_gen_start,
-		crc_gen_end		=> crc_gen_end,
-		mx				=> mx,
-		reset			=> reset,
+		clk						=> clk,
+		gx						=> gx,
+		crc_gen_start			=> crc_gen_start,
+		crc_gen_end				=> crc_gen_end,
+		mx						=> mx,
+		reset					=> reset,
 				
-		fcs				=> fcs,
-		fcs_ready		=> fcs_ready,
-		fcs_valid		=> fcs_valid
+		fcs						=> fcs,
+		fcs_ready				=> fcs_ready,
+		fcs_valid				=> fcs_valid
 	);
 
 	fcs_serializer: onetime_serializer
 	generic map(
-		width			=> crc_l
+		width					=> crc_l
 	)
 	port map(
-		clk				=> clk,
-		data_in			=> fcs,
-		go				=> fcs_valid,
-		reset			=> reset,
+		clk						=> clk,
+		data_in					=> fcs,
+		go						=> fcs_valid,
+		reset					=> reset,
 		
-		data_out		=> fx,
-		done			=> fcs_complete
+		data_out				=> fx,
+		done					=> fcs_complete
 	);
 	
 	fss_block: fss_gen
@@ -361,25 +364,27 @@ begin
 	
 	encoder: manchester_encoder
 	port map(
-		clk				=> clk,
-		data_in			=> dx_final,
-		dx_en			=> dx_en,
-		h_clk			=> h_clk,
-		reset			=> reset,
-		v_minus			=> v_minus,
-		v_plus			=> v_plus,
+		clk						=> clk,
+		data_in					=> dx_final,
+		dx_en					=> dx_en,
+		h_clk					=> h_clk,
+		reset					=> reset,
+		v_minus					=> v_minus,
+		v_plus					=> v_plus,
 		
-		cd				=> cd,
-		data_out		=> dx_half
+		cd						=> cd,
+		data_out				=> dx_half
 	);
 	
 	meddler: reception_meddler
 	port map(
-		clk				=> clk,
+		clk						=> clk,
 		
-		jitter			=> jitter,
-		v_minus_err		=> v_minus_err,
-		v_plus_err		=> v_plus_err
+		jitter					=> jitter,
+		nb_truncated_bits		=> nb_truncated_bits,
+		truncated_preamble		=> truncated_preamble,
+		v_minus_err				=> v_minus_err,
+		v_plus_err				=> v_plus_err
 	);
 
 	delayer: process
@@ -408,7 +413,8 @@ begin
 			end case;
 	end process;
 	
-	dx						<= dx_half;
+	dx						<= '0' when truncated_preamble
+								else dx_half;
 
 	msg_dly(crc_l)			<= mx;
 	mx_final				<= msg_dly(0);

@@ -32,9 +32,9 @@ architecture archi of fss_gen is
 signal s_fss_value		: std_logic_vector(width downto 0);
 --														 :="101010101XX10XX0U";
 
-signal aux				: std_logic;
-signal i				: integer range width downto 0;
-signal sending_fss		: std_logic;
+signal aux						: std_logic;
+signal i						: integer range width downto 0;
+signal sending_fss				: std_logic;
 
 begin
 
@@ -86,4 +86,5 @@ begin
 			v_plus		<= '0';
 		end case;
 	end process;
+
 end archi;		

@@ -10,6 +10,9 @@ subtype byte_count_type			is integer range 0 to max_frame_length-1;
 type vector_type				is array (max_frame_length-1 downto 0) of std_logic_vector(7 downto 0);
 constant reset_max_latency				: time := 2 ms;
 
+subtype byte_slice is integer range 0 to 7;
+subtype byte_width is integer range 8 downto 1;
+
 component hex_byte_transcriber
 	port(
 		input		: in std_logic_vector(7 downto 0);

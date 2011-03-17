@@ -47,6 +47,7 @@ begin
 		readline	(config_file, config_line);
 		readline	(config_file, config_line);
 		readline	(config_file, config_line);
+		readline	(config_file, config_line);
 
 		readline	(config_file, config_line);
 		read		(config_line, txerr_length_config);
@@ -99,14 +100,14 @@ begin
 	begin
 		if report_config_trigger'event and report_config_trigger ='1' then
 			if txerr_length > 0 fs then
-				report	"               A transmission error from the FIELDRIVE is simulated: " 
-				& LF &  "               the TXERR signal is activated for " & time'image(txerr_length)
+				report	"               A transmission error from the FIELDRIVE is simulated" 
+				& LF &  "               by activating the TXERR signal for " & time'image(txerr_length)
 				& LF &  "               This should be reflected by a flag bit in the nanoFIP status error byte" & LF
 				severity warning;
 			end if;
 			if wdgn_length > 0 fs then
-				report	"               A watchdog error from the FIELDRIVE is simulated: " 
-				& LF &  "               the WDGN signal is activated (low) for " & time'image(wdgn_length)
+				report	"               A watchdog error from the FIELDRIVE is simulated" 
+				& LF &  "               by activating the WDGN signal (active low) for " & time'image(wdgn_length)
 				& LF &  "               This should be reflected by a flag bit in the nanoFIP status error byte" & LF
 				severity warning;
 			end if;
