@@ -16,6 +16,18 @@
 7440 us		-- stand-by time
 1,5A,10,0	-- ID_DAT for Identification variable
 8208 us		-- stand-by time
+1,5A,42,0	-- ID_DAT for Consumed variable
+3048 us		-- stand-by time
+0,5A,05,10	-- RP_DAT for Consumed variable
+5895 us		-- stand-by time
+1,01,91,0	-- ID_DAT for Broadcast variable
+3048 us		-- stand-by time
+0,01,91,10	-- RP_DAT for Broadcast variable
+5895 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+3048 us		-- stand-by time
+0,5A,05,10	-- RP_DAT for Consumed variable
+5895 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 3048 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
@@ -28,31 +40,15 @@
 3048 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
 5895 us		-- stand-by time
-1,01,91,0	-- ID_DAT for Broadcast variable
-3048 us		-- stand-by time
-0,01,91,10	-- RP_DAT for Broadcast variable
-5895 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 3048 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
 5895 us		-- stand-by time
-1,01,91,0	-- ID_DAT for Broadcast variable
-3048 us		-- stand-by time
-0,01,91,10	-- RP_DAT for Broadcast variable
-5895 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 3048 us		-- stand-by time
-0,5A,05,10	-- RP_DAT for Consumed variable
-5895 us		-- stand-by time
-1,01,91,0	-- ID_DAT for Broadcast variable
-3048 us		-- stand-by time
-0,01,91,10	-- RP_DAT for Broadcast variable
-5895 us		-- stand-by time
-1,5A,45,0	-- ID_DAT for Consumed variable
-3048 us		-- stand-by time
-0,5A,45,10	-- RP_DAT for Consumed variable
-5895 us		-- stand-by time
+0,5A,05,126	-- RP_DAT for Consumed variable
+35591 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
-7208 us		-- stand-by time
+7144 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
 2000 ms		-- final stand-by time to end the simulation
