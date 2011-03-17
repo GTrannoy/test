@@ -1,0 +1,49 @@
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+1083 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+1					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+22 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+136 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+TRUE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+24 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+548 us				--++ time for which the configuration above is valid
+TRUE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+3 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+2000 ms				--++ time for which the configuration above is valid

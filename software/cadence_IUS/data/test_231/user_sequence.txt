@@ -14,17 +14,15 @@
 8943 us		-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
 8943 us		-- stand-by time
-0,2,124,0,0	-- reading VAR2 from memory
-8943 us		-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
 8943 us		-- stand-by time
 0,2,124,0,0	-- reading VAR2 from memory
 8943 us		-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
 8943 us		-- stand-by time
-0,2,124,0,0	-- reading VAR2 from memory
-8943 us		-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
-13103 us		-- stand-by time
+38639 us		-- stand-by time
+0,1,124,0,0	-- reading VAR1 from memory
+13039 us		-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
 2000 ms		-- final stand-by time to end the simulation

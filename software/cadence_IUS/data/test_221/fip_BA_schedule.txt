@@ -11,11 +11,23 @@
 0,5A,05,10	-- RP_DAT for Consumed variable
 172 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
-139 us		-- stand-by time
+139 us	-- stand-by time
 1,5A,14,0	-- ID_DAT for Presence variable
-129 us		-- stand-by time
+137 us		-- stand-by time
 1,5A,10,0	-- ID_DAT for Identification variable
 138 us		-- stand-by time
+1,5A,42,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,10	-- RP_DAT for Consumed variable
+110 us		-- stand-by time
+1,01,91,0	-- ID_DAT for Broadcast variable
+36 us		-- stand-by time
+0,01,91,10	-- RP_DAT for Broadcast variable
+110 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,10	-- RP_DAT for Consumed variable
+110 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 36 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
@@ -28,31 +40,15 @@
 36 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
 110 us		-- stand-by time
-1,01,91,0	-- ID_DAT for Broadcast variable
-36 us		-- stand-by time
-0,01,91,10	-- RP_DAT for Broadcast variable
-110 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 36 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
 110 us		-- stand-by time
-1,01,91,0	-- ID_DAT for Broadcast variable
-36 us		-- stand-by time
-0,01,91,10	-- RP_DAT for Broadcast variable
-110 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 36 us		-- stand-by time
-0,5A,05,10	-- RP_DAT for Consumed variable
-110 us		-- stand-by time
-1,01,91,0	-- ID_DAT for Broadcast variable
-36 us		-- stand-by time
-0,01,91,10	-- RP_DAT for Broadcast variable
-110 us		-- stand-by time
-1,5A,45,0	-- ID_DAT for Consumed variable
-36 us		-- stand-by time
-0,5A,45,10	-- RP_DAT for Consumed variable
-110 us		-- stand-by time
+0,5A,05,126	-- RP_DAT for Consumed variable
+574 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
-136 us		-- stand-by time
+132 us		-- stand-by time
 0,5A,05,10	-- RP_DAT for Consumed variable
 2000 ms		-- final stand-by time to end the simulation
