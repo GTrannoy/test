@@ -197,11 +197,12 @@ begin
 -----------------------------------------------------------------------------
 	delayer: process
 	begin
-		fss_dly(14 downto 0)		<= fss_dly(15 downto 1);
 
-		msg_start_dly(15 downto 0)	<= msg_start_dly(16 downto 1);
+		fss_dly(14 downto 0)			<= fss_dly(15 downto 1);
 
-		fes_dly(6 downto 0)			<= fes_dly(7 downto 1);
+		msg_start_dly(15 downto 0)		<= msg_start_dly(16 downto 1);
+
+		fes_dly(6 downto 0)				<= fes_dly(7 downto 1);
 
 		wait until clk ='1';
 	end process;

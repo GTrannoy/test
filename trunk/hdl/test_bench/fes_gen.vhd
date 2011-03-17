@@ -16,7 +16,7 @@ entity fes_gen is
 	);
 	port(
 		clk						: in std_logic;
-		fes_value				: in std_logic_vector(7 downto 0);
+		fes_value				: in std_logic_vector(width-1 downto 0);
 		start_delimiter			: in std_logic;
 		reset					: in std_logic;
 		

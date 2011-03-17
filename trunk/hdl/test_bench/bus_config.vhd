@@ -45,9 +45,9 @@ architecture archi of bus_config is
 constant min_turn_around_3125k	: time:= 460 us;
 constant min_turn_around_1M		: time:= 10 us;
 constant min_turn_around_25M	: time:= 5 us;
-constant silence_time_3125k		: time:= 4160 us;
+constant silence_time_3125k		: time:= 4096 us;
 constant silence_time_1M		: time:= 150 us;
-constant silence_time_25M		: time:= 100 us;
+constant silence_time_25M		: time:= 96 us;
 
 signal bit_rate					: integer;
 signal min_turnaround			: time;

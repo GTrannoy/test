@@ -121,13 +121,15 @@ begin
 			end if;
 			if s_preset_length > 0 fs then
 				report	"               The power-on reset (RSTPON) is asserted for " & time'image(s_preset_length) 
-				& LF &  "               As a consequence, nanoFIP should assert the Fieldrive reset (FD_RSTN)"
+				& LF &  "               As a consequence, nanoFIP should reset its internal registers,"
+				& LF &  "               assert the Fieldrive reset (FD_RSTN)"
 				& LF &  "               and reset the VAR_RDY user interface signals" & LF
 				severity warning;
 			end if;
 			if s_ureset_length > 0 fs then
 				report	"               The user reset (RSTIN) is asserted for " & time'image(s_ureset_length) 
-				& LF &  "               As a consequence, nanoFIP should assert the Fieldrive reset (FD_RSTN)"
+				& LF &  "               As a consequence, nanoFIP should reset its internal registers,"
+				& LF &  "               assert the Fieldrive reset (FD_RSTN)"
 				& LF &  "               and reset the VAR_RDY user interface signals" & LF
 				severity warning;
 			end if;
