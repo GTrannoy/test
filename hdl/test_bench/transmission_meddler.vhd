@@ -44,10 +44,6 @@ begin
 	variable txerr_length_config	: time;
 	variable wdgn_length_config		: time;
 	begin
-		wait for 0 ps;
-		wait for 0 ps;
-		wait for 0 ps;
-		
 		readline	(config_file, config_line);
 		readline	(config_file, config_line);
 		readline	(config_file, config_line);
@@ -67,6 +63,7 @@ begin
 		wdgn_length				<= wdgn_length_config;
 		config_validity_time	<= validity_time;
 		report_config_trigger	<= '1';
+		wait for 0 ps;
 		wait for validity_time - 1 ps;
 		report_config_trigger	<= '0';
 		wait for 1 ps;
