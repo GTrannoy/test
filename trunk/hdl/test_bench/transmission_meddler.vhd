@@ -44,6 +44,10 @@ begin
 	variable txerr_length_config	: time;
 	variable wdgn_length_config		: time;
 	begin
+		wait for 0 ps;
+		wait for 0 ps;
+		wait for 0 ps;
+		
 		readline	(config_file, config_line);
 		readline	(config_file, config_line);
 		readline	(config_file, config_line);
