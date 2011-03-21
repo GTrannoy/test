@@ -93,10 +93,10 @@ package WF_package is
   constant c_ONE  : std_logic_vector (1 downto 0) := "10";
   constant c_ZERO : std_logic_vector (1 downto 0) := "01";
 
-  constant c_PRE  : std_logic_vector (15 downto 0) :=  c_ONE & c_ZERO & c_ONE & c_ZERO & c_ONE & c_ZERO & c_ONE & c_ZERO;
-  constant c_FSD  : std_logic_vector (15 downto 0) :=  c_ONE & c_VP & c_VN & c_ONE & c_ZERO & c_VN & c_VP & c_ZERO;
-  constant c_FES  : std_logic_vector (15 downto 0) :=  c_ONE & c_VP & c_VN & c_VP & c_VN & c_ONE & c_ZERO & c_ONE;
-  constant c_FSS  : std_logic_vector (31 downto 0) :=  c_PRE & c_FSD;
+  constant c_PRE  : std_logic_vector (15 downto 0) := c_ONE & c_ZERO & c_ONE & c_ZERO & c_ONE & c_ZERO & c_ONE & c_ZERO;
+  constant c_FSD  : std_logic_vector (15 downto 0) := c_ONE & c_VP & c_VN & c_ONE & c_ZERO & c_VN & c_VP & c_ZERO;
+  constant c_FES  : std_logic_vector (15 downto 0) := c_ONE & c_VP & c_VN & c_VP & c_VN & c_ONE & c_ZERO & c_ONE;
+  constant c_FSS  : std_logic_vector (31 downto 0) := c_PRE & c_FSD;
 
 
 
@@ -359,7 +359,8 @@ package WF_package is
   port (
     uclk_i                   : in std_logic;
     nfip_rst_i               : in std_logic;
-    rx_rst_p_i               : in std_logic;
+    rx_rst_i                 : in std_logic;
+    manch_code_viol_p_i      : in std_logic; 
     signif_edge_window_i     : in std_logic;
     adjac_bits_window_i      : in std_logic;
     fd_rxd_r_edge_p_i        : in std_logic;
@@ -458,7 +459,7 @@ package WF_package is
     rate_i                      : in std_logic_vector (1 downto 0);
     fd_rxd_a_i                  : in std_logic;
     nfip_rst_i                  : in std_logic;
-    rx_rst_p_i                  : in std_logic;
+    rx_rst_i                    : in std_logic;
   -----------------------------------------------------------------
     rx_byte_o                   : out std_logic_vector (7 downto 0);
     rx_byte_ready_p_o           : out std_logic;
@@ -481,6 +482,7 @@ package WF_package is
   -----------------------------------------------------------------
     rx_manch_clk_p_o        : out std_logic;
     rx_bit_clk_p_o          : out std_logic;
+    rx_manch_code_viol_p_o  : out std_logic;
     rx_signif_edge_window_o : out std_logic;
     rx_adjac_bits_window_o  : out std_logic );
   -----------------------------------------------------------------
@@ -613,7 +615,7 @@ end component WF_rx_osc;
     tx_start_p_o                : out std_logic;
     prod_cons_byte_index_o      : out std_logic_vector (7 downto 0);
     prod_data_lgth_o            : out std_logic_vector (7 downto 0);
-    rx_rst_p_o                  : out std_logic;
+    rx_rst_o                    : out std_logic;
     var_o                       : out t_var);
   -----------------------------------------------------------------
   end component WF_engine_control;
@@ -704,21 +706,6 @@ end component WF_rx_osc;
     word_manch_o : out std_logic_vector ((2*g_word_lgth)-1 downto 0));
   -----------------------------------------------------------------
   end component WF_manch_encoder;
-
-
-
----------------------------------------------------------------------------------------------------
-  component WF_rx_manch_code_check is
-  port (
-    uclk_i                : in std_logic;
-    nfip_rst_i            : in std_logic;
-    serial_input_signal_i : in std_logic;
-    sample_bit_p_i        : in std_logic;
-    sample_manch_bit_p_i  : in std_logic;
-  -----------------------------------------------------------------
-    manch_code_viol_p_o   : out std_logic);
-  -----------------------------------------------------------------
-  end component WF_rx_manch_code_check;
 
 
 

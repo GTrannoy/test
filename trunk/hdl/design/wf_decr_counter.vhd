@@ -90,11 +90,12 @@ end entity WF_decr_counter;
 --=================================================================================================
 architecture rtl of WF_decr_counter is
 
-  signal s_counter : unsigned (g_counter_lgth-1 downto 0);
+  signal s_counter_is_zero : std_logic;
+  signal s_counter         : unsigned (g_counter_lgth-1 downto 0);
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
@@ -116,16 +117,19 @@ begin
           s_counter <= s_counter - 1;
 
         end if;
+
+        counter_is_zero_o <= s_counter_is_zero; -- for slack reasons, especially for the
+                                                -- 21 bits "session_timeout" counters
       end if;
     end if;
   end process;
 
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  -- Concurrent assignments for the output signals
+  -- Concurrent assignments 
 
   counter_o         <= s_counter;
-  counter_is_zero_o <= '1' when s_counter = to_unsigned(0,s_counter'length) else '0';
+  s_counter_is_zero <= '1' when s_counter = to_unsigned(0,s_counter'length) else '0';
 
 
 end architecture rtl;

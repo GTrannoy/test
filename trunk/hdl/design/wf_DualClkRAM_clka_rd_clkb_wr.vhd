@@ -100,14 +100,14 @@ end WF_DualClkRAM_clka_rd_clkb_wr;
 --=================================================================================================
 architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is
 
-  type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
-  signal s_data_o_A_array : t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
+--  type t_data_o_A_array is array (natural range <>) of std_logic_vector (7 downto 0);
+--  signal s_data_o_A_array : t_data_o_A_array (0 to 2); -- keeps the DOUTA of each one of the memories
   signal s_one, s_rwB     : std_logic;
   signal s_zeros          : std_logic_vector (7 downto 0);
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
@@ -122,7 +122,7 @@ begin
 --! The input DINB is written in the same position in the 3 memories.
 --! The output DOUTA from each memory is kept in the array s_data_o_A_array.
 
-  G_memory_triplication: for I in 0 to 2 generate
+--  G_memory_triplication: for I in 0 to 2 generate
 
     UDualClkRam : DualClkRam
     port map (
@@ -138,18 +138,18 @@ begin
 
       RESETn => s_one,
 
-      DOUTA  => s_data_o_A_array(I),
+      DOUTA  => data_porta_o, --s_data_o_A_array(I),
       DOUTB  => open);
 
-  end generate;
+--  end generate;
 
 
 ---------------------------------------------------------------------------------------------------
 --!@brief Combinatorial Majority_Voter
 
-Majority_Voter: data_porta_o <= (s_data_o_A_array(0) and s_data_o_A_array(1)) or
-                                (s_data_o_A_array(1) and s_data_o_A_array(2)) or
-                                (s_data_o_A_array(2) and s_data_o_A_array(0));
+--Majority_Voter: data_porta_o <= (s_data_o_A_array(0) and s_data_o_A_array(1)) or
+--                                (s_data_o_A_array(1) and s_data_o_A_array(2)) or
+--                                (s_data_o_A_array(2) and s_data_o_A_array(0));
 
 end syn;
 --=================================================================================================

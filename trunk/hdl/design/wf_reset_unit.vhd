@@ -145,6 +145,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!     01/2011  v0.03  EG  PoR added; signals assert_RSTON_p_i & rst_nFIP_and_FD_p_i are inputs
 --!                         treated in the wf_cons_outcome; 2 state machines created; clean-up
 --!                         PoR also for internal WISHBONE resets
+--!     02/2011  v0.031  EG state nfip_off_fd_off added
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -203,7 +204,7 @@ end entity WF_reset_unit;
 --=================================================================================================
 architecture rtl of WF_reset_unit is
 
-  type rstin_st_t   is (idle, rstin_eval, nfip_on_fd_on, nfip_off_fd_on);
+  type rstin_st_t   is (idle, rstin_eval, nfip_on_fd_on, nfip_off_fd_on, nfip_off_fd_off);
   type var_rst_st_t is (var_rst_idle, var_rst_rston_on, var_rst_nfip_on_fd_on_rston_on,
                         var_rst_nfip_off_fd_on_rston_on, var_rst_nfip_on_fd_on,
                         var_rst_nfip_off_fd_on_rston_off);
@@ -222,7 +223,7 @@ architecture rtl of WF_reset_unit is
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                      architecture begin
 --=================================================================================================
 begin
 
@@ -273,7 +274,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                            RSTIN                                              --
+--                                             RSTIN                                             --
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -361,10 +362,19 @@ begin
     when nfip_off_fd_on =>
                                                           -- nanoFIP internal reset deactivated
                         if s_counter_is_full = '1' then   -- FIELDRIVE reset continues being active
-                           nx_rstin_st <= idle;           -- unitl 4 FD_TXCK cycles have passed
+                           nx_rstin_st <= nfip_off_fd_off;-- unitl 4 FD_TXCK cycles have passed
 
                         else
                            nx_rstin_st <= nfip_off_fd_on;
+                        end if;
+
+
+    when nfip_off_fd_off =>
+
+                        if s_rsti_synch(2) = '1' then     -- RSTIN still active
+                          nx_rstin_st   <= nfip_off_fd_off;
+                        else
+                           nx_rstin_st <= idle;
                         end if;
 
 
@@ -416,6 +426,13 @@ begin
                  -------------------------------------
 
 
+    when nfip_off_fd_off =>
+                  s_reinit_counter <= '1';    -- no counting
+
+                  s_rstin_nfip_rst <= '0';
+                  s_rstin_fd_rst   <= '0';
+
+
     when others =>
                   s_reinit_counter <= '1';    -- no counting
 
@@ -449,7 +466,7 @@ RSTIN_free_counter: WF_incr_counter
 
 
 ---------------------------------------------------------------------------------------------------
---                                              var_rst                                          --
+--                                            var_rst                                            --
 ---------------------------------------------------------------------------------------------------
 --!@brief Resets_after_a_var_rst FSM: the state machine is divided in three parts (a clocked process
 --! to store the current state, a combinatorial process to manage state transitions and finally a
@@ -663,7 +680,7 @@ free_counter: WF_incr_counter
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   s_var_rst_counter_is_eight <= '1' when s_var_rst_c= to_unsigned(8, s_var_rst_c'length)  else '0';
-  s_var_rst_counter_is_two   <= '1' when s_var_rst_c= to_unsigned(10, s_var_rst_c'length) else '0';
+  s_var_rst_counter_is_two   <= '1' when s_var_rst_c= to_unsigned(2, s_var_rst_c'length) else '0';
   s_var_rst_counter_is_full  <= '1' when s_var_rst_c= s_txck_four_periods                 else '0';
 
 
