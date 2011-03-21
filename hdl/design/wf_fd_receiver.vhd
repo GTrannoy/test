@@ -117,9 +117,9 @@ entity WF_fd_receiver is
     nfip_rst_i                  : in std_logic; --! nanoFIP internal reset
 
     -- Signal from the WF_engine_control unit
-    rx_rst_p_i                  : in std_logic; --! receiver timeout
-                                                --! in cases when reception is lasting more than
-                                                --! received (ID_DAT > 8 bytes, RP_DAT > 130 bytes)
+    rx_rst_i                    : in std_logic; --! reset during production or
+                                                --! reset pulse when consumption is lasting more than
+                                                --! expected (ID_DAT > 8 bytes, RP_DAT > 134 bytes)
 
 
   -- OUTPUTS
@@ -147,12 +147,12 @@ end entity WF_fd_receiver;
 architecture struc of WF_fd_receiver is
 
   signal s_rx_osc_rst, s_adjac_bits_window, s_signif_edge_window                 : std_logic;
-  signal s_sample_bit_p, s_sample_manch_bit_p, s_rxd_filtered                    : std_logic;
+  signal s_sample_bit_p, s_sample_manch_bit_p, s_rxd_filtered, s_rx_code_viol_p  : std_logic;
   signal s_rxd_filtered_edge_p, s_rxd_filtered_f_edge_p, s_rxd_filtered_r_edge_p : std_logic;
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 
 begin
@@ -195,6 +195,7 @@ begin
    ------------------------------------------------------
     rx_manch_clk_p_o        => s_sample_manch_bit_p,
     rx_bit_clk_p_o          => s_sample_bit_p,
+    rx_manch_code_viol_p_o  => s_rx_code_viol_p, 
     rx_signif_edge_window_o => s_signif_edge_window,
     rx_adjac_bits_window_o  => s_adjac_bits_window);
    -----------------------------------------------------
@@ -211,7 +212,8 @@ begin
   port map (
     uclk_i                   => uclk_i,
     nfip_rst_i               => nfip_rst_i,
-    rx_rst_p_i               => rx_rst_p_i,
+    rx_rst_i                 => rx_rst_i,
+    manch_code_viol_p_i      => s_rx_code_viol_p,
     sample_bit_p_i           => s_sample_bit_p,
     sample_manch_bit_p_i     => s_sample_manch_bit_p,
     signif_edge_window_i     => s_signif_edge_window,

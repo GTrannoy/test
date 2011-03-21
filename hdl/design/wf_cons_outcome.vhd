@@ -43,6 +43,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the WF_reset_unit.
 --!
 --!
+--!            Note: The Length byte is considered "correct" if it is coherent with the actual
+--!                  number of bytes received in the frame.
+--!
 --!            Reminder:
 --!
 --!            Consumed RP_DAT frame structure :
@@ -86,6 +89,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!     -> 02/2010  v0.05  EG  Added here functionality of wf_cons_frame_validator
 --!                            Bug on var1_rdy, var2_rdy generation corrected (the s_varX_received
 --!                            was always set to 1!)
+--!                            Added check of Ctrl byte for rtler
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -158,12 +162,12 @@ end entity WF_cons_outcome;
 --=================================================================================================
 architecture rtl of WF_cons_outcome is
 
-  signal s_cons_frame_ok_p                 : std_logic;
+  signal s_cons_frame_ok_p, s_var1_received, s_var2_received                 : std_logic;
   signal s_rst_nfip_and_fd, s_assert_rston : std_logic;
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
@@ -181,7 +185,8 @@ begin
 --! Length, the 2 CRC and the FES bytes (and counting starts from 0!).
 -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- --
 --! The same process is also used for the generation of the of the nanoFIP status byte, bit 4, that
---! indicates a received PDU_TYPE or Length byte error in a consumed RP_DAT frame.
+--! indicates a received Control or PDU_TYPE byte error or a Length byte incoherency in a consumed 
+--! RP_DAT frame.
 --! Note: The end of a frame is marked by either the signal rx_fss_crc_fes_manch_ok_p_i or by the
 --! rx_crc_or_manch_wrong_p_i.
 
@@ -189,25 +194,28 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-        s_cons_frame_ok_p <= '0';
+        s_cons_frame_ok_p          <= '0';
+        nfip_status_r_tler_p_o     <= '0';
       else
+
         if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) then -- only consumed RP_DATs
 
-          --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --
+          --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
           if (rx_fss_crc_fes_manch_ok_p_i = '1')            and         -- FSS CRC FES Manch. check
              (cons_ctrl_byte_i = c_RP_DAT_CTRL_BYTE)        and         -- CTRL byte check
              (cons_pdu_byte_i  = c_PROD_CONS_PDU_TYPE_BYTE) and         -- PDU_TYPE byte check
              (unsigned(rx_byte_index_i ) = (unsigned(cons_lgth_byte_i) + 5)) then --LGTH byte check
 
-            s_cons_frame_ok_p <= '1';
+            s_cons_frame_ok_p      <= '1';
           else
-            s_cons_frame_ok_p <= '0';
+            s_cons_frame_ok_p      <= '0';
           end if;
 
-          --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --
-          if ((rx_fss_crc_fes_manch_ok_p_i = '1') or (rx_crc_or_manch_wrong_p_i = '1')) and -- end of frame
-              ((cons_pdu_byte_i /= c_PROD_CONS_PDU_TYPE_BYTE)                           or  -- PDU_TYPE byte check
-              (unsigned(rx_byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5))) then        -- LGTH byte check
+          --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
+          if ((rx_fss_crc_fes_manch_ok_p_i = '1') or (rx_crc_or_manch_wrong_p_i = '1')) and-- end of frame
+              ((cons_ctrl_byte_i = c_RP_DAT_CTRL_BYTE)                                  or -- CTRL byte check
+              ((cons_pdu_byte_i /= c_PROD_CONS_PDU_TYPE_BYTE)                           or -- PDU_TYPE byte check
+              (unsigned(rx_byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5)))) then      -- LGTH byte check
 
             nfip_status_r_tler_p_o <= '1';
           else
@@ -249,18 +257,22 @@ begin
 
   --! VAR2_RDY (for broadcast consumed vars): stays always deasserted.
 
---! Note: A correct consumed RP_DAT frame is signaled by the s_cons_frame_ok_p, whereas a correct
---! ID_DAT frame along with the variable it contained is signaled by the var_i.
---! For consumed variables, var_i gets its value (var_1, var_2, var_rst) after the reception of a
---! correct ID_DAT frame and of a correct FSS of the corresponding RP_DAT frame and it retains it
---! until the end of the reception.
+--! Note: A correct consumed RP_DAT frame is signaled by the s_cons_frame_ok_p, which arrives upon
+--! FES detection. A correct ID_DAT frame along with the variable it contained is signaled by the
+--! var_i. The signal var_i gets its value (var_1, var_2, var_rst) after the reception of a correct
+--! ID_DAT and of a correct RP_DAT FSS; var_i retains its value until the FES detectionon of the
+--! RP_DAT frame.
+--!
+--! frames          : ______[ID_DAT,var_1]____[......RP_DAT......]________________[ID_DAT,var_1]___
+--! cons_frame_ok_p : ___________________________________________|-|_______________________________
+--! var_i           :       var_whatever      > <      var_1       > <       var_whatever                                                   
 
   VAR_RDY_Generation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-        var1_rdy_o          <= '0';
-        var2_rdy_o          <= '0';
+        var1_rdy_o   <= '0';
+        var2_rdy_o   <= '0';
 
       else
 
@@ -296,8 +308,6 @@ begin
       end if;
     end if;
   end process;
-
-
 
 ---------------------------------------------------------------------------------------------------
 --!@ brief: Generation of the signals rst_nfip_and_fd : signals that the 1st byte of a consumed

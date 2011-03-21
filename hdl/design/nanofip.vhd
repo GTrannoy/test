@@ -276,6 +276,12 @@ entity nanofip is
   var3_rdy_o : out std_logic;                    --! Signals that the var 3 can safely be written
 
 
+------------------------------************************----------------------------
+TP16 : out std_logic;
+TP15 : out std_logic;
+TP14 : out std_logic;
+------------------------------************************----------------------------
+
   --  User Interface, WISHBONE Slave
 
   dat_o      : out std_logic_vector(15 downto 0);--! dat_o(7 downto 0) : WISHBONE data out, memory mode
@@ -294,6 +300,20 @@ end entity nanofip;
 
 architecture struc of nanofip is
 
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                    Triple Module Redundancy                                   --
+---------------------------------------------------------------------------------------------------
+ --attribute syn_radhardlevel          : string;                                                   --
+ --attribute syn_radhardlevel of struc : architecture is "tmr";                                    --
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
   -- WF_reset_unit iutputs
   signal s_nfip_intern_rst, s_wb_rst                                                   : std_logic;
   -- WF_consumption outputs
@@ -309,7 +329,7 @@ architecture struc of nanofip is
   signal s_tx_last_byte_p                                                              : std_logic;
   -- WF_engine_control outputs
   signal s_tx_start_p, s_tx_request_byte_p, s_byte_request_accepted_p                  : std_logic;
-  signal s_rx_rst_p                                                                    : std_logic;
+  signal s_rx_rst                                                                      : std_logic;
   signal s_var                                                                         : t_var;
   signal s_prod_data_lgth, s_prod_cons_byte_index                  : std_logic_vector (7 downto 0);
   -- WF_model_constr_dec outputs
@@ -319,10 +339,17 @@ architecture struc of nanofip is
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
+
+------------------------------************************----------------------------
+TP16 <= '1' when s_var = var_1 else '0';
+TP15 <= s_assert_RSTON_p;
+TP14 <= s_rx_fss_crc_fes_manch_ok_p;
+
+------------------------------************************----------------------------
 
 ---------------------------------------------------------------------------------------------------
 --                                         WF_reset_unit                                         --
@@ -383,7 +410,7 @@ begin
     rate_i                      => rate_i,
     fd_rxd_a_i                  => fd_rxd_i,
     nfip_rst_i                  => s_nfip_intern_rst,
-    rx_rst_p_i                  => s_rx_rst_p,
+    rx_rst_i                    => s_rx_rst,
   -------------------------------------------------------------
     rx_byte_o                   => s_rx_byte,
     rx_byte_ready_p_o           => s_rx_byte_ready_p,
@@ -481,7 +508,7 @@ begin
     tx_last_byte_p_o            => s_tx_last_byte_p,
     prod_cons_byte_index_o      => s_prod_cons_byte_index,
     prod_data_lgth_o            => s_prod_data_lgth,
-    rx_rst_p_o                  => s_rx_rst_p);
+    rx_rst_o                    => s_rx_rst);
   -------------------------------------------------------------
 
     var1_rdy_o <= s_var1_rdy;

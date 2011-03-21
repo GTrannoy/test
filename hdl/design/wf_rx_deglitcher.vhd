@@ -108,13 +108,13 @@ architecture Behavioral of WF_rx_deglitcher is
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 --!@brief Synchronous process FD_RXD_synchronizer: Synchronization of the nanoFIP FIELDRIVE input
---!  FD_RXD to the uclk, using a set of 2 registers.
+--! FD_RXD to the uclk, using a set of 2 registers.
 
   FD_RXD_synchronizer: process (uclk_i)
   begin
@@ -140,7 +140,7 @@ begin
       if nfip_rst_i = '1' then
         s_deglitch_c       <= to_unsigned (c_DEGLITCH_THRESHOLD, s_deglitch_c'length) srl 1;-- middle value
         s_rxd_filtered     <= '0';
-
+        s_rxd_filtered_d1  <= '0';
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         if s_fd_rxd_synch(1) = '0' then         -- arrival of a '0'
@@ -163,7 +163,7 @@ begin
           end if;                               -- if counter = c_DEGLITCH_THRESHOLD
 
         end if;
-        s_rxd_filtered_d1  <= s_rxd_filtered;
+        s_rxd_filtered_d1  <= s_rxd_filtered;   -- used for the edges detection
       end if;
     end if;
   end process;

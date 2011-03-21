@@ -97,12 +97,11 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!                         rx_byte_ready_p_o removed cleaning-up+commenting
 --!     02/2011  v0.05  EG  Independant timeout counter added; time counter 18 digits instead of 15
 --!                         id_dat_frame_ok: corrected mistake if rx_fss_crc_fes_manch_ok_p not
---!                         activated
+--!                         activated; rx reset during production (rx_rst_o)
 --
 ---------------------------------------------------------------------------------------------------
 --
---! @todo  -> could add an extra time counter (on top of the more complicated bytes counters) that
---!           after 134*8 transmission periods can reset tx and rx
+--! @todo
 --!
 ---------------------------------------------------------------------------------------------------
 
@@ -172,10 +171,9 @@ entity WF_engine_control is
     -- Signals to the WF_consumption
 
     -- Signal to the WF_rx_deserializer
-    rx_rst_p_o                 : out std_logic;--!if a FES hasn't arrived after 8 bytes of an ID_DAT
-                                               --!or after 134 bytes of a RP_DAT, the state machine
-                                               --!of the WF_rx_deserializer returns to idle state
-
+    rx_rst_o                   : out std_logic; --! reset during production or
+                                                --! reset pulse when consumption is lasting more than
+                                                --! expected (ID_DAT > 8 bytes, RP_DAT > 134 bytes)
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
     -- Signals to the WF_production & WF_consumption
@@ -224,7 +222,7 @@ architecture rtl of WF_engine_control is
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
@@ -624,7 +622,7 @@ begin
     incr_counter_i    => s_inc_prod_bytes_counter,
     -------------------------------------------------------
     counter_o         => s_prod_bytes_c,
-    counter_is_full_o => open );
+    counter_is_full_o => open);
     -------------------------------------------------------
 
   --  --  --  --  --  --  --  --  --  --  --
@@ -942,24 +940,26 @@ begin
 --                                 Concurrent Signal Assignments                                 --
 ---------------------------------------------------------------------------------------------------
 -- variable received by a valid ID_DAT frame that concerns this station
-  var_o                  <= s_var;
+  var_o                      <= s_var;
 
 -- number of bytes of the Control & Data fields of a produced RP_DAT frame
-  prod_data_lgth_o       <= s_prod_data_lgth;
+  prod_data_lgth_o           <= s_prod_data_lgth;
 
 -- response to WF_tx_serializer request for a byte
-  tx_byte_request_accept_p_o      <= s_tx_byte_request_accept_p_d2;
+  tx_byte_request_accept_p_o <= s_tx_byte_request_accept_p_d2;
 
 -- Index of the byte being consumed or produced
-  prod_cons_byte_index_o <= s_tx_byte_index when s_producing = '1' else s_rx_byte_index;
+  prod_cons_byte_index_o     <= s_tx_byte_index when s_producing = '1' else s_rx_byte_index;
 
 -- If the WF_rx_deserializer continues receiving bytes when the engine_control is idle, it has to
 -- be reset. This happens when the number of bytes that have arrived exceed the expected (ID_DAT >8
--- bytes and consumed RP_DAT > 130 bytes)
-  rx_rst_p_o             <= s_idle_state and rx_byte_ready_p_i;
+-- bytes and consumed RP_DAT > 134 bytes).
+--! The WF_rx_deserializer is also reset during a production session.
+  rx_rst_o                   <= (s_idle_state and rx_byte_ready_p_i) or
+                                (s_prod_wait_turnar_time or s_producing);
 
 -- Production starts after the expiration of the turnaround time
-  tx_start_p_o           <= s_tx_start_prod_p;
+  tx_start_p_o               <= s_tx_start_prod_p;
 
 ---------------------------------------------------------------------------------------------------
 

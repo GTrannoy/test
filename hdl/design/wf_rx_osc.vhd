@@ -111,6 +111,8 @@ entity WF_rx_osc is
                                               --!  o between adjacent bits
                                               --!  __________|-|_________
 
+    rx_manch_code_viol_p_o  : out std_logic;  --! pulse upon manch. code violation detection
+
     rx_signif_edge_window_o : out std_logic;  --! time window where a significant edge is expected
 
     rx_adjac_bits_window_o  : out std_logic   --! time window where a transition between adjacent
@@ -134,18 +136,16 @@ architecture rtl of WF_rx_osc is
   signal s_bit_clk, s_bit_clk_d1, s_manch_clk, s_manch_clk_d1                          : std_logic;
 
 
- --=================================================================================================
---                                        architecture begin
+--=================================================================================================
+--!                                    architecture declaration
 --=================================================================================================
 begin
 
-                     -- # uclock ticks for a bit period, defined by the WorldFIP bit rate
-  s_period           <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));
+                   --  # uclock ticks for a bit period, defined by the WorldFIP bit rate
+  s_period      <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));
+  s_half_period <= s_period srl 1; -- 1/2 s_period
+  s_margin      <= s_period srl 3; -- margin for jitter defined
 
-  s_counter_is_full  <= '1' when s_period_c = s_period -1 else '0'; -- counter full indicator
-  s_half_period      <= s_period srl 1;                             -- 1/2 s_period
-  s_margin           <= s_period srl 3;                             -- margin for jitter defined
-                                                                    -- as 1/8 s_period
 
 
 ---------------------------------------------------------------------------------------------------
@@ -170,6 +170,8 @@ begin
     ------------------------------------------
     counter_o         => s_period_c);
     ------------------------------------------
+
+    s_counter_is_full <= '1' when s_period_c = s_period -1 else '0'; -- counter full indicator
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- counter reinitialized : if nfip_rst_i is active                       or
@@ -204,13 +206,13 @@ begin
   begin
     if rising_edge (uclk_i) then
       if (nfip_rst_i = '1') then
-        s_manch_clk                 <='0';
-        s_bit_clk                   <='0';
-        s_bit_clk_d1                <='0';
-        s_manch_clk_d1              <='0';
-        s_signif_edge_found         <='0';
-        s_adjac_bits_edge_found     <='0';
-
+        s_manch_clk                <= '0';
+        s_bit_clk                  <= '0';
+        s_bit_clk_d1               <= '0';
+        s_manch_clk_d1             <= '0';
+        s_signif_edge_found        <= '0';
+        s_adjac_bits_edge_found    <= '0';
+        rx_manch_code_viol_p_o     <= '0';
 
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -219,17 +221,19 @@ begin
         -- looking for a significant edge inside the corresponding window
         if (s_signif_edge_window='1') and (fd_rxd_edge_p_i='1') and (s_signif_edge_found='0') then
 
-            s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk
-            s_signif_edge_found     <= '1';             -- indication that the edge was found
-            s_adjac_bits_edge_found <= '0';
+          s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk
+          s_signif_edge_found     <= '1';             -- indication that the edge was found
+          s_adjac_bits_edge_found <= '0';
+          rx_manch_code_viol_p_o  <= '0';
 
         -- if a significant edge is not found where expected (code violation), the rx_manch_clk
         -- is inverted right after the end of the signif_edge_window.
         elsif (s_signif_edge_found = '0') and (s_period_c = s_margin) then
 
-          s_manch_clk               <= not s_manch_clk;
-          s_adjac_bits_edge_found   <= '0';             -- re-initialization before the
+          s_manch_clk             <= not s_manch_clk;
+          s_adjac_bits_edge_found <= '0';             -- re-initialization before the
                                                         -- next cycle
+          rx_manch_code_viol_p_o  <= '1';
 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -238,30 +242,37 @@ begin
         -- looking for an edge inside the corresponding window
         elsif (s_adjac_bits_window = '1') and (fd_rxd_edge_p_i = '1') then
 
-           s_manch_clk              <= not s_manch_clk; -- inversion of rx_manch_clk
-           s_bit_clk                <= not s_bit_clk;   -- inversion of rx_bit_clk
-           s_adjac_bits_edge_found  <= '1';             -- indication that an edge was found
+          s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk
+          s_bit_clk               <= not s_bit_clk;   -- inversion of rx_bit_clk
+          s_adjac_bits_edge_found <= '1';             -- indication that an edge was found
 
-           s_signif_edge_found      <= '0';             -- re-initialization before next cycle
+          s_signif_edge_found     <= '0';             -- re-initialization before next cycle
+
+          rx_manch_code_viol_p_o  <= '0';
 
 
         -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
         -- after the end of it
         elsif (s_adjac_bits_edge_found = '0') and (s_period_c = s_half_period + s_margin) then
 
-          s_manch_clk               <= not s_manch_clk;
-          s_bit_clk                 <= not s_bit_clk;
+          s_manch_clk             <= not s_manch_clk;
+          s_bit_clk               <= not s_bit_clk;
 
-          s_signif_edge_found       <= '0';             -- re-initialization before next cycle
+          s_signif_edge_found     <= '0';             -- re-initialization before next cycle
+          rx_manch_code_viol_p_o  <= '0';
+
+        else
+          rx_manch_code_viol_p_o  <= '0';
+
         end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      s_manch_clk_d1                <= s_manch_clk;
+      s_manch_clk_d1              <= s_manch_clk;
                                                 -- s_manch_clk:      ____|-----|_____|-----|____
                                                 -- s_manch_clk_d1:   ______|-----|_____|-----|__
                                                 -- rx_manch_clk_p_o: ____|-|___|-|___|-|___|-|__
 
-      s_bit_clk_d1                  <= s_bit_clk;
+      s_bit_clk_d1                <= s_bit_clk;
                                                 -- s_bit_clk:        ____|-----------|___________
                                                 -- s_bit_clk_d1:     ______|-----------|_________
                                                 -- rx_bit_clk_p_o:   ____|-|_________|-|_________

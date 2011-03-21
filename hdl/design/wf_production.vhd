@@ -232,7 +232,7 @@ architecture struc of WF_production is
   signal s_stat, s_mps                    : std_logic_vector (7 downto 0);
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
 begin
 

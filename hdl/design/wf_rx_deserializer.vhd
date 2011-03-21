@@ -36,10 +36,10 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!            encoding.
 --!            At the end of a frame (FES detection) either the fss_crc_fes_manch_ok_p_o pulse
 --!            is assserted, indicating a frame with with correct FSS, CRC, FES and manch. encoding
---!            or the pulse rx_crc_or_manch_wrong_p_o is asserted indicating an error on the CRC or
+--!            or the pulse crc_or_manch_wrong_p_o is asserted indicating an error on the CRC or
 --!            manch. encoding.
 --!            If a FES is not detected after the reception of more than 8 bytes for an ID_DAT or
---!            more than 130 bytes for a RP_DAT the unit is reset by the WF_engine_control.
+--!            more than 134 bytes for a RP_DAT the unit is reset by the WF_engine_control.
 --!
 --!            Remark: We refer to
 --!              o a significant edge                : for the edge of a manch. encoded bit
@@ -115,6 +115,9 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!                          bytes with size different than 8 have preceeded.
 --!                          crc_or_manch_wrong_p_o replaced the crc_wrong_p_o.
 --!     -> 02/2011 v0.05 EG  changed crc pulse transfer; removed switch to deglitch state
+--                           s_fes_detected_p removed and s_byte_ready_p_d1; if bytes arrive with
+--                           bits not x8, the fss_crc_fes_manch_ok_p_o stays 0 (bc of s_CRC_ok_p_d)
+--                           and the crc_or_manch_wrong_p_o is asserted.
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -140,9 +143,9 @@ entity WF_rx_deserializer is
     nfip_rst_i              : in std_logic; --! nanoFIP internal reset
 
     -- Signal from the WF_engine_control unit
-    rx_rst_p_i              : in std_logic; --! receiver reset
-                                            --! in cases when more bytes than expected are being
-                                            --! received (ID_DAT > 8 bytes, RP_DAT > 130 bytes)
+    rx_rst_i                : in std_logic; --! reset during production or
+                                            --! reset pulse when consumption is lasting more than
+                                            --! expected (ID_DAT > 8 bytes, RP_DAT > 134 bytes)
 
     -- Signals from the WF_rx_deglitcher
     fd_rxd_f_edge_p_i       : in std_logic; --! indicates a falling edge on the deglitched fd_rxd
@@ -150,6 +153,7 @@ entity WF_rx_deserializer is
     fd_rxd_i                : in std_logic; --! deglitched fd_rxd
 
     -- Signals from the WF_rx_osc unit
+    manch_code_viol_p_i     : in std_logic; --! pulse upon Manchester code violation
     sample_manch_bit_p_i    : in std_logic; --! pulse indicating the sampling of a manch. bit
     sample_bit_p_i          : in std_logic; --! pulse indicating the sampling of a bit
     signif_edge_window_i    : in std_logic; --! time window where a significant edge is expected
@@ -189,24 +193,28 @@ architecture rtl of WF_rx_deserializer is
 
   signal rx_st, nx_rx_st                                                               : rx_st_t;
   signal s_idle, s_receiving_pre, s_receiving_fsd, s_receiving_bytes                   : std_logic;
-  signal s_fsd_bit, s_fes_bit, s_fsd_wrong_bit, s_session_timedout                     : std_logic;
-  signal s_fsd_last_bit, s_fes_wrong_bit, s_fes_detected_p                             : std_logic;
-  signal s_byte_ready_p, s_byte_ready_p_d1, s_write_bit_to_byte_p                      : std_logic;
+  signal s_fsd_bit, s_fes_bit, s_fsd_wrong_bit, s_fsd_last_bit, s_fes_wrong_bit        : std_logic;
+  signal s_fes_detected_p, s_write_bit_to_byte_p                                       : std_logic;
+  signal s_byte_ready_p, s_byte_ready_p_d1                                             : std_logic;
   signal s_manch_r_edge_p, s_manch_f_edge_p, s_bit_r_edge_p, s_edge_out_manch_window_p : std_logic;
   signal s_manch_bit_index_load, s_decr_manch_bit_index_p, s_manch_bit_index_is_zero   : std_logic;
-  signal s_manch_not_ok, s_manch_code_viol_p,s_CRC_ok_p,s_CRC_ok_p_d, s_CRC_ok_p_found : std_logic;
+  signal s_manch_not_ok, s_CRC_ok_p,s_CRC_ok_p_d, s_CRC_ok_p_found                     : std_logic;
+  signal s_manch_code_viol_p_d7, s_load_manch_viol_couner                              : std_logic;
+  signal s_decr_manch_viol_couner, s_rst_manch_viol_couner                             : std_logic;
+  signal s_session_timedout                                                            : std_logic;
+  signal s_manch_viol_c                                                    : unsigned (2 downto 0);
   signal s_manch_bit_index, s_manch_bit_index_top                          : unsigned (3 downto 0);
   signal s_byte                                                   : std_logic_vector  (7 downto 0);
   signal s_arriving_fes                                           : std_logic_vector (15 downto 0);
 
 
 --=================================================================================================
---                                        architecture begin
+--!                                    architecture declaration
 --=================================================================================================
   begin
 
 ---------------------------------------------------------------------------------------------------
---                                      Deserializer's FSM                                       --
+--                                       Deserializer's FSM                                      --
 ---------------------------------------------------------------------------------------------------
 
 --!@brief Receiver's state machine: the state machine is divided in three parts (a clocked process
@@ -233,7 +241,7 @@ architecture rtl of WF_rx_deserializer is
 --! transitions of the FSM.
 
   Deserializer_FSM_Comb_State_Transitions: process (s_bit_r_edge_p, s_edge_out_manch_window_p,
-                                                    rx_rst_p_i, fd_rxd_f_edge_p_i, s_manch_r_edge_p,
+                                                    rx_rst_i, fd_rxd_f_edge_p_i, s_manch_r_edge_p,
                                                     s_fsd_wrong_bit, s_manch_f_edge_p, rx_st,
                                                     s_fsd_last_bit, s_fes_detected_p, s_session_timedout)
   begin
@@ -252,6 +260,10 @@ architecture rtl of WF_rx_deserializer is
                         if fd_rxd_f_edge_p_i = '1' then        -- edge detection
                           nx_rx_st <= pre_field_first_f_edge;
 
+                        elsif rx_rst_i = '1' then              -- nanoFIP producing or 
+                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
+                                                               -- number of bytes has arrived
+
                         elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
 
@@ -260,12 +272,16 @@ architecture rtl of WF_rx_deserializer is
                         end if;
 
 
-    when pre_field_first_f_edge=>
+    when pre_field_first_f_edge =>
                         if s_manch_r_edge_p = '1' then         -- arrival of a "manch."
                           nx_rx_st <= pre_field_r_edge;        -- rising edge
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
                           nx_rx_st <= idle;
+
+                        elsif rx_rst_i = '1' then              -- nanoFIP producing or 
+                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
+                                                               -- number of bytes has arrived
 
                         elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
@@ -283,6 +299,10 @@ architecture rtl of WF_rx_deserializer is
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
                            nx_rx_st <= idle;
+
+                        elsif rx_rst_i = '1' then              -- nanoFIP producing or 
+                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
+                                                               -- number of bytes has arrived
 
                         elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
@@ -304,6 +324,10 @@ architecture rtl of WF_rx_deserializer is
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
                           nx_rx_st <= idle;
 
+                        elsif rx_rst_i = '1' then              -- nanoFIP producing or 
+                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
+                                                               -- number of bytes has arrived
+
                         elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
 
@@ -312,7 +336,7 @@ architecture rtl of WF_rx_deserializer is
                          end if;
 
     -- For the monitoring of the FSD, the unit is sampling each manch. bit of the incoming
-    -- filtered signal and it is comparing it to the nominal bit of the FSD (through the signal
+    -- filtered FD_RXD and it is comparing it to the nominal bit of the FSD (through the signal
     -- s_fsd_wrong_bit). If a wrong bit is received, the state machine jumps back to idle,
     -- whereas if the complete byte is correctly received, it jumps to the ctrl_data_fcs_fes_fields
 
@@ -322,6 +346,10 @@ architecture rtl of WF_rx_deserializer is
 
                         elsif s_fsd_wrong_bit = '1' then       -- wrong bit
                           nx_rx_st <= idle;
+
+                        elsif rx_rst_i = '1' then              -- nanoFIP producing or 
+                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
+                                                               -- number of bytes has arrived
 
                         elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
@@ -334,7 +362,7 @@ architecture rtl of WF_rx_deserializer is
     -- nanoFIP can receive ID_DATs of a predefined length of 8 bytes and RP_DATs of any length
     -- (not predefined) up to 134 bytes (FSS+Ctrl+PDU_TYPE+LGTH+125 application_data+MPS+FCS+FES).
     -- The WF_engine_control unit is following the amount of bytes being received and in case
-    -- their number exceeds the expected one, it activates the signal rx_rst_p_i.
+    -- their number exceeds the expected one, it activates the signal rx_rst_i.
     -- Therefore, the Receiver_FSM stays in the ctrl_data_fcs_fes_fields state until the arrival
     -- of a correct FES, or until the arrival of a reset signal from the WF_engine_control.
 
@@ -342,8 +370,9 @@ architecture rtl of WF_rx_deserializer is
                         if s_fes_detected_p = '1' then
                           nx_rx_st <= idle;
 
-                        elsif rx_rst_p_i = '1' then            -- arrival of more bytes than expected
-                          nx_rx_st <= idle;
+                        elsif rx_rst_i = '1' then              -- nanoFIP producing or 
+                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
+                                                               -- number of bytes has arrived
 
                         elsif s_session_timedout = '1' then    -- independant timeout
                           nx_rx_st <= idle;
@@ -421,13 +450,12 @@ architecture rtl of WF_rx_deserializer is
 
 
 ---------------------------------------------------------------------------------------------------
---                                          Creating Bytes                                       --
+--                                         Bytes Creation                                        --
 ---------------------------------------------------------------------------------------------------
 
 --!@brief Synchronous process Append_Bit_To_Byte: creation of bytes of data.
---! A new bit of the (deglitched) input signal is appended to the output byte that is being formed
---! when the Deserializer's FSM is in the "ctrl_data_fcs_fes_fields" state, on the
---! "sampling of a bit" moments.
+--! A new bit of the deglitched FD_RXD is appended to the output byte that is being formed when the
+--! Deserializer's FSM is in the "ctrl_data_fcs_fes_fields" state, on the "sample_bit_p_i" moments.
 
   Append_Bit_To_Byte: process (uclk_i)
   begin
@@ -440,7 +468,7 @@ architecture rtl of WF_rx_deserializer is
         s_byte_ready_p_d1 <= s_byte_ready_p;
 
         if s_write_bit_to_byte_p = '1' then
-          s_byte           <= s_byte(6 downto 0) & fd_rxd_i;
+          s_byte          <= s_byte(6 downto 0) & fd_rxd_i;
 
         end if;
       end if;
@@ -448,17 +476,17 @@ architecture rtl of WF_rx_deserializer is
   end process;
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  s_write_bit_to_byte_p <= s_receiving_bytes and sample_bit_p_i;
-  s_byte_ready_p        <= s_receiving_bytes and s_manch_bit_index_is_zero and sample_manch_bit_p_i
+  s_write_bit_to_byte_p   <= s_receiving_bytes and sample_bit_p_i;
+  s_byte_ready_p          <= s_receiving_bytes and s_manch_bit_index_is_zero and sample_manch_bit_p_i
                                                                            and (not s_fes_detected_p);
 
 
 
 ---------------------------------------------------------------------------------------------------
---                                       FSD & FES followers                                     --
+--                                      FSD & FES followers                                      --
 ---------------------------------------------------------------------------------------------------
 
---!@brief Instantiation of a counter that manages the position of an incoming deglitched bit
+--!@brief Instantiation of a counter that manages the position of an incoming deglitched FD_RXD bit
 --! inside a manch. encoded byte (16 bits).
 
   Incoming_Bits_Index: WF_decr_counter
@@ -478,14 +506,14 @@ architecture rtl of WF_rx_deserializer is
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- FSD aux signals concurrent assignments:
 
-  s_fsd_bit        <= s_receiving_fsd   and c_FSD (to_integer(s_manch_bit_index));
-  s_fsd_last_bit   <= s_manch_bit_index_is_zero and sample_manch_bit_p_i;
-  s_fsd_wrong_bit  <= (s_fsd_bit xor fd_rxd_i) and sample_manch_bit_p_i;
+  s_fsd_bit           <= s_receiving_fsd   and c_FSD (to_integer(s_manch_bit_index));
+  s_fsd_last_bit      <= s_manch_bit_index_is_zero and sample_manch_bit_p_i;
+  s_fsd_wrong_bit     <= (s_fsd_bit xor fd_rxd_i) and sample_manch_bit_p_i;
 
   -- FES aux signals concurrent assignments :
 
-  s_fes_bit        <= s_receiving_bytes and c_FES (to_integer(s_manch_bit_index));
-  s_fes_wrong_bit  <= (s_fes_bit xor fd_rxd_i) and sample_manch_bit_p_i;
+  s_fes_bit           <= s_receiving_bytes and c_FES (to_integer(s_manch_bit_index));
+  s_fes_wrong_bit     <= (s_fes_bit xor fd_rxd_i) and sample_manch_bit_p_i;
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -544,15 +572,15 @@ architecture rtl of WF_rx_deserializer is
   end process;
 
   --  --  --  --  --  --  --  --  --  --  --
-  -- 1 uclk-wide pulse after the FES detection
-  s_fes_detected_p <= '1' when (s_arriving_fes = c_FES) and (s_byte_ready_p_d1 = '1') else '0';
-
+  s_fes_detected_p <= '1' when (s_arriving_fes = c_FES) and s_byte_ready_p_d1='1' else '0';-- pulse
+                                                                              -- upon FES detection
 
 
 ---------------------------------------------------------------------------------------------------
---                                  CRC & Manch. Encoding Verification                           --
+--                                        CRC Verification                                       --
 ---------------------------------------------------------------------------------------------------
 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief Instantiation of the CRC calculator unit that verifies the received FCS field.
 
   CRC_Verification : WF_crc
@@ -563,46 +591,9 @@ architecture rtl of WF_rx_deserializer is
     data_bit_ready_p_i => s_write_bit_to_byte_p,
     data_bit_i         => fd_rxd_i,
     crc_o              => open,
-    ---------------------------------------------------
+   ---------------------------------------------------
     crc_ok_p_o         => s_CRC_ok_p);
-    ---------------------------------------------------
-
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
---!@brief Instantiation of the WF_rx_manch_code_check unit that checks for manch. code violations.
-
-  Manch_Encoding_Verification: WF_rx_manch_code_check
-  port map (
-    uclk_i                => uclk_i,
-    nfip_rst_i            => nfip_rst_i,
-    serial_input_signal_i => fd_rxd_i,
-    sample_bit_p_i        => sample_bit_p_i,
-    sample_manch_bit_p_i  => sample_manch_bit_p_i,
-    ---------------------------------------------------
-    manch_code_viol_p_o   => s_manch_code_viol_p);
-    ---------------------------------------------------
-
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
---!@brief Synchronous process that handles the s_manch_code_viol_p signal: If at any point after
---! the FSS and before the FES a code violation appears, the signal s_manch_not_ok stays
---! asserted until the end of the corresponding frame.
-
-  Code_viol: process (uclk_i)
-  begin
-    if rising_edge (uclk_i) then
-      if s_receiving_bytes = '0' then                         -- after the FSS
-        s_manch_not_ok   <= '0';
-
-       else
-        if s_manch_code_viol_p ='1' and s_fes_wrong_bit ='1' then
-          s_manch_not_ok <= '1';                              -- if a code violation appears
-                                                              -- that doesn't belong to the FES
-        end if;
-      end if;
-    end if;
-  end process;
-
+   ---------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --!@brief Synchronous process that checks the position of the CRC bytes in the frame: the 1 uclk-
@@ -637,12 +628,69 @@ architecture rtl of WF_rx_deserializer is
 
 
 ---------------------------------------------------------------------------------------------------
+--                                  Manch. Encoding Verification                                 --
+---------------------------------------------------------------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+--!@brief The Manch_Code_Viol_Counter is used for the transfering of manch_code_viol_p_i pulses
+--! (appearing upon manch. code violations) by 7 bits. Like this we manage to separate violations
+--! belonging to the FES from the those that may appear within a frame after the FSS and before
+--! the FES.
+--! The counter is
+--! loaded : upon violation detection after the FSS (manch_code_viol_p_i and s_receiving_bytes) and
+--! counts : upon the reception of a new bit (s_write_bit_to_byte_p).
+--! If the transfered pulse is still within the s_receiving_bytes window (which indicates that the
+--! frame has still not finished and therefore the violation has occured in the data part)
+--! the signal s_manch_not_ok gets activated and stays active until the end of the frame.
+ 
+  Manch_Code_Viol_Counter: WF_decr_counter
+  generic map (g_counter_lgth => 3)
+  port map (
+    uclk_i            => uclk_i,
+    nfip_rst_i        => s_rst_manch_viol_couner,
+    counter_top       => (others => '1'),
+    counter_load_i    => s_load_manch_viol_couner,
+    counter_decr_p_i  => s_decr_manch_viol_couner, 
+    counter_is_zero_o => open,
+   ---------------------------------------------------
+    counter_o         => s_manch_viol_c);
+   ---------------------------------------------------
+
+  s_rst_manch_viol_couner  <= (not s_receiving_bytes) or nfip_rst_i;
+  s_load_manch_viol_couner <= manch_code_viol_p_i and s_receiving_bytes;
+  s_decr_manch_viol_couner <= '1' when (s_write_bit_to_byte_p='1') and (s_manch_viol_c > "000") else '0';
+  s_manch_code_viol_p_d7   <= '1' when s_manch_viol_c = "001" else '0';
+
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+--!@brief Synchronous process that handles the s_manch_code_viol_p_d7 signal: If at any point after
+--! the FSS and before the FES a code violation appears, the signal s_manch_not_ok stays
+--! asserted until the end of the corresponding frame.
+
+  Code_viol_detected: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then
+      if s_receiving_bytes = '0' then                         -- after the FSS
+        s_manch_not_ok   <= '0';
+
+       else
+        if s_manch_code_viol_p_d7 ='1' then
+          s_manch_not_ok <= '1';                              -- if a code violation appears
+        end if;                                               -- that doesn't belong to the FES
+      end if;
+    end if;
+  end process;
+
+
+
+---------------------------------------------------------------------------------------------------
 --                                  Independant Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 --! @brief Instantiation of a WF_decr_counter relying only on the system clock, as an additional
---! way to go back to Idle state, in case any other logic is being stuck.
+--! way to go back to Idle state, in case any other logic is being stuck. The length of the counter
+--! is defined using the slowest bit rate and considering reception of the upper limit of 134 bytes. 
 
   Session_Timeout_Counter: WF_decr_counter
   generic map (g_counter_lgth => 21)
@@ -659,9 +707,8 @@ architecture rtl of WF_rx_deserializer is
 
 
 
-
 ---------------------------------------------------------------------------------------------------
---                                   Concurrent signal assignments                               --
+--                                 Concurrent signal assignments                                 --
 ---------------------------------------------------------------------------------------------------
 -- aux signals concurrent assignments :
 
