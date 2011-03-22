@@ -194,7 +194,7 @@ architecture archi of rx is
 	port(
 		clk							: in std_logic;
 		
-		jitter						: out time;
+		jitter						: out jitter_time;
 		nb_truncated_bits			: out byte_slice;
 		truncated_preamble			: out boolean;
 		v_minus_err					: out std_logic;
@@ -244,7 +244,8 @@ signal v_plus_err					: std_logic;
 signal dx_en						: std_logic;
 signal dx_final						: std_logic;
 signal dx_half						: std_logic;
-signal jitter						: time;
+
+signal jitter						: jitter_time:= 0 fs;
 
 begin
 
@@ -414,7 +415,7 @@ begin
 	end process;
 	
 	dx						<= '0' when truncated_preamble
-								else dx_half;
+								else dx_half after jitter;
 
 	msg_dly(crc_l)			<= mx;
 	mx_final				<= msg_dly(0);

@@ -18,7 +18,7 @@ entity reception_meddler is
 	port(
 		clk							: in std_logic;
 		
-		jitter						: out time;
+		jitter						: out jitter_time;
 		nb_truncated_bits			: out byte_slice;
 		truncated_preamble			: out boolean;
 		v_minus_err					: out std_logic;
@@ -31,7 +31,7 @@ architecture archi of reception_meddler is
 signal config_validity_time		: time;
 signal insertion_pending		: boolean:= TRUE;
 signal insert_violation			: boolean;
-signal jitter_active			: boolean;
+signal jitter_active			: boolean:=FALSE;
 signal jitter_value				: time;
 signal report_config_trigger	: std_logic;
 signal trunc_preamble			: boolean;
@@ -49,7 +49,7 @@ begin
 	
 	variable trunc_preamble_config	: boolean;
 	variable insert_viol_config		: boolean;
-	variable jitter_config			: time;
+	variable jitter_config			: jitter_time;
 	variable truncated_bits_config	: byte_slice;
 	begin
 		readline	(config_file, config_line);
@@ -106,8 +106,15 @@ begin
 		wait until clk ='1';
 	end process;
 	
+	jitter_insertion: process
+	begin
+		jitter_active						<= not(jitter_active);
+		wait until clk ='1';
+	end process;
+	
 	nb_truncated_bits						<= truncated_bits;
 	truncated_preamble						<= trunc_preamble;
+	jitter									<= jitter_value when jitter_active else 0 ps;
 	
 	reporting: process(report_config_trigger)
 	begin
