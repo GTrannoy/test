@@ -167,7 +167,7 @@ architecture rtl of WF_cons_outcome is
 
 
 --=================================================================================================
---!                                    architecture declaration
+--!                                       architecture begin
 --=================================================================================================
 begin
 
@@ -213,7 +213,7 @@ begin
 
           --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
           if ((rx_fss_crc_fes_manch_ok_p_i = '1') or (rx_crc_or_manch_wrong_p_i = '1')) and-- end of frame
-              ((cons_ctrl_byte_i = c_RP_DAT_CTRL_BYTE)                                  or -- CTRL byte check
+              ((cons_ctrl_byte_i /= c_RP_DAT_CTRL_BYTE)                                 or -- CTRL byte check
               ((cons_pdu_byte_i /= c_PROD_CONS_PDU_TYPE_BYTE)                           or -- PDU_TYPE byte check
               (unsigned(rx_byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5)))) then      -- LGTH byte check
 
