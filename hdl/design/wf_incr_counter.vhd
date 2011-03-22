@@ -91,7 +91,7 @@ constant c_COUNTER_FULL : unsigned (g_counter_lgth-1 downto 0) := (others => '1'
 signal   s_counter      : unsigned (g_counter_lgth-1 downto 0);
 
 --=================================================================================================
---!                                    architecture declaration
+--!                                       architecture begin
 --=================================================================================================
 begin
 
