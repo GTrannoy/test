@@ -12,6 +12,7 @@ constant reset_max_latency				: time := 2 ms;
 
 subtype byte_slice is integer range 0 to 7;
 subtype byte_width is integer range 8 downto 1;
+subtype jitter_time	is time range 0 fs to 1 ms;
 
 component hex_byte_transcriber
 	port(
