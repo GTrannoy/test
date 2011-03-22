@@ -153,9 +153,9 @@ begin
 	
 	phase_shift_monitor: process(offset1, offset2)
 	begin
-		if offset1 < qrt_period_pos and offset1 > qrt_period_neg then
+		if offset1 <= qrt_period_pos and offset1 > qrt_period_neg then
 			shift					<= offset1;
-		elsif offset2 < qrt_period_pos and offset2 > qrt_period_neg then
+		elsif offset2 <= qrt_period_pos and offset2 > qrt_period_neg then
 			shift					<= offset2;
 		end if;
 	end process;
