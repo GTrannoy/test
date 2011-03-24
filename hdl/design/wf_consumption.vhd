@@ -147,8 +147,8 @@ entity WF_consumption is
 
       rx_byte_i                   : in std_logic_vector (7 downto 0);
       rx_byte_ready_p_i           : in std_logic;
-      rx_fss_crc_fes_manch_ok_p_i : in std_logic;
-      rx_crc_or_manch_wrong_p_i   : in std_logic;
+      rx_fss_crc_fes_ok_p_i : in std_logic;
+      rx_crc_wrong_p_i   : in std_logic;
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -246,25 +246,25 @@ begin
 
   Consumption_Outcome : WF_cons_outcome
   port map (
-    uclk_i                      => uclk_i,
-    slone_i                     => slone_i,
-    subs_i                      => subs_i,
-    nfip_rst_i                  => nfip_rst_i,
-    rx_fss_crc_fes_manch_ok_p_i => rx_fss_crc_fes_manch_ok_p_i,
-    rx_crc_or_manch_wrong_p_i   => rx_crc_or_manch_wrong_p_i,
-    var_i                       => var_i,
-    rx_byte_index_i             => byte_index_i,
-    cons_ctrl_byte_i            => s_cons_ctrl_byte,
-    cons_pdu_byte_i             => s_cons_pdu_byte,
-    cons_lgth_byte_i            => s_cons_lgth_byte,
-    cons_var_rst_byte_1_i       => s_cons_var_rst_byte_1,
-    cons_var_rst_byte_2_i       => s_cons_var_rst_byte_2,
+    uclk_i                 => uclk_i,
+    slone_i                => slone_i,
+    subs_i                 => subs_i,
+    nfip_rst_i             => nfip_rst_i,
+    rx_fss_crc_fes_ok_p_i  => rx_fss_crc_fes_ok_p_i,
+    rx_crc_wrong_p_i       => rx_crc_wrong_p_i,
+    var_i                  => var_i,
+    rx_byte_index_i        => byte_index_i,
+    cons_ctrl_byte_i       => s_cons_ctrl_byte,
+    cons_pdu_byte_i        => s_cons_pdu_byte,
+    cons_lgth_byte_i       => s_cons_lgth_byte,
+    cons_var_rst_byte_1_i  => s_cons_var_rst_byte_1,
+    cons_var_rst_byte_2_i  => s_cons_var_rst_byte_2,
    --------------------------------------------------------
-    var1_rdy_o                  => var1_rdy_o,
-    var2_rdy_o                  => var2_rdy_o,
-    nfip_status_r_tler_p_o      => nfip_status_r_tler_p_o,
-    assert_rston_p_o            => assert_rston_p_o,
-    rst_nfip_and_fd_p_o         => rst_nfip_and_fd_p_o);
+    var1_rdy_o             => var1_rdy_o,
+    var2_rdy_o             => var2_rdy_o,
+    nfip_status_r_tler_p_o => nfip_status_r_tler_p_o,
+    assert_rston_p_o       => assert_rston_p_o,
+    rst_nfip_and_fd_p_o    => rst_nfip_and_fd_p_o);
    --------------------------------------------------------
 
 

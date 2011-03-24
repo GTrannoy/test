@@ -32,7 +32,7 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 --!              o the Control, PDU_TYPE and Length bytes;
 --!                the bytes are received from the the WF_consumption unit.
 --!              o the CRC, FSS, FES bytes and the Manchester encoding;
---!                the rx_fss_crc_fes_manch_ok_p_i pulse from the WF_fd_receiver unit groups
+--!                the rx_fss_crc_fes_ok_p_i pulse from the WF_fd_receiver unit groups
 --!                these checks.
 --!
 --!            Then, according to the consumed variable that has been received (var_1, var_2,
@@ -108,49 +108,49 @@ entity WF_cons_outcome is
   port (
   -- INPUTS
     -- nanoFIP User Interface, General signals
-    uclk_i                      : in std_logic;                    --! 40 MHz clock
-    slone_i                     : in std_logic;                    --! stand-alone mode
+    uclk_i                 : in std_logic;                    --! 40 MHz clock
+    slone_i                : in std_logic;                    --! stand-alone mode
 
     -- nanoFIP WorldFIP Settings
-    subs_i                      : in std_logic_vector (7 downto 0);--! subscriber number coding
+    subs_i                 : in std_logic_vector (7 downto 0);--! subscriber number coding
 
     -- Signal from the WF_reset_unit
-    nfip_rst_i                  : in std_logic;                    --! nanoFIP internal reset
+    nfip_rst_i             : in std_logic;                    --! nanoFIP internal reset
 
     -- Signal from the WF_fd_receiver unit
-    rx_fss_crc_fes_manch_ok_p_i : in std_logic; --! indication of a frame with correct FSS, FES, CRC
-                                                --! and manch. encoding; pulse upon FES detection
+    rx_fss_crc_fes_ok_p_i  : in std_logic; --! indication of a frame with correct FSS, FES, CRC
+                                           --! and manch. encoding; pulse upon FES detection
 
-    rx_crc_or_manch_wrong_p_i   : in std_logic; --! indication of a frame with a wrong CRC or manch.
-                                                -- pulse upon FES detection
+    rx_crc_wrong_p_i       : in std_logic; --! indication of a frame with a wrong CRC or manch.
+                                           -- pulse upon FES detection
 
     -- Signals from the WF_consumption unit
-    cons_ctrl_byte_i            : in std_logic_vector (7 downto 0);--! received RP_DAT Control byte
-    cons_lgth_byte_i            : in std_logic_vector (7 downto 0);--! received RP_DAT Length byte
-    cons_pdu_byte_i             : in std_logic_vector (7 downto 0);--! received RP_DAT PDU_TYPE byte
-    cons_var_rst_byte_1_i       : in std_logic_vector (7 downto 0);--! received var_rst RP_DAT, 1st data-byte
-    cons_var_rst_byte_2_i       : in std_logic_vector (7 downto 0);--! received var_rst RP_DAT, 2nd data-byte
+    cons_ctrl_byte_i       : in std_logic_vector (7 downto 0);--! received RP_DAT Control byte
+    cons_lgth_byte_i       : in std_logic_vector (7 downto 0);--! received RP_DAT Length byte
+    cons_pdu_byte_i        : in std_logic_vector (7 downto 0);--! received RP_DAT PDU_TYPE byte
+    cons_var_rst_byte_1_i  : in std_logic_vector (7 downto 0);--! received var_rst RP_DAT, 1st data-byte
+    cons_var_rst_byte_2_i  : in std_logic_vector (7 downto 0);--! received var_rst RP_DAT, 2nd data-byte
 
    -- Signals from the WF_engine_control unit
-    rx_byte_index_i             : in std_logic_vector (7 downto 0);--! index of byte being received
-    var_i                       : in t_var;     --! variable type that is being treated
+    rx_byte_index_i        : in std_logic_vector (7 downto 0);--! index of byte being received
+    var_i                  : in t_var;     --! variable type that is being treated
 
 
   -- OUTPUTS
     -- nanoFIP User Interface, NON-WISHBONE outputs
-    var1_rdy_o                  : out std_logic;--! signals new data is received and can safely be read
-    var2_rdy_o                  : out std_logic;--! signals new data is received and can safely be read
+    var1_rdy_o             : out std_logic;--! signals new data is received and can safely be read
+    var2_rdy_o             : out std_logic;--! signals new data is received and can safely be read
 
     -- Signal to the WF_status_bytes_gen unit
-    nfip_status_r_tler_p_o      : out std_logic;--! received PDU_TYPE or Length error
-                                                --! nanoFIP status byte bit 4
+    nfip_status_r_tler_p_o : out std_logic;--! received PDU_TYPE or Length error
+                                           --! nanoFIP status byte bit 4
 
     -- Signals to the WF_reset_unit
-    assert_rston_p_o            : out std_logic;--! indicates that a var_rst with its 2nd data-byte
-                                                --! containing the station's address has been
-                                                --! correctly received
+    assert_rston_p_o       : out std_logic;--! indicates that a var_rst with its 2nd data-byte
+                                           --! containing the station's address has been
+                                           --! correctly received
 
-    rst_nfip_and_fd_p_o         : out std_logic --! indicates that a var_rst with its 1st data-byte
+    rst_nfip_and_fd_p_o    : out std_logic --! indicates that a var_rst with its 1st data-byte
                                                 --! containing the station's address has been
                                                 --! correctly received
       );
@@ -177,18 +177,18 @@ begin
 --! respect to the Ctrl, PDU_TYPE and Length bytes as well as to the CRC, FSS, FES and to the
 --! Manchester encoding. The bytes cons_ctrl_byte_i, cons_pdu_byte_i, cons_lgth_byte_i that
 --! arrive at the beginning of a frame, have been registered and keep their values until the end
---! of it. The signal rx_fss_crc_fes_manch_ok_p_i, is a pulse at the end of the FES that combines
+--! of it. The signal rx_fss_crc_fes_ok_p_i, is a pulse at the end of the FES that combines
 --! the checks of the FSS, CRC, FES and of the manch. encoding.
 --! To check the correctness of the the RP_DAT.Data.Length byte, we compare it to the value of the
---! rx_byte_index, when the FES is detected (pulse rx_fss_crc_fes_manch_ok_p_i).
+--! rx_byte_index, when the FES is detected (pulse rx_fss_crc_fes_ok_p_i).
 --! Note: In addition to the &Length bytes, the rx_byte_index also counts the Control, PDU_TYPE,
 --! Length, the 2 CRC and the FES bytes (and counting starts from 0!).
 -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- -- --
 --! The same process is also used for the generation of the of the nanoFIP status byte, bit 4, that
 --! indicates a received Control or PDU_TYPE byte error or a Length byte incoherency in a consumed 
 --! RP_DAT frame.
---! Note: The end of a frame is marked by either the signal rx_fss_crc_fes_manch_ok_p_i or by the
---! rx_crc_or_manch_wrong_p_i.
+--! Note: The end of a frame is marked by either the signal rx_fss_crc_fes_ok_p_i or by the
+--! rx_crc_wrong_p_i.
 
   Frame_Validation: process (uclk_i)
   begin
@@ -201,7 +201,7 @@ begin
         if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) then -- only consumed RP_DATs
 
           --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
-          if (rx_fss_crc_fes_manch_ok_p_i = '1')            and         -- FSS CRC FES Manch. check
+          if (rx_fss_crc_fes_ok_p_i = '1')                  and         -- FSS CRC FES Manch. check
              (cons_ctrl_byte_i = c_RP_DAT_CTRL_BYTE)        and         -- CTRL byte check
              (cons_pdu_byte_i  = c_PROD_CONS_PDU_TYPE_BYTE) and         -- PDU_TYPE byte check
              (unsigned(rx_byte_index_i ) = (unsigned(cons_lgth_byte_i) + 5)) then --LGTH byte check
@@ -212,10 +212,10 @@ begin
           end if;
 
           --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
-          if ((rx_fss_crc_fes_manch_ok_p_i = '1') or (rx_crc_or_manch_wrong_p_i = '1')) and-- end of frame
-              ((cons_ctrl_byte_i /= c_RP_DAT_CTRL_BYTE)                                 or -- CTRL byte check
-              ((cons_pdu_byte_i /= c_PROD_CONS_PDU_TYPE_BYTE)                           or -- PDU_TYPE byte check
-              (unsigned(rx_byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5)))) then      -- LGTH byte check
+          if ((rx_fss_crc_fes_ok_p_i = '1') or (rx_crc_wrong_p_i = '1')) and-- end of frame
+              ((cons_ctrl_byte_i /= c_RP_DAT_CTRL_BYTE)                  or -- CTRL byte check
+              ((cons_pdu_byte_i /= c_PROD_CONS_PDU_TYPE_BYTE)            or -- PDU_TYPE byte check
+              (unsigned(rx_byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5)))) then -- LGTH byte check
 
             nfip_status_r_tler_p_o <= '1';
           else

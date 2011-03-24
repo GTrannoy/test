@@ -113,7 +113,8 @@ entity WF_tx_serializer is
     -- Signals from the WF_engine_control unit
     tx_start_p_i            : in std_logic;  --! indication for the start of the production
     byte_request_accept_p_i : in std_logic;  --! indication that a byte is ready to be delivered
-    last_byte_p_i           : in std_logic;  --! indication of the last byte before the CRC bytes
+    last_byte_p_i           : in std_logic;  --! indication of the last data byte
+                                             --  (CRC, FES not included)
 
      -- Signal from the WF_tx_osc
     tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH-1 downto 0);
@@ -123,7 +124,8 @@ entity WF_tx_serializer is
   -- OUTPUTS
 
     -- Signal to the WF_engine_control unit
-    byte_request_p_o        : out std_logic;
+    tx_byte_request_p_o     : out std_logic;
+    tx_completed_p_o        : out std_logic;
 
     -- Signal to the WF_tx_osc unit
     tx_osc_rst_p_o          : out std_logic;
@@ -223,74 +225,73 @@ begin
     case tx_state is
 
       when idle =>
-                           if tx_start_p_i = '1' then
-                             nx_tx_state <= sync_to_txck;
-                           else
-                             nx_tx_state <= idle;
-                           end if;
+                         if tx_start_p_i = '1' then
+                           nx_tx_state <= sync_to_txck;
+                         else
+                           nx_tx_state <= idle;
+                         end if;
 
 
       when sync_to_txck =>
-                           if tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4) = '1' then
-                             nx_tx_state <= send_fss;
+                         if s_session_timedout = '1' then
+                           nx_tx_state <= idle;
 
-                           elsif s_session_timedout = '1' then
-                             nx_tx_state <= idle;
+                         elsif tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4) = '1' then
+                           nx_tx_state <= send_fss;
 
-                           else
-                             nx_tx_state <= sync_to_txck;
-                           end if;
+                         else
+                           nx_tx_state <= sync_to_txck;
+                         end if;
 
 
       when send_fss =>
-                           if (s_bit_index_is_zero = '1')  and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1) = '1') then
-                             nx_tx_state <= send_data_byte;
+                         if s_session_timedout = '1' then
+                           nx_tx_state <= idle;
+ 
+                         elsif (s_bit_index_is_zero = '1')  and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-1) = '1') then
+                           nx_tx_state <= send_data_byte;
 
-                           elsif s_session_timedout = '1' then
-                             nx_tx_state <= idle;
-
-                           else
-                             nx_tx_state <= send_fss;
-                           end if;
+                         else
+                           nx_tx_state <= send_fss;
+                         end if;
 
 
       when send_data_byte =>
-                           if last_byte_p_i = '1' then
-                             nx_tx_state <= send_crc_bytes;
+                         if s_session_timedout = '1' then
+                           nx_tx_state <= idle;
 
-                           elsif s_session_timedout = '1' then
-                             nx_tx_state <= idle;
+                         elsif last_byte_p_i = '1' then
+                           nx_tx_state <= send_crc_bytes;
 
-                           else
-                             nx_tx_state <= send_data_byte;
-                           end if;
+                         else
+                           nx_tx_state <= send_data_byte;
+                         end if;
 
 
       when send_crc_bytes =>
-                           if (s_bit_index_is_zero = '1') and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1') then
-                             nx_tx_state <= send_fes;      -- state change early enough (tx_clk_p_buff_i(2))
+                         if s_session_timedout = '1' then
+                           nx_tx_state <= idle;
+
+                         elsif (s_bit_index_is_zero = '1') and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1') then
+                           nx_tx_state <= send_fes;        -- state change early enough (tx_clk_p_buff_i(2))
                                                            -- for the Outgoing_Bits_Index, that is loaded on
                                                            -- tx_clk_p_buff_i(3), to get the 31 as top value
-                           elsif s_session_timedout = '1' then
-                             nx_tx_state <= idle;
-
-                           else
-                             nx_tx_state <= send_crc_bytes;
-
-                           end if;
+                         else
+                           nx_tx_state <= send_crc_bytes;
+                         end if;
 
 
       when send_fes =>
-                           if (s_bit_index_is_zero = '1') and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1') then
-                             nx_tx_state <= stop_transmission; -- state change early enough (tx_clk_p_buff_i(2))
+                         if s_session_timedout = '1' then
+                           nx_tx_state <= idle;
+
+                         elsif (s_bit_index_is_zero = '1') and  (tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2) = '1') then
+                           nx_tx_state <= stop_transmission; -- state change early enough (tx_clk_p_buff_i(2))
                                                                -- for the Outgoing_Bits_Index that is loaded on
                                                                -- tx_clk_p_buff_i(3) to get the 15 as top value
-                           elsif s_session_timedout = '1' then
-                             nx_tx_state <= idle;
-
-                           else
-                             nx_tx_state <= send_fes;
-                           end if;
+                         else
+                           nx_tx_state <= send_fes;
+                         end if;
 
 
       when stop_transmission =>
@@ -592,7 +593,9 @@ Input_Byte_Retrieval: process (uclk_i)
 
   tx_osc_rst_p_o      <= s_session_timedout;
 
-  byte_request_p_o    <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4);
+  tx_completed_p_o    <= s_stop_transmission and tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-2);
+
+  tx_byte_request_p_o <= s_sending_data and s_bit_index_is_zero and  tx_clk_p_buff_i(c_TX_CLK_BUFF_LGTH-4);
   -- request for a new byte from the WF_prod_bytes_retriever unit (passing from WF_engine_control)
 
 

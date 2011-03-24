@@ -105,36 +105,36 @@ entity WF_fd_receiver is
   port (
   -- INPUTS
     -- nanoFIP User Interface, General signals
-    uclk_i                      : in std_logic; --! 40 MHZ clock
+    uclk_i                : in std_logic; --! 40 MHZ clock
 
     -- nanoFIP WorldFIP Settings
-    rate_i                      : in std_logic_vector (1 downto 0); --! WorldFIP bit rate
+    rate_i                : in std_logic_vector (1 downto 0); --! WorldFIP bit rate
 
     -- nanoFIP FIELDRIVE
-    fd_rxd_a_i                  : in std_logic; --! receiver data
+    fd_rxd_a_i            : in std_logic; --! receiver data
 
     -- Signal from the WF_reset_unit
-    nfip_rst_i                  : in std_logic; --! nanoFIP internal reset
+    nfip_rst_i            : in std_logic; --! nanoFIP internal reset
 
     -- Signal from the WF_engine_control unit
-    rx_rst_i                    : in std_logic; --! reset during production or
-                                                --! reset pulse when consumption is lasting more than
-                                                --! expected (ID_DAT > 8 bytes, RP_DAT > 134 bytes)
+    rx_rst_i              : in std_logic; --! reset during production or
+                                          --! reset pulse when consumption is lasting more than
+                                          --! expected (ID_DAT > 8 bytes, RP_DAT > 134 bytes)
 
 
   -- OUTPUTS
     -- Signals to the WF_engine_control and WF_consumption
-    rx_byte_o                   : out std_logic_vector (7 downto 0);   --! retrieved data byte
-    rx_byte_ready_p_o           : out std_logic;--! pulse indicating a new retrieved data byte
-    rx_fss_crc_fes_manch_ok_p_o : out std_logic;--! indication of a frame (ID_DAT or RP_DAT) with
-                                                --! correct FSS, FES, CRC and manch. encoding
+    rx_byte_o             : out std_logic_vector (7 downto 0);   --! retrieved data byte
+    rx_byte_ready_p_o     : out std_logic;--! pulse indicating a new retrieved data byte
+    rx_fss_crc_fes_ok_p_o : out std_logic;--! indication of a frame (ID_DAT or RP_DAT) with
+                                          --! correct FSS, FES, CRC and manch. encoding
 
     -- Signals to the WF_engine_control
-    rx_fss_received_p_o         : out std_logic;--! pulse after the reception of a correct FSS(ID/RP)
+    rx_fss_received_p_o   : out std_logic;--! pulse after the reception of a correct FSS(ID/RP)
 
     -- Signal to the WF_engine_control and the WF_production units
-    rx_crc_or_manch_wrong_p_o   : out std_logic --! indication of a wrong CRC or manch. encoding on
-                                                --!a ID_DAT or RP_DAT;pulse after the FES detection
+    rx_crc_wrong_p_o      : out std_logic --! indication of a wrong CRC or manch. encoding on
+                                          --!a ID_DAT or RP_DAT;pulse after the FES detection
     );
 
 end entity WF_fd_receiver;
@@ -147,7 +147,7 @@ end entity WF_fd_receiver;
 architecture struc of WF_fd_receiver is
 
   signal s_rx_osc_rst, s_adjac_bits_window, s_signif_edge_window                 : std_logic;
-  signal s_sample_bit_p, s_sample_manch_bit_p, s_rxd_filtered, s_rx_code_viol_p  : std_logic;
+  signal s_sample_bit_p, s_sample_manch_bit_p, s_rxd_filtered                    : std_logic;
   signal s_rxd_filtered_edge_p, s_rxd_filtered_f_edge_p, s_rxd_filtered_r_edge_p : std_logic;
 
 
@@ -194,7 +194,6 @@ begin
    ------------------------------------------------------
     rx_manch_clk_p_o        => s_sample_manch_bit_p,
     rx_bit_clk_p_o          => s_sample_bit_p,
-    rx_manch_code_viol_p_o  => s_rx_code_viol_p, 
     rx_signif_edge_window_o => s_signif_edge_window,
     rx_adjac_bits_window_o  => s_adjac_bits_window);
    -----------------------------------------------------
@@ -209,24 +208,23 @@ begin
 
   FIELDRIVE_Receiver_Deserializer: WF_rx_deserializer
   port map (
-    uclk_i                   => uclk_i,
-    nfip_rst_i               => nfip_rst_i,
-    rx_rst_i                 => rx_rst_i,
-    manch_code_viol_p_i      => s_rx_code_viol_p,
-    sample_bit_p_i           => s_sample_bit_p,
-    sample_manch_bit_p_i     => s_sample_manch_bit_p,
-    signif_edge_window_i     => s_signif_edge_window,
-    adjac_bits_window_i      => s_adjac_bits_window,
-    fd_rxd_f_edge_p_i        => s_rxd_filtered_f_edge_p,
-    fd_rxd_r_edge_p_i        => s_rxd_filtered_r_edge_p,
-    fd_rxd_i                 => s_rxd_filtered,
+    uclk_i               => uclk_i,
+    nfip_rst_i           => nfip_rst_i,
+    rx_rst_i             => rx_rst_i,
+    sample_bit_p_i       => s_sample_bit_p,
+    sample_manch_bit_p_i => s_sample_manch_bit_p,
+    signif_edge_window_i => s_signif_edge_window,
+    adjac_bits_window_i  => s_adjac_bits_window,
+    fd_rxd_f_edge_p_i    => s_rxd_filtered_f_edge_p,
+    fd_rxd_r_edge_p_i    => s_rxd_filtered_r_edge_p,
+    fd_rxd_i             => s_rxd_filtered,
    ------------------------------------------------------
-    byte_ready_p_o           => rx_byte_ready_p_o,
-    byte_o                   => rx_byte_o,
-    fss_crc_fes_manch_ok_p_o => rx_fss_crc_fes_manch_ok_p_o,
-    rx_osc_rst_o             => s_rx_osc_rst,
-    fss_received_p_o         => rx_fss_received_p_o,
-    crc_or_manch_wrong_p_o   => rx_crc_or_manch_wrong_p_o);
+    byte_ready_p_o       => rx_byte_ready_p_o,
+    byte_o               => rx_byte_o,
+    fss_crc_fes_ok_p_o   => rx_fss_crc_fes_ok_p_o,
+    rx_osc_rst_o         => s_rx_osc_rst,
+    fss_received_p_o     => rx_fss_received_p_o,
+    crc_wrong_p_o        => rx_crc_wrong_p_o);
    ------------------------------------------------------
 
 
