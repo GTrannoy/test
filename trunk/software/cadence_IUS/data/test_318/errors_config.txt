@@ -7,11 +7,39 @@ FALSE				-- Insert violation error for one clk cycle
 850 us				--++ time for which the configuration above is valid
 FALSE				-- Truncate preamble
 FALSE				-- Insert violation error for one clk cycle
-400 ns				-- Jitter error inserted on the manchester encoded signal
+125 ns				-- Jitter error inserted on the manchester encoded signal
 0					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 ps				-- TXERR error length
 0 ps				-- WDGN error length
 30 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+1320 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+50 ns				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+30 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+0 ps				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+14770 us				--++ time for which the configuration above is valid
+FALSE				-- Truncate preamble
+FALSE				-- Insert violation error for one clk cycle
+4 us				-- Jitter error inserted on the manchester encoded signal
+0					-- Number of bits per byte truncated in reception (integer 1 to 8)
+0 ps				-- TXERR error length
+0 ps				-- WDGN error length
+1000 us				--++ time for which the configuration above is valid
 FALSE				-- Truncate preamble
 FALSE				-- Insert violation error for one clk cycle
 0 ps				-- Jitter error inserted on the manchester encoded signal
