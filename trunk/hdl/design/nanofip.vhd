@@ -326,7 +326,7 @@ architecture struc of nanofip is
   -- WF_production outputs
   signal  s_byte_to_tx                                             : std_logic_vector (7 downto 0);
   -- WF_fd_transmitter outputs
-  signal s_tx_last_byte_p                                                              : std_logic;
+  signal s_tx_last_byte_p, s_tx_completed_p                                                 : std_logic;
   -- WF_engine_control outputs
   signal s_tx_start_p, s_tx_request_byte_p, s_byte_request_accepted_p                  : std_logic;
   signal s_rx_rst                                                                      : std_logic;
@@ -378,25 +378,25 @@ TP14 <= s_rx_fss_crc_fes_manch_ok_p;
 ---------------------------------------------------------------------------------------------------
   Consumption: WF_consumption
   port map (
-    uclk_i                      => uclk_i,
-    slone_i                     => slone_i,
-    nfip_rst_i                  => s_nfip_intern_rst,
-    subs_i                      => subs_i,
-    rx_byte_i                   => s_rx_byte,
-    rx_byte_ready_p_i           => s_rx_byte_ready_p,
-    rx_fss_crc_fes_manch_ok_p_i => s_rx_fss_crc_fes_manch_ok_p,
-    rx_crc_or_manch_wrong_p_i   => s_rx_crc_or_manch_wrong_p,
-    wb_clk_i                    => wclk_i,
-    wb_adr_i                    => adr_i (8 downto 0),
-    var_i                       => s_var,
-    byte_index_i                => s_prod_cons_byte_index,
+    uclk_i                 => uclk_i,
+    slone_i                => slone_i,
+    nfip_rst_i             => s_nfip_intern_rst,
+    subs_i                 => subs_i,
+    rx_byte_i              => s_rx_byte,
+    rx_byte_ready_p_i      => s_rx_byte_ready_p,
+    rx_fss_crc_fes_ok_p_i  => s_rx_fss_crc_fes_manch_ok_p,
+    rx_crc_wrong_p_i       => s_rx_crc_or_manch_wrong_p,
+    wb_clk_i               => wclk_i,
+    wb_adr_i               => adr_i (8 downto 0),
+    var_i                  => s_var,
+    byte_index_i           => s_prod_cons_byte_index,
   -------------------------------------------------------------
-    var1_rdy_o                  => s_var1_rdy,
-    var2_rdy_o                  => s_var2_rdy,
-    data_o                      => dat_o,
-    nfip_status_r_tler_p_o      => s_nfip_status_r_tler,
-    assert_rston_p_o            => s_assert_RSTON_p,
-    rst_nfip_and_fd_p_o         => s_reset_nFIP_and_FD_p);
+    var1_rdy_o             => s_var1_rdy,
+    var2_rdy_o             => s_var2_rdy,
+    data_o                 => dat_o,
+    nfip_status_r_tler_p_o => s_nfip_status_r_tler,
+    assert_rston_p_o       => s_assert_RSTON_p,
+    rst_nfip_and_fd_p_o    => s_reset_nFIP_and_FD_p);
   -------------------------------------------------------------
 
 
@@ -406,17 +406,17 @@ TP14 <= s_rx_fss_crc_fes_manch_ok_p;
 ---------------------------------------------------------------------------------------------------
   FIELDRIVE_Receiver: WF_fd_receiver
   port map (
-    uclk_i                      => uclk_i,
-    rate_i                      => rate_i,
-    fd_rxd_a_i                  => fd_rxd_i,
-    nfip_rst_i                  => s_nfip_intern_rst,
-    rx_rst_i                    => s_rx_rst,
+    uclk_i                => uclk_i,
+    rate_i                => rate_i,
+    fd_rxd_a_i            => fd_rxd_i,
+    nfip_rst_i            => s_nfip_intern_rst,
+    rx_rst_i              => s_rx_rst,
   -------------------------------------------------------------
-    rx_byte_o                   => s_rx_byte,
-    rx_byte_ready_p_o           => s_rx_byte_ready_p,
-    rx_fss_crc_fes_manch_ok_p_o => s_rx_fss_crc_fes_manch_ok_p,
-    rx_fss_received_p_o         => s_rx_fss_received_p,
-    rx_crc_or_manch_wrong_p_o   => s_rx_crc_or_manch_wrong_p);
+    rx_byte_o             => s_rx_byte,
+    rx_byte_ready_p_o     => s_rx_byte_ready_p,
+    rx_fss_crc_fes_ok_p_o => s_rx_fss_crc_fes_manch_ok_p,
+    rx_fss_received_p_o   => s_rx_fss_received_p,
+    rx_crc_wrong_p_o      => s_rx_crc_or_manch_wrong_p);
   -------------------------------------------------------------
 
 
@@ -471,16 +471,17 @@ TP14 <= s_rx_fss_crc_fes_manch_ok_p;
     nfip_rst_i                 => s_nfip_intern_rst,
     tx_byte_i                  => s_byte_to_tx,
     tx_byte_request_accept_p_i => s_byte_request_accepted_p,
-    tx_last_byte_p_i           => s_tx_last_byte_p,
+    tx_last_data_byte_p_i      => s_tx_last_byte_p,
     tx_start_p_i               => s_tx_start_p,
   -------------------------------------------------------------
     tx_byte_request_p_o        => s_tx_request_byte_p,
+    tx_completed_p_o           => s_tx_completed_p,
     tx_data_o                  => fd_txd_o,
     tx_enable_o                => fd_txena_o,
     tx_clk_o                   => fd_txck_o);
   -------------------------------------------------------------
 
-
+ 
 
 ---------------------------------------------------------------------------------------------------
 --                                       WF_engine_control                                       --
@@ -491,11 +492,12 @@ TP14 <= s_rx_fss_crc_fes_manch_ok_p;
     uclk_i                      => uclk_i,
     nfip_rst_i                  => s_nfip_intern_rst,
     tx_byte_request_p_i         => s_tx_request_byte_p,
+    tx_completed_p_i            => s_tx_completed_p, 
     rx_fss_received_p_i         => s_rx_fss_received_p,
     rx_byte_i                   => s_rx_byte,
     rx_byte_ready_p_i           => s_rx_byte_ready_p,
-    rx_fss_crc_fes_manch_ok_p_i => s_rx_fss_crc_fes_manch_ok_p,
-    rx_crc_or_manch_wrong_p_i   => s_rx_crc_or_manch_wrong_p,
+    rx_fss_crc_fes_ok_p_i => s_rx_fss_crc_fes_manch_ok_p,
+    rx_crc_wrong_p_i   => s_rx_crc_or_manch_wrong_p,
     rate_i                      => rate_i,
     subs_i                      => subs_i,
     p3_lgth_i                   => p3_lgth_i,
@@ -505,7 +507,7 @@ TP14 <= s_rx_fss_crc_fes_manch_ok_p;
     var_o                       => s_var,
     tx_start_p_o                => s_tx_start_p,
     tx_byte_request_accept_p_o  => s_byte_request_accepted_p,
-    tx_last_byte_p_o            => s_tx_last_byte_p,
+    tx_last_data_byte_p_o       => s_tx_last_byte_p,
     prod_cons_byte_index_o      => s_prod_cons_byte_index,
     prod_data_lgth_o            => s_prod_data_lgth,
     rx_rst_o                    => s_rx_rst);

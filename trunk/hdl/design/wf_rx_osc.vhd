@@ -70,6 +70,7 @@ use work.WF_PACKAGE.all;     --! definitions of types, constants, entities
 --!     -> 12/2010  v0.03  EG  code cleaned-up
 --!     -> 01/2011  v0.031 EG  rxd_edge_i became fd_rxd_edge_p_i; small correctiond on comments
 --!     -> 02/2011  v0.04  EG  2 units WF_rx_osc and WF_tx_osc; process replaced by WF_incr_counter
+--!                            check for code violations removed completely
 --
 ---------------------------------------------------------------------------------------------------
 --
@@ -103,15 +104,13 @@ entity WF_rx_osc is
   -- OUTPUTS
     -- Signals to the WF_rx_deserializer
     rx_manch_clk_p_o        : out std_logic;  --! signal with uclk-wide pulses
-                                              --!  o  on a significant edge
+                                              --!  o  on a significant edge 
                                               --!  o  between adjacent bits
                                               --!  ____|-|___|-|___|-|___
 
     rx_bit_clk_p_o          : out std_logic;  --! signal with uclk-wide pulses
                                               --!  o between adjacent bits
                                               --!  __________|-|_________
-
-    rx_manch_code_viol_p_o  : out std_logic;  --! pulse upon manch. code violation detection
 
     rx_signif_edge_window_o : out std_logic;  --! time window where a significant edge is expected
 
@@ -212,7 +211,6 @@ begin
         s_manch_clk_d1             <= '0';
         s_signif_edge_found        <= '0';
         s_adjac_bits_edge_found    <= '0';
-        rx_manch_code_viol_p_o     <= '0';
 
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -224,7 +222,6 @@ begin
           s_manch_clk             <= not s_manch_clk; -- inversion of rx_manch_clk
           s_signif_edge_found     <= '1';             -- indication that the edge was found
           s_adjac_bits_edge_found <= '0';
-          rx_manch_code_viol_p_o  <= '0';
 
         -- if a significant edge is not found where expected (code violation), the rx_manch_clk
         -- is inverted right after the end of the signif_edge_window.
@@ -232,8 +229,7 @@ begin
 
           s_manch_clk             <= not s_manch_clk;
           s_adjac_bits_edge_found <= '0';             -- re-initialization before the
-                                                        -- next cycle
-          rx_manch_code_viol_p_o  <= '1';
+                                                      -- next cycle
 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
@@ -248,8 +244,6 @@ begin
 
           s_signif_edge_found     <= '0';             -- re-initialization before next cycle
 
-          rx_manch_code_viol_p_o  <= '0';
-
 
         -- if no edge is detected inside the adjac_bits_edge_window, both clks are inverted right
         -- after the end of it
@@ -259,12 +253,7 @@ begin
           s_bit_clk               <= not s_bit_clk;
 
           s_signif_edge_found     <= '0';             -- re-initialization before next cycle
-          rx_manch_code_viol_p_o  <= '0';
-
-        else
-          rx_manch_code_viol_p_o  <= '0';
-
-        end if;
+      end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       s_manch_clk_d1              <= s_manch_clk;

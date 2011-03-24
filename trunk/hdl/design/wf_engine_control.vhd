@@ -132,9 +132,9 @@ entity WF_engine_control is
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
     -- Signal from the WF_fd_transmitter unit
 
+    tx_completed_p_i           : in std_logic;                    --! transmitter enable
     tx_byte_request_p_i        : in std_logic;                    --! used for the counting of the
                                                                   --! # produced bytes
-
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
     -- Signals from the WF_fd_receiver unit
@@ -142,10 +142,10 @@ entity WF_engine_control is
     rx_byte_i                  : in std_logic_vector(7 downto 0);--!deserialized ID_DAT/ RP_DAT byte
     rx_byte_ready_p_i          : in std_logic;--! indication of a new byte on rx_byte_i
 
-    rx_fss_crc_fes_manch_ok_p_i: in std_logic; --! indication of a frame (ID_DAT or RP_DAT) with
+    rx_fss_crc_fes_ok_p_i: in std_logic; --! indication of a frame (ID_DAT or RP_DAT) with
                                                --! correct FSS, FES, CRC and manch. encoding
 
-    rx_crc_or_manch_wrong_p_i  : in std_logic; --! indication of a frame with a wrong CRC or manch.
+    rx_crc_wrong_p_i  : in std_logic; --! indication of a frame with a wrong CRC or manch.
                                                --  pulse arrives after the FES detection
 
     rx_fss_received_p_i        : in std_logic; --! pulse after a correct FSS detection (ID/ RP_DAT)
@@ -158,9 +158,10 @@ entity WF_engine_control is
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
 
     -- Signal to the WF_tx_serializer unit
-    tx_byte_request_accept_p_o : out std_logic;--! answer to tx_byte_request_p_i
-    tx_last_byte_p_o           : out std_logic;--! indication that it is the last data-byte
     tx_start_p_o               : out std_logic;--! launches the transmitters's FSM
+    tx_byte_request_accept_p_o : out std_logic;--! answer to tx_byte_request_p_i
+    tx_last_data_byte_p_o      : out std_logic;--! indication for the last data-byte
+                                               --  (CRC & FES not included)
 
     -- Signal to the WF_production unit
     prod_data_lgth_o           : out std_logic_vector (7 downto 0);--! # bytes of the Conrol & Data
@@ -212,7 +213,7 @@ architecture rtl of WF_engine_control is
   signal s_rst_rx_bytes_counter, s_inc_rx_bytes_counter, s_var_identified              : std_logic;
   signal s_load_time_counter, s_time_c_is_zero, s_session_timedout                     : std_logic;
   signal s_tx_byte_request_accept_p, s_tx_byte_request_accept_p_d1                     : std_logic;
-  signal s_tx_byte_request_accept_p_d2, s_tx_last_byte_p, s_tx_last_byte_p_d           : std_logic;
+  signal s_tx_byte_request_accept_p_d2, s_tx_last_data_byte_p, s_tx_last_data_byte_p_d : std_logic;
   signal s_prod_data_lgth_match, s_tx_start_prod_p, s_broadcast_var                    : std_logic;
   signal s_rx_bytes_c, s_prod_bytes_c                                      : unsigned (7 downto 0);
   signal s_time_counter_top, s_turnaround_time, s_silence_time            : unsigned (17 downto 0);
@@ -270,11 +271,11 @@ begin
 --! transitions of the FSM.
 
   Engine_Control_FSM_Comb_State_Transitions: process (s_time_c_is_zero, s_prod_or_cons,subs_i,
-                                                      rx_crc_or_manch_wrong_p_i, s_session_timedout,
-                                                      rx_fss_crc_fes_manch_ok_p_i, s_broadcast_var,
+                                                      rx_crc_wrong_p_i, s_session_timedout,
+                                                      rx_fss_crc_fes_ok_p_i, s_broadcast_var,
                                                       s_var_identified,rx_byte_ready_p_i,rx_byte_i,
-                                                      control_st, rx_fss_received_p_i,
-                                                      s_rx_bytes_c, s_tx_last_byte_p)
+                                                      control_st,rx_fss_received_p_i,tx_completed_p_i,
+                                                      s_rx_bytes_c, s_tx_last_data_byte_p)
 
   begin
 
@@ -284,7 +285,7 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when idle                     =>
 
-        if (rx_fss_received_p_i = '1') then    -- correct FSS arrived
+        if rx_fss_received_p_i = '1' then      -- correct FSS arrived
           nx_control_st <= id_dat_control_byte;
 
         else
@@ -295,14 +296,14 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when id_dat_control_byte      =>
 
-        if (rx_byte_ready_p_i = '1') and (rx_byte_i = c_ID_DAT_CTRL_BYTE) then
+        if s_session_timedout = '1' then       -- independent timeout
+          nx_control_st <= idle;
+
+        elsif (rx_byte_ready_p_i = '1') and (rx_byte_i = c_ID_DAT_CTRL_BYTE) then
           nx_control_st <= id_dat_var_byte;    -- check of ID_DAT Control byte
 
-        elsif (rx_byte_ready_p_i = '1') then
+        elsif rx_byte_ready_p_i = '1' then
           nx_control_st <= idle;               -- byte different than the expected ID_DAT Control
-
-        elsif (s_session_timedout = '1') then
-          nx_control_st <= idle;
 
         else
           nx_control_st <= id_dat_control_byte;-- ID_DAT Control byte being arriving
@@ -312,24 +313,27 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when id_dat_var_byte          =>
 
-        if (rx_byte_ready_p_i = '1') and (s_var_identified = '1') then
-          nx_control_st <= id_dat_subs_byte; -- check of the ID_DAT variable
-
-        elsif  (rx_byte_ready_p_i = '1') then
-          nx_control_st <= idle;             -- byte not corresponding to an expected variable
-
-        elsif (s_session_timedout = '1') then
+        if s_session_timedout = '1' then       -- independent timeout
           nx_control_st <= idle;
 
+        elsif (rx_byte_ready_p_i = '1') and (s_var_identified = '1') then
+          nx_control_st <= id_dat_subs_byte;   -- check of the ID_DAT variable
+
+        elsif rx_byte_ready_p_i = '1' then
+          nx_control_st <= idle;               -- byte not corresponding to an expected variable
+
         else
-          nx_control_st <= id_dat_var_byte;  -- ID_DAT variable byte being arriving
+          nx_control_st <= id_dat_var_byte;    -- ID_DAT variable byte being arriving
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when id_dat_subs_byte         =>
 
-        if (rx_byte_ready_p_i = '1') and (rx_byte_i = subs_i) then
+        if s_session_timedout = '1' then     -- independent timeout
+          nx_control_st <= idle;
+
+        elsif (rx_byte_ready_p_i = '1') and (rx_byte_i = subs_i) then
           nx_control_st <= id_dat_frame_ok;  -- check of the ID_DAT subscriber..
 
         elsif (rx_byte_ready_p_i = '1') and (s_broadcast_var = '1') then
@@ -339,10 +343,7 @@ begin
                                              -- check as the var_rst which is broadcast is treated
                                              -- also in stand-alone mode.
 
-        elsif (rx_byte_ready_p_i = '1') then -- not the station's address, neither a broadcast
-          nx_control_st <= idle;
-
-        elsif (s_session_timedout = '1') then
+        elsif rx_byte_ready_p_i = '1' then   -- not the station's address, neither a broadcast
           nx_control_st <= idle;
 
         else
@@ -353,17 +354,17 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when id_dat_frame_ok          =>
 
-        if (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_prod_or_cons = "10") then
+        if s_session_timedout = '1' then             -- independent timeout
+          nx_control_st <= idle;
+
+        elsif (rx_fss_crc_fes_ok_p_i = '1') and (s_prod_or_cons = "10") then
           nx_control_st <= produce_wait_turnar_time; -- CRC & FES check ok! station has to produce
 
-        elsif (rx_fss_crc_fes_manch_ok_p_i = '1') and (s_prod_or_cons = "01") then
+        elsif (rx_fss_crc_fes_ok_p_i = '1') and (s_prod_or_cons = "01") then
           nx_control_st <= consume_wait_FSS;         -- CRC & FES check ok! station has to consume
 
         elsif (s_rx_bytes_c > 2)  then               -- 3 bytes after the arrival of the subscriber
           nx_control_st <= idle;                     -- byte, a FES has not been detected
-
-        elsif (s_session_timedout = '1') then
-          nx_control_st <= idle;
 
         else
           nx_control_st <= id_dat_frame_ok;          -- CRC & FES bytes being arriving
@@ -373,11 +374,11 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when produce_wait_turnar_time =>
 
-        if (s_time_c_is_zero = '1') then             -- turnaround time passed
-          nx_control_st <= produce;
-
-        elsif (s_session_timedout = '1') then
+        if s_session_timedout = '1' then             -- independent timeout
           nx_control_st <= idle;
+
+        elsif s_time_c_is_zero = '1' then            -- turnaround time passed
+          nx_control_st <= produce;
 
         else
           nx_control_st <= produce_wait_turnar_time; -- waiting for turnaround time to pass
@@ -387,49 +388,48 @@ begin
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when consume_wait_FSS         =>
 
-        if (rx_fss_received_p_i = '1') then -- FSS of the consumed RP_DAT arrived
-          nx_control_st <= consume;
-
-        elsif (s_time_c_is_zero = '1') then -- if the FSS of the consumed RP_DAT frame doesn't
-          nx_control_st <= idle;            -- arrive before the expiration of the silence time,
-                                            -- the engine goes back to idle
-
-        elsif (s_session_timedout = '1') then
+        if s_session_timedout = '1' then       -- independent timeout
           nx_control_st <= idle;
 
+        elsif rx_fss_received_p_i = '1' then   -- FSS of the consumed RP_DAT arrived
+          nx_control_st <= consume;
+
+        elsif s_time_c_is_zero = '1' then      -- if the FSS of the consumed RP_DAT frame doesn't
+          nx_control_st <= idle;               -- arrive before the expiration of the silence time,
+                                               -- the engine goes back to idle
         else
-          nx_control_st <= consume_wait_FSS;-- counting silence time
+          nx_control_st <= consume_wait_FSS;   -- counting silence time
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when consume                  =>
 
-        if (rx_fss_crc_fes_manch_ok_p_i = '1') or -- the cons frame arrived to the end,as expected
-           (rx_crc_or_manch_wrong_p_i = '1')   or -- FES detected but wrong CRC or manch. encoding
-           (s_rx_bytes_c > 130)      then         -- no FES detected after the max number of bytes
-
-          nx_control_st <= idle;                  -- back to idle
-
-        elsif s_session_timedout = '1' then
+        if s_session_timedout = '1' then       -- independent timeout
           nx_control_st <= idle;
 
+        elsif (rx_fss_crc_fes_ok_p_i = '1') or -- the cons frame arrived to the end,as expected
+           (rx_crc_wrong_p_i = '1')         or -- FES detected but wrong CRC or manch. encoding
+           (s_rx_bytes_c > 130)      then            -- no FES detected after the max number of bytes
+
+          nx_control_st <= idle;               -- back to idle
+
         else
-          nx_control_st <= consume;              -- consuming bytes
+          nx_control_st <= consume;            -- consuming bytes
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
       when produce                  =>
 
-        if (s_tx_last_byte_p = '1') then         -- last byte to be produced
+        if s_session_timedout = '1' then       -- independent timeout
           nx_control_st <= idle;
 
-        elsif (s_session_timedout = '1') then
+        elsif tx_completed_p_i = '1' then      -- end of production (including CRC and FES)
           nx_control_st <= idle;
 
         else
-          nx_control_st <= produce;              -- producing bytes
+          nx_control_st <= produce;            -- producing bytes
         end if;
 
 
@@ -598,6 +598,7 @@ begin
 --! @brief Instantiation of the WF_prod_data_lgth_calc unit that calculates the total amount of
 --! bytes that have to be transferred when a variable is produced (including the RP_DAT.Control,
 --! RP_DAT.Data.MPS_status and RP_DAT.Data.nanoFIP_status bytes).
+--! The FSS, CRC and FES bytes are not included!
 
   Produced_Data_Length_Calculator: WF_prod_data_lgth_calc
   port map (
@@ -620,9 +621,9 @@ begin
     uclk_i            => uclk_i,
     reinit_counter_i  => s_rst_prod_bytes_counter,
     incr_counter_i    => s_inc_prod_bytes_counter,
+    counter_is_full_o => open,
     -------------------------------------------------------
-    counter_o         => s_prod_bytes_c,
-    counter_is_full_o => open);
+    counter_o         => s_prod_bytes_c);
     -------------------------------------------------------
 
   --  --  --  --  --  --  --  --  --  --  --
@@ -648,9 +649,9 @@ begin
     uclk_i            => uclk_i,
     reinit_counter_i  => s_rst_rx_bytes_counter,
     incr_counter_i    => s_inc_rx_bytes_counter,
+    counter_is_full_o => open,
     -------------------------------------------------------
-    counter_o         => s_rx_bytes_c,
-    counter_is_full_o => open);
+    counter_o         => s_rx_bytes_c);
     -------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -908,21 +909,21 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
---!@brief: Registering the signals tx_last_byte_p_o, tx_byte_request_accept_p_o,tx_start_p_o
+--!@brief: Registering the signals tx_last_data_byte_p_o, tx_byte_request_accept_p_o,tx_start_p_o
 
   process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-        tx_last_byte_p_o              <= '0';
-        s_tx_last_byte_p_d            <= '0';
+        tx_last_data_byte_p_o         <= '0';
+        s_tx_last_data_byte_p_d       <= '0';
         s_tx_byte_request_accept_p_d1 <= '0';
         s_tx_byte_request_accept_p_d2 <= '0';
         s_tx_start_prod_p             <= '0';
 
       else
-        s_tx_last_byte_p_d            <= s_tx_last_byte_p;
-        tx_last_byte_p_o              <= s_tx_last_byte_p_d;
+        s_tx_last_data_byte_p_d       <= s_tx_last_data_byte_p;
+        tx_last_data_byte_p_o         <= s_tx_last_data_byte_p_d;
         s_tx_byte_request_accept_p_d1 <= s_tx_byte_request_accept_p;
         s_tx_byte_request_accept_p_d2 <= s_tx_byte_request_accept_p_d1;
         s_tx_start_prod_p             <= (s_prod_wait_turnar_time and s_time_c_is_zero);
@@ -930,10 +931,8 @@ begin
     end if;
   end process;
 
-  s_tx_byte_request_accept_p   <= s_producing and (tx_byte_request_p_i or s_tx_start_prod_p);
-
-  s_tx_last_byte_p             <= s_producing and s_prod_data_lgth_match and tx_byte_request_p_i;
-
+  s_tx_byte_request_accept_p <= s_producing and (tx_byte_request_p_i or s_tx_start_prod_p);
+  s_tx_last_data_byte_p      <= s_producing and s_prod_data_lgth_match and tx_byte_request_p_i;
 
 
 ---------------------------------------------------------------------------------------------------

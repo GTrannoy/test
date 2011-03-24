@@ -121,13 +121,16 @@ entity WF_fd_transmitter is
     tx_byte_i                  : in std_logic_vector (7 downto 0); --! byte to be delivered
 
     -- Signals from the WF_engine_control
-    tx_byte_request_accept_p_i : in std_logic; --! indication that a byte is ready to be delivered
-    tx_last_byte_p_i           : in std_logic; --! indication of the last byte before the CRC bytes
     tx_start_p_i               : in std_logic; --! indication for the start of the production
+    tx_byte_request_accept_p_i : in std_logic; --! indication that a byte is ready to be delivered
+    tx_last_data_byte_p_i      : in std_logic; --! indication of he last data byte
+                                               --  (CRC, FES not included)
+
 
 
   -- OUTPUTS
     -- Signal to the WF_engine_control
+    tx_completed_p_o           : out std_logic;
     tx_byte_request_p_o        : out std_logic;--! request for a new byte to be transmitted; pulse
                                                --! at the end of the transmission of a previous byte
 
@@ -186,10 +189,11 @@ begin
     tx_start_p_i             => tx_start_p_i,
     byte_request_accept_p_i  => tx_byte_request_accept_p_i,
     byte_i                   => tx_byte_i,
-    last_byte_p_i            => tx_last_byte_p_i,
+    last_byte_p_i            => tx_last_data_byte_p_i,
     tx_clk_p_buff_i          => s_tx_clk_p_buff,
    -----------------------------------------------
-    byte_request_p_o         => tx_byte_request_p_o,
+    tx_byte_request_p_o      => tx_byte_request_p_o,
+    tx_completed_p_o         => tx_completed_p_o,
     tx_data_o                => tx_data_o,
     tx_osc_rst_p_o           => s_tx_osc_rst_p,
     tx_enable_o              => tx_enable_o );
