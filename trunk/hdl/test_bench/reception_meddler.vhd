@@ -18,9 +18,9 @@ entity reception_meddler is
 	port(
 		clk							: in std_logic;
 		
+		clamp						: out boolean;
 		jitter						: out jitter_time;
 		nb_truncated_bits			: out byte_slice;
-		truncated_preamble			: out boolean;
 		v_minus_err					: out std_logic;
 		v_plus_err					: out std_logic
 	);
@@ -34,7 +34,7 @@ signal insert_violation			: boolean;
 signal jitter_active			: boolean:=FALSE;
 signal jitter_value				: time;
 signal report_config_trigger	: std_logic;
-signal trunc_preamble			: boolean;
+signal clamp_signal				: boolean;
 signal truncated_bits			: byte_slice;
 signal violation_positive		: boolean:= TRUE;
 
@@ -47,13 +47,13 @@ begin
 	variable config_line			: line;
 	variable validity_time			: time;
 	
-	variable trunc_preamble_config	: boolean;
+	variable clamp_signal_config	: boolean;
 	variable insert_viol_config		: boolean;
 	variable jitter_config			: jitter_time;
 	variable truncated_bits_config	: byte_slice;
 	begin
 		readline	(config_file, config_line);
-		read		(config_line, trunc_preamble_config);
+		read		(config_line, clamp_signal_config);
 		readline	(config_file, config_line);
 		read		(config_line, insert_viol_config);
 		readline	(config_file, config_line);
@@ -69,7 +69,7 @@ begin
 		if endfile(config_file) then
 			file_close(config_file);
 		end if;
-		trunc_preamble			<= trunc_preamble_config;
+		clamp_signal			<= clamp_signal_config;
 		insert_violation		<= insert_viol_config;
 		jitter_value			<= jitter_config;
 		truncated_bits			<= truncated_bits_config;
@@ -113,16 +113,16 @@ begin
 	end process;
 	
 	nb_truncated_bits						<= truncated_bits;
-	truncated_preamble						<= trunc_preamble;
+	clamp									<= clamp_signal;
 	jitter									<= jitter_value when jitter_active else 0 ps;
 	
 	reporting: process(report_config_trigger)
 	begin
 		if report_config_trigger'event and report_config_trigger ='1' then
 			if now > 0 ps then
-				if trunc_preamble then
+				if clamp_signal then
 					report	"               A malfunction in the reception from the FIELDRIVE is simulated " 
-					& LF &  "               by truncating the begining of the preamble" & LF
+					& LF &  "               by campling to 0 the received serial signal" & LF
 					severity warning;
 				end if;
 				if insert_violation then
@@ -131,6 +131,12 @@ begin
 					& LF &  "               This should be reflected by a flag bit in the nanoFIP status error byte" & LF
 					severity warning;
 				end if;
+				if jitter_value > 0 ps then
+					report	"               A disturbance in the reception is simulated "
+					& LF &  "               by randomly introducing a jitter of " & time'image(jitter_value)
+					& LF &  "               in the received serial signal" & LF
+					severity warning;
+				end if;		
 				if truncated_bits > 0 then
 					report	"               A reception error from the FIELDRIVE is simulated " 
 					& LF &  "               by truncating " & integer'image(truncated_bits) & " bit(s) per byte " 
