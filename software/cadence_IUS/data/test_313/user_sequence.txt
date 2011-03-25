@@ -1,0 +1,12 @@
+## Sequence of Wishbone transfers separated by stand-by times. The transfer parameters must be separated by comas, without spaces.
+## The order and values must be as follows: rd_wr: (0) for read / (1) for write, variable: (1) for consumed / (2) for broadcast / (3) for produced,
+## data transfer size: integer from 1 to 124, transfer offset: integer from 1 to 124, transfer block size: integer from 1 to 124.
+1380 us	-- stand-by time
+0,1,124,0,0	-- reading VAR1 from memory
+415 us		-- stand-by time
+0,2,124,0,0	-- reading VAR2 from memory
+1385 us	-- stand-by time
+0,1,124,0,0	-- reading VAR1 from memory
+415 us		-- stand-by time
+0,2,124,0,0	-- reading VAR2 from memory
+2000 ms		-- final stand-by time to end the simulation
