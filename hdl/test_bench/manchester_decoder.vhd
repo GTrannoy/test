@@ -30,7 +30,7 @@ constant release_lock	: unsigned(3 downto 0) := x"8";
 
 --signal cfig_clk_period	: time;--:= 1000 ns;
 
-signal max_jitt			: time := 60 ns;
+signal max_jitt			: time := 100 ns;
 
 signal qrt_period_pos	: time := 0 ns;
 signal qrt_period_neg	: time := 0 ns;
@@ -78,6 +78,11 @@ begin
 ----------------------------------------------------------------------
 
 	in_signal			<= txd and txena;
+
+	max_jitt			<=	4 us		when cfig_clk_period = 32 us else
+							125 ns		when cfig_clk_period = 1 us else
+							50 ns		when cfig_clk_period = 400 ns else
+							100 ns;
 
 	b_clk_period		<= in_period 
 							when (in_period < (cfig_clk_period + max_jitt)
