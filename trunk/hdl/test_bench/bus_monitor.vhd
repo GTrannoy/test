@@ -107,7 +107,7 @@ begin
 	-- process extracting the history information for the different resets
 	-- from temporary text files
 	----------------------------------------------------------------------	
-	check_for_reset_history: process--(fd_reset)
+	check_for_reset_history: process
 	file phist_file					: text;
 	variable phist_line				: line;
 	variable pfile_status			: FILE_OPEN_STATUS;
@@ -125,10 +125,6 @@ begin
 	variable first_byte				: std_logic_vector(7 downto 0);
 	variable station_adr_tmp		: std_logic_vector(7 downto 0);
 	begin
-		--if fd_reset ='1' then
-		wait for 0 fs;
-		wait for 0 fs;
-		wait for 0 fs;
 			file_open(pfile_status, phist_file,"data/tmp_preset_hist.txt",read_mode);
 			if pfile_status = open_ok then
 				readline					(phist_file, phist_line);
@@ -162,38 +158,33 @@ begin
 				vreset_hist_opened_ok		<= TRUE;
 				vreset_time					<= vrst_time;
 				vreset_first_byte			<= first_byte;
+
+				file_open(config_file,"data/tmp_board_config.txt",read_mode);
+				readline				(config_file, config_line);
+				readline				(config_file, config_line);
+				readline				(config_file, config_line);
+				readline				(config_file, config_line);
+				readline				(config_file, config_line);
+				readline				(config_file, config_line);
+				hread					(config_line, station_adr_tmp);
+				file_close(config_file);
+				station_adr				<= station_adr_tmp;
 			else
 				vreset_hist_opened_ok		<= FALSE;
 			end if;
 			
-			file_open(config_file,"data/tmp_board_config.txt",read_mode);
-			readline				(config_file, config_line);
-			readline				(config_file, config_line);
-			readline				(config_file, config_line);
-			readline				(config_file, config_line);
-			readline				(config_file, config_line);
-			readline				(config_file, config_line);
-			hread					(config_line, station_adr_tmp);
-			file_close(config_file);
-			
-			station_adr				<= station_adr_tmp;
---		end if;
-		wait for f_clk_period;
+		wait for 25 ns;
 	end process;
 	
 	process (fd_reset)
 	begin
 		if fd_reset'event and fd_reset ='1' then
---			wait for 0 ps;
 			fd_reset_assertion			<= now;
 		end if;
 	end process;
 	
 	resets_surveillance: process
 	begin
-		wait for 0 ps;
-		wait for 0 ps;
-		wait for 0 ps;
 		previous_preset_time	<= preset_time;
 		previous_ureset_time	<= ureset_time;
 		previous_vreset_time	<= vreset_time;
@@ -214,8 +205,7 @@ begin
 			rst_latency_reached		<= TRUE;
 		end if;
 
---		wait for f_clk_period;
-		wait on preset_time, ureset_time, vreset_time, fd_reset;
+		wait for 25 ns;
 	end process;
 
 	reset_reporting: process(fd_reset_asserted, rst_latency_reached, fd_reset_assertion)

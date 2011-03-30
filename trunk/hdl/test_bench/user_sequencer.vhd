@@ -60,7 +60,7 @@ begin
 	
 	variable block_size_tmp		: integer;
 	variable rd_wr				: std_logic;
-	variable slone_cfig_tmp		: std_logic;
+	variable slone_cfig_tmp		: std_logic_vector(0 downto 0);
 	variable trfer_lgth_tmp		: integer;
 	variable trfer_ofst_tmp		: integer;
 	variable var_id_tmp			: integer;
@@ -82,6 +82,7 @@ begin
 			readline		(config_file, config_line);
 			read			(config_line, slone_cfig_tmp);
 			file_close(config_file);
+--			report " FIRST slone config " & integer'image(to_integer(unsigned(slone_cfig_tmp)));
 
 			readline	(sequence_file, sequence_line);
 			read		(sequence_line, stand_by_time);
@@ -99,7 +100,7 @@ begin
 			else
 				file_close(sequence_file);
 			end if;
-			if slone_cfig_tmp ='1' then
+			if slone_cfig_tmp ="1" then
 				wait for stand_by_time - uclk_period;
 			else
 				wait for stand_by_time - wclk_period;
@@ -114,7 +115,13 @@ begin
 			block_size				<= std_logic_vector(to_unsigned(block_size_tmp,7));
 			blck_sze				<= block_size_tmp;
 			
-			if slone_cfig_tmp ='1' then
+			file_open(config_file,"data/tmp_board_config.txt",read_mode);
+			readline		(config_file, config_line);
+			read			(config_line, slone_cfig_tmp);
+			file_close(config_file);
+--			report " SECOND slone config " & integer'image(to_integer(unsigned(slone_cfig_tmp)));
+
+			if slone_cfig_tmp ="1" then
 				if rd_wr ='1' then
 					launch_slone_rd		<= '0';
 					launch_slone_wr		<= '1';
@@ -139,7 +146,7 @@ begin
 					launch_wb_wr		<= '0';
 				end if;
 			end if;
-			if slone_cfig_tmp ='1' then
+			if slone_cfig_tmp ="1" then
 				wait for uclk_period;
 			else
 				wait for wclk_period;
