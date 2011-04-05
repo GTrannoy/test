@@ -40,10 +40,6 @@
 188 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 164 us		-- stand-by time
-0,5A,05,0	-- RP_DAT for Consumed variable
-203 us		-- stand-by time
-1,5A,05,0	-- ID_DAT for Consumed variable
-164 us		-- stand-by time
 0,5A,05,1	-- RP_DAT for Consumed variable
 211 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
@@ -54,6 +50,10 @@
 164 us		-- stand-by time
 0,5A,05,3	-- RP_DAT for Consumed variable
 227 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,4	-- RP_DAT for Consumed variable
+235 us		-- stand-by time
 1,5A,05,0	-- ID_DAT for Consumed variable
 164 us		-- stand-by time
 0,5A,05,121	-- RP_DAT for Consumed variable
