@@ -4,7 +4,19 @@
 616 us	-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
 447 us		-- stand-by time
+0,2,124,0,0	-- reading VAR2 from memory
+31 us		-- stand-by time
+1,3,124,0,0	-- writting VAR3 in memory
+101021 us	-- stand-by time
 0,1,124,0,0	-- reading VAR1 from memory
+146 us		-- stand-by time
+0,2,124,0,0	-- reading VAR2 from memory
+31 us		-- stand-by time
+1,3,124,0,0	-- writting VAR3 in memory
+9620 us	-- stand-by time
+0,1,124,0,0	-- reading VAR1 from memory
+8943 us		-- stand-by time
+0,2,124,0,0	-- reading VAR2 from memory
 31 us		-- stand-by time
 1,3,124,0,0	-- writting VAR3 in memory
 2000 ms		-- final stand-by time to end the simulation

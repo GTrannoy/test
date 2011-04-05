@@ -1,0 +1,34 @@
+## Schedules the different frames to be sent by the Bus Arbitrer separated by stand-by times. The frame parameters must be separated by comas, without spaces.
+## The order and values must be as follows: id_rp: (1) for ID_DAT frame / (0) for RP_DAT frame, station adress: 8-bit in hexadecimal format,
+## variable adress: Identification(10h)/ Presence(14h)/ Broadcast(91h)/ Consumed(05h)/ Produced(06h)/ Reset (E0h), variable data length: integer from 2 to 124
+231 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+170 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+139 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+201 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+139 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,10	-- RP_DAT for Consumed variable
+79 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+36 us		-- stand-by time
+0,5A,05,10	-- RP_DAT for Consumed variable
+110 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+139 us		-- stand-by time
+1,01,91,0	-- ID_DAT for Broadcast variable
+36 us		-- stand-by time
+0,01,91,10	-- RP_DAT for Broadcast variable
+79 us		-- stand-by time
+1,01,91,0	-- ID_DAT for Broadcast variable
+36 us		-- stand-by time
+0,01,91,10	-- RP_DAT for Broadcast variable
+110 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+170 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
+2000 ms		-- final stand-by time to end the simulation
