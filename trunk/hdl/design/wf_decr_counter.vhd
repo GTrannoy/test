@@ -7,15 +7,14 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_decr_counter.vhd                                                                     |
+-- file         WF_decr_counter.vhd                                                               |
 ---------------------------------------------------------------------------------------------------
 
---! standard library
+-- Standard library
 library IEEE;
-
---! standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
+-- Standard packages
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -24,80 +23,71 @@ use IEEE.NUMERIC_STD.all;     --! conversion functions
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Decreasing counter with synchronous reset, load enable and decrease enable.
+-- Description  Decreasing counter with synchronous reset, load enable and decrease enable.
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      10/2010
+-- Date         10/2010
 --
 --
---! @version   v0.01
+-- Version      v0.01
 --
 --
---! @details \n
+-- Depends on   WF_reset_unit
 --
---!   \n<b>Dependencies:</b>\n
---
---
---!   \n<b>Modified by:</b>\n
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes:</b>\n
---
----------------------------------------------------------------------------------------------------
---
---! @todo
---!   ->
+-- Last changes
 --
 ---------------------------------------------------------------------------------------------------
 
 
 
 --=================================================================================================
---!                           Entity declaration for WF_decr_counter
+--                           Entity declaration for WF_decr_counter
 --=================================================================================================
 
 entity WF_decr_counter is
-  generic (g_counter_lgth : natural := 4);                        --! default length
+  generic (g_counter_lgth : natural := 4);                        -- default length
   port (
   -- INPUTS
     -- nanoFIP User Interface general signal
-    uclk_i            : in std_logic;                             --! 40 MHz clock
+    uclk_i            : in std_logic;                             -- 40 MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_rst_i        : in std_logic;                             --! nanoFIP internal reset
+    nfip_rst_i        : in std_logic;                             -- nanoFIP internal reset
 
     -- Signals from any unit
-    counter_decr_p_i  : in std_logic;                             --! decrement enable
-    counter_load_i    : in std_logic;                             --! load enable
-    counter_top       : in unsigned (g_counter_lgth-1 downto 0);  --! load value
+    counter_decr_p_i  : in std_logic;                             -- decrement enable
+    counter_load_i    : in std_logic;                             -- load enable
+    counter_top       : in unsigned (g_counter_lgth-1 downto 0);  -- load value
 
 
   -- OUTPUTS
     -- Signal to any unit
-    counter_o         : out unsigned (g_counter_lgth-1 downto 0); --! counter
-    counter_is_zero_o : out std_logic                             --! empty counter indication
+    counter_o         : out unsigned (g_counter_lgth-1 downto 0); -- counter
+    counter_is_zero_o : out std_logic                             -- empty counter indication
       );
 end entity WF_decr_counter;
 
 
 --=================================================================================================
---!                                    architecture declaration
+--                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_decr_counter is
 
   signal s_counter_is_zero : std_logic;
   signal s_counter         : unsigned (g_counter_lgth-1 downto 0);
 
-
 --=================================================================================================
---!                                       architecture begin
+--                                       architecture begin
 --=================================================================================================
 begin
+
 
 ---------------------------------------------------------------------------------------------------
   -- Synchronous process Decr_Counter

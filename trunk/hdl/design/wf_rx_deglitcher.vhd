@@ -7,18 +7,17 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_rx_deglitcher.vhd                                                                    |
+-- File         WF_rx_deglitcher.vhd                                                              |
 ---------------------------------------------------------------------------------------------------
 
---! standard library
+-- Standard library
 library IEEE;
+-- Standard packages
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
---! standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
-
---! specific packages
-use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
+-- Specific packages
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -27,48 +26,36 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit applies a glitch filter to the nanoFIP FIELDRIVE input FD_RXD.
---!            It is capable of cleaning glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
+-- Description  The unit applies a glitch filter to the nanoFIP FIELDRIVE input FD_RXD.
+--              It is capable of cleaning glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
--- @date       14/02/2011
+-- Date          14/02/2011
 --
 --
---! @version   v0.03
+-- Version      v0.03
 --
 --
---! @details
---
---!   \n<b>Dependencies:</b> \n
---!            WF_reset_unit \n
---
---
---!   \n<b>Modified by:</b>\n
---!            Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
+-- Depends on   WF_reset_unit
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes:</b>\n
---!     -> 07/08/2009  v0.01  PAS Entity Ports added, start of architecture content
---!     -> 23/08/2010  v0.02  EG  code cleaned-up+commented
---!     -> 14/02/2011  v0.03  EG  changesd deglitcher philosophy, no dependency on osc;
---!                               fd_rxd deglitched right at reception
---
----------------------------------------------------------------------------------------------------
---
---! @todo
+-- Last changes
+--     -> 07/08/2009  v0.01  PAS Entity Ports added, start of architecture content
+--     -> 23/08/2010  v0.02  EG  code cleaned-up+commented
+--     -> 14/02/2011  v0.03  EG  complete change, no dependency on osc;
+--                               fd_rxd deglitched right at reception
 --
 ---------------------------------------------------------------------------------------------------
 
 
 
 --=================================================================================================
---!                             Entity declaration for WF_rx_deglitcher
+--                             Entity declaration for WF_rx_deglitcher
 --=================================================================================================
 
 entity WF_rx_deglitcher is
@@ -76,94 +63,93 @@ entity WF_rx_deglitcher is
   port(
   -- INPUTS
     -- nanoFIP User Interface general signal
-    uclk_i                     : in std_logic;  --! 40 MHz clock
+    uclk_i                 : in std_logic;  -- 40 MHz clock
 
     -- Signal from the WF_reset_unit
-    nfip_rst_i                 : in std_logic;  --! nanoFIP internal reset
+    nfip_rst_i             : in std_logic;  -- nanoFIP internal reset
 
     -- nanoFIP FIELDRIVE (synchronized with uclk)
-    fd_rxd_a_i                 : in std_logic;  --! receiver data
+    fd_rxd_a_i             : in std_logic;  -- receiver data
 
 
   -- OUTPUTS
     -- Signals to the WF_rx_deserializer unit
-    fd_rxd_filtered_o          : out std_logic; --! filtered output signal
-    fd_rxd_filtered_edge_p_o   : out std_logic; --! indicates an edge on the filtered signal
-    fd_rxd_filtered_f_edge_p_o : out std_logic  --! indicates a falling edge on the filtered signal
+    fd_rxd_filt_o          : out std_logic; -- filtered output signal
+    fd_rxd_filt_edge_p_o   : out std_logic; -- indicates an edge on the filtered signal
+    fd_rxd_filt_f_edge_p_o : out std_logic  -- indicates a falling edge on the filtered signal
       );
 end WF_rx_deglitcher;
 
 
 
 --=================================================================================================
---!                                    architecture declaration
+--                                    architecture declaration
 --=================================================================================================
-architecture Behavioral of WF_rx_deglitcher is
+architecture rtl of WF_rx_deglitcher is
 
-  signal s_rxd_filtered, s_rxd_filtered_d1      : std_logic;
-  signal s_rxd_filtered_r_edge_p                : std_logic;
-  signal s_rxd_filtered_f_edge_p                : std_logic;
-  signal s_deglitch_c                           : unsigned (3 downto 0);
-  signal s_fd_rxd_synch                         : std_logic_vector (1 downto 0);
-
+  signal s_fd_rxd_synch                                 : std_logic_vector (1 downto 0);
+  signal s_fd_rxd_filt, s_fd_rxd_filt_d1                : std_logic;
+  signal s_fd_rxd_filt_r_edge_p, s_fd_rxd_filt_f_edge_p : std_logic;
+  signal s_filt_c                                       : unsigned (3 downto 0);
 
 --=================================================================================================
---!                                       architecture begin
+--                                       architecture begin
 --=================================================================================================
 begin
 
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
---!@brief Synchronous process FD_RXD_synchronizer: Synchronization of the nanoFIP FIELDRIVE input
---! FD_RXD to the uclk, using a set of 2 registers.
+-- Synchronous process FD_RXD_synchronizer: Synchronization of the nanoFIP FIELDRIVE input
+-- FD_RXD to the uclk, using a set of 2 registers.
 
   FD_RXD_synchronizer: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-       s_fd_rxd_synch   <= (others => '0');
+       s_fd_rxd_synch <= (others => '0');
 
       else
-       s_fd_rxd_synch   <= s_fd_rxd_synch(0) & fd_rxd_a_i;
+       s_fd_rxd_synch <= s_fd_rxd_synch(0) & fd_rxd_a_i;
       end if;
     end if;
   end process;
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
---!@brief Synchronous process FD_RXD_deglitcher: the output signal rxd_filtered is updated only
---! after the accumulation of a sufficient (c_DEGLITCH_THRESHOLD+1) amount of identical bits.
---! The signal is therefore cleaned of any glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
+-- Synchronous process FD_RXD_deglitcher: the output signal s_fd_rxd_filt is updated only
+-- after the accumulation of a sufficient (c_DEGLITCH_THRESHOLD + 1) amount of identical bits.
+-- The signal is therefore cleaned of any glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
 
   FD_RXD_deglitcher: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-        s_deglitch_c       <= to_unsigned (c_DEGLITCH_THRESHOLD, s_deglitch_c'length) srl 1;-- middle value
-        s_rxd_filtered     <= '0';
-        s_rxd_filtered_d1  <= '0';
+        s_filt_c          <= to_unsigned (c_DEGLITCH_THRESHOLD, s_filt_c'length) srl 1;-- middle value
+        s_fd_rxd_filt     <= '0';
+        s_fd_rxd_filt_d1  <= '0';
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        if s_fd_rxd_synch(1) = '0' then         -- arrival of a '0'
+        if s_fd_rxd_synch(1) = '0' then     -- arrival of a '0'
 
-          if s_deglitch_c /= 0 then             -- counter updated
-            s_deglitch_c   <= s_deglitch_c - 1;
+          if s_filt_c /= 0 then             -- counter updated
+            s_filt_c      <= s_filt_c - 1;
 
           else
-            s_rxd_filtered <= '0';              -- output updated
-          end if;                               -- if counter = 0
+            s_fd_rxd_filt <= '0';           -- output updated
+          end if;                           -- if counter = 0
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        elsif s_fd_rxd_synch(1) = '1' then      -- arrival of a '1'
+        elsif s_fd_rxd_synch(1) = '1' then  -- arrival of a '1'
 
-          if s_deglitch_c /= c_DEGLITCH_THRESHOLD then
-            s_deglitch_c   <= s_deglitch_c + 1; -- counter updated
+          if s_filt_c /= c_DEGLITCH_THRESHOLD then
+            s_filt_c      <= s_filt_c + 1;  -- counter updated
 
           else
-            s_rxd_filtered <= '1';              -- output updated
-          end if;                               -- if counter = c_DEGLITCH_THRESHOLD
+            s_fd_rxd_filt <= '1';           -- output updated
+          end if;                           -- if counter = c_DEGLITCH_THRESHOLD
 
         end if;
-        s_rxd_filtered_d1  <= s_rxd_filtered;   -- used for the edges detection
+        s_fd_rxd_filt_d1  <= s_fd_rxd_filt; -- used for the edges detection
       end if;
     end if;
   end process;
@@ -173,17 +159,17 @@ begin
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
   -- Concurrent signal assignments
 
-  s_rxd_filtered_r_edge_p    <= (not s_rxd_filtered_d1) and s_rxd_filtered; -- pulse upon detection
-                                                                            -- of a falling edge
+  s_fd_rxd_filt_r_edge_p  <= (not s_fd_rxd_filt_d1) and s_fd_rxd_filt; -- pulse upon detection
+                                                                       -- of a falling edge
 
-  s_rxd_filtered_f_edge_p    <= s_rxd_filtered_d1 and (not s_rxd_filtered); -- pulse upon detection
-                                                                            -- of a rising edge
+  s_fd_rxd_filt_f_edge_p  <= s_fd_rxd_filt_d1 and (not s_fd_rxd_filt); -- pulse upon detection
+                                                                       -- of a rising edge
 
-  fd_rxd_filtered_edge_p_o   <= s_rxd_filtered_f_edge_p or   s_rxd_filtered_r_edge_p;
-  fd_rxd_filtered_f_edge_p_o <= s_rxd_filtered_f_edge_p;
-  fd_rxd_filtered_o          <= s_rxd_filtered;
+  fd_rxd_filt_edge_p_o    <= s_fd_rxd_filt_f_edge_p or s_fd_rxd_filt_r_edge_p;
+  fd_rxd_filt_f_edge_p_o  <= s_fd_rxd_filt_f_edge_p;
+  fd_rxd_filt_o           <= s_fd_rxd_filt;
 
-end Behavioral;
+end rtl;
 
 --=================================================================================================
 --                                        architecture end

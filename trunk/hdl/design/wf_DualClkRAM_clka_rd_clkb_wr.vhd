@@ -7,18 +7,17 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_DualClkRAM_clka_rd_clkb_wr.vhd                                                       |
+-- File         WF_DualClkRAM_clka_rd_clkb_wr.vhd                                                 |
 ---------------------------------------------------------------------------------------------------
 
---! Standard library
+-- Standard library
 library IEEE;
+-- Standard packages
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
---! Standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
-
---! Specific Packages
-use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
+-- Specific packages
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -27,49 +26,39 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit provides the memory triplication, transparently to the outside world.
---!            The component DualClkRam (512 bytes) is triplicated: each incoming byte is written
---!            at the same position in the three memories, whereas each outgoing byte is the
---!            outcome of a majority voter.
---!            The memory is dual port; port A is used for reading only, port B for writing only.
---!
---!            Remark: MajorityVoter(A,B,C) = (A and B) OR (A and C) OR (B and C)
+-- Description  The unit provides the memory triplication, transparently to the outside world.
+--              The component DualClkRam (512 bytes) is triplicated: each incoming byte is written
+--              at the same position in the three memories, whereas each outgoing byte is the
+--              outcome of a majority voter.
+--              The memory is dual port; port A is used for reading only, port B for writing only.
+--
+--              Remark: MajorityVoter(A,B,C) = (A and B) OR (A and C) OR (B and C)
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      10/12/2010
+-- Date         10/12/2010
 --
 --
---! @version   v0.02
+-- Version      v0.02
 --
 --
---! @details\n
+-- Depends on   DualClkRAM.vhd
 --
---!   \n<b>Dependencies:</b>\n
---!            DualClkRAM.vhd \n
---
---
---!   \n<b>Modified by:</b>\n
---!            Evangelia Gousiou (Evangelia.Gousiou@cern.ch) \n
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes: </b>\n
---!     -> 12/2010  v0.02  EG  code cleaned-up+commented \n
---
----------------------------------------------------------------------------------------------------
---
---! @todo
+-- Last changes
+--     -> 12/2010  v0.02  EG  code cleaned-up+commented
 --
 ---------------------------------------------------------------------------------------------------
 
 
 
 --=================================================================================================
---!                   Entity declaration for WF_DualClkRAM_clka_rd_clkb_wr
+--                   Entity declaration for WF_DualClkRAM_clka_rd_clkb_wr
 --=================================================================================================
 
 entity WF_DualClkRAM_clka_rd_clkb_wr is
@@ -96,7 +85,7 @@ end WF_DualClkRAM_clka_rd_clkb_wr;
 
 
 --=================================================================================================
---!                                    architecture declaration
+--                                    architecture declaration
 --=================================================================================================
 architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is
 
@@ -107,7 +96,7 @@ architecture syn of WF_DualClkRAM_clka_rd_clkb_wr is
 
 
 --=================================================================================================
---!                                       architecture begin
+--                                       architecture begin
 --=================================================================================================
 begin
 
@@ -116,11 +105,11 @@ begin
   s_rwB   <= not write_en_portb_i;
 
 ---------------------------------------------------------------------------------------------------
---!@brief: memory triplication
---! The component DualClkRam is generated three times.
---! Port A is used for reading only, port B for writing only.
---! The input DINB is written in the same position in the 3 memories.
---! The output DOUTA from each memory is kept in the array s_data_o_A_array.
+-- memory triplication
+-- The component DualClkRam is generated three times.
+-- Port A is used for reading only, port B for writing only.
+-- The input DINB is written in the same position in the 3 memories.
+-- The output DOUTA from each memory is kept in the array s_data_o_A_array.
 
 --  G_memory_triplication: for I in 0 to 2 generate
 
@@ -145,11 +134,11 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---!@brief Combinatorial Majority_Voter
+-- Combinatorial Majority_Voter
 
---Majority_Voter: data_porta_o <= (s_data_o_A_array(0) and s_data_o_A_array(1)) or
---                                (s_data_o_A_array(1) and s_data_o_A_array(2)) or
---                                (s_data_o_A_array(2) and s_data_o_A_array(0));
+-- Majority_Voter: data_porta_o <= (s_data_o_A_array(0) and s_data_o_A_array(1)) or
+--                                 (s_data_o_A_array(1) and s_data_o_A_array(2)) or
+--                                 (s_data_o_A_array(2) and s_data_o_A_array(0));
 
 end syn;
 --=================================================================================================

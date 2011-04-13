@@ -7,18 +7,17 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_consumption.vhd                                                                      |
+-- File         WF_consumption.vhd                                                                |
 ---------------------------------------------------------------------------------------------------
 
---! standard library
+-- Standard library
 library IEEE;
+-- Standard packages
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
---! standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
-
---! specific packages
-use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
+-- Specific packages
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -27,91 +26,76 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit groups the main actions that regard data consumption.
---!            It instantiates the units:
---!
---!              o WF_cons_bytes_processor : for the handling of received RP_DAT data bytes as they
---!                                          arrive from the WF_fd_receiver (registration to the RAM
---!                                          or outputting to the DAT_O).
---!
---!
---!              o WF_cons_outcome         : for the validation of the consumed frame at the end of
---!                                          its arrival (in terms of FSS, Ctrl, PDU_TYPE, Lgth,
---!                                          CRC bytes & manch. encoding) and the generation of the
---!                                          "nanoFIP User Interface,NON-WISHBONE" outputs VAR1_RDY
---!                                          and VAR2_RDY (for var_1, var_2) or of the internal
---!                                          signals for the nanoFIP and FIELDRIVE resets (var_rst).
---!
---!                                ___________________________________________________________
---!                               |                       WF_consumption                      |
---!                               |                                                           |
---!                               |       _____________________________________________       |
---!                               |      |                                             |      |
---!                               |      |                WF_cons_outcome              |      |
---!                               |      |                                             |      |
---!                               |      |_____________________________________________|      |
---!                               |                                                           |
---!                               |       _____________________________________________       |
---!                               |      |                                             |      |
---!                               |      |            WF_cons_bytes_processor          |      |
---!                               |      |                                             |      |
---!                               |      |_____________________________________________|      |
---!                               |___________________________________________________________|
---!                                                            /\
---!                                ___________________________________________________________
---!                               |                                                           |
---!                               |                       WF_fd_receiver                      |
---!                               |___________________________________________________________|
---!                                                            /\
---!                             ___________________________________________________________________
---!                           0_____________________________FIELDBUS______________________________O
---!
---!
---!            Important Notice : The WF_rx_deserializer is "blindly" responsible for the formation
---!            of bytes arriving to the FD_RXD input. The bytes belong to either RP_DAT or ID_DAT
---!            frames. The WF_cons_bytes_processor is in charge of the RP_DATs, whereas the
---!            external unit WF_engine_control is in charge of the ID_DATs.
---!
---!            Note : In the entity declaration of this unit, below each input signal, we mark
---!            which of the instantiated units needs it.
+-- Description  The unit groups the main actions that regard data consumption.
+--              It instantiates the units:
+--
+--              o WF_cons_bytes_processor : for the handling of consumed RP_DAT data bytes as they
+--                                          arrive from the WF_fd_receiver (registration to the RAM
+--                                          or outputting to the DAT_O).
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch) \n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)     \n
+--              o WF_cons_outcome         : for the validation of the consumed frame at the end of
+--                                          its arrival (in terms of FSS, Ctrl, PDU_TYPE, Lgth &
+--                                          CRC bytes) and the generation of the
+--                                          "nanoFIP User Interface,NON-WISHBONE" outputs VAR1_RDY
+--                                          and VAR2_RDY (for var_1, var_2) or of the internal
+--                                          signals for the nanoFIP and the FIELDRIVE resets (var_rst).
+--
+--                                ___________________________________________________________
+--                               |                       WF_consumption                      |
+--                               |                                                           |
+--                               |       _____________________________________________       |
+--                               |      |                                             |      |
+--                               |      |                WF_cons_outcome              |      |
+--                               |      |                                             |      |
+--                               |      |_____________________________________________|      |
+--                               |                                                           |
+--                               |       _____________________________________________       |
+--                               |      |                                             |      |
+--                               |      |            WF_cons_bytes_processor          |      |
+--                               |      |                                             |      |
+--                               |      |_____________________________________________|      |
+--                               |___________________________________________________________|
+--                                                            /\
+--                                ___________________________________________________________
+--                               |                                                           |
+--                               |                       WF_fd_receiver                      |
+--                               |___________________________________________________________|
+--                                                            /\
+--                             ___________________________________________________________________
+--                           0_____________________________FIELDBUS______________________________O
 --
 --
---! @date      11/01/2011
+--              Note : In the entity declaration of this unit, below each input signal, we mark
+--              for which of the instantiated units it is essential.
 --
 --
---! @version   v0.01
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @details \n
---
---!   \n<b>Dependencies:</b>     \n
---!            WF_reset_unit     \n
---!            WF_fd_receiver    \n
---!            WF_engine_control \n
+-- Date         11/01/2011
 --
 --
---!   \n<b>Modified by:</b>\n
+-- Version      v0.01
+--
+--
+-- Depends on   WF_reset_unit
+--              WF_fd_receiver
+--              WF_engine_control
+--
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes:</b>\n
---!     ->
---
----------------------------------------------------------------------------------------------------
---
---! @todo
---! ->
+-- Last changes
+--     ->
 --
 ---------------------------------------------------------------------------------------------------
 
 
 
 --=================================================================================================
---!                           Entity declaration for WF_consumption
+--                           Entity declaration for WF_consumption
 --=================================================================================================
 entity WF_consumption is
 
@@ -120,10 +104,10 @@ entity WF_consumption is
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, General signals
 
-      uclk_i                      : in std_logic;
+      uclk_i                 : in std_logic;
       -- used by: all the units
 
-      slone_i                     : in std_logic;
+      slone_i                : in std_logic;
       -- used by: WF_cons_bytes_processor for selecting the data storage (RAM or DAT_O bus)
       -- used by: WF_cons_outcome for the VAR2_RDY signal (stand-alone mode does not treat var_2)
 
@@ -131,41 +115,47 @@ entity WF_consumption is
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP WorldFIP Settings
 
-       subs_i                     : in std_logic_vector (7 downto 0);
+       subs_i                : in std_logic_vector (7 downto 0);
       -- used by: WF_cons_outcome for checking if the 2 bytes of a var_rst match the station's addr
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signal from the WF_reset_unit
 
-      nfip_rst_i                  : in std_logic;
+      nfip_rst_i             : in std_logic;
       -- used by: all the units
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signals from the WF_fd_receiver
 
-      rx_byte_i                   : in std_logic_vector (7 downto 0);
-      rx_byte_ready_p_i           : in std_logic;
-      rx_fss_crc_fes_ok_p_i : in std_logic;
-      rx_crc_wrong_p_i   : in std_logic;
+      rx_byte_i              : in std_logic_vector (7 downto 0);
+      rx_byte_ready_p_i      : in std_logic;
+      -- used by: WF_cons_bytes_processor
+
+      rx_fss_crc_fes_ok_p_i  : in std_logic;
+      rx_crc_wrong_p_i       : in std_logic;
+      -- used by: WF_cons_outcome
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, WISHBONE Slave
 
-      wb_clk_i                    : in std_logic;
-      wb_adr_i                    : in std_logic_vector(8 downto 0);
+      wb_clk_i               : in std_logic;
+      wb_adr_i               : in std_logic_vector(8 downto 0);
       -- used by: WF_cons_bytes_processor for the managment of the Consumption RAM
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signals from the WF_engine_control unit
 
-      var_i                       : in t_var;
+      cons_bytes_excess_i    : in std_logic;
+      -- used by: WF_cons_outcome
+
+      var_i                  : in t_var;
       -- used by: WF_cons_bytes_processor and WF_cons_outcome
 
-      byte_index_i                : in std_logic_vector (7 downto 0);
+      byte_index_i           : in std_logic_vector (7 downto 0);
       -- used by: WF_cons_bytes_processor for the reception coordination
       -- used by: WF_cons_outcome for the validation of the Length byte
 
@@ -174,18 +164,18 @@ entity WF_consumption is
   -- OUTPUTS
 
     -- nanoFIP User Interface, NON-WISHBONE outputs
-      var1_rdy_o                  : out std_logic;
-      var2_rdy_o                  : out std_logic;
+      var1_rdy_o             : out std_logic;
+      var2_rdy_o             : out std_logic;
 
     -- nanoFIP User Interface, WISHBONE Slave outputs
-      data_o                      : out std_logic_vector (15 downto 0);
+      data_o                 : out std_logic_vector (15 downto 0);
 
-    -- Signals to the WF_produce
-      nfip_status_r_tler_p_o      : out std_logic;
+    -- Signals to the WF_production
+      nfip_status_r_tler_p_o : out std_logic;
 
     -- Signals to the WF_reset_unit
-      assert_rston_p_o            : out std_logic;
-      rst_nfip_and_fd_p_o         : out std_logic
+      assert_rston_p_o       : out std_logic;
+      rst_nfip_and_fd_p_o    : out std_logic
     );
 
 end entity WF_consumption;
@@ -193,26 +183,22 @@ end entity WF_consumption;
 
 
 --=================================================================================================
---!                                architecture declaration
+--                                architecture declaration
 --=================================================================================================
 architecture struc of WF_consumption is
 
-  signal s_cons_ctrl_byte, s_cons_pdu_byte, s_cons_lgth_byte       : std_logic_vector (7 downto 0);
-  signal s_cons_var_rst_byte_1, s_cons_var_rst_byte_2              : std_logic_vector (7 downto 0);
-
+  signal s_cons_ctrl_byte, s_cons_pdu_byte, s_cons_lgth_byte : std_logic_vector (7 downto 0);
+  signal s_cons_var_rst_byte_1, s_cons_var_rst_byte_2        : std_logic_vector (7 downto 0);
 
 --=================================================================================================
---!                                   architecture begin
+--                                       architecture begin
 --=================================================================================================
 begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                       Bytes Processing                                        --
+--                                   Consumed Bytes Processing                                   --
 ---------------------------------------------------------------------------------------------------
---! @brief Instantiation of the WF_cons_bytes_processor unit that is "consuming" data bytes
---! arriving from the WF_rx_deserializer, by registering them to the Consumed memories or by
---! transferring them to the "nanoFIP User Interface, NON_WISHBONE" output bus DAT_O.
 
   Consumption_Bytes_Processor : WF_cons_bytes_processor
   port map (
@@ -237,12 +223,8 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                            Outcome                                           --
+--                                      Consumption Outcome                                      --
 ---------------------------------------------------------------------------------------------------
---! @brief Instantiation of the WF_cons_outcome unit that is generating :
---! the "nanoFIP User Interface, NON_WISHBONE" output signal  R_TLER,
---! the "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY & VAR2_RDY (for a var_1/2) or
---! the  nanoFIP internal signals rst_nFIP_and_FD_p and assert_RSTON_p            (for a var_rst).
 
   Consumption_Outcome : WF_cons_outcome
   port map (
@@ -252,8 +234,9 @@ begin
     nfip_rst_i             => nfip_rst_i,
     rx_fss_crc_fes_ok_p_i  => rx_fss_crc_fes_ok_p_i,
     rx_crc_wrong_p_i       => rx_crc_wrong_p_i,
+    cons_bytes_excess_i    => cons_bytes_excess_i,
     var_i                  => var_i,
-    rx_byte_index_i        => byte_index_i,
+    byte_index_i           => byte_index_i,
     cons_ctrl_byte_i       => s_cons_ctrl_byte,
     cons_pdu_byte_i        => s_cons_pdu_byte,
     cons_lgth_byte_i       => s_cons_lgth_byte,

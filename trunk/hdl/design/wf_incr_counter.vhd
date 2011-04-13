@@ -7,83 +7,74 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_incr_counter.vhd                                                                     |
+-- File         WF_incr_counter.vhd                                                               |
 ---------------------------------------------------------------------------------------------------
 
---! standard library
+-- Standard library
 library IEEE;
-
---! standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
+-- Standard packages
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                         WF_incr_counter                                       --
+--                                        WF_incr_counter                                        --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Increasing counter with synchronous reset, reinitialise and increase enable.
+-- Description  Increasing counter with synchronous reset, reinitialise and increase enable.
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      10/2010
+-- Date         10/2010
 --
 --
---! @version   v0.01
+-- Version      v0.01
 --
 --
---! @details \n
+-- Depends on
 --
---!   \n<b>Dependencies:</b>\n
---
---
---!   \n<b>Modified by:</b>\n
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes:</b>\n
---!     -> 01/2011  EG  v0.011  counter_full became a constant
+-- Last changes
+--     -> 01/2011  EG  v0.011  counter_full became a constant
 --
 ---------------------------------------------------------------------------------------------------
---
---! @todo
---!   ->
---
----------------------------------------------------------------------------------------------------
+
 
 
 --=================================================================================================
---!                           Entity declaration for WF_incr_counter
+--                           Entity declaration for WF_incr_counter
 --=================================================================================================
 
 entity WF_incr_counter is
-  generic (g_counter_lgth : natural := 4);                       --! default length
+  generic (g_counter_lgth : natural := 4);                       -- default length
   port (
   -- INPUTS
     -- nanoFIP User Interface general signal
-    uclk_i           : in std_logic;                             --! 40 MHz clock
+    uclk_i           : in std_logic;                             -- 40 MHz clock
 
    -- Signals from any unit
-   incr_counter_i    : in std_logic;                             --! increment enable
-   reinit_counter_i  : in std_logic;                             --! reinitializes counter to 0
+   incr_counter_i    : in std_logic;                             -- increment enable
+   reinit_counter_i  : in std_logic;                             -- reinitializes counter to 0
 
 
   -- OUTPUT
     -- Signal to any unit
-   counter_o         : out unsigned (g_counter_lgth-1 downto 0); --! counter
-   counter_is_full_o : out std_logic                             --! counter full indication
-      );                                                         --! (all bits to '1')
+   counter_o         : out unsigned (g_counter_lgth-1 downto 0); -- counter
+   counter_is_full_o : out std_logic                             -- counter full indication
+      );                                                         -- (all bits to '1')
 
 end entity WF_incr_counter;
 
 
 --=================================================================================================
---!                                    architecture declaration
+--                                    architecture declaration
 --=================================================================================================
 architecture rtl of WF_incr_counter is
 
@@ -91,7 +82,7 @@ constant c_COUNTER_FULL : unsigned (g_counter_lgth-1 downto 0) := (others => '1'
 signal   s_counter      : unsigned (g_counter_lgth-1 downto 0);
 
 --=================================================================================================
---!                                       architecture begin
+--                                       architecture begin
 --=================================================================================================
 begin
 
@@ -118,6 +109,7 @@ begin
 
   counter_o         <= s_counter;
   counter_is_full_o <= '1' when s_counter = c_COUNTER_FULL else '0';
+
 
 end architecture rtl;
 --=================================================================================================
