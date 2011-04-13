@@ -38,7 +38,7 @@ general comments
 
 
 * Use @details for big descriptions and @brief just for a summary.
----> The details in the @details are the dependencies, modified by, etc
+---> Removed doxygen structure
 
 
 * To clean file layout, in emacs you could use C-c C-b and M-x delete-trailing-whitespace
@@ -104,7 +104,7 @@ Line 83. assert_RSTON should be replaced by assert_RSTON_p
 
 Lines 269, 435. Use of s_por (asynchronous) in a synchronous process!
 ---> Was not a completed processs (mentioned in the todo list)!
-     Now the falling edge of RSTPON is synched with the uclk and the wb_clk.
+     Now the deactivation of RSTPON is synched with the uclk and the wb_clk.
 
 
 Line 408. Assignment of s_counter_full is far from here.
@@ -232,7 +232,7 @@ Line 323. The only way to get out of switch_to_deglitched is to receive a
 	  -> A reset is needed.
 	  All other states can return to IDLE, but not this one!
 #################### IMPORTANT ####################
----> OK! state removed (deglitcher changed) and general timeout relying only on
+---> OK! state removed (deglitcher changed) and timeout relying only on
      the system clock added.
 
 
@@ -246,8 +246,9 @@ Line 586. Instance value same as default value.
 
 Line 631. You say "that doesn't belong to the FES" but in the if there is
      	  s_fes_wrong_bit = '1'. So either the comment or the test is wrong.
----> I think it is all correct! If s_fes_wrong_bit=1, the bit does not
-     belong to the FES
+---> I think it was all correct! If s_fes_wrong_bit=1, the bit does not
+     belong to the FES. However, finally it was decided to remove the manch.
+     encoding check.
 
 
 Line 692. (not s_manch_not_ok) = manchester ok, which is probalby not what you want.
@@ -260,7 +261,7 @@ wf_cons_bytes_processor.vhd
 Line 95. Still some stuff to do...
 
 Line 292. two can be replaced by 2 as you're dealing with unsigned.
----> OK!
+---> Oups..OK!
 
 
 Line 392. Here is the var_whatever!
@@ -283,7 +284,7 @@ You should mention that this entity is vendor/component specific.
 WF_cons_bytes_to_dato.vhd
 --------------------------------------------------------------------------------
 Lines 136, 143. how could "it" stays there if the signal in the test is a pulse?
----> There is no "else" in the "if"
+---> There is no "else" in the "if".
 
 
 
