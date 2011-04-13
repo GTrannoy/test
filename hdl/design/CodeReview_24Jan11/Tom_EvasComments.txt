@@ -211,7 +211,7 @@ wf_rx_deserializer.vhd:
 ---> OK!
 
 - (O) line 424: this case is never reached
----> Not sure..u mean the "when others"? That is essential for recovery from SEU
+---> Not sure..u mean the "when others"? That is essential bc of the one hot encoding and the radiation environment
 
 
 wf_cons_bytes_to_dato.vhd
@@ -231,7 +231,7 @@ wf_cons_frame_validator.vhd
 >                    var_type_match = '1'
 >               and cons_ctrl_byte_i = c_RP_DAT_CTRL_BYTE
 >               and cons_pdu_byte_i = c_PROD_CONS_PDU_TYPE_BYTE
->               and unsigned(rx_byte_index_i) = unsigned(cons_lgth_byte_i) + 5
+>               and unsigned(byte_index_i) = unsigned(cons_lgth_byte_i) + 5
 >               else '0';
 - line 211: value of nfip_status_r_tler_o is equal to cons_frame_ok_p_o (because s_cons_lgth_bytes_ok depends on rx_fss_crc_fes_manch_ok_p_i already)
 This can be simply integrated into WF_consumption.vhd, it would take less than the instantiation of the validator entity.

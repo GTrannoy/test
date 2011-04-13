@@ -13,12 +13,12 @@ rx_fss_crc_fec_manch_ok_p_i is valid.
 In my opinion s_cons_lgth_byte_ok should not be forced to 0 because there 
 is (for example) an error on the crc. When debugging a simulation it is easy
 assume that if s_cons_lgth_byte_ok is 0, it's only because the length was wrong.
-In fact as the file is written now, the AND between rx_fss_crc_fes_manch_ok_p_i
+In fact as the file is written now, the AND between rx_fss_crc_fes_ok_p_i
 and s_cons_lgth_byte_ok on lines 205 and 206 is redundant with the 
 "if then else"  of the lines 173, 185 and 187.
 
----> bug  corrected! input rx_crc_or_manch_wrong_p_i added and the Length byte
-     is checked if either rx_fss_crc_fec_manch_ok_p_i OR rx_crc_or_manch_wrong_p_i
+---> bug  corrected! input rx_crc_wrong_p_i added and the Length byte
+     is checked if either rx_fss_crc_fes_ok_p_i OR rx_crc_wrong_p_i
      (the output of this OR signals the end of a frame) is activated
 
 
@@ -35,7 +35,7 @@ Line 267: s_base_addr is an input and an output of the combinatorial process.
 Synplify should give a "combinatorial loop" warning about this.
 This line could be written as a separate process.
 
----> s_base_addr is out of the process, as a concurrent statement
+---> OK! s_base_addr is out of the process, as a concurrent statement
 
 
 Lines 290 to 294: the comment is not very clear. Is this to avoid writing
@@ -62,7 +62,8 @@ The second one will not be processed correctly since it will be treated as an
 RP_DAT and therefore discarded because of wrong CTRL byte. But if the second was 
 a correct ID_DAT, nanoFIP should interpret it correctly.
 
----> ..........................................................................
+---> After discussions with Gonzalo+Erik, we decided to accept that if 2 consecutive
+     ID_DATs and then an RP_DAT arrive, nanoFIP will discard them all.
 
 
 Line 775: 
@@ -73,7 +74,7 @@ Does it generate a latch?
 Is the construction with FOR and EXIT statement necessary?
 Line 817: The same as above
 
----> Processes for the var identification rewritten!
+---> OK! Processes for the var identification rewritten!
 
 
 wf_rx_tx_osc.vhd
@@ -87,7 +88,7 @@ data, but with a CRC that is correct with respect to the bits actually
 received, the frame would effectively be discarded as it should.
 (As responsible for the testbench, I take note that I should check that :-)
 
----> bug corrected! The FES_detected_p pulse is combined with the byte_ready_p pulse, 
+---> bug corrected! The FES_detected signal is combined with the byte_ready_p pulse, 
      that arrives only after the reception of 8 bits.
 
 
