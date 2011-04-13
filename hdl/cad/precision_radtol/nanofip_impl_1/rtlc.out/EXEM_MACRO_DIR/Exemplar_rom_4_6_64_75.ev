@@ -1,0 +1,17 @@
+module rom_4_6_64_75(address, q );
+
+input [5 : 0] address;
+wire [5 : 0] address;
+output [3 : 0] q;
+wire [3 : 0] q;
+
+mux_64u_6u mux0 (.a({ 31'b1111111111111111111111111111111, 1'b0, 15'b111111111111111, 1'b0, 7'b1111111, 1'b0, 3'b111, 1'b0, 1'b1, 1'b0, 2'b11 }), .b({ address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[0]));
+
+mux_64u_6u mux1 (.a({ 47'b0, 1'b1, 11'b0, 1'b1, 4'b0 }), .b({ address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[1]));
+
+mux_64u_6u mux2 (.a({ 55'b0, 1'b1, 3'b0, 1'b1, 1'b0, 1'b1, 2'b0 }), .b({ address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[2]));
+
+mux_64u_6u mux3 (.a({ 31'b0, 1'b1, 15'b0, 1'b1, 7'b0, 1'b1, 3'b0, 1'b1, 4'b0 }), .b({ address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[3]));
+
+endmodule
+

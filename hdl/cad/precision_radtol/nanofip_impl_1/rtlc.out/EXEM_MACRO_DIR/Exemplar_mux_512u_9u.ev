@@ -1,0 +1,12 @@
+module mux_512u_9u (a, b, d);
+input [511 : 0] a;
+input [8 : 0] b;
+output d;
+
+// pragma attribute mux_512u_9u ikos_rtlc$GENERIC mux
+// pragma attribute mux_512u_9u ikos_rtlc$size 512
+// pragma attribute mux_512u_9u ikos_rtlc$signed false
+
+
+endmodule
+
