@@ -191,6 +191,8 @@ set_attribute -name PIN_NUMBER -value "80" -port { r_tler_o }
 
 set_attribute -name PIN_NUMBER -value "85" -port { r_fcser_o } 
 
+set_attribute -name PIN_NUMBER -value "21" -port { rstpon_i }
+ 
 
 ###################
 # Clocks
