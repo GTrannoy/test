@@ -1,0 +1,1676 @@
+# Info: [9566]: Logging session transcript to file C:/MentorGraphics/Mgc_home/shared/examples/precision.log
+//  Precision Rad-Tolerant  2010a_Update2.254 (Production Release) Tue Oct 26 22:20:12 PDT 2010
+//  
+//  Copyright (c) Mentor Graphics Corporation, 1996-2010, All Rights Reserved.
+//             Portions copyright 1991-2008 Compuware Corporation
+//                       UNPUBLISHED, LICENSED SOFTWARE.
+//            CONFIDENTIAL AND PROPRIETARY INFORMATION WHICH IS THE
+//          PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS
+//  
+//  Running on Windows XP egousiou@PCBE13136 Service Pack 3 5.01.2600 x86
+//  
+//  Start time Fri Apr 08 16:02:36 2011
+# -------------------------------------------------
+# Info: [9566]: Logging session transcript to file C:/MentorGraphics/Mgc_home/shared/examples/precision.log
+# COMMAND: open_project C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip.psp
+# Info: [9574]: Input directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol
+# Info: [9569]: Moving session transcript to file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/precision.log
+# Info: [9575]: Results directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/
+# Info: [9565]: Appending project transcript to file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/precision.log
+# Info: [9565]: Appending suppressed messages transcript to file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/precision.log.suppressed
+# Info: [15295]: Setting up the design to use synthesis library "proasic3.syn"
+# Warning: [15315]: The specified BTW worst is not consistent with the resource information in the technology. The correct BTW  can be used here.
+# Info: [570]: The global max fanout is currently set to 2000 for Actel - ProASIC3.
+# Info: [15319]: Setting Part to: "A3P400".
+# Info: [15320]: Setting Process to: "COMWC-2".
+# Info: [15322]: Setting Package to: "208 PQFP".
+# Info: [15342]: TMR: TMR Scheme chosen is ltmr. This will be the TMR scheme applied to all modules unless overriden.
+# Info: [3022]: Reading file: C:/MentorGraphics/Mgc_home/pkgs/psr/techlibs/proasic3.syn.
+# Info: [9550]: Activated implementation nanofip_impl_1 in project C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip.psp.
+open_project C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip.psp
+# COMMAND: dofile C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_precision_radtol.tcl
+# Info: [9574]: Input directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/nanofip.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/DualClkRAM.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_bits_to_txd.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_cons_bytes_processor.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_cons_outcome.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_consumption.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_crc.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_decr_counter.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_DualClkRAM_clka_rd_clkb_wr.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_engine_control.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_fd_receiver.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_fd_transmitter.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_incr_counter.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_model_constr_decoder.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_package.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_prod_bytes_retriever.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_prod_data_lgth_calc.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_prod_permit.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_production.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_reset_unit.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_rx_deglitcher.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_rx_deserializer.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_rx_osc.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_status_bytes_gen.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_tx_osc.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_tx_serializer.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/design/wf_wb_controller.vhd already exists in the list. Command options ignored.
+# Warning: [15238]: Input file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/constraints/nanofip_precision_radtol.sdc already exists in the list. Command options ignored.
+# Info: [15295]: Setting up the design to use synthesis library "proasic3.syn"
+# Info: [15319]: Setting Part to: "A3P400".
+# Info: [15320]: Setting Process to: "COMWC-2".
+# Info: [15322]: Setting Package to: "208 PQFP".
+# Info: [570]: The global max fanout is currently set to 24 for Actel - ProASIC3.
+# Info: [571]: The global max fanout strategy is currently set to AUTO
+# Info: [15342]: TMR: TMR Scheme chosen is ltmr. This will be the TMR scheme applied to all modules unless overriden.
+# Info: [40000]: vhdlorder, Release 2010a.31
+# Info: [40000]: Files sorted successfully.
+# Info: [40000]: hdl-analyze, Release RTLC-Precision 2010a.31
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/DualClkRAM.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_package.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_model_constr_decoder.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_fd_transmitter.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_fd_receiver.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_engine_control.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_DualClkRAM_clka_rd_clkb_wr.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_crc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_consumption.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_outcome.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_bytes_processor.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_bits_to_txd.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/nanofip.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_bytes_retriever.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_data_lgth_calc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_permit.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_production.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_reset_unit.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deglitcher.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deserializer.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_osc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_status_bytes_gen.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_tx_osc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_tx_serializer.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_wb_controller.vhd" ...
+# Info: [651]: Top module of the design is set to: nanofip.
+# Info: [649]: Current working directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1.
+# Info: [40000]: RTLC-Driver, Release RTLC-Precision 2010a.31
+# Info: [40000]: Last compiled on Oct 22 2010 19:24:24
+# Info: [44512]: Initializing...
+# Info: [44504]: Partitioning design ....
+# Info: [40000]: RTLCompiler, Release RTLC-Precision 2010a.31
+# Info: [40000]: Last compiled on Oct 22 2010 19:29:16
+# Info: [44512]: Initializing...
+# Info: [44522]: Root Module work.nanofip(struc): Pre-processing...
+# Info: [44506]: Module work.WF_reset_unit(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 12)}: Pre-processing...
+# Info: [44506]: Module work.WF_consumption(struc): Pre-processing...
+# Info: [44506]: Module work.WF_cons_bytes_processor(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_DualClkRAM_clka_rd_clkb_wr(syn){generic map (g_ram_data_lgth => 8 g_ram_addr_lgth => 9)}: Pre-processing...
+# Info: [44506]: Module work.DualClkRAM(RAM4K9): Pre-processing...
+# Info: [44506]: Module work.WF_cons_outcome(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_fd_receiver(struc): Pre-processing...
+# Info: [44506]: Module work.WF_rx_deglitcher(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_rx_osc(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 11)}: Pre-processing...
+# Info: [44506]: Module work.WF_rx_deserializer(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 4)}: Pre-processing...
+# Info: [44506]: Module work.WF_crc(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 21)}: Pre-processing...
+# Info: [44506]: Module work.WF_production(struc): Pre-processing...
+# Info: [44506]: Module work.WF_prod_permit(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_prod_bytes_retriever(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_status_bytes_gen(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 4)}: Pre-processing...
+# Info: [44506]: Module work.WF_fd_transmitter(struc): Pre-processing...
+# Info: [44506]: Module work.WF_tx_osc(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_tx_serializer(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 5)}: Pre-processing...
+# Info: [44506]: Module work.WF_bits_to_txd(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_engine_control(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_prod_data_lgth_calc(behavior): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 8)}: Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 18)}: Pre-processing...
+# Info: [44506]: Module work.WF_model_constr_decoder(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 2)}: Pre-processing...
+# Info: [44506]: Module work.WF_wb_controller(rtl): Pre-processing...
+# Warning: [45729]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_outcome.vhd", line 121: Input port cons_ctrl_byte_i[7:6] has never been used.
+# Warning: [45729]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/nanofip.vhd", line 198: Input port fd_rxcdn_i has never been used.
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 12)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_12" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_reset_unit(rtl): Compiling...
+# Info: [44508]: Module work.DualClkRAM(RAM4K9): Compiling...
+# Info: [44508]: Module work.WF_DualClkRAM_clka_rd_clkb_wr(syn){generic map (g_ram_data_lgth => 8 g_ram_addr_lgth => 9)}: Compiling...
+# Info: [44508]: Module work.WF_cons_bytes_processor(rtl): Compiling...
+# Info: [44508]: Module work.WF_cons_outcome(rtl): Compiling...
+# Info: [44508]: Module work.WF_consumption(struc): Compiling...
+# Info: [44508]: Module work.WF_rx_deglitcher(rtl): Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deglitcher.vhd", line 149: Macro Modgen_Counter "counter_updn_sload_clock_cnt_en_0_4" inferred for node "s_deglitch_c".
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 11)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_11" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_rx_osc(rtl): Compiling...
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 4)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_4" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_crc(rtl): Compiling...
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 21)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_21" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_rx_deserializer(rtl): Compiling...
+# Info: [44508]: Module work.WF_fd_receiver(struc): Compiling...
+# Info: [44508]: Module work.WF_prod_permit(rtl): Compiling...
+# Info: [44508]: Module work.WF_prod_bytes_retriever(rtl): Compiling...
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 4)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_4" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_status_bytes_gen(rtl): Compiling...
+# Info: [44508]: Module work.WF_production(struc): Compiling...
+# Info: [44508]: Module work.WF_tx_osc(rtl): Compiling...
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 5)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_5" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_bits_to_txd(rtl): Compiling...
+# Info: [44508]: Module work.WF_tx_serializer(rtl): Compiling...
+# Info: [44508]: Module work.WF_fd_transmitter(struc): Compiling...
+# Info: [44508]: Module work.WF_prod_data_lgth_calc(behavior): Compiling...
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 8)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_8" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 18)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_18" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_engine_control(rtl): Compiling...
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 2)}: Compiling...
+# Info: [44508]: Module work.WF_model_constr_decoder(rtl): Compiling...
+# Info: [44508]: Module work.WF_wb_controller(rtl): Compiling...
+# Info: [44523]: Root Module work.nanofip(struc): Compiling...
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_reset_unit.vhd", line 650: Inferred rom instance 'rtlcI6' of type 'rom_4_6_64_75'.
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_outcome.vhd", line 121: Net cons_ctrl_byte_i[2] is unused after optimization
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deserializer.vhd", line 415: Inferred rom instance 'rtlcI7' of type 'rom_1_6_64_76'.
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_permit.vhd", line 77: Net var_i[6:5] is unused after optimization
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_permit.vhd", line 77: Net var_i[3:0] is unused after optimization
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_bytes_retriever.vhd", line 154: Net var_i[6:5] is unused after optimization
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_bytes_retriever.vhd", line 154: Net var_i[3:2] is unused after optimization
+# Info: [45309]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_status_bytes_gen.vhd", line 288: Optimizing state bit(s) s_nFIP_status_byte[1:0] to constant 0
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_tx_serializer.vhd", line 386: Inferred rom instance 'rtlcI8' of type 'rom_1_7_128_77'.
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_engine_control.vhd", line 834: Inferred rom instance 'rtlcI9' of type 'rom_5_8_256_78'.
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_engine_control.vhd", line 572: Inferred rom instance 'rtlcI10' of type 'rom_1_9_512_79'.
+# Info: [44846]: Rebalanced Expression Tree...
+# Info: [44842]: Compilation successfully completed.
+# Info: [44841]: Counter Inferencing === Detected : 12, Inferred (Modgen/Selcounter/AddSub) : 9 (9 / 0 / 0), AcrossDH (Merged/Not-Merged) : (0 / 0), Not-Inferred (Acrossdh/Attempted) : (0 / 1), Local Vars : 2 ===
+# Info: [44856]: Total lines of RTL compiled: 6966.
+# Info: [44835]: Total CPU time for compilation: 4.2 secs.
+# Info: [44513]: Overall running time for compilation: 5.0 secs.
+# Info: [649]: Current working directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1.
+# Info: [15325]: Doing rtl optimizations.
+# Info: [652]: Finished compiling design.
+# Info: [649]: Current working directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1.
+# Info: [4554]: 2 Instances are flattened in hierarchical block .work.WF_reset_unit.rtl.
+# Info: [4554]: 1 Instances are flattened in hierarchical block .work.WF_rx_osc.rtl.
+# Info: [4554]: 3 Instances are flattened in hierarchical block .work.WF_rx_deserializer.rtl.
+# Info: [4554]: 1 Instances are flattened in hierarchical block .work.WF_fd_receiver.struc.
+# Info: [4554]: 3 Instances are flattened in hierarchical block .work.WF_status_bytes_gen.rtl_unfold_3817.
+# Info: [4554]: 1 Instances are flattened in hierarchical block .work.WF_tx_osc.rtl.
+# Info: [4554]: 3 Instances are flattened in hierarchical block .work.WF_tx_serializer.rtl.
+# Info: [4554]: 4 Instances are flattened in hierarchical block .work.WF_engine_control.rtl.
+# Info: [4554]: 6 Instances are flattened in hierarchical block .work.nanofip.struc.
+# Info: [2515]: Resolving function gt with module generator modgen_GT_8_fastest_false_12490  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_12_fastest_false_12297  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [15002]: Optimizing design view:.work.WF_reset_unit.rtl
+# Info: [15002]: Optimizing design view:.work.WF_prod_data_lgth_calc.behavior
+# Info: [15002]: Optimizing design view:.work.WF_engine_control.rtl
+# Info: [15002]: Optimizing design view:.work.WF_cons_bytes_processor.rtl_unfold_3375
+# Info: [15002]: Optimizing design view:.work.WF_cons_outcome.rtl_unfold_2789
+# Info: [15002]: Optimizing design view:.work.WF_rx_osc.rtl
+# Info: [15002]: Optimizing design view:.work.WF_rx_deserializer.rtl
+# Info: [15002]: Optimizing design view:.work.WF_prod_bytes_retriever.rtl_unfold_3287
+# Info: [15002]: Optimizing design view:.work.WF_status_bytes_gen.rtl_unfold_3817
+# Info: [15002]: Optimizing design view:.work.WF_tx_osc.rtl
+# Info: [15002]: Optimizing design view:.work.WF_bits_to_txd.rtl
+# Info: [15002]: Optimizing design view:.work.WF_tx_serializer.rtl
+# Info: [15002]: Optimizing design view:.work.nanofip.struc
+# Info: -- Quick flow done
+# Info: [8027]: Starting DRC check ...
+# Info: [8028]: End DRC check ...
+# Info: [15343]: TMR: Applying Triple Module Redundancy(TMR)....
+# Info: [15334]: TMR completed. Please refer to C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip_tmr.rep for details.
+# Info: [12045]: Starting timing reports generation...
+# Info: [12046]: Timing reports generation done.
+# Info: [12047]: POST-SYNTHESIS TIMING REPORTS ARE ESTIMATES AND SHOULD NOT BE RELIED ON TO MAKE QoR DECISIONS. For accurate timing information, please run place-and-route (P&R) and review P&R generated timing reports.
+# Info: [3027]: Writing file: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip.edf.
+# Info: [652]: Finished synthesizing design.
+# Info: [11019]: Total CPU time for synthesis: 15.4 s secs.
+# Info: [11020]: Overall running time for synthesis: 15.7 s secs.
+# Info: Running cl
+# Info: C:/Actel/Designer/bin/designer.exe script:C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip_actel.tcl
+# Info: PNR COMMAND: C:/Actel/Designer/bin/designer.exe script:C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip_actel.tcl {}
+# Info: PNR COMMAND: ::exec C:/MentorGraphics/Mgc_home/bin/tclsh84t.exe exec_intermediate.tcl &
+# Info: Actel Designer Software
+# Info: Version: 8.3.0.22
+# Info: Release: v8.3
+# Info: Created a new design.
+# Info:  Netlist Reading Time = 0.0 seconds
+# Info: Imported the files:
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip.edf
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip_actel.s\
+# Info: dc
+# Info: The Import command succeeded ( 00:00:02 )
+# Info: =====================================================================
+# Info: Parameters used to run compile:
+# Info: ===============================
+# Info: Family      : ProASIC3
+# Info: Device      : A3P400
+# Info: Package     : 208 PQFP
+# Info: Source      :
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip.edf
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip_actel.s\
+# Info: dc
+# Info: Format      : EDIF
+# Info: Topcell     : nanofip
+# Info: Speed grade : -2
+# Info: Temp        : 0:25:70
+# Info: Voltage     : 1.58:1.50:1.42
+# Info: Keep Existing Physical Constraints : No
+# Info: Keep Existing Timing Constraints   : Yes
+# Info: pdc_abort_on_error                 : No
+# Info: pdc_eco_display_unmatched_objects  : No
+# Info: pdc_eco_max_warnings               : 10000
+# Info: demote_globals                     : No
+# Info: promote_globals                    : No
+# Info: localclock_max_shared_instances    : 12
+# Info: localclock_buffer_tree_max_fanout  : 12
+# Info: combine_register                   : No
+# Info: delete_buffer_tree                 : No
+# Info: report_high_fanout_nets_limit      : 10
+# Info: =====================================================================
+# Info: Compile starts ...
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB0 is floating
+# Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+# Info: Netlist Optimization Report
+# Info: ===========================
+# Info: Optimized macros:
+# Info:   - Dangling net drivers:   0
+# Info:   - Buffers:                0
+# Info:   - Inverters:              1
+# Info:   - Tieoff:                 0
+# Info:   - Logic combining:        8
+# Info:     Total macros optimized  9
+# Info: There were 0 error(s) and 61 warning(s) in this design.
+# Info: =====================================================================
+# Info: Compile report:
+# Info: ===============
+# Info:     CORE                     Used:   3731  Total:   9216   (40.48%)
+# Info:     IO (W/ clocks)           Used:     94  Total:    151   (62.25%)
+# Info:     Differential IO          Used:      0  Total:     34   (0.00%)
+# Info:     GLOBAL (Chip+Quadrant)   Used:      3  Total:     18   (16.67%)
+# Info:     PLL                      Used:      0  Total:      1   (0.00%)
+# Info:     RAM/FIFO                 Used:      6  Total:     12   (50.00%)
+# Info:     Low Static ICC           Used:      0  Total:      1   (0.00%)
+# Info:     FlashROM                 Used:      0  Total:      1   (0.00%)
+# Info:     User JTAG                Used:      0  Total:      1   (0.00%)
+# Info: Global Information:
+# Info:     Type            | Used   | Total
+# Info:     ----------------|--------|-------------
+# Info:     Chip global     | 3      | 6  (50.00%)
+# Info:     Quadrant global | 0      | 12 (0.00%)
+# Info: Core Information:
+# Info:     Type    | Instances    | Core tiles
+# Info:     --------|--------------|-----------
+# Info:     COMB    | 2351         | 2351
+# Info:     SEQ     | 1380         | 1380
+# Info: I/O Function:
+# Info:     Type                          | w/o register  | w/ register  | w/ DDR
+# Info: register
+# Info: ------------------------------|---------------|--------------|----------------
+# Info:     Input I/O                     | 63            | 0            | 0
+# Info:     Output I/O                    | 31            | 0            | 0
+# Info:     Bidirectional I/O             | 0             | 0            | 0
+# Info:     Differential Input I/O Pairs  | 0             | 0            | 0
+# Info:     Differential Output I/O Pairs | 0             | 0            | 0
+# Info: I/O Technology:
+# Info:                                     |   Voltages    |             I/Os
+# Info: --------------------------------|-------|-------|-------|--------|-----------\
+# Info: ---
+# Info:     I/O Standard(s)                 | Vcci  | Vref  | Input | Output |
+# Info: Bidirectional
+# Info: --------------------------------|-------|-------|-------|--------|-----------\
+# Info: ---
+# Info:     LVTTL                           | 3.30v | N/A   | 63    | 31     | 0
+# Info: Net information report:
+# Info: =======================
+# Info: The following nets have been assigned to a chip global resource:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     1344    CLK_NET       Net   : manual_uclk_i
+# Info:                           Driver: ix12214z51788
+# Info:                           Source: NETLIST
+# Info:     345     INT_NET       Net   : manual_s_nfip_intern_rst
+# Info:                           Driver: ix11749z56071
+# Info:                           Source: NETLIST
+# Info:     48      CLK_NET       Net   : manual_wclk_i
+# Info:                           Driver: ix12214z51789
+# Info:                           Source: NETLIST
+# Info: High fanout nets in the post compile netlist:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     24      INT_NET       Net   : NOT_rtlcs23__repl0
+# Info:                           Driver: engine_control/NOT_rtlcs23__repl0
+# Info:     24      INT_NET       Net   : p_rtlcn257__repl0
+# Info:                           Driver: reset_unit/ix51088z49934
+# Info:     24      INT_NET       Net   : p_rtlcn217__repl0
+# Info:                           Driver: reset_unit/ix25612z1959
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_0
+# Info:                           Driver: rate_i_ibuf(1)_buf_0
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_1
+# Info:                           Driver: rate_i_ibuf(1)_buf_1
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_2
+# Info:                           Driver: rate_i_ibuf(1)_buf_2
+# Info:     24      INT_NET       Net   : rate_i_int(0)_buf_0
+# Info:                           Driver: rate_i_ibuf(0)_buf_0
+# Info:     24      INT_NET       Net   : slone_i_int_buf_0
+# Info:                           Driver: slone_i_ibuf_buf_0
+# Info:     24      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/NOT_s_prepare_to_produce
+# Info:                           Driver:
+# Info: FIELDRIVE_Transmitter_tx_serializer/NOT_s_prepare_to_produce
+# Info:     24      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/nx53339z2
+# Info:                           Driver:
+# Info: FIELDRIVE_Transmitter_tx_serializer/ix53339z1961
+# Info: Nets that are candidates for clock assignment and the resulting fanout:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     82      INT_NET       Net   : rate_i_int(1)
+# Info:                           Driver: rate_i_ibuf(1)
+# Info:     48      INT_NET       Net   : nx61016z2_BUF_OUT
+# Info:                           Driver: ix705
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/nx59749z3_BUF_OUT
+# Info:                           Driver: FIELDRIVE_Transmitter_tx_serializer/ix750
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx30597z2_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix981
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx48418z3_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix985
+# Info:     48      INT_NET       Net   :
+# Info: Production_production_bytes_retriever/nx21050z2_BUF_OUT
+# Info:                           Driver: Production_production_bytes_retriever/ix864
+# Info:     41      INT_NET       Net   : rate_i_int(0)
+# Info:                           Driver: rate_i_ibuf(0)
+# Info:     32
+# Info:    INT_NET       Net   : slone_i_int
+# Info:                           Driver: slone_i_ibuf
+# Info:     30      INT_NET       Net   : engine_control/nx39949z15_BUF_OUT
+# Info:                           Driver: engine_control/ix1358
+# Info:     25      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx53339z2_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix977
+# Info: SDC Import: Begin processing constraints...
+# Info: SDC Import: End processing constraints
+# Info: The Compile command succeeded ( 00:00:03 )
+# Info: Running I/O Bank Assigner.
+# Info: I/O Bank Assigner completed successfully.
+# Info: Planning global net placement...
+# Info: Global net placement completed successfully.
+# Info:                         o - o - o - o - o - o
+# Info: Timing-driven Placer Started: Fri Apr 08 16:04:48 2011
+# Info: Placer Finished: Fri Apr 08 16:05:34 2011
+# Info: Total Placer CPU Time:     00:00:46
+# Info:                         o - o - o - o - o - o
+# Info: Timing-driven Router
+# Info: Design: nanofip                         Started: Fri Apr 08 16:05:38 2011
+# Info: Iterative improvement...
+# Info: Timing-driven Router completed successfully.
+# Info: Design: nanofip
+# Info: Finished: Fri Apr 08 16:06:00 2011
+# Info: Total CPU Time:     00:00:21            Total Elapsed Time: 00:00:22
+# Info:                         o - o - o - o - o - o
+# Info: Loading the Timing data for the design.
+# Info: Finished loading the Timing data.
+# Info: TIMER: Max delay timing requirements have been met.
+# Info: The Layout command succeeded ( 00:01:21 )
+# Warning: Overwriting the existing file:
+# Info:           C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanof\
+# Info:           ip_ba_actel.pdc.
+# Info: Wrote to the file:
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip_ba_acte\
+# Info: l.pdc
+# Info: The Export command succeeded ( 00:00:01 )
+# Info: Design saved to file nanofip.adb.
+# Info: 'PROC' set to 'WORST'
+# Info: 'TRPT_STHD_CHECK' set to '1'
+# Info: 'TRPT_PATH_EXPND' set to '0'
+# Info: 'TRPT_PATH_BRIEF' set to '0'
+# Info: 'TRPT_PASS_CLOCK' set to '1'
+# Info: 'TRPT_PASS_ASYNC' set to '0'
+# Info: 'TRPT_THRESHOLD' set to '0'
+# Info: Wrote timing report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip_actel_t\
+# Info: iming.txt
+# Info: The Report command succeeded ( 00:00:00 )
+# Info: Wrote pin report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip_actel_p\
+# Info: in.txt
+# Info: The Report command succeeded ( 00:00:01 )
+# Info: Wrote status report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_impl_1/nanofip_actel_s\
+# Info: tatus.txt
+# Info: The Report command succeeded ( 00:00:00 )
+# Info: Design closed.
+# Info: The Execute Script command succeeded ( 00:01:31 )
+dofile C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_precision_radtol.tcl
+# COMMAND: close_project -discard
+# Warning: [9526]: Discarded unsaved work in implementation nanofip_impl_1.
+# Info: [9530]: Closed project: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip.psp.
+close_project -discard
+# COMMAND: dofile C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_precision_radtol.tcl
+# Info: [9574]: Input directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol
+# Info: [9574]: Input directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol
+# Info: [9569]: Moving session transcript to file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/precision.log
+# Info: [9555]: Created project C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/project_1.psp in folder C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol.
+# Info: [9531]: Created directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2.
+# Info: [9554]: Created implementation impl_2 in project C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/project_1.psp.
+# Info: [9575]: Results directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/
+# Info: [9566]: Logging project transcript to file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/precision.log
+# Info: [9566]: Logging suppressed messages transcript to file C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/precision.log.suppressed
+# Info: [9550]: Activated implementation impl_2 in project C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/project_1.psp.
+# Info: [15295]: Setting up the design to use synthesis library "proasic3.syn"
+# Info: [570]: The global max fanout is currently set to 2000 for Actel - ProASIC3.
+# Info: [15319]: Setting Part to: "A3P400".
+# Info: [15320]: Setting Process to: "COMWC-2".
+# Info: [15322]: Setting Package to: "208 PQFP".
+# Info: [570]: The global max fanout is currently set to 24 for Actel - ProASIC3.
+# Info: [571]: The global max fanout strategy is currently set to AUTO
+# Info: [15342]: TMR: TMR Scheme chosen is ltmr. This will be the TMR scheme applied to all modules unless overriden.
+# Info: [3022]: Reading file: C:/MentorGraphics/Mgc_home/pkgs/psr/techlibs/proasic3.syn.
+# Info: [40000]: vhdlorder, Release 2010a.31
+# Info: [40000]: Files sorted successfully.
+# Info: [40000]: hdl-analyze, Release RTLC-Precision 2010a.31
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/DualClkRAM.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_package.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_model_constr_decoder.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_fd_transmitter.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_fd_receiver.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_engine_control.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_DualClkRAM_clka_rd_clkb_wr.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_crc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_consumption.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_outcome.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_bytes_processor.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_bits_to_txd.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/nanofip.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_bytes_retriever.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_data_lgth_calc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_permit.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_production.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_reset_unit.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deglitcher.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deserializer.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_osc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_status_bytes_gen.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_tx_osc.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_tx_serializer.vhd" ...
+# Info: [42502]: Analyzing input file "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_wb_controller.vhd" ...
+# Info: [651]: Top module of the design is set to: nanofip.
+# Info: [649]: Current working directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2.
+# Info: [40000]: RTLC-Driver, Release RTLC-Precision 2010a.31
+# Info: [40000]: Last compiled on Oct 22 2010 19:24:24
+# Info: [44512]: Initializing...
+# Info: [44504]: Partitioning design ....
+# Info: [40000]: RTLCompiler, Release RTLC-Precision 2010a.31
+# Info: [40000]: Last compiled on Oct 22 2010 19:29:16
+# Info: [44512]: Initializing...
+# Info: [44522]: Root Module work.nanofip(struc): Pre-processing...
+# Info: [44506]: Module work.WF_reset_unit(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 12)}: Pre-processing...
+# Info: [44506]: Module work.WF_consumption(struc): Pre-processing...
+# Info: [44506]: Module work.WF_cons_bytes_processor(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_DualClkRAM_clka_rd_clkb_wr(syn){generic map (g_ram_data_lgth => 8 g_ram_addr_lgth => 9)}: Pre-processing...
+# Info: [44506]: Module work.DualClkRAM(RAM4K9): Pre-processing...
+# Info: [44506]: Module work.WF_cons_outcome(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_fd_receiver(struc): Pre-processing...
+# Info: [44506]: Module work.WF_rx_deglitcher(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_rx_osc(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 11)}: Pre-processing...
+# Info: [44506]: Module work.WF_rx_deserializer(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 4)}: Pre-processing...
+# Info: [44506]: Module work.WF_crc(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 21)}: Pre-processing...
+# Info: [44506]: Module work.WF_production(struc): Pre-processing...
+# Info: [44506]: Module work.WF_prod_permit(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_prod_bytes_retriever(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_status_bytes_gen(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 4)}: Pre-processing...
+# Info: [44506]: Module work.WF_fd_transmitter(struc): Pre-processing...
+# Info: [44506]: Module work.WF_tx_osc(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_tx_serializer(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 5)}: Pre-processing...
+# Info: [44506]: Module work.WF_bits_to_txd(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_engine_control(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_prod_data_lgth_calc(behavior): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 8)}: Pre-processing...
+# Info: [44506]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 18)}: Pre-processing...
+# Info: [44506]: Module work.WF_model_constr_decoder(rtl): Pre-processing...
+# Info: [44506]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 2)}: Pre-processing...
+# Info: [44506]: Module work.WF_wb_controller(rtl): Pre-processing...
+# Warning: [45729]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_outcome.vhd", line 121: Input port cons_ctrl_byte_i[7:6] has never been used.
+# Warning: [45729]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/nanofip.vhd", line 198: Input port fd_rxcdn_i has never been used.
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 12)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_12" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_reset_unit(rtl): Compiling...
+# Info: [44508]: Module work.DualClkRAM(RAM4K9): Compiling...
+# Info: [44508]: Module work.WF_DualClkRAM_clka_rd_clkb_wr(syn){generic map (g_ram_data_lgth => 8 g_ram_addr_lgth => 9)}: Compiling...
+# Info: [44508]: Module work.WF_cons_bytes_processor(rtl): Compiling...
+# Info: [44508]: Module work.WF_cons_outcome(rtl): Compiling...
+# Info: [44508]: Module work.WF_consumption(struc): Compiling...
+# Info: [44508]: Module work.WF_rx_deglitcher(rtl): Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deglitcher.vhd", line 149: Macro Modgen_Counter "counter_updn_sload_clock_cnt_en_0_4" inferred for node "s_deglitch_c".
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 11)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_11" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_rx_osc(rtl): Compiling...
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 4)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_4" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_crc(rtl): Compiling...
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 21)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_21" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_rx_deserializer(rtl): Compiling...
+# Info: [44508]: Module work.WF_fd_receiver(struc): Compiling...
+# Info: [44508]: Module work.WF_prod_permit(rtl): Compiling...
+# Info: [44508]: Module work.WF_prod_bytes_retriever(rtl): Compiling...
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 4)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_4" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_status_bytes_gen(rtl): Compiling...
+# Info: [44508]: Module work.WF_production(struc): Compiling...
+# Info: [44508]: Module work.WF_tx_osc(rtl): Compiling...
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 5)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_5" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_bits_to_txd(rtl): Compiling...
+# Info: [44508]: Module work.WF_tx_serializer(rtl): Compiling...
+# Info: [44508]: Module work.WF_fd_transmitter(struc): Compiling...
+# Info: [44508]: Module work.WF_prod_data_lgth_calc(behavior): Compiling...
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 8)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_incr_counter.vhd", line 104: Macro Modgen_Counter "counter_up_sclear_clock_cnt_en_0_8" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_decr_counter(rtl){generic map (g_counter_lgth => 18)}: Compiling...
+# Info: [44838]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_decr_counter.vhd", line 112: Macro Modgen_Counter "counter_dn_sload_sclear_clock_cnt_en_0_18" inferred for node "s_counter".
+# Info: [44508]: Module work.WF_engine_control(rtl): Compiling...
+# Info: [44508]: Module work.WF_incr_counter(rtl){generic map (g_counter_lgth => 2)}: Compiling...
+# Info: [44508]: Module work.WF_model_constr_decoder(rtl): Compiling...
+# Info: [44508]: Module work.WF_wb_controller(rtl): Compiling...
+# Info: [44523]: Root Module work.nanofip(struc): Compiling...
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_reset_unit.vhd", line 650: Inferred rom instance 'rtlcI6' of type 'rom_4_6_64_75'.
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_cons_outcome.vhd", line 121: Net cons_ctrl_byte_i[2] is unused after optimization
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_rx_deserializer.vhd", line 415: Inferred rom instance 'rtlcI7' of type 'rom_1_6_64_76'.
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_permit.vhd", line 77: Net var_i[6:5] is unused after optimization
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_permit.vhd", line 77: Net var_i[3:0] is unused after optimization
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_bytes_retriever.vhd", line 154: Net var_i[6:5] is unused after optimization
+# Info: [45193]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_prod_bytes_retriever.vhd", line 154: Net var_i[3:2] is unused after optimization
+# Info: [45309]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_status_bytes_gen.vhd", line 288: Optimizing state bit(s) s_nFIP_status_byte[1:0] to constant 0
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_tx_serializer.vhd", line 386: Inferred rom instance 'rtlcI8' of type 'rom_1_7_128_77'.
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_engine_control.vhd", line 834: Inferred rom instance 'rtlcI9' of type 'rom_5_8_256_78'.
+# Info: [45252]: "C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/../../design/wf_engine_control.vhd", line 572: Inferred rom instance 'rtlcI10' of type 'rom_1_9_512_79'.
+# Info: [44846]: Rebalanced Expression Tree...
+# Info: [44842]: Compilation successfully completed.
+# Info: [44841]: Counter Inferencing === Detected : 12, Inferred (Modgen/Selcounter/AddSub) : 9 (9 / 0 / 0), AcrossDH (Merged/Not-Merged) : (0 / 0), Not-Inferred (Acrossdh/Attempted) : (0 / 1), Local Vars : 2 ===
+# Info: [44856]: Total lines of RTL compiled: 6966.
+# Info: [44835]: Total CPU time for compilation: 4.6 secs.
+# Info: [44513]: Overall running time for compilation: 5.0 secs.
+# Info: [649]: Current working directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2.
+# Info: [15325]: Doing rtl optimizations.
+# Info: [652]: Finished compiling design.
+# Info: [649]: Current working directory: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2.
+# Info: [4554]: 2 Instances are flattened in hierarchical block .work.WF_reset_unit.rtl.
+# Info: [4554]: 1 Instances are flattened in hierarchical block .work.WF_rx_osc.rtl.
+# Info: [4554]: 3 Instances are flattened in hierarchical block .work.WF_rx_deserializer.rtl.
+# Info: [4554]: 1 Instances are flattened in hierarchical block .work.WF_fd_receiver.struc.
+# Info: [4554]: 3 Instances are flattened in hierarchical block .work.WF_status_bytes_gen.rtl_unfold_3817.
+# Info: [4554]: 1 Instances are flattened in hierarchical block .work.WF_tx_osc.rtl.
+# Info: [4554]: 3 Instances are flattened in hierarchical block .work.WF_tx_serializer.rtl.
+# Info: [4554]: 4 Instances are flattened in hierarchical block .work.WF_engine_control.rtl.
+# Info: [4554]: 6 Instances are flattened in hierarchical block .work.nanofip.struc.
+# Info: [2515]: Resolving function gt with module generator modgen_GT_8_fastest_false_12490  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_12_fastest_false_12297  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [2515]: Resolving function gt with module generator modgen_GT_11_fastest_false_37152  from file C:/MentorGraphics/Mgc_home/pkgs/psr/modgen/\proasic3.vhd
+# Info: [2531]: Replacing cell:modgen_GT____32719(view:)
+# Info: [15002]: Optimizing design view:.work.WF_reset_unit.rtl
+# Info: [15002]: Optimizing design view:.work.WF_prod_data_lgth_calc.behavior
+# Info: [15002]: Optimizing design view:.work.WF_engine_control.rtl
+# Info: [15002]: Optimizing design view:.work.WF_cons_bytes_processor.rtl_unfold_3375
+# Info: [15002]: Optimizing design view:.work.WF_cons_outcome.rtl_unfold_2789
+# Info: [15002]: Optimizing design view:.work.WF_rx_osc.rtl
+# Info: [15002]: Optimizing design view:.work.WF_rx_deserializer.rtl
+# Info: [15002]: Optimizing design view:.work.WF_prod_bytes_retriever.rtl_unfold_3287
+# Info: [15002]: Optimizing design view:.work.WF_status_bytes_gen.rtl_unfold_3817
+# Info: [15002]: Optimizing design view:.work.WF_tx_osc.rtl
+# Info: [15002]: Optimizing design view:.work.WF_bits_to_txd.rtl
+# Info: [15002]: Optimizing design view:.work.WF_tx_serializer.rtl
+# Info: [15002]: Optimizing design view:.work.nanofip.struc
+# Info: -- Quick flow done
+# Info: [8027]: Starting DRC check ...
+# Info: [8028]: End DRC check ...
+# Info: [15343]: TMR: Applying Triple Module Redundancy(TMR)....
+# Info: [15334]: TMR completed. Please refer to C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_tmr.rep for details.
+# Info: [12045]: Starting timing reports generation...
+# Info: [12046]: Timing reports generation done.
+# Info: [12047]: POST-SYNTHESIS TIMING REPORTS ARE ESTIMATES AND SHOULD NOT BE RELIED ON TO MAKE QoR DECISIONS. For accurate timing information, please run place-and-route (P&R) and review P&R generated timing reports.
+# Info: [3027]: Writing file: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip.edf.
+# Info: [652]: Finished synthesizing design.
+# Info: [11019]: Total CPU time for synthesis: 15.4 s secs.
+# Info: [11020]: Overall running time for synthesis: 15.6 s secs.
+# Info: Using Precision-generated PDC file: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel.pdc
+# Info: Running cl
+# Info: C:/Actel/Designer/bin/designer.exe script:C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel.tcl
+# Info: PNR COMMAND: C:/Actel/Designer/bin/designer.exe script:C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel.tcl {}
+# Info: PNR COMMAND: ::exec C:/MentorGraphics/Mgc_home/bin/tclsh84t.exe exec_intermediate.tcl &
+# Info: Actel Designer Software
+# Info: Version: 8.3.0.22
+# Info: Release: v8.3
+# Info: Created a new design.
+# Info:  Netlist Reading Time = 0.0 seconds
+# Info: Imported the files:
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip.edf
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.pdc
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.sdc
+# Info: The Import command succeeded ( 00:00:01 )
+# Info: =====================================================================
+# Info: Parameters used to run compile:
+# Info: ===============================
+# Info: Family      : ProASIC3
+# Info: Device      : A3P400
+# Info: Package     : 208 PQFP
+# Info: Source      :
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip.edf
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.pdc
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.sdc
+# Info: Format      : EDIF
+# Info: Topcell     : nanofip
+# Info: Speed grade : -2
+# Info: Temp        : 0:25:70
+# Info: Voltage     : 1.58:1.50:1.42
+# Info: Keep Existing Physical Constraints : No
+# Info: Keep Existing Timing Constraints   : Yes
+# Info: pdc_abort_on_error                 : No
+# Info: pdc_eco_display_unmatched_objects  : No
+# Info: pdc_eco_max_warnings               : 10000
+# Info: demote_globals                     : No
+# Info: promote_globals                    : No
+# Info: localclock_max_shared_instances    : 12
+# Info: localclock_buffer_tree_max_fanout  : 12
+# Info: combine_register                   : No
+# Info: delete_buffer_tree                 : No
+# Info: report_high_fanout_nets_limit      : 10
+# Info: =====================================================================
+# Info: Compile starts ...
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB0 is floating
+# Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+# Info: Netlist Optimization Report
+# Info: ===========================
+# Info: Optimized macros:
+# Info:   - Dangling net drivers:   0
+# Info:   - Buffers:                0
+# Info:   - Inverters:              1
+# Info:   - Tieoff:                 0
+# Info:   - Logic combining:        8
+# Info:     Total macros optimized  9
+# Info: There were 0 error(s) and 61 warning(s) in this design.
+# Info: =====================================================================
+# Info: Reading user pdc (Physical Design Constraints) file(s) postcompile
+# Warning: PDC01: port name doesn't exist in the netlist or is not connected to
+# Info: an IoCell macro at PDC Line : set_io fd_rxcdn_i -pinname 121 -fixed Yes
+# Info: There were 0 error(s) and 1 warning(s) in reading the user pdc.
+# Info: =====================================================================
+# Info: Compile report:
+# Info: ===============
+# Info:     CORE                     Used:   3731  Total:   9216   (40.48%)
+# Info:     IO (W/ clocks)           Used:     94  Total:    151   (62.25%)
+# Info:     Differential IO          Used:      0  Total:     34   (0.00%)
+# Info:     GLOBAL (Chip+Quadrant)   Used:      3  Total:     18   (16.67%)
+# Info:     PLL                      Used:      0  Total:      1   (0.00%)
+# Info:     RAM/FIFO                 Used:      6  Total:     12   (50.00%)
+# Info:     Low Static ICC           Used:      0  Total:      1   (0.00%)
+# Info:     FlashROM                 Used:      0  Total:      1   (0.00%)
+# Info:     User JTAG                Used:      0  Total:      1   (0.00%)
+# Info: Global Information:
+# Info:     Type            | Used   | Total
+# Info:     ----------------|--------|-------------
+# Info:     Chip global     | 3      | 6  (50.00%)
+# Info:     Quadrant global | 0      | 12 (0.00%)
+# Info: Core Information:
+# Info:     Type    | Instances    | Core tiles
+# Info:     --------|--------------|-----------
+# Info:     COMB    | 2351         | 2351
+# Info:     SEQ     | 1380         | 1380
+# Info: I/O Function:
+# Info:     Type                          | w/o register  | w/ register  | w/ DDR
+# Info: register
+# Info: ------------------------------|---------------|--------------|----------------
+# Info:     Input I/O                     | 63            | 0            | 0
+# Info:     Output I/O                    | 31            | 0            | 0
+# Info:     Bidirectional I/O             | 0             | 0            | 0
+# Info:     Differential Input I/O Pairs  | 0             | 0            | 0
+# Info:     Differential Output I/O Pairs | 0             | 0            | 0
+# Info: I/O Technology:
+# Info:                                     |   Voltages    |             I/Os
+# Info: --------------------------------|-------|-------|-------|--------|-----------\
+# Info: ---
+# Info:     I/O Standard(s)                 | Vcci  | Vref  | Input | Output |
+# Info: Bidirectional
+# Info: --------------------------------|-------|-------|-------|--------|-----------\
+# Info: ---
+# Info:     LVTTL                           | 3.30v | N/A   | 63    | 31     | 0
+# Info: Net information report:
+# Info: =======================
+# Info: The following nets have been assigned to a chip global resource:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     1344    CLK_NET       Net   : manual_uclk_i
+# Info:                           Driver: ix12214z51788
+# Info:                           Source: NETLIST
+# Info:     345     INT_NET       Net   : manual_s_nfip_intern_rst
+# Info:                           Driver: ix11749z56071
+# Info:                           Source: NETLIST
+# Info:     48      CLK_NET       Net   : manual_wclk_i
+# Info:                           Driver: ix12214z51789
+# Info:                           Source: NETLIST
+# Info: High fanout nets in the post compile netlist:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     24      INT_NET       Net   : NOT_rtlcs23__repl0
+# Info:                           Driver: engine_control/NOT_rtlcs23__repl0
+# Info:     24      INT_NET       Net   : p_rtlcn257__repl0
+# Info:                           Driver: reset_unit/ix51088z49934
+# Info:     24      INT_NET       Net   : p_rtlcn217__repl0
+# Info:                           Driver: reset_unit/ix25612z1959
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_0
+# Info:                           Driver: rate_i_ibuf(1)_buf_0
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_1
+# Info:                           Driver: rate_i_ibuf(1)_buf_1
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_2
+# Info:                           Driver: rate_i_ibuf(1)_buf_2
+# Info:     24      INT_NET       Net   : rate_i_int(0)_buf_0
+# Info:                           Driver: rate_i_ibuf(0)_buf_0
+# Info:     24      INT_NET       Net   : slone_i_int_buf_0
+# Info:                           Driver: slone_i_ibuf_buf_0
+# Info:     24      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/NOT_s_prepare_to_produce
+# Info:                           Driver:
+# Info: FIELDRIVE_Transmitter_tx_serializer/NOT_s_prepare_to_produce
+# Info:     24      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/nx53339z2
+# Info:                           Driver:
+# Info: FIELDRIVE_Transmitter_tx_serializer/ix53339z1961
+# Info: Nets that are candidates for clock assignment and the resulting fanout:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     82      INT_NET       Net   : rate_i_int(1)
+# Info:                           Driver: rate_i_ibuf(1)
+# Info:     48      INT_NET       Net   : nx61016z2_BUF_OUT
+# Info:                           Driver: ix705
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/nx59749z3_BUF_OUT
+# Info:                           Driver: FIELDRIVE_Transmitter_tx_serializer/ix750
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx30597z2_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix981
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx48418z3_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix985
+# Info:     48      INT_NET       Net   :
+# Info: Production_production_bytes_retriever/nx21050z2_BUF_OUT
+# Info:                           Driver: Production_production_bytes_retriever/ix864
+# Info:     41      INT_NET       Net   : rate_i_int(0)
+# Info:                           Driver: rate_i_ibuf(0)
+# Info:     32      INT_NET       Net   : slone_i_int
+# Info:                           Driver: slone_i_ibuf
+# Info:     30      INT_NET       Net   : engine_control/nx39949z15_BUF_OUT
+# Info:                           Driver: engine_control/ix1358
+# Info:     25      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx53339z2_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix977
+# Info: SDC Import: Begin processing constraints...
+# Info: SDC Import: End processing constraints
+# Info: The Compile command succeeded ( 00:00:03 )
+# Info: Running I/O Bank Assigner.
+# Info: I/O Bank Assigner completed successfully.
+# Info: Planning global net placement...
+# Info: Global net placement completed successfully.
+# Info:                         o - o - o - o - o - o
+# Info: Timing-driven Placer Started: Fri Apr 08 16:10:05 2011
+# Info: Placer Finished: Fri Apr 08 16:10:54 2011
+# Info: Total Placer CPU Time:     00:00:49
+# Info:                         o - o - o - o - o - o
+# Info: Timing-driven Router
+# Info: Design: nanofip                         Started: Fri Apr 08 16:10:58 2011
+# Info: Iterative improvement...
+# Info: Timing-driven Router completed successfully.
+# Info: Design: nanofip
+# Info: Finished: Fri Apr 08 16:11:21 2011
+# Info: Total CPU Time:     00:00:23            Total Elapsed Time: 00:00:23
+# Info:                         o - o - o - o - o - o
+# Info: Loading the Timing data for the design.
+# Info: Finished loading the Timing data.
+# Info: TIMER: Max delay timing requirements have been met.
+# Info: The Layout command succeeded ( 00:01:24 )
+# Info: Wrote to the file:
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_ba_actel.pdc
+# Info: The Export command succeeded ( 00:00:02 )
+# Info: Design saved to file nanofip.adb.
+# Info: 'PROC' set to 'WORST'
+# Info: 'TRPT_STHD_CHECK' set to '1'
+# Info: 'TRPT_PATH_EXPND' set to '0'
+# Info: 'TRPT_PATH_BRIEF' set to '0'
+# Info: 'TRPT_PASS_CLOCK' set to '1'
+# Info: 'TRPT_PASS_ASYNC' set to '0'
+# Info: 'TRPT_THRESHOLD' set to '0'
+# Info: Wrote timing report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel_timing.txt
+# Info: The Report command succeeded ( 00:00:00 )
+# Info: Wrote pin report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel_pin.txt
+# Info: The Report command succeeded ( 00:00:02 )
+# Info: Wrote status report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel_status.txt
+# Info: The Report command succeeded ( 00:00:00 )
+# Info: Design closed.
+# Info: The Execute Script command succeeded ( 00:01:36 )
+dofile C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/nanofip_precision_radtol.tcl
+# COMMAND: place_and_route cl
+# Info: Using Precision-generated PDC file: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel.pdc
+# Info: Running cl
+# Info: C:/Actel/Designer/bin/designer.exe script:C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel.tcl
+# Info: PNR COMMAND: C:/Actel/Designer/bin/designer.exe script:C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel.tcl {}
+# Info: PNR COMMAND: ::exec C:/MentorGraphics/Mgc_home/bin/tclsh84t.exe exec_intermediate.tcl &
+# Info: Actel Designer Software
+# Info: Version: 8.3.0.22
+# Info: Release: v8.3
+# Info: Created a new design.
+# Info:  Netlist Reading Time = 0.0 seconds
+# Info: Imported the files:
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip.edf
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.pdc
+# Info:    C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.sdc
+# Info: The Import command succeeded ( 00:00:01 )
+# Info: =====================================================================
+# Info: Parameters used to run compile:
+# Info: ===============================
+# Info: Family      : ProASIC3
+# Info: Device      : A3P400
+# Info: Package     : 208 PQFP
+# Info: Source      :
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip.edf
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.pdc
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_actel.sdc
+# Info: Format      : EDIF
+# Info: Topcell     : nanofip
+# Info: Speed grade : -2
+# Info: Temp        : 0:25:70
+# Info: Voltage     : 1.58:1.50:1.42
+# Info: Keep Existing Physical Constraints : No
+# Info: Keep Existing Timing Constraints   : Yes
+# Info: pdc_abort_on_error                 : No
+# Info: pdc_eco_display_unmatched_objects  : No
+# Info: pdc_eco_max_warnings               : 10000
+# Info: demote_globals                     : No
+# Info: promote_globals                    : No
+# Info: localclock_max_shared_instances    : 12
+# Info: localclock_buffer_tree_max_fanout  : 12
+# Info: combine_register                   : No
+# Info: delete_buffer_tree                 : No
+# Info: report_high_fanout_nets_limit      : 10
+# Info: =====================================================================
+# Info: Compile starts ...
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR1/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDual\
+# Info:           ClkRam_A9D8DualClkRAM_R0C0_TMR2/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR1/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0/DOUTB0 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTA8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB8 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB7 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB6 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB5 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB4 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB3 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB2 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB1 is floating
+# Warning: CMP201: Net:
+# Info:           Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam\
+# Info:           _A9D8DualClkRAM_R0C0_TMR2/DOUTB0 is floating
+# Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+# Info: Netlist Optimization Report
+# Info: ===========================
+# Info: Optimized macros:
+# Info:   - Dangling net drivers:   0
+# Info:   - Buffers:                0
+# Info:   - Inverters:              1
+# Info:   - Tieoff:                 0
+# Info:   - Logic combining:        8
+# Info:     Total macros optimized  9
+# Info: There were 0 error(s) and 61 warning(s) in this design.
+# Info: =====================================================================
+# Info: Reading user pdc (Physical Design Constraints) file(s) postcompile
+# Warning: PDC01: port name doesn't exist in the netlist or is not connected to
+# Info: an IoCell macro at PDC Line : set_io fd_rxcdn_i -pinname 121 -fixed Yes
+# Info: There were 0 error(s) and 1 warning(s) in reading the user pdc.
+# Info: =====================================================================
+# Info: Compile report:
+# Info: ===============
+# Info:     CORE                     Used:   3731  Total:   9216   (40.48%)
+# Info:     IO (W/ clocks)           Used:     94  Total:    151   (62.25%)
+# Info:     Differential IO          Used:      0  Total:     34   (0.00%)
+# Info:     GLOBAL (Chip+Quadrant)   Used:      3  Total:     18   (16.67%)
+# Info:     PLL                      Used:      0  Total:      1   (0.00%)
+# Info:     RAM/FIFO                 Used:      6  Total:     12   (50.00%)
+# Info:     Low Static ICC           Used:      0  Total:      1   (0.00%)
+# Info:     FlashROM                 Used:      0  Total:      1   (0.00%)
+# Info:     User JTAG                Used:      0  Total:      1   (0.00%)
+# Info: Global Information:
+# Info:     Type            | Used   | Total
+# Info:     ----------------|--------|-------------
+# Info:     Chip global     | 3      | 6  (50.00%)
+# Info:     Quadrant global | 0      | 12 (0.00%)
+# Info: Core Information:
+# Info:     Type    | Instances    | Core tiles
+# Info:     --------|--------------|-----------
+# Info:     COMB    | 2351         | 2351
+# Info:     SEQ     | 1380         | 1380
+# Info: I/O Function:
+# Info:     Type                          | w/o register  | w/ register  | w/ DDR
+# Info: register
+# Info: ------------------------------|---------------|--------------|----------------
+# Info:     Input I/O                     | 63            | 0            | 0
+# Info:     Output I/O                    | 31            | 0            | 0
+# Info:     Bidirectional I/O             | 0             | 0            | 0
+# Info:     Differential Input I/O Pairs  | 0             | 0            | 0
+# Info:     Differential Output I/O Pairs | 0             | 0            | 0
+# Info: I/O Technology:
+# Info:                                     |   Voltages    |             I/Os
+# Info: --------------------------------|-------|-------|-------|--------|-----------\
+# Info: ---
+# Info:     I/O Standard(s)                 | Vcci  | Vref  | Input | Output |
+# Info: Bidirectional
+# Info: --------------------------------|-------|-------|-------|--------|-----------\
+# Info: ---
+# Info:     LVTTL                           | 3.30v | N/A   | 63    | 31     | 0
+# Info: Net information report:
+# Info: =======================
+# Info: The following nets have been assigned to a chip global resource:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     1344    CLK_NET       Net   : manual_uclk_i
+# Info:                           Driver: ix12214z51788
+# Info:                           Source: NETLIST
+# Info:     345     INT_NET       Net   : manual_s_nfip_intern_rst
+# Info:                           Driver: ix11749z56071
+# Info:                           Source: NETLIST
+# Info:     48      CLK_NET       Net   : manual_wclk_i
+# Info:                           Driver: ix12214z51789
+# Info:                           Source: NETLIST
+# Info: High fanout nets in the post compile netlist:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     24      INT_NET       Net   : NOT_rtlcs23__repl0
+# Info:                           Driver: engine_control/NOT_rtlcs23__repl0
+# Info:     24      INT_NET       Net   : p_rtlcn257__repl0
+# Info:                           Driver: reset_unit/ix51088z49934
+# Info:     24      INT_NET       Net   : p_rtlcn217__repl0
+# Info:                           Driver: reset_unit/ix25612z1959
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_0
+# Info:                           Driver: rate_i_ibuf(1)_buf_0
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_1
+# Info:                           Driver: rate_i_ibuf(1)_buf_1
+# Info:     24      INT_NET       Net   : rate_i_int(1)_buf_2
+# Info:                           Driver: rate_i_ibuf(1)_buf_2
+# Info:     24      INT_NET       Net   : rate_i_int(0)_buf_0
+# Info:                           Driver: rate_i_ibuf(0)_buf_0
+# Info:     24      INT_NET       Net   : slone_i_int_buf_0
+# Info:                           Driver: slone_i_ibuf_buf_0
+# Info:     24      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/NOT_s_prepare_to_produce
+# Info:                           Driver:
+# Info: FIELDRIVE_Transmitter_tx_serializer/NOT_s_prepare_to_produce
+# Info:     24      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/nx53339z2
+# Info:                           Driver:
+# Info: FIELDRIVE_Transmitter_tx_serializer/ix53339z1961
+# Info: Nets that are candidates for clock assignment and the resulting fanout:
+# Info:     Fanout  Type          Name
+# Info:     --------------------------
+# Info:     82      INT_NET       Net   : rate_i_int(1)
+# Info:                           Driver: rate_i_ibuf(1)
+# Info:     48      INT_NET       Net   : nx61016z2_BUF_OUT
+# Info:                           Driver: ix705
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Transmitter_tx_serializer/nx59749z3_BUF_OUT
+# Info:                           Driver: FIELDRIVE_Transmitter_tx_serializer/ix750
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx30597z2_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix981
+# Info:     48      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx48418z3_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix985
+# Info:     48      INT_NET       Net   :
+# Info: Production_production_bytes_retriever/nx21050z2_BUF_OUT
+# Info:                           Driver: Production_production_bytes_retriever/ix864
+# Info:     41      INT_NET       Net   : rate_i_int(0)
+# Info:                           Driver: rate_i_ibuf(0)
+# Info:     32      INT_NET       Net   : slone_i_int
+# Info:                           Driver: slone_i_ibuf
+# Info:     30      INT_NET       Net   : engine_control/nx39949z15_BUF_OUT
+# Info:                           Driver: engine_control/ix1358
+# Info:     25      INT_NET       Net   :
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/nx53339z2_BUF_OUT
+# Info:                           Driver:
+# Info: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/ix977
+# Info: SDC Import: Begin processing constraints...
+# Info: SDC Import: End processing constraints
+# Info: The Compile command succeeded ( 00:00:03 )
+# Info: Running I/O Bank Assigner.
+# Info: I/O Bank Assigner completed successfully.
+# Info: Planning global net placement...
+# Info: Global net placement completed successfully.
+# Info:                         o - o - o - o - o - o
+# Info: Timing-driven Placer Started: Fri Apr 08 16:44:02 2011
+# Info: Placer Finished: Fri Apr 08 16:44:51 2011
+# Info: Total Placer CPU Time:     00:00:49
+# Info:                         o - o - o - o - o - o
+# Info: Timing-driven Router
+# Info: Design: nanofip                         Started: Fri Apr 08 16:44:54 2011
+# Info: Iterative improvement...
+# Info: Timing-driven Router completed successfully.
+# Info: Design: nanofip
+# Info: Finished: Fri Apr 08 16:45:17 2011
+# Info: Total CPU Time:     00:00:22            Total Elapsed Time: 00:00:23
+# Info:                         o - o - o - o - o - o
+# Info: Loading the Timing data for the design.
+# Info: Finished loading the Timing data.
+# Info: TIMER: Max delay timing requirements have been met.
+# Info: The Layout command succeeded ( 00:01:23 )
+# Warning: Overwriting the existing file:
+# Info:           C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_ba_ac\
+# Info:           tel.pdc.
+# Info: Wrote to the file:
+# Info: C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\impl_2\nanofip_ba_actel.pdc
+# Info: The Export command succeeded ( 00:00:02 )
+# Info: Design saved to file nanofip.adb.
+# Info: 'PROC' set to 'WORST'
+# Info: 'TRPT_STHD_CHECK' set to '1'
+# Info: 'TRPT_PATH_EXPND' set to '0'
+# Info: 'TRPT_PATH_BRIEF' set to '0'
+# Info: 'TRPT_PASS_CLOCK' set to '1'
+# Info: 'TRPT_PASS_ASYNC' set to '0'
+# Info: 'TRPT_THRESHOLD' set to '0'
+# Info: Wrote timing report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel_timing.txt
+# Info: The Report command succeeded ( 00:00:00 )
+# Info: Wrote pin report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel_pin.txt
+# Info: The Report command succeeded ( 00:00:02 )
+# Info: Wrote status report to file:
+# Info: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/impl_2/nanofip_actel_status.txt
+# Info: The Report command succeeded ( 00:00:00 )
+# Info: Design closed.
+# Info: The Execute Script command succeeded ( 00:01:35 )
+place_and_route cl
+# COMMAND: place_and_route gui
+# Info: Launching gui
+# Info: C:/Actel/Designer/bin/designer.exe
+# Info: PNR COMMAND: >&NUL: C:/Actel/Designer/bin/designer.exe {} &
+# Info: 2084
+place_and_route gui
+# COMMAND: exit -force
+# Info: [9530]: Closed project: C:/ohr/cern-fip/trunk/hdl/cad/precision_radtol/project_1.psp.
+close_project -discard
+exit -force

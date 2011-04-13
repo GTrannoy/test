@@ -1,0 +1,78 @@
+***************************************************************
+Device Utilization for A3P400/208PQFP
+***************************************************************
+Resource                          Used    Avail   Utilization
+---------------------------------------------------------------
+IOs                               95      151      62.91%
+Tiles                             3732    9216     40.49%
+RAMs                              6       12       50.00%
+---------------------------------------------------------------
+
+*********************************************
+
+Library: work    Cell: nanofip    View: struc
+
+*********************************************
+
+  Cell                      Library  References     Total Area
+
+ AND2A                      proasic3    29 x      1     29 Tiles
+ AND2B                      proasic3     3 x      1      3 Tiles
+ AND3B                      proasic3    11 x      1     11 Tiles
+ AND3C                      proasic3     2 x      1      2 Tiles
+ AOI1A                      proasic3     1 x      1      1 Tiles
+ AOI1C                      proasic3     2 x      1      2 Tiles
+ AXOI1                      proasic3     1 x      1      1 Tiles
+ BUFF                       proasic3     9 x      1      9 Tiles
+ CLKBUF                     proasic3     2 x
+ CLKINT                     proasic3     1 x      1      1 Tiles
+ DFN1                       proasic3   102 x      1    102 Tiles
+ DFN1E0                     proasic3    63 x      1     63 Tiles
+ INBUF                      proasic3    61 x
+ INV                        proasic3     1 x      1      1 Tiles
+ MAJ3                       proasic3    55 x      1     55 Tiles
+ NAND2A                     proasic3     1 x      1      1 Tiles
+ NAND2B                     proasic3     2 x      1      2 Tiles
+ NAND3                      proasic3     1 x      1      1 Tiles
+ NAND3A                     proasic3     4 x      1      4 Tiles
+ NAND3B                     proasic3     1 x      1      1 Tiles
+ NAND3C                     proasic3     3 x      1      3 Tiles
+ OUTBUF                     proasic3    31 x
+ WF_cons_bytes_processor    work         1 x    128    128 gates
+                                                272    272 Tiles
+                                                  3      3 RAMs
+ WF_cons_outcome            work         1 x     98     98 Tiles
+                                                 83     83 gates
+ WF_engine_control          work         1 x    409    409 gates
+                                                767    767 Tiles
+ WF_prod_bytes_retriever    work         1 x    203    203 gates
+                                                300    300 Tiles
+                                                  3      3 RAMs
+ WF_reset_unit              work         1 x    173    173 gates
+                                                349    349 Tiles
+ WF_rx_deserializer         work         1 x    220    220 gates
+                                                535    535 Tiles
+ WF_rx_osc                  work         1 x    251    251 Tiles
+                                                195    195 gates
+ WF_status_bytes_gen        work         1 x     58     58 gates
+                                                193    193 Tiles
+ WF_tx_osc                  work         1 x    105    105 gates
+                                                166    166 Tiles
+ WF_tx_serializer           work         1 x    500    500 Tiles
+                                                273    273 gates
+ XA1B                       proasic3     2 x      1      2 Tiles
+ XO1A                       proasic3     1 x      1      1 Tiles
+ XOR2                       proasic3     4 x      1      4 Tiles
+ ZOR3                       proasic3     1 x      1      1 Tiles
+ ZOR3I                      proasic3     1 x      1      1 Tiles
+
+ Number of ports :                      95
+ Number of nets :                      704
+ Number of instances :                 405
+ Number of references to this view :     0
+
+Total accumulated area : 
+ Number of RAMs :                        6
+ Number of Tiles :                    3732
+ Number of gates :                    1920
+ Number of accumulated instances :    3832
