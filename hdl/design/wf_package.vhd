@@ -7,7 +7,7 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_package.vhd                                                                          |
+-- File         WF_package.vhd                                                                    |
 ---------------------------------------------------------------------------------------------------
 
 library IEEE;
@@ -22,47 +22,39 @@ use ieee.numeric_std.all;
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     Definitions of constants, types, entities, functions
+-- Description  Definitions of constants, types, entities, functions
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)\n
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)    \n
+-- Author       Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      11/01/2011
+-- Date         11/01/2011
 --
 --
---! @version   v0.04
+-- Version      v0.04
 --
 --
---! @details \n
+-- Depends on
 --
---!   \n<b>Dependencies:</b>\n
---
---
---!   \n<b>Modified by:</b>   \n
---!            Evangelia Gousiou     \n
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes:</b>\n
---!     ->    8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed) \n
---!     ->   10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of
---!                              std_logic_vector(9 downto 0) to simplify calculations; cleaning-up
---!     ->    1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs
---!                              added DualClkRam
---!     ->    2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics
+-- Last changes
+--     ->    8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed)
+--     ->   10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of
+--                              std_logic_vector(9 downto 0) to simplify calculations; cleaning-up
+--     ->    1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs
+--                              added DualClkRam
+--     ->    2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics
+--                              added Ctrl bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG
 --
 ---------------------------------------------------------------------------------------------------
---
---! @todo
---!   ->
---
----------------------------------------------------------------------------------------------------
+
 
 
 --=================================================================================================
---!                              Package declaration for WF_package
+--                              Package declaration for WF_package
 --=================================================================================================
 package WF_package is
 
@@ -103,9 +95,14 @@ package WF_package is
 --       Constants regarding the Control and PDU_TYPE bytes of ID_DAT and RP_DAT frames          --
 ---------------------------------------------------------------------------------------------------
 
-  constant c_ID_DAT_CTRL_BYTE        : std_logic_vector (7 downto 0) := "00000011";
-  constant c_RP_DAT_CTRL_BYTE        : std_logic_vector (7 downto 0) := "00000010";
-  constant c_PROD_CONS_PDU_TYPE_BYTE : std_logic_vector (7 downto 0) := "01000000";
+  constant c_ID_DAT_CTRL_BYTE         : std_logic_vector (5 downto 0) := "000011";
+  constant c_RP_DAT_CTRL_BYTE         : std_logic_vector (5 downto 0) := "000010";
+  constant c_RP_DAT_MSG_CTRL_BYTE     : std_logic_vector (5 downto 0) := "000110";
+  constant c_RP_DAT_RQ1_CTRL_BYTE     : std_logic_vector (5 downto 0) := "101010";
+  constant c_RP_DAT_RQ2_CTRL_BYTE     : std_logic_vector (5 downto 0) := "001010";
+  constant c_RP_DAT_RQ1_MSG_CTRL_BYTE : std_logic_vector (5 downto 0) := "101110";
+  constant c_RP_DAT_RQ2_MSG_CTRL_BYTE : std_logic_vector (5 downto 0) := "001110";
+  constant c_PDU_TYPE_BYTE            : std_logic_vector (7 downto 0) := "01000000";
 
 
 
@@ -134,8 +131,8 @@ package WF_package is
 --                               Constant regarding the Transmitter                              --
 ---------------------------------------------------------------------------------------------------
 
-  constant c_TX_CLK_BUFF_LGTH : natural := 4; -- length of the clk buffer used for
-                                              -- the transmission synchronization
+  constant c_TX_SCHED_BUFF_LGTH : natural := 4; -- length of the buffer of pulses used for
+                                                -- the transmission synchronization
 
 
 
@@ -171,13 +168,13 @@ package WF_package is
   type t_unsigned_array is array (natural range <>) of unsigned(7 downto 0);
 
   constant c_P3_LGTH_TABLE : t_unsigned_array(7 downto 0) :=
-    (0      => "00000010", -- 2 bytes
-     1      => "00001000", -- 8 bytes
-     2      => "00010000", -- 16 bytes
-     3      => "00100000", -- 32 bytes
-     4      => "01000000", -- 64 bytes
-     5      => "01111100", -- 124 bytes
-     others => "00000010");  -- reserved
+    (0      => "00000010",  -- 2 bytes
+     1      => "00001000",  -- 8 bytes
+     2      => "00010000",  -- 16 bytes
+     3      => "00100000",  -- 32 bytes
+     4      => "01000000",  -- 64 bytes
+     5      => "01111100",  -- 124 bytes
+     others => "00000010"); -- reserved
 
 
 
@@ -287,7 +284,7 @@ package WF_package is
                               base_addr    => "---------",
                               array_lgth   => "00000111", -- 8 bytes in total including the Control byte
                                                           -- (counting starts from 0;-))
-                              byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => x"50", 2 => x"05",
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => x"50", 2 => x"05",
                                                3 => x"80", 4 => x"03" , 5 => x"00", 6 => x"f0",
                                                7 => x"00", others => x"ff")),
 
@@ -298,7 +295,7 @@ package WF_package is
                               broadcast    => '0',
                               base_addr    => "---------",
                               array_lgth   => "00001010", -- 11 bytes in total including the Control byte
-                              byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => x"52", 2 => x"08",
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => x"52", 2 => x"08",
                                                3 => x"01", 4 => x"00" , 5 => x"00", 6 => x"ff",
                                                7 => x"ff", 8 => x"00" , 9 => x"00", 10 => x"00",
                                                others => x"ff")),
@@ -311,7 +308,7 @@ package WF_package is
                               base_addr    => "100000000",
                               array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
                                                           -- predefined
-                              byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")),
 
 
@@ -320,9 +317,8 @@ package WF_package is
                               prod_or_cons => "01",
                               broadcast    => '0',
                               base_addr    => "000000000",
-                              array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
-                                                          -- predefined
-                              byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
+                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")),
 
 
@@ -331,9 +327,8 @@ package WF_package is
                               prod_or_cons => "01",
                               broadcast    => '1',
                               base_addr    => "010000000",
-                              array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
-                                                          -- predefined
-                              byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
+                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")),
 
      c_VAR_RST_INDEX    =>   (var          => var_rst,
@@ -341,9 +336,8 @@ package WF_package is
                               prod_or_cons => "01",
                               broadcast    => '1',
                               base_addr    => "---------",
-                              array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
-                                                          -- predefined
-                              byte_array   => (0 => c_RP_DAT_CTRL_BYTE, 1 => c_PROD_CONS_PDU_TYPE_BYTE,
+                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")));
 
 
@@ -388,7 +382,7 @@ package WF_package is
     byte_request_accept_p_i : in std_logic;
     last_byte_p_i           : in std_logic;
     byte_i                  : in std_logic_vector (7 downto 0);
-    tx_clk_p_buff_i         : in std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0);
+    tx_sched_p_buff_i       : in std_logic_vector (c_TX_SCHED_BUFF_LGTH -1 downto 0);
   -----------------------------------------------------------------
     tx_byte_request_p_o     : out std_logic;
     tx_completed_p_o        : out std_logic;
@@ -437,6 +431,7 @@ package WF_package is
     rx_crc_wrong_p_i       : in std_logic;
     wb_clk_i               : in std_logic;
     wb_adr_i               : in std_logic_vector (8 downto 0);
+    cons_bytes_excess_i    : in std_logic;
     var_i                  : in t_var;
     byte_index_i           : in std_logic_vector (7 downto 0);
   -----------------------------------------------------------------
@@ -551,13 +546,13 @@ end component WF_rx_osc;
 ---------------------------------------------------------------------------------------------------
   component WF_tx_osc is
   port (
-    uclk_i          : in std_logic;
-    rate_i          : in  std_logic_vector (1 downto 0);
-    nfip_rst_i      : in std_logic;
-    tx_osc_rst_p_i  : in std_logic;
+    uclk_i            : in std_logic;
+    rate_i            : in  std_logic_vector (1 downto 0);
+    nfip_rst_i        : in std_logic;
+    tx_osc_rst_p_i    : in std_logic;
   -----------------------------------------------------------------
-    tx_clk_o        : out std_logic;
-    tx_clk_p_buff_o : out std_logic_vector (c_TX_CLK_BUFF_LGTH -1 downto 0));
+    tx_clk_o          : out std_logic;
+    tx_sched_p_buff_o : out std_logic_vector (c_TX_SCHED_BUFF_LGTH -1 downto 0));
   -----------------------------------------------------------------
   end component WF_tx_osc;
 
@@ -615,6 +610,7 @@ end component WF_rx_osc;
     tx_start_p_o                : out std_logic;
     prod_cons_byte_index_o      : out std_logic_vector (7 downto 0);
     prod_data_lgth_o            : out std_logic_vector (7 downto 0);
+    cons_bytes_excess_o         : out std_logic; 
     rx_rst_o                    : out std_logic;
     var_o                       : out t_var);
   -----------------------------------------------------------------
@@ -712,13 +708,13 @@ end component WF_rx_osc;
 ---------------------------------------------------------------------------------------------------
   component WF_rx_deglitcher
   port (
-    uclk_i                     : in std_logic;
-    nfip_rst_i                 : in std_logic;
-    fd_rxd_a_i                 : in std_logic;
+    uclk_i                 : in std_logic;
+    nfip_rst_i             : in std_logic;
+    fd_rxd_a_i             : in std_logic;
   -----------------------------------------------------------------
-    fd_rxd_filtered_o          : out std_logic;
-    fd_rxd_filtered_edge_p_o   : out std_logic;
-    fd_rxd_filtered_f_edge_p_o : out std_logic);
+    fd_rxd_filt_o          : out std_logic;
+    fd_rxd_filt_edge_p_o   : out std_logic;
+    fd_rxd_filt_f_edge_p_o : out std_logic);
   -----------------------------------------------------------------
   end component WF_rx_deglitcher;
 
@@ -894,8 +890,9 @@ end component WF_rx_osc;
     subs_i                 : in std_logic_vector (7 downto 0);
     rx_fss_crc_fes_ok_p_i  : in std_logic;
     rx_crc_wrong_p_i       : in std_logic;
+    cons_bytes_excess_i    : in std_logic;
     var_i                  : in t_var;
-    rx_byte_index_i        : in std_logic_vector (7 downto 0);
+    byte_index_i           : in std_logic_vector (7 downto 0);
     cons_ctrl_byte_i       : in std_logic_vector (7 downto 0);
     cons_pdu_byte_i        : in std_logic_vector (7 downto 0);
     cons_lgth_byte_i       : in std_logic_vector (7 downto 0);
@@ -951,18 +948,18 @@ end WF_package;
 
 
 --=================================================================================================
---!                                        package body
+--                                        package body
 --=================================================================================================
 package body WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
---!@brief Function for the encoding of a word to its Manchester 2 (manch.) equivalent.
---! Each bit "1" is replaced by "10" and each bit "0" by "01".
---! The manch. encoding ensures that there is one transition for each bit.
---!   o bit            :    "0"           "1"
---!   o manch. encoded :   "0 1"         "1 0"
---!   o scheme         :    _|-           -|_
+-- Function for the encoding of a word to its Manchester 2 (manch.) equivalent.
+-- Each bit "1" is replaced by "10" and each bit "0" by "01".
+-- The manch. encoding ensures that there is one transition for each bit.
+--   o bit            :    "0"           "1"
+--   o manch. encoded :   "0 1"         "1 0"
+--   o scheme         :    _|-           -|_
 
   function f_manch_encoder (word_i : std_logic_vector) return std_logic_vector is
 

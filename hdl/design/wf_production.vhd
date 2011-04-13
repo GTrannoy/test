@@ -7,18 +7,17 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---! @file WF_production.vhd                                                                       |
+-- File         WF_production.vhd                                                                 |
 ---------------------------------------------------------------------------------------------------
 
---! standard library
+-- Standard library
 library IEEE;
+-- Standard packages
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
---! standard packages
-use IEEE.STD_LOGIC_1164.all;  --! std_logic definitions
-use IEEE.NUMERIC_STD.all;     --! conversion functions
-
---! specific packages
-use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
+-- Specific packages
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
@@ -27,93 +26,82 @@ use work.WF_PACKAGE.all;      --! definitions of types, constants, entities
 ---------------------------------------------------------------------------------------------------
 --
 --
---! @brief     The unit groups the main actions that regard data production.
---!            It instantiates the units:
---!
---!              o WF_prod_bytes_retriever: that retrieves
---!                                           o user-data bytes: from the Produced RAM or the
---!                                             "nanoFIP User Interface, NON-WISHBONE" bus DAT_I,
---!                                           o PDU,Ctrl bytes : from the WF_package
---!                                           o MPS,nFIP status: from the WF_status_bytes_gen
---!                                           o LGTH byte      : from the WF_prod_data_lgth_calc
---!                                         and following the signals from the external unit
---!                                         WF_engine_control forwards them to the WF_fd_transmitter
---!
---!              o WF_status_bytes_gen     : that receives information from the WF_consumption unit,
---!                                          the "FIELDRIVE" and "User Interface,NON-WISHBONE"inputs
---!                                          and outputs, for the generation of the nanoFIP & MPS
---!                                          status bytes
---!
---!              o WF_prod_permit          : that signals the user that user-data bytes can safely be
---!                                          written
---!
---!                                ___________________________________________________________
---!                               |                       WF_production                       |
---!                               |                                                           |
---!                               |   _________________________________                       |
---!                               |  |                                 |                      |
---!                               |  |          WF_prod_permit         |                      |
---!                               |  |_________________________________|                      |
---!                               |                                                           |
---!                               |   _________________________________     ________________  |
---!                               |  |                                 |   |                | |
---!                               |  |      WF_prod_bytes_retriever    | < | WF_status_bytes| |
---!                               |  |                                 |   |      _gen      | |
---!                               |  |_________________________________|   |________________| |
---!                               |___________________________________________________________|
---!                                                            \/
---!                                ___________________________________________________________
---!                               |                                                           |
---!                               |                     WF_fd_transmitter                     |
---!                               |___________________________________________________________|
---!                                                            \/
---!                             ___________________________________________________________________
---!                           0_____________________________FIELDBUS______________________________O
---!
---!            Note: In the entity declaration of this unit, below each input signal, we mark
---!            which of the instantiated units needs it.
---!
+-- Description  The unit groups the main actions that regard data production.
+--              It instantiates the units:
+--
+--                o WF_prod_bytes_retriever : that retrieves
+--                                             o user-data bytes: from the Produced RAM or the
+--                                               "nanoFIP User Interface, NON-WISHBONE" bus DAT_I,
+--                                             o PDU,Ctrl bytes : from the WF_package
+--                                             o MPS,nFIP status: from the WF_status_bytes_gen
+--                                             o LGTH byte      : from the WF_prod_data_lgth_calc
+--                                            and following the signals from the external unit
+--                                            WF_engine_control forwards them to the WF_fd_transmitter
+--
+--                o WF_status_bytes_gen     : that receives information from the WF_consumption unit,
+--                                            the "FIELDRIVE" and "User Interface,NON-WISHBONE" inputs
+--                                            and outputs, and generates the nanoFIP and the MPS
+--                                            status bytes
+--
+--                o WF_prod_permit          : that signals the user that user-data bytes can safely
+--                                            be written to the memory or the DAT_I bus
+--
+--                                ___________________________________________________________
+--                               |                       WF_production                       |
+--                               |                                                           |
+--                               |   _________________________________                       |
+--                               |  |                                 |                      |
+--                               |  |          WF_prod_permit         |                      |
+--                               |  |_________________________________|                      |
+--                               |                                                           |
+--                               |   _________________________________     ________________  |
+--                               |  |                                 |   |                | |
+--                               |  |      WF_prod_bytes_retriever    | < | WF_status_bytes| |
+--                               |  |                                 |   |      _gen      | |
+--                               |  |_________________________________|   |________________| |
+--                               |___________________________________________________________|
+--                                                            \/
+--                                ___________________________________________________________
+--                               |                                                           |
+--                               |                     WF_fd_transmitter                     |
+--                               |___________________________________________________________|
+--                                                            \/
+--                             ___________________________________________________________________
+--                           0_____________________________FIELDBUS______________________________O
+--
+--              Note: In the entity declaration of this unit, below each input signal, we mark
+--              which of the instantiated units needs it.
 --
 --
---! @author    Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---!            Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
+--
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
 --
 --
---! @date      11/01/2011
+-- Date         11/01/2011
 --
 --
---! @version   v0.02
+-- Version     v0.02
 --
 --
---! @details \n
+-- Depends on   WF_reset_unit
+--              WF_consumption
+--              WF_engine_control
+--              WF_wb_controller
+--              WF_model_constr_decoder
 --
---!   \n<b>Dependencies:</b>           \n
---!            WF_reset_unit           \n
---!            WF_consumption          \n
---!            WF_engine_control       \n
---!            WF_wb_controller        \n
---!            WF_fd_transmitter       \n
---!            WF_model_constr_decoder \n
---
---
---!   \n<b>Modified by:</b>\n
 --
 ---------------------------------------------------------------------------------------------------
 --
---!   \n\n<b>Last changes:</b>\n
---!     ->    2/2011  v0.02  EG  WF_serializer removed from this unit
---
----------------------------------------------------------------------------------------------------
---
---! @todo
---! ->
+-- Last changes
+--     ->    2/2011  v0.02  EG  WF_serializer removed from this unit
 --
 ---------------------------------------------------------------------------------------------------
 
 
 
 --=================================================================================================
---!                           Entity declaration for WF_production
+--                           Entity declaration for WF_production
 --=================================================================================================
 
 entity WF_production is
@@ -124,7 +112,7 @@ entity WF_production is
     -- nanoFIP User Interface, General signals
 
       uclk_i                  : in std_logic;
-       -- used by: all the units
+      -- used by: all the units
 
       slone_i                 : in std_logic;
       -- used by: WF_prod_bytes_retriever for the selection of data bytes from the RAM or the DAT_I
@@ -183,7 +171,7 @@ entity WF_production is
       byte_index_i            : in std_logic_vector (7 downto 0);
       data_lgth_i             : in std_logic_vector (7 downto 0);
       byte_request_accept_p_i : in std_logic;
-      var_i                   : in t_var;-- also for the WF_prod_permit for the VAR3_RDY generation
+      var_i                   : in t_var; -- also used by: WF_prod_permit for the VAR3_RDY generation
       -- used by: WF_prod_bytes_retriever for the definition of the bytes to be delivered
 
 
@@ -224,15 +212,16 @@ end entity WF_production;
 
 
 --=================================================================================================
---!                                    architecture declaration
+--                                    architecture declaration
 --=================================================================================================
 architecture struc of WF_production is
 
-  signal s_var3_rdy, s_rst_status_bytes_p : std_logic;
-  signal s_stat, s_mps                    : std_logic_vector (7 downto 0);
+  signal s_var3_rdy           : std_logic;
+  signal s_rst_status_bytes_p : std_logic;
+  signal s_nfip_stat, s_mps   : std_logic_vector (7 downto 0);
 
 --=================================================================================================
---!                                       architecture begin
+--                                       architecture begin
 --=================================================================================================
 begin
 
@@ -241,15 +230,15 @@ begin
 --                                       Production Permit                                       --
 ---------------------------------------------------------------------------------------------------
 
---! @brief Instantiation of the WF_prod_permit unit
+-- Instantiation of the WF_prod_permit unit
 
   production_VAR3_RDY_generation: WF_prod_permit
   port map (
-    uclk_i      => uclk_i,
-    nfip_rst_i  => nfip_rst_i,
-    var_i       => var_i,
+    uclk_i     => uclk_i,
+    nfip_rst_i => nfip_rst_i,
+    var_i      => var_i,
    -----------------------------------------------
-    var3_rdy_o  => s_var3_rdy);
+    var3_rdy_o => s_var3_rdy);
    -----------------------------------------------
 
 
@@ -258,7 +247,7 @@ begin
 --                                          Bytes Retreival                                      --
 ---------------------------------------------------------------------------------------------------
 
---!@brief Instantiation of the WF_prod_bytes_retriever unit
+-- Instantiation of the WF_prod_bytes_retriever unit
 
   production_bytes_retriever : WF_prod_bytes_retriever
   port map (
@@ -271,7 +260,7 @@ begin
     wb_clk_i             => wb_clk_i,
     wb_adr_i             => wb_adr_i,
     wb_ack_prod_p_i      => wb_ack_prod_p_i,
-    nFIP_status_byte_i   => s_stat,
+    nFIP_status_byte_i   => s_nfip_stat,
     mps_status_byte_i    => s_mps,
     var_i                => var_i,
     byte_index_i         => byte_index_i,
@@ -291,7 +280,7 @@ begin
 --                                    Status Byte Generation                                     --
 ---------------------------------------------------------------------------------------------------
 
---!@brief Instantiation of the WF_status_bytes_gen unit
+-- Instantiation of the WF_status_bytes_gen unit
 
   production_status_bytes_generator : WF_status_bytes_gen
   port map (
@@ -314,10 +303,9 @@ begin
     u_pacer_o               => u_pacer_o,
     r_tler_o                => r_tler_o,
     r_fcser_o               => r_fcser_o,
-    nFIP_status_byte_o      => s_stat,
+    nFIP_status_byte_o      => s_nfip_stat,
     mps_status_byte_o       => s_mps);
    -----------------------------------------------
-
 
     var3_rdy_o  <= s_var3_rdy;
 
