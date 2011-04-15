@@ -208,13 +208,13 @@ begin
 		wait for 25 ns;
 	end process;
 
-	reset_reporting: process(fd_reset_asserted, rst_latency_reached, fd_reset_assertion)
+	reset_reporting: process(fd_reset_asserted, rst_latency_reached)--, fd_reset_assertion)
 	begin
 		if rst_latency_reached and not fd_reset_asserted then
 			report "               #### Check NOT OK #### " & time'image(reset_max_latency) & " have passed and" 
 			& LF & "                                      nanoFIP has still not asserted the Fieldrive reset (FD_RSTN)" & LF
 			severity warning;
-		elsif fd_reset_asserted then
+		elsif fd_reset_asserted and not rst_latency_reached then
 			if not (preset_hist_opened_ok 
 			or ureset_hist_opened_ok 
 			or (vreset_hist_opened_ok and (vreset_first_byte = station_adr))) then

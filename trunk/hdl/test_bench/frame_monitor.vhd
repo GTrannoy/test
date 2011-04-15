@@ -50,6 +50,7 @@ signal length_specs_ok		: boolean:= FALSE;
 signal out_produced			: vector_type;
 signal pdu_type_byte		: std_logic_vector(7 downto 0);
 signal report_trigger		: std_logic;
+signal slone				: std_logic;
 signal ucacerr				: boolean;
 signal upacerr				: boolean;
 signal var_string			: string(1 to 27);
@@ -177,9 +178,10 @@ begin
 				end if;
 				varlength_board				<= varlength_config;
 			end if;
-			nostat					<= nostat_config;
 			constructor				<= constructor_config;
 			model					<= model_config;
+			nostat					<= nostat_config;
+			slone					<= slone_config;				
 		end if;
 	end process;
 	
@@ -298,11 +300,11 @@ begin
 						end if;						
 						assert nfip_status(4) ='0'
 						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong PDU_type byte or a wrong Control byte or an incoherent Length byte"
+						& LF & "               a wrong PDU_type byte, a wrong Control byte, an incoherence with the Length byte or an excessive length"
 						severity warning;
 						assert nfip_status(5) ='0'
 						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong CRC or an error on the Manchester encoding or a number of bits in the frame that is not multiple of 8"
+						& LF & "               a wrong CRC or a number of bits in the frame that is not multiple of 8"
 						severity warning;
 						assert nfip_status(6) ='0'
 						report "               The nanoFIP status byte reports a Fieldrive transmit error"
@@ -316,17 +318,25 @@ begin
 						& LF & "                            which is according to the board configuration and coherent wiht the Length byte"
 						& LF & "                            and the frame contents match the variable expected values";
 					end if;
-
-					if mps_byte = mps_fresh and not(var3_fresh) then
-						report "               #### check NOT OK ####  The data are flagged incorrectly as fresh"
-						severity warning;
-					elsif mps_byte = mps_not_fresh and var3_fresh then
-						report "               #### check NOT OK ####  The data are flagged incorrectly as not fresh"
-						severity warning;
-					elsif mps_byte = mps_not_fresh and not(var3_fresh) then
-						report "               __ check OK __  The data are flagged correctly as not fresh"
-						severity warning;
+					
+					if slone ='1' then
+						if mps_byte = mps_not_fresh then
+							report "               #### check NOT OK ####  The data are flagged as not fresh although in Stand-alone they should always be fresh"
+							severity warning;
+						end if;
+					else
+						if mps_byte = mps_fresh and not(var3_fresh) then
+							report "               #### check NOT OK ####  The data are flagged incorrectly as fresh"
+							severity warning;
+						elsif mps_byte = mps_not_fresh and var3_fresh then
+							report "               #### check NOT OK ####  The data are flagged incorrectly as not fresh"
+							severity warning;
+						elsif mps_byte = mps_not_fresh and not(var3_fresh) then
+							report "               __ check OK __  The data are flagged correctly as not fresh"
+							severity warning;
+						end if;
 					end if;
+					
 				else
 					report "            __ check OK __  NanoFIP response is an RP_DAT frame of " & var_string
 					& LF & "                            the length is according to specs and coherent wiht the Length byte"
@@ -399,11 +409,11 @@ begin
 						end if;						
 						assert nfip_status(4) ='0'
 						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong PDU_type byte or a wrong Control byte or an incoherent Length byte"
+						& LF & "               a wrong PDU_type byte, a wrong Control byte, an incoherence with the Length byte or an excessive length"
 						severity warning;
 						assert nfip_status(5) ='0'
 						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong CRC or an error on the Manchester encoding or a number of bits in the frame that is not multiple of 8"
+						& LF & "               a wrong CRC or a number of bits in the frame that is not multiple of 8"
 						severity warning;
 						assert nfip_status(6) ='0'
 						report "               The nanoFIP status byte reports a Fieldrive transmit error"
