@@ -59,4 +59,10 @@
 0,5A,05,2	-- RP_DAT for Consumed variable
 219 us		-- stand-by time
 1,5A,06,0	-- ID_DAT for Produced variable
+400 us		-- stand-by time
+1,5A,05,0	-- ID_DAT for Consumed variable
+164 us		-- stand-by time
+0,5A,05,126	-- RP_DAT for Consumed variable
+1211 us		-- stand-by time
+1,5A,06,0	-- ID_DAT for Produced variable
 2000 ms		-- final stand-by time to end the simulation
