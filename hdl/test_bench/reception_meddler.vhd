@@ -128,7 +128,7 @@ begin
 				if insert_violation then
 					report	"               A reception error from the FIELDRIVE is simulated " 
 					& LF &  "               by inserting a violation in the manchester code." 
-					& LF &  "               This should be reflected by a flag bit in the nanoFIP status error byte" & LF
+					& LF &  "               This may corrupt the data or not. In affirmative case, the treatment should be equivalent to a wrong CRC" & LF
 					severity warning;
 				end if;
 				if jitter_value > 0 ps then

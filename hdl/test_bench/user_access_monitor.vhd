@@ -226,13 +226,13 @@ begin
 		wait for uclk_period;
 	end process;
 
-	reset_reporting: process(urst_from_nf_asserted, rst_latency_reached, urst_from_nf_assertion)
+	reset_reporting: process(urst_from_nf_asserted, rst_latency_reached)--, urst_from_nf_assertion)
 	begin
 		if rst_latency_reached and not urst_from_nf_asserted then
 			report "               #### Check NOT OK #### " & time'image(reset_max_latency) & " have passed and" 
 			& LF & "                                      nanoFIP has still not asserted the User reset (RSTON)" & LF
 			severity warning;
-		elsif urst_from_nf_asserted then
+		elsif urst_from_nf_asserted and not rst_latency_reached then
 			if not (vreset_hist_opened_ok and (vreset_second_byte = station_adr)) then
 				report "               #### Check NOT OK #### NanoFIP has asserted the User reset (RSTON)"
 				& LF & "                                      although no action or event prompted it" & LF
