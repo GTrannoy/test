@@ -4,4 +4,4 @@ FALSE				-- Insert violation error for one clk cycle
 0					-- Number of bits per byte truncated in reception (integer 1 to 8)
 0 ps				-- TXERR error length
 0 ps				-- WDGN error length
-2000 ms				--++ time for which the configuration above is valid
+10000 ms				--++ time for which the configuration above is valid
