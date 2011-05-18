@@ -10,6 +10,7 @@ probe -create -shm -waveform :fieldrive:id_rp
 
 probe -create -shm -waveform :fieldrive:rx_block:feeder:fstate
 probe -create -shm -waveform :fieldrive:rx_block:feeder:fss_start
+#probe -create -shm -waveform :fieldrive:rx_block:feeder:fss_dly
 probe -create -shm -waveform :fieldrive:rx_block:feeder:fss_complete
 probe -create -shm -waveform :fieldrive:rx_block:feeder:fes_start
 probe -create -shm -waveform :fieldrive:rx_block:feeder:fes_complete
@@ -46,6 +47,16 @@ probe -create -shm -waveform :fieldrive:rx_block:fx
 probe -create -shm -waveform :fieldrive:rx_block:dx_final
 probe -create -shm -waveform :fieldrive:rx_block:cd
 probe -create -shm -waveform :fieldrive:rx_block:dx
+probe -create -shm -waveform :fieldrive:rx_block:jitter
+probe -create -shm -waveform :fieldrive:rx_block:meddler:jitter_value
+#probe -create -shm -waveform :fieldrive:rx_block:meddler:jitter_active
+probe -create -shm -waveform :fieldrive:rx_block:clamp
+probe -create -shm -waveform :fieldrive:rx_block:meddler:v_minus_err
+probe -create -shm -waveform :fieldrive:rx_block:meddler:v_plus_err
+#probe -create -shm -waveform :fieldrive:rx_block:meddler:insert_violation
+#probe -create -shm -waveform :fieldrive:rx_block:meddler:insertion_pending
+#probe -create -shm -waveform :fieldrive:rx_block:meddler:violation_positive
+
 #probe -create -shm -waveform :fieldrive:rx_block:fss_block:fss_value
 #probe -create -shm -waveform :fieldrive:rx_block:fss_block:s_fss_value
 #probe -create -shm -waveform :fieldrive:rx_block:fss_block:i
@@ -59,11 +70,42 @@ probe -create -shm -waveform :fieldrive:rx_block:dx
 #probe -create -shm -waveform :dut:production:production_serializer:tx_clk_p_buff_i
 #probe -create -shm -waveform :dut:production:production_serializer:s_bit_index
 #probe -create -shm -waveform :dut:production:production_serializer:tx_state
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deglitcher:s_fd_rxd_synch
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deglitcher:s_deglitch_c
+probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:fd_rxd_i
+probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:signif_edge_window_i
+probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:sample_manch_bit_p_i
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:sample_bit_p_i
+probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:rx_st
+
 probe -create -shm -waveform :dut:engine_control:control_st
 probe -create -shm -waveform :dut:engine_control:rx_byte_i
 probe -create -shm -waveform :dut:engine_control:rx_byte_ready_p_i
 
+#probe -create -shm -waveform :dut:consumption:consumption_outcome:rx_fss_crc_fes_manch_ok_p_i
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:s_arriving_fes
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:s_fes_detected_p
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:s_byte_ready_p_d1
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:s_crc_ok_p_d
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:s_manch_not_ok
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_deserializer:manch_code_viol_p_i
 
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_oscillator:fd_rxd_edge_p_i
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_oscillator:s_period_c
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_oscillator:s_manch_clk
+#probe -create -shm -waveform :dut:fieldrive_receiver:fieldrive_receiver_oscillator:s_manch_clk_d1
+
+#probe -create -shm -waveform :dut:consumption:consumption_outcome:rx_crc_or_manch_wrong_p_i
+#probe -create -shm -waveform :dut:consumption:consumption_outcome:cons_ctrl_byte_i
+#probe -create -shm -waveform :dut:consumption:consumption_outcome:cons_pdu_byte_i
+#probe -create -shm -waveform :dut:consumption:consumption_outcome:rx_byte_index_i
+#probe -create -shm -waveform :dut:consumption:consumption_outcome:cons_lgth_byte_i
+
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:offset1
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:offset2
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:shift
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:clk1
+#probe -create -shm -waveform :fieldrive:tx_block:decoder:clk2
 #probe -create -shm -waveform :fieldrive:tx_block:decoder:clk3
 #probe -create -shm -waveform :fieldrive:tx_block:decoder:clk4
 #probe -create -shm -waveform :fieldrive:tx_block:decoder:count_for_clk3
@@ -85,17 +127,6 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:eof
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:silence_time_reached
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:start_turn_around
 #probe -create -shm -waveform :fieldrive:fip_bus_monitor:end_turn_around
-
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:fd_reset_asserted
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:rst_latency_reached
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:fd_reset_assertion
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_preset_time
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:preset_time
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_ureset_time
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:ureset_time
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_vreset_time
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:vreset_time
-probe -create -shm -waveform :fieldrive:fip_bus_monitor:f_clk_period
 
 probe -create -shm -waveform :fieldrive:tx_block:fcs_check
 probe -create -shm -waveform :fieldrive:tx_block:fcs_ok
@@ -121,6 +152,10 @@ probe -create -shm -waveform :fieldrive:tx_block:chopper:frame_data
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:data_contents_ok
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:checking_produced:mismatches
 
+#probe -create -shm -waveform :dut:reset_unit:rstin_st
+#probe -create -shm -waveform :dut:reset_unit:var_rst_st
+#probe -create -shm -waveform :dut:reset_unit:s_rstin_c
+
 probe -create -shm -waveform :fieldrive:f_clk
 probe -create -shm -waveform :fd_rstn
 probe -create -shm -waveform :fd_rxcdn
@@ -130,6 +165,21 @@ probe -create -shm -waveform :fd_txd
 probe -create -shm -waveform :fd_txck
 probe -create -shm -waveform :fd_wdgn
 probe -create -shm -waveform :fd_txer
+
+probe -create -shm -waveform :fieldrive:rx_block:msg_serializer:nb_truncated_bits
+probe -create -shm -waveform :fieldrive:rx_block:msg_serializer:i
+
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:fd_reset_asserted
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:rst_latency_reached
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:fd_reset_assertion
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_preset_time
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:preset_time
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_ureset_time
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:ureset_time
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:ureset_hist_opened_ok
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:previous_vreset_time
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:vreset_time
+#probe -create -shm -waveform :fieldrive:fip_bus_monitor:f_clk_period
 
 probe -create -shm -waveform :rstpon
 probe -create -shm -waveform :uclk
@@ -150,6 +200,17 @@ probe -create -shm -waveform :we
 probe -create -shm -waveform :adr
 probe -create -shm -waveform :dat_from_fip
 probe -create -shm -waveform :dat_to_fip
+
+probe -create -shm -waveform :dut:r_fcser_o
+probe -create -shm -waveform :dut:r_tler_o 
+probe -create -shm -waveform :dut:u_cacer_o
+probe -create -shm -waveform :dut:u_pacer_o
+
+probe -create -shm -waveform :user_logic:user_acc_monitor:var3_fresh
+probe -create -shm -waveform :user_logic:user_acc_monitor:ucacerr
+probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
+
+
 #probe -create -shm -waveform :user_logic:wb_interface:valid_bus_cycle
 probe -create -shm -waveform :user_logic:wb_interface:launch_wb_read
 probe -create -shm -waveform :user_logic:wb_interface:launch_wb_write 
@@ -167,10 +228,10 @@ probe -create -shm -waveform :user_logic:sa_interface:slone_access_write
 #probe -create -shm -waveform :user_logic:slone_output
 #probe -create -shm -waveform :user_logic:memory_output
 
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:nxt_data
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:ind
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_consumed
-probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:nxt_data
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:ind
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_consumed
+#probe -create -shm -waveform :fieldrive:rx_block:msg_block:in_broadcast
 
 probe -create -shm -waveform :user_logic:wb_monitor:valid_bus_cycle
 probe -create -shm -waveform :user_logic:wb_monitor:var_id
@@ -180,19 +241,14 @@ probe -create -shm -waveform :user_logic:wb_monitor:adr
 #probe -create -shm -waveform :user_logic:wb_monitor:in_consumed
 #probe -create -shm -waveform :user_logic:wb_monitor:in_broadcast
 
-probe -create -shm -waveform :user_logic:wb_monitor:writing_produced
-probe -create -shm -waveform :user_logic:wb_monitor:out_produced
+#probe -create -shm -waveform :user_logic:wb_monitor:writing_produced
+#probe -create -shm -waveform :user_logic:wb_monitor:out_produced
 
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:frame_received
 #probe -create -shm -waveform :fieldrive:tx_block:monitor:out_produced
-
-probe -create -shm -waveform :user_logic:user_acc_monitor:var3_fresh
-probe -create -shm -waveform :user_logic:user_acc_monitor:ucacerr
-probe -create -shm -waveform :user_logic:user_acc_monitor:upacerr
-
-#probe -create -shm -waveform :dut:reset_unit:rstin_st
-#probe -create -shm -waveform :dut:reset_unit:s_c
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:checking_produced:mismatches
+#probe -create -shm -waveform :fieldrive:tx_block:monitor:last_data
 
 
-run 200 ms
+run 3 ms
 
