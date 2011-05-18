@@ -121,26 +121,35 @@ begin
 		if report_config_trigger'event and report_config_trigger ='1' then
 			if now > 0 ps then
 				if clamp_signal then
-					report	"               A malfunction in the reception from the FIELDRIVE is simulated " 
-					& LF &  "               by campling to 0 the received serial signal" & LF
+					report "               ++ A reception error from the FIELDRIVE is simulated by campling to 0 the received serial signal in the frame just issued by the BA."
+					& LF & "               ++ In any test_2**, nanoFIP should process correctly the data in the frame, despite the induced malfunction." & LF
 					severity warning;
 				end if;
 				if insert_violation then
-					report	"               A reception error from the FIELDRIVE is simulated " 
-					& LF &  "               by inserting a violation in the manchester code." 
-					& LF &  "               This may corrupt the data or not. In affirmative case, the treatment should be equivalent to a wrong CRC" & LF
+					report "               ++ A reception error from the FIELDRIVE is simulated by inserting a violation of the manchester code in the frame just issued by the BA." 
+					& LF & "               ++ This may be enough to corrupt the data or not. In affirmative case, nanoFIP processing should be equivalent to a wrong CRC"
+					& LF & "               ++ - Invalid RP_DAT frames should be reported in the status byte of the next Produced variable"
+					& LF & "               ++ - Invalid ID_DAT frames imply that the subsequent RP_DAT, if any, should be ignored as well."
+					& LF & "               ++   As a result, Consumed and Broadcast variables should not be updated in memory"
+					& LF & "               ++   and the reading of the corresponding values by the user logic should generate a ## check NOT OK ##."
+					& LF & "               ++   The requests for Resets, Produced, Presence or Identification variables should be ignored"
+					& LF & "               ++   and the check of response time should be ## NOT OK ##." & LF
 					severity warning;
 				end if;
 				if jitter_value > 0 ps then
-					report	"               A disturbance in the reception is simulated "
-					& LF &  "               by randomly introducing a jitter of " & time'image(jitter_value)
-					& LF &  "               in the received serial signal" & LF
+					report "               ++ A disturbance in the reception from the FIP bus is simulated by randomly introducing a jitter of " & time'image(jitter_value) & " in the received serial signal."
+					& LF & "               ++ In any test_2**, nanoFIP should process correctly the data in the frame, despite the induced malfunction." & LF
 					severity warning;
 				end if;		
 				if truncated_bits > 0 then
-					report	"               A reception error from the FIELDRIVE is simulated " 
-					& LF &  "               by truncating " & integer'image(truncated_bits) & " bit(s) per byte " 
-					& LF &  "               of the data in the frame(s) being sent" & LF
+					report "               ++ A reception error from the FIELDRIVE is simulated by truncating " & integer'image(truncated_bits) & " bit(s) per byte of the data in the frame just issued by the BA" 
+					& LF & "               ++ nanoFIP should discard the frame " 
+					& LF & "               ++ - Invalid RP_DAT frames should be reported in the status byte of the next Produced variable"
+					& LF & "               ++ - Invalid ID_DAT frames imply that the subsequent RP_DAT, if any, should be ignored as well."
+					& LF & "               ++   As a result, Consumed and Broadcast variables should not be updated in memory"
+					& LF & "               ++   and the reading of the corresponding values by the user logic should generate a ## check NOT OK ##."
+					& LF & "               ++   The requests for Resets, Produced, Presence or Identification variables should be ignored"
+					& LF & "               ++   and the check of response time should be ## NOT OK ##." & LF
 					severity warning;
 				end if;		
 			end if;

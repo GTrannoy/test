@@ -15,6 +15,12 @@ use work.tb_package.all;
 entity bus_arbitrer is
 	port(
 		f_clk_period			: in time;
+		var_adr_presence		: in std_logic_vector(7 downto 0);
+		var_adr_identification	: in std_logic_vector(7 downto 0);
+		var_adr_broadcast		: in std_logic_vector(7 downto 0);
+		var_adr_consumed		: in std_logic_vector(7 downto 0);
+		var_adr_produced		: in std_logic_vector(7 downto 0);
+		var_adr_reset			: in std_logic_vector(7 downto 0);
 		
 		fip_frame_trigger		: out std_logic;
 		id_rp					: out std_logic;
@@ -94,29 +100,39 @@ begin
 	begin
 		if s_fip_frame_trigger ='1' then
 			if s_id_rp ='1' then
-				case s_var_adr is 
-				when x"14" =>
+				if s_var_adr = var_adr_presence then
 					report "            FIP BA sends an ID_DAT identifier for Presence Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"10" =>
+
+				elsif s_var_adr = var_adr_identification then
 					report "            FIP BA sends an ID_DAT identifier for Identification Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"05" =>
-					report "            FIP BA sends an ID_DAT identifier for Consumed Variable to the agent with address "
-					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"91" =>
+
+				elsif s_var_adr = var_adr_broadcast then
 					report "            FIP BA sends an ID_DAT identifier for Consumed Broadcast Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"06" =>
+
+				elsif s_var_adr = var_adr_consumed then
+					report "            FIP BA sends an ID_DAT identifier for Consumed Variable to the agent with address "
+					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
+
+				elsif s_var_adr = var_adr_produced then
 					report "            FIP BA sends an ID_DAT identifier for Produced Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when x"E0" =>
+
+				elsif s_var_adr = var_adr_reset then
 					report "            FIP BA sends an ID_DAT identifier for Reset Variable to the agent with address "
 					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				when others =>
-					report "            FIP BA sends an ID_DAT identifier for a not supported variable to the agent with address " 
-					& integer'image(to_integer(unsigned(s_station_adr))) & LF;
-				end case;
+
+				else
+					report "               ++ FIP BA sends an ID_DAT identifier for an unknown variable to the agent with address " 
+					& integer'image(to_integer(unsigned(s_station_adr)))
+					& LF & "               ++ nanoFIP should discard this frame and ignore the subsequent RP_DAT if any."
+					& LF & "               ++ As a result, the reading of the Consumed or Broadcast variable memory by the user logic"
+					& LF & "               ++ should not match the values sent from FIP by the BA and the checking should report ## NOT OK ##."
+					& LF & "               ++ In case no RP_DAT is issued by the BA, the checking of the response time should report ## NOT OK ##." & LF
+					severity warning;
+				end if;
 			else
 				if s_var_adr = x"E0" then
 					report "            FIP BA sends an RP_DAT frame for consumption with "
@@ -125,9 +141,20 @@ begin
 										& " + the MPS byte" & LF & LF;
 				
 				else
-					report "            FIP BA sends an RP_DAT frame for consumption with "
-										& integer'image(to_integer(unsigned(s_var_length))) & " bytes of data"
-										& " + the MPS byte" & LF & LF;
+					if unsigned(s_var_length) < 125 then
+						report "            FIP BA sends an RP_DAT frame for consumption with "
+											& integer'image(to_integer(unsigned(s_var_length))) & " bytes of data"
+											& " + the MPS byte" & LF & LF;
+					else
+						report "               FIP BA sends an RP_DAT frame for consumption with "
+											   & integer'image(to_integer(unsigned(s_var_length))) & " bytes of data."
+											   & " the MPS byte"
+						& LF & "               ++ This variable length is above nanoFIP specs."
+						& LF & "               ++ nanoFIP should discard the frame, and report it in the corresponding flag of the status byte of the next Produced variable."
+						& LF & "               ++ The VAR_RDY signal should be inactive. However, the reading of the Consumed or Broadcast variable memory by the user logic"
+						& LF & "               ++ will match the 124 first values sent from FIP by the BA and the checking will report _ OK _." & LF & LF
+						severity warning;
+					end if;
 				end if;
 			end if;
 		end if;
