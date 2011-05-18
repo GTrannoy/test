@@ -8,6 +8,9 @@
 -- Modified by: G. Penacoba
 -- Modification Date: January 2011
 -- Modification consisted on: Added FSS and FES values, variable addresses and turn around times configurable from the text file
+-- Modified by: G. Penacoba
+-- Modification Date: May 2011
+-- Modification consisted on: Improved reporting for specified error cases
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -178,7 +181,7 @@ begin
 						f_clk_period	<=	32 us	when 0,
 											1 us	when 1,
 											400 ns	when 2,
-											1 us	when others;
+											1333 ns	when others;
 
 	-- Translation of values for the reporting
 	------------------------------------------
@@ -303,7 +306,106 @@ begin
 			"Address for Reset Variable                     : " & reset_strg & "h" & LF &
 			"PDU_type byte for consumed variables           : " & pdu_type_strg & "h" & LF &
 			"MPS byte for fresh data on consumed variables  : " & mps_strg & "h" & LF;
+
+			if s_gx /= "10001110111001111" then
+				report "               ++ In this configuration the CRC polinomial used does not correspond to EN-61158-4-7."
+				& LF & "               ++ nanoFIP should discard any ID_DAT or RP_DAT frames sent by the BA"
+				& LF & "               ++ from now on until a correct configuration is applied again."
+				& LF & "               ++ - Invalid RP_DAT frames should be reported in the status byte of the next Produced variable"
+				& LF & "               ++ - Invalid ID_DAT frames imply that the subsequent RP_DAT, if any, should be ignored as well regardless of its CRC."
+				& LF & "               ++   As a result, Consumed and Broadcast variables should not be updated in memory"
+				& LF & "               ++   and the reading of the corresponding values by the user logic should generate a ## check NOT OK ##."
+				& LF & "               ++   The requests for Resets, Produced, Presence or Identification variables should be ignored"
+				& LF & "               ++   and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_id_control /= x"03" then
+				report "               ++ In this configuration the ID_DAT control byte used does not correspond to EN-61158-4-7."
+				& LF & "               ++ nanoFIP should discard any ID_DAT frames sent by the BA"
+				& LF & "               ++ from now on until a correct configuration is applied again."
+				& LF & "               ++ - Invalid ID_DAT frames imply that the subsequent RP_DAT, if any, should be ignored as well."
+				& LF & "               ++   As a result, Consumed and Broadcast variables should not be updated in memory"
+				& LF & "               ++   and the reading of the corresponding values by the user logic should generate a ## check NOT OK ##."
+				& LF & "               ++   The requests for Resets, Produced, Presence or Identification variables should be ignored"
+				& LF & "               ++   and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_rp_control /= x"02" then
+				report "               ++ In this configuration the RP_DAT control byte used does not correspond to EN-61158-4-7." 
+				& LF & "               ++ nanoFIP should discard any RP_DAT frames sent by the BA"
+				& LF & "               ++ from now on until a correct configuration is applied again."
+				& LF & "               ++ - Invalid RP_DAT frames should be reported in the status byte of the next Produced variable"
+				& LF & "               ++ - For a Reset variable: nanoFIP should not react" 
+				& LF & "               ++   and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_presence /= x"14" then
+				report "               ++ In this configuration the Presence variable used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should therefore ignore the ID_DAT frames for Presence sent under these circumstances," 
+				& LF & "               ++ and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_identification /= x"10" then
+				report "               ++ In this configuration the Identification variable used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should therefore ignore the ID_DAT frames for Identification sent under these circumstances," 
+				& LF & "               ++ and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_broadcast /= x"91" then
+				report "               ++ In this configuration the Consumed Broadcast variable used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should therefore ignore the ID_DAT frames for Broadcast sent under these circumstances." 
+				& LF & "               ++ The subsequent RP_DAT frame, if there is any, should be ignored as well." 
+				& LF & "               ++ As a result, the reading of the corresponding Broadcast variable memory by the user logic" 
+				& LF & "               ++ should reveal the incoherency between the values in the memory and the ones sent from FIP by the BA" 
+				& LF & "               ++ and the checking should report ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_consumed /= x"05" then
+				report "               ++ In this configuration the Consumed variable used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should therefore ignore the ID_DAT frames for Consumed sent under these circumstances." 
+				& LF & "               ++ The subsequent RP_DAT frame, if there is any, should be ignored as well." 
+				& LF & "               ++ As a result, the reading of the corresponding Consumed variable memory by the user logic" 
+				& LF & "               ++ should reveal the incoherency between the values in the memory and the ones sent from FIP by the BA" 
+				& LF & "               ++ and the checking should report ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_produced /= x"06" then
+				report "               ++ In this configuration the Produced variable used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should therefore ignore the ID_DAT frames for Produced sent under these circumstances."
+				& LF & "               ++ and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_reset /= x"E0" then
+				report "               ++ In this configuration the Reset variable used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should therefore ignore the ID_DAT frames for Reset sent under these circumstances." 
+				& LF & "               ++ The subsequent RP_DAT frame, if there is any, should be ignored as well." 
+				& LF & "               ++ and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_pdu_type /= x"40" then
+				report "               ++ In this configuration the PDU type byte used does not correspond to EN-61158." 
+				& LF & "               ++ nanoFIP should discard any RP_DAT frames sent by the BA"
+				& LF & "               ++ from now on until a correct configuration is applied again."
+				& LF & "               ++ - Invalid RP_DAT frames should be reported in the status byte of the next Produced variable"
+				& LF & "               ++ - For a Reset variable: nanoFIP should not react" 
+				& LF & "               ++   and the check of response time should be ## NOT OK ##." & LF
+				severity warning;
+			end if;
+
+			if s_mps /= x"05" then
+				report "               ++ In this configuration the MPS byte used does not correspond to the nanoFIP specs." 
+				& LF & "               ++ nanoFIP should anyway process normally the RP_DAT frames sent under these circumstances." & LF
+				severity warning;
+			end if;
 		end if;
 	end process;
-	
 end archi;

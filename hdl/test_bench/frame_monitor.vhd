@@ -299,18 +299,18 @@ begin
 							severity warning;
 						end if;						
 						assert nfip_status(4) ='0'
-						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong PDU_type byte, a wrong Control byte, an incoherence with the Length byte or an excessive length"
+						report "               ++ The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               ++ a wrong PDU_type byte, a wrong Control byte, an incoherence with the Length byte or an excessive length"
 						severity warning;
 						assert nfip_status(5) ='0'
-						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong CRC or a number of bits in the frame that is not multiple of 8"
+						report "               ++ The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               ++ a wrong CRC or a number of bits in the frame that is not multiple of 8"
 						severity warning;
 						assert nfip_status(6) ='0'
-						report "               The nanoFIP status byte reports a Fieldrive transmit error"
+						report "               ++ The nanoFIP status byte reports a Fieldrive transmit error"
 						severity warning;
 						assert nfip_status(7) ='0'
-						report "               The nanoFIP status byte reports a Fieldrive watchdog error"
+						report "               ++ The nanoFIP status byte reports a Fieldrive watchdog error"
 						severity warning;
 					else
 						report "            __ check OK __  NanoFIP response is an RP_DAT frame of a " & var_string
@@ -371,8 +371,7 @@ begin
 				if pdu_type_byte = pdu_produced then
 					for i in 2 to last_data loop
 						assert out_produced(i) = frame_data(i)
-						report "               #### check NOT OK ####  In the produced variable sent by nanoFIP, "
-						& LF & "                                       the value of the data byte number " & integer'image(i-2) 
+						report "               #### check NOT OK ####  In the produced variable sent by nanoFIP, the value of the data byte number " & integer'image(i-2) 
 						& LF & "                                       does not match the value expected in the corresponding address of the memory" 
 						severity warning;
 					end loop;
@@ -408,18 +407,18 @@ begin
 							severity warning;
 						end if;						
 						assert nfip_status(4) ='0'
-						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong PDU_type byte, a wrong Control byte, an incoherence with the Length byte or an excessive length"
+						report "               ++ The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               ++ a wrong PDU_type byte, a wrong Control byte, an incoherence with the Length byte or an excessive length"
 						severity warning;
 						assert nfip_status(5) ='0'
-						report "               The nanoFIP status byte indicates an error on reception coming from either: " 
-						& LF & "               a wrong CRC or a number of bits in the frame that is not multiple of 8"
+						report "               ++ The nanoFIP status byte indicates an error on reception coming from either: " 
+						& LF & "               ++ a wrong CRC or a number of bits in the frame that is not multiple of 8"
 						severity warning;
 						assert nfip_status(6) ='0'
-						report "               The nanoFIP status byte reports a Fieldrive transmit error"
+						report "               ++ The nanoFIP status byte reports a Fieldrive transmit error"
 						severity warning;
 						assert nfip_status(7) ='0'
-						report "               The nanoFIP status byte reports a Fieldrive watchdog error"
+						report "               ++ The nanoFIP status byte reports a Fieldrive watchdog error"
 						severity warning;
 					end if;
 				end if;

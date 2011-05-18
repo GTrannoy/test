@@ -145,11 +145,20 @@ begin
 
 	reporting: process(var1_rdy_i, var1_acc, var2_rdy_i, var2_acc, var3_rdy_i, var3_acc)
 	begin
-	assert not((var1_acc ='1' and var1_rdy_i ='0') 
-				or (var2_acc ='1' and var2_rdy_i ='0') 
-				or (var3_acc ='1' and var3_rdy_i ='0'))
-		report "               The user logic access violates the VAR_RDY condition " & LF &
-			   "               This should activate the corresponding access error flag on the nanoFIP status byte" & LF
+		assert not(var1_acc ='1' and var1_rdy_i ='0') 
+		report  "               ++ The user logic memory access violates the VAR1_RDY condition of the Consumed variable." & LF &
+				"               ++ Reading the memory when the signal is not active may lead to retrieval of incorrect data." & LF &
+				"               ++ This should activate the corresponding access error flag on the nanoFIP status byte of the Produced variable." & LF
+		severity warning;
+		assert not(var2_acc ='1' and var2_rdy_i ='0') 
+		report  "               ++ The user logic memory access violates the VAR2_RDY condition of the Broadcast variable." & LF &
+				"               ++ Reading the memory when the signal is not active may lead to retrieval of incorrect data." & LF &
+				"               ++ This should activate the corresponding access error flag on the nanoFIP status byte of the Produced variable." & LF
+		severity warning;
+		assert not(var3_acc ='1' and var3_rdy_i ='0')
+		report  "               ++ The user logic memory access violates the VAR3_RDY condition of the Produced variable." & LF &
+				"               ++ Writing the memory when the signal is not active may lead to corruption of the data." & LF &
+				"               ++ This should activate the corresponding access error flag on the nanoFIP status byte of the Produced variable." & LF
 		severity warning;
 	end process;
 

@@ -79,6 +79,12 @@ architecture archi of fieldrive_interface is
 	component bus_arbitrer
 	port(
 		f_clk_period			: in time;
+		var_adr_presence		: in std_logic_vector(7 downto 0);
+		var_adr_identification	: in std_logic_vector(7 downto 0);
+		var_adr_broadcast		: in std_logic_vector(7 downto 0);
+		var_adr_consumed		: in std_logic_vector(7 downto 0);
+		var_adr_produced		: in std_logic_vector(7 downto 0);
+		var_adr_reset			: in std_logic_vector(7 downto 0);
 		
 		fip_frame_trigger		: out std_logic;
 		id_rp					: out std_logic;
@@ -238,6 +244,12 @@ begin
 	fip_bus_arbitrer_emulator: bus_arbitrer
 	port map(
 		f_clk_period			=> f_clk_period,
+		var_adr_presence		=> var_adr_presence,
+		var_adr_identification	=> var_adr_identification,
+		var_adr_broadcast		=> var_adr_broadcast,
+		var_adr_consumed		=> var_adr_consumed,
+		var_adr_produced		=> var_adr_produced,
+		var_adr_reset			=> var_adr_reset,
 
 		fip_frame_trigger		=> fip_frame_trigger,
 		id_rp					=> id_rp,
