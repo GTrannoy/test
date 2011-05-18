@@ -82,27 +82,12 @@ E0					-- Reset Variable address
 14					-- Presence Variable address
 10					-- Identification Variable address
 91					-- Broadcast Variable address
-42					-- Consumed Variable address
-06					-- Produced Variable address
-E0					-- Reset Variable address
-40					-- pdu_type byte
-05					-- mps byte
-447 us				-- time for which the configuration above is valid
-1					-- bit rate: 31.25 kbit/s(0), 1 Mbit/s(1), 2.5 Mbit/s(2)
-10001110111001111	-- gx bit polynomial for CRC
-101010101XX10XX0	-- FSS value
-1XXXX101			-- FES value
-03					-- id_dat frame control byte
-02					-- rp_dat frame control byte
-14					-- Presence Variable address
-10					-- Identification Variable address
-91					-- Broadcast Variable address
 05					-- Consumed Variable address
 06					-- Produced Variable address
 E0					-- Reset Variable address
 40					-- pdu_type byte
 05					-- mps byte
-894 us				-- time for which the configuration above is valid
+1341 us				-- time for which the configuration above is valid
 1					-- bit rate: 31.25 kbit/s(0), 1 Mbit/s(1), 2.5 Mbit/s(2)
 10001110111001111	-- gx bit polynomial for CRC
 101010101XX10XX0	-- FSS value
