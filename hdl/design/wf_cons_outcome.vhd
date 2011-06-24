@@ -131,6 +131,9 @@ entity WF_cons_outcome is
     var1_rdy_o             : out std_logic; -- signals new data is received and can safely be read
     var2_rdy_o             : out std_logic; -- signals new data is received and can safely be read
 
+    -- Signal to the WF_JTAG_player unit
+    jc_start_p_o           : out std_logic;
+
     -- Signal to the WF_status_bytes_gen unit
     nfip_status_r_tler_p_o : out std_logic; -- received PDU_TYPE or Length error
                                             -- nanoFIP status byte bit 4
@@ -185,9 +188,9 @@ begin
       if nfip_rst_i = '1' then
         s_cons_frame_ok_p          <= '0';
         nfip_status_r_tler_p_o     <= '0';
-      else
+      else                                                                        -- only consumed RP_DATs
 
-        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) then -- only consumed RP_DATs
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1) then
 
           --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
           if (rx_fss_crc_fes_ok_p_i = '1')                                  and   -- FSS CRC FES check
@@ -211,18 +214,18 @@ begin
           --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
           if (cons_bytes_excess_i = '1')                                      or  -- excess of bytes(without FES detection)
 
-             (((rx_fss_crc_fes_ok_p_i = '1') or (rx_crc_wrong_p_i = '1'))    and   -- upon FES detection
+             (((rx_fss_crc_fes_ok_p_i = '1') or (rx_crc_wrong_p_i = '1'))    and  -- upon FES detection
 
-             ((not ((cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_CTRL_BYTE)       or   -- CTRL byte check
+             ((not ((cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_CTRL_BYTE)       or  -- CTRL byte check
                     (cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_MSG_CTRL_BYTE)   or
                     (cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_RQ1_CTRL_BYTE)   or
                     (cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_RQ2_CTRL_BYTE)   or
                     (cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_RQ1_MSG_CTRL_BYTE)or   
                     (cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_RQ2_MSG_CTRL_BYTE)))or 
 
-             (cons_pdu_byte_i /= c_PDU_TYPE_BYTE)                             or   -- PDU_TYPE byte check
+             (cons_pdu_byte_i /= c_PDU_TYPE_BYTE)                             or  -- PDU_TYPE byte check
 
-             (unsigned(byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5)))) then   -- LGTH byte check
+             (unsigned(byte_index_i ) /= (unsigned(cons_lgth_byte_i) + 5)))) then -- LGTH byte check
 
             nfip_status_r_tler_p_o <= '1';
           else
@@ -311,6 +314,16 @@ begin
           var2_rdy_o <= '0';                 -- while consuming a var_2, VAR2_RDY is 0
 
         end if;      
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  -- -- 
+
+
+        -- JTAG_player --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --
+        if (var_i = var_jc1) and (s_cons_frame_ok_p = '1') then
+ 
+          jc_start_p_o <= '1';
+        else
+          jc_start_p_o <= '0';
+        end if;    
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  -- -- 
 
       end if;

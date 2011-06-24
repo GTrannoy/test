@@ -133,7 +133,7 @@ entity WF_engine_control is
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --
     -- Signals from the WF_fd_receiver unit
 
-    rx_byte_i                  : in std_logic_vector(7 downto 0); -- deserialized ID_DAT/ RP_DAT byte
+    rx_byte_i                  : in std_logic_vector (7 downto 0); -- deserialized ID_DAT/ RP_DAT byte
     rx_byte_ready_p_i          : in std_logic; -- indication of a new byte on rx_byte_i
 
     rx_fss_crc_fes_ok_p_i      : in std_logic; -- indication of a frame (ID_DAT or RP_DAT) with
@@ -237,11 +237,11 @@ begin
 --   o if the variable byte corresponds to a defined variable,
 --   o if the subscriber byte matches the station's address, or if the variable is a broadcast
 --   o and if the frame finishes with a correct CRC and FES.
--- If the received variable is a produced (var_presence, var_identif, var_3) the FSM stays
+-- If the received variable is a produced (var_presence, var_identif, var_3, var_jc3) the FSM stays
 -- in the "produce_wait_turnar_time" state until the expiration of the turnaround time and then
 -- jumps to the "produce" state, waiting for the WF_fd_serializer to finish the transmission;
 -- then it goes back to idle.
--- If the received variable is a consumed (var_1, var_2, var_rst) the FSM stays in the
+-- If the received variable is a consumed (var_1, var_2, var_rst, var_jc1) the FSM stays in the
 -- "consume_wait_FSS" state until the arrival of a FSS or the expiration of the silence time.
 -- After the arrival of a FSS the FSM jumps to the "consume" state, where it stays until the
 -- WF_fd_receiver receives a FES.
@@ -863,6 +863,18 @@ begin
              s_broadcast_var <= c_VARS_ARRAY(c_VAR_RST_INDEX).broadcast;
 
           --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_JC1_INDEX).hexvalue then
+             s_var_aux       <= var_jc1;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_JC1_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_JC1_INDEX).broadcast;
+
+          --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+           elsif rx_byte_i = c_VARS_ARRAY(c_VAR_JC3_INDEX).hexvalue then
+             s_var_aux       <= var_jc3;
+             s_prod_or_cons  <= c_VARS_ARRAY(c_VAR_JC3_INDEX).prod_or_cons;
+             s_broadcast_var <= c_VARS_ARRAY(c_VAR_JC3_INDEX).broadcast;
+
+          --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
            else
              s_var_aux       <= var_whatever;
              s_prod_or_cons  <= "00";
@@ -889,7 +901,9 @@ begin
                                rx_byte_i = c_VARS_ARRAY(c_VAR_RST_INDEX).hexvalue      or
                                rx_byte_i = c_VARS_ARRAY(c_VAR_1_INDEX).hexvalue        or
                                rx_byte_i = c_VARS_ARRAY(c_VAR_2_INDEX).hexvalue        or
-                               rx_byte_i = c_VARS_ARRAY(c_VAR_3_INDEX).hexvalue
+                               rx_byte_i = c_VARS_ARRAY(c_VAR_3_INDEX).hexvalue        or
+                               rx_byte_i = c_VARS_ARRAY(c_VAR_JC1_INDEX).hexvalue      or
+                               rx_byte_i = c_VARS_ARRAY(c_VAR_JC3_INDEX).hexvalue
                  else '0';
 
 

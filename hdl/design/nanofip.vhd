@@ -232,6 +232,12 @@ entity nanofip is
   we_i       : in std_logic;                     -- WISHBONE write enable
 
 
+  --  User Interface, JTAG Controller
+  jc_tdo_i   : in std_logic;
+
+
+
+
 -- OUTPUTS
 
   -- WorldFIP settings
@@ -266,10 +272,16 @@ entity nanofip is
 
   --  User Interface, WISHBONE Slave
 
-  dat_o      : out std_logic_vector(15 downto 0);-- dat_o(7 downto 0) : WISHBONE data out, memory mode
-                                                 -- dat_o(15 downto 0): data out, stand-alone mode
+  dat_o      : out std_logic_vector (15 downto 0);-- dat_o(7 downto 0) : WISHBONE data out, memory mode
+                                                  -- dat_o(15 downto 0): data out, stand-alone mode
 
-  ack_o      : out std_logic                     -- WISHBONE acknowledge
+  ack_o      : out std_logic;                     -- WISHBONE acknowledge
+
+
+  --  User Interface, JTAG Controller
+  jc_tms_o   : out std_logic;
+  jc_tdi_o   : out std_logic;
+  jc_tck_o   : out std_logic
 
     );
 
@@ -296,6 +308,8 @@ architecture struc of nanofip is
   -- WF_consumption outputs
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy                            : std_logic;
   signal s_assert_RSTON_p, s_reset_nFIP_and_FD_p, s_nfip_status_r_tler : std_logic;
+  signal s_jc_start_p                                                  : std_logic;
+  signal s_jc_mem_data                                         : std_logic_vector (7 downto 0);
   -- WF_fd_receiver outputs
   signal s_rx_fss_received_p, s_rx_fss_crc_fes_ok_p, s_rx_crc_wrong_p  : std_logic;
   signal s_rx_byte_ready_p                                             : std_logic;
@@ -313,6 +327,9 @@ architecture struc of nanofip is
   signal s_model_id_dec, s_constr_id_dec                           : std_logic_vector (7 downto 0);
   -- WF_wb_controller outputs
   signal s_wb_ack_prod                                                 : std_logic;
+  -- WF_model_constr_dec outputs
+  signal s_jc_mem_adr_rd                                           : std_logic_vector (8 downto 0);
+  signal jc_tdo_byte_o : std_logic_vector (7 downto 0);
 
 
 --=================================================================================================
@@ -363,13 +380,16 @@ begin
     cons_bytes_excess_i    => s_cons_bytes_excess,
     var_i                  => s_var,
     byte_index_i           => s_prod_cons_byte_index,
+    jc_mem_adr_rd_i        => s_jc_mem_adr_rd,
   -------------------------------------------------------------
     var1_rdy_o             => s_var1_rdy,
     var2_rdy_o             => s_var2_rdy,
+    jc_start_p_o           => s_jc_start_p,
     data_o                 => dat_o,
     nfip_status_r_tler_p_o => s_nfip_status_r_tler,
     assert_rston_p_o       => s_assert_RSTON_p,
-    rst_nfip_and_fd_p_o    => s_reset_nFIP_and_FD_p);
+    rst_nfip_and_fd_p_o    => s_reset_nFIP_and_FD_p,
+    jc_mem_data_o          => s_jc_mem_data);
   -------------------------------------------------------------
 
 
@@ -437,7 +457,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                         WF_fd_Transmitter                                     --
+--                                       WF_fd_Transmitter                                       --
 ---------------------------------------------------------------------------------------------------
 
   FIELDRIVE_Transmitter: WF_fd_transmitter
@@ -458,6 +478,27 @@ begin
   -------------------------------------------------------------
 
  
+
+---------------------------------------------------------------------------------------------------
+--                                        WF_JTAG_player                                         --
+---------------------------------------------------------------------------------------------------
+
+  JTAG_player: WF_jtag_player
+  port map (
+    uclk_i          => uclk_i,
+    nfip_rst_i      => s_nfip_intern_rst,
+    jc_mem_data_i   => s_jc_mem_data,
+    jc_start_p_i    => s_jc_start_p,
+    jc_tdo_i        => jc_tdo_i,
+  -----------------------------------------------------------------
+    jc_tms_o        => jc_tms_o,
+    jc_tdi_o        => jc_tdi_o,
+    jc_tck_o        => jc_tck_o,
+    jc_tdo_byte_o   => jc_tdo_byte_o,
+    jc_mem_adr_rd_o => s_jc_mem_adr_rd);
+  -----------------------------------------------------------------
+
+
 
 ---------------------------------------------------------------------------------------------------
 --                                       WF_engine_control                                       --
