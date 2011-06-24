@@ -43,7 +43,7 @@ use ieee.numeric_std.all;
 -- Last changes
 --     ->    8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed)
 --     ->   10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of
---                              std_logic_vector(9 downto 0) to simplify calculations; cleaning-up
+--                              std_logic_vector (9 downto 0) to simplify calculations; cleaning-up
 --     ->    1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs
 --                              added DualClkRam
 --     ->    2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics
@@ -251,7 +251,7 @@ package WF_package is
 
   -- Construction of a table that groups main information for all the variables
 
-  type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_whatever);
+  type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_jc1, var_jc3, var_whatever);
 
   type t_byte_array is array (natural range <>) of std_logic_vector (7 downto 0);
 
@@ -273,9 +273,11 @@ package WF_package is
   constant c_VAR_1_INDEX        : integer := 3;
   constant c_VAR_2_INDEX        : integer := 4;
   constant c_VAR_RST_INDEX      : integer := 5;
+  constant c_VAR_JC1_INDEX      : integer := 6;
+  constant c_VAR_JC3_INDEX      : integer := 7;
 
 
-  constant c_VARS_ARRAY : t_var_array(0 to 5) :=
+  constant c_VARS_ARRAY : t_var_array(0 to 7) :=
 
     (c_VAR_PRESENCE_INDEX => (var          => var_presence,
                               hexvalue     => x"14",
@@ -337,6 +339,25 @@ package WF_package is
                               broadcast    => '1',
                               base_addr    => "---------",
                               array_lgth   => "00000001", -- array_lgth & byte_array fields not used
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
+                                               others => x"ff")),
+
+     c_VAR_JC1_INDEX    =>   (var          => var_jc1,
+                              hexvalue     => x"aa",
+                              prod_or_cons => "01",
+                              broadcast    => '0',
+                              base_addr    => "000000000",
+                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
+                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
+                                               others => x"ff")),
+
+     c_VAR_JC3_INDEX    =>   (var          => var_jc3,
+                              hexvalue     => x"ab",
+                              prod_or_cons => "10",
+                              broadcast    => '0',
+                              base_addr    => "000000000",
+                              array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
+                                                          -- predefined
                               byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")));
 
@@ -406,8 +427,10 @@ package WF_package is
     byte_index_i          : in std_logic_vector (7 downto 0);
     var_i                 : in t_var;
     byte_i                : in std_logic_vector (7 downto 0);
+    jc_mem_adr_rd_i       : in std_logic_vector (8 downto 0);
   -----------------------------------------------------------------
     data_o                : out std_logic_vector (15 downto 0);
+    jc_mem_data_o         : out std_logic_vector (7 downto 0);
     cons_ctrl_byte_o      : out std_logic_vector (7 downto 0);
     cons_pdu_byte_o       : out std_logic_vector (7 downto 0);
     cons_lgth_byte_o      : out std_logic_vector (7 downto 0);
@@ -434,15 +457,37 @@ package WF_package is
     cons_bytes_excess_i    : in std_logic;
     var_i                  : in t_var;
     byte_index_i           : in std_logic_vector (7 downto 0);
+    jc_mem_adr_rd_i        : in std_logic_vector (8 downto 0);
   -----------------------------------------------------------------
     var1_rdy_o             : out std_logic;
     var2_rdy_o             : out std_logic;
+    jc_start_p_o           : out std_logic;
     data_o                 : out std_logic_vector (15 downto 0);
     nfip_status_r_tler_p_o : out std_logic;
     assert_rston_p_o       : out std_logic;
-    rst_nfip_and_fd_p_o    : out std_logic);
+    rst_nfip_and_fd_p_o    : out std_logic;
+    jc_mem_data_o          : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
   end component WF_consumption;
+
+
+
+---------------------------------------------------------------------------------------------------
+  component WF_jtag_player is
+  port (
+    uclk_i          : in std_logic;
+    nfip_rst_i      : in std_logic;
+    jc_mem_data_i   : in std_logic_vector (7 downto 0);
+    jc_start_p_i    : in std_logic;
+    jc_tdo_i        : in std_logic;
+  -----------------------------------------------------------------
+    jc_tms_o        : out std_logic;
+    jc_tdi_o        : out std_logic;
+    jc_tck_o        : out std_logic;
+    jc_tdo_byte_o   : out std_logic_vector (7 downto 0);
+    jc_mem_adr_rd_o : out std_logic_vector (8 downto 0));
+  -----------------------------------------------------------------
+  end component WF_jtag_player;
 
 
 
@@ -774,30 +819,31 @@ end component WF_rx_osc;
 ---------------------------------------------------------------------------------------------------
   component nanofip
   port (
-    rate_i       : in  std_logic_vector (1 downto 0);
-    subs_i       : in  std_logic_vector (7 downto 0);
-    m_id_i       : in  std_logic_vector (3 downto 0);
-    c_id_i       : in  std_logic_vector (3 downto 0);
-    p3_lgth_i    : in  std_logic_vector (2 downto 0);
-    fd_wdgn_a_i  : in  std_logic;
-    fd_txer_a_i  : in  std_logic;
-    fd_rxcdn_i   : in  std_logic;
-    fd_rxd_i     : in  std_logic;
-    uclk_i       : in  std_logic;
-    slone_i      : in  std_logic;
-    nostat_i     : in  std_logic;
-    rstin_i      : in  std_logic;
+    rate_i       : in std_logic_vector (1 downto 0);
+    subs_i       : in std_logic_vector (7 downto 0);
+    m_id_i       : in std_logic_vector (3 downto 0);
+    c_id_i       : in std_logic_vector (3 downto 0);
+    p3_lgth_i    : in std_logic_vector (2 downto 0);
+    fd_wdgn_a_i  : in std_logic;
+    fd_txer_a_i  : in std_logic;
+    fd_rxcdn_i   : in std_logic;
+    fd_rxd_i     : in std_logic;
+    uclk_i       : in std_logic;
+    slone_i      : in std_logic;
+    nostat_i     : in std_logic;
+    rstin_i      : in std_logic;
     rstpon_i     : in std_logic;
-    var1_acc_a_i : in  std_logic;
-    var2_acc_a_i : in  std_logic;
-    var3_acc_a_i : in  std_logic;
-    wb_clk_i     : in  std_logic;
-    dat_i        : in  std_logic_vector (15 downto 0);
-    adr_i        : in  std_logic_vector (9 downto 0);
-    rst_i        : in  std_logic;
-    stb_i        : in  std_logic;
+    var1_acc_a_i : in std_logic;
+    var2_acc_a_i : in std_logic;
+    var3_acc_a_i : in std_logic;
+    wb_clk_i     : in std_logic;
+    dat_i        : in std_logic_vector (15 downto 0);
+    adr_i        : in std_logic_vector (9 downto 0);
+    rst_i        : in std_logic;
+    stb_i        : in std_logic;
     cyc_i        : in std_logic;
-    we_i         : in  std_logic;
+    we_i         : in std_logic;
+    jc_tdo_i     : in std_logic;
   -----------------------------------------------------------------
     rston_o      : out std_logic;
     s_id_o       : out std_logic_vector (1 downto 0);
@@ -813,7 +859,10 @@ end component WF_rx_osc;
     r_tler_o     : out std_logic;
     r_fcser_o    : out std_logic;
     ack_o        : out std_logic;
-    dat_o        : out std_logic_vector (15 downto 0));
+    dat_o        : out std_logic_vector (15 downto 0);
+    jc_tms_o     : out std_logic;
+    jc_tdi_o     : out std_logic;
+    jc_tck_o     : out std_logic);
   -----------------------------------------------------------------
   end component nanofip;
 
@@ -901,6 +950,7 @@ end component WF_rx_osc;
   -----------------------------------------------------------------
     var1_rdy_o             : out std_logic;
     var2_rdy_o             : out std_logic;
+    jc_start_p_o           : out std_logic;
     nfip_status_r_tler_p_o : out std_logic;
     assert_rston_p_o       : out std_logic;
     rst_nfip_and_fd_p_o    : out std_logic);

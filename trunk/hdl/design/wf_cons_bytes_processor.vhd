@@ -122,9 +122,16 @@ port (
     var_i                 : in t_var;                           -- variable type that is being treated
 
 
+    -- Signals from the WF_jtag_player unit
+    jc_mem_adr_rd_i       : in std_logic_vector (8 downto 0);
+
+
   -- OUTPUTS
     -- nanoFIP User Interface, WISHBONE Slave output
     data_o                : out std_logic_vector (15 downto 0); -- data out bus
+
+    -- Signals to the WF_jtag_player unit
+    jc_mem_data_o         : out std_logic_vector (7 downto 0);
 
     -- Signals to the WF_cons_outcome unit
     cons_ctrl_byte_o      : out std_logic_vector (7 downto 0);  -- received RP_DAT Control byte
@@ -142,13 +149,14 @@ end entity WF_cons_bytes_processor;
 --=================================================================================================
 architecture rtl of WF_cons_bytes_processor is
 
-  signal s_base_addr          : unsigned (8 downto 0);
-  signal s_addr               : std_logic_vector (8 downto 0);
-  signal s_slone_data_out     : std_logic_vector (15 downto 0);
-  signal s_mem_data_out       : std_logic_vector (7 downto 0);
-  signal s_slone_write_byte_p : std_logic_vector (1 downto 0);
-  signal s_mem_write_byte_p   : std_logic;
-  signal s_cons_lgth_byte     : std_logic_vector (7 downto 0);
+  signal s_base_adr       : unsigned (8 downto 0);
+  signal s_adr            : std_logic_vector (8 downto 0);
+  signal s_slone_data_out : std_logic_vector (15 downto 0);
+  signal s_mem_data_out   : std_logic_vector (7 downto 0);
+  signal s_slone_wr_en_p  : std_logic_vector (1 downto 0);
+  signal s_mem_wr_en_p    : std_logic;
+  signal s_jc_mem_wr_en_p : std_logic;
+  signal s_cons_lgth_byte : std_logic_vector (7 downto 0);
 
 --=================================================================================================
 --                                       architecture begin
@@ -164,7 +172,7 @@ begin
 -- Port A is connected to the WISHBONE interface for the readings from the user and
 -- Port B is used by the nanoFIP for the writings into the memory.
 
-  Consumption_RAM:  WF_DualClkRAM_clka_rd_clkb_wr
+  Consumption_RAM : WF_DualClkRAM_clka_rd_clkb_wr
   generic map (
     g_ram_data_lgth  => 8,                  -- 8 bits: length of data word
     g_ram_addr_lgth  => 9)                  -- 2^9: depth of consumed RAM
@@ -174,11 +182,38 @@ begin
     clk_porta_i      => wb_clk_i,	        -- WISHBONE clock
     addr_porta_i     => wb_adr_i,           -- address of byte to be read
     clk_portb_i      => uclk_i,             -- 40 MHz clock
-    addr_portb_i     => s_addr,             -- address of byte to be written
+    addr_portb_i     => s_adr,              -- address of byte to be written
     data_portb_i     => byte_i,             -- byte to be written
-    write_en_portb_i => s_mem_write_byte_p, -- write enable
+    write_en_portb_i => s_mem_wr_en_p,      -- write enable
    --------------------------------------------
     data_porta_o     => s_mem_data_out);    -- output byte read
+   --------------------------------------------
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                      JTAG Consumed  RAM                                       --
+--         Storage (by this unit) & retreival (by the JTAG_player unit) of consumed bytes        --
+---------------------------------------------------------------------------------------------------
+-- Instantiation of a Dual Port Consumed RAM (for both the consumed and consumed broadcast vars).
+-- Port A is connected to the WISHBONE interface for the readings from the user and
+-- Port B is used by the nanoFIP for the writings into the memory.
+
+  Consumption_JTAG_RAM : WF_DualClkRAM_clka_rd_clkb_wr
+  generic map (
+    g_ram_data_lgth  => 8,                  -- 8 bits: length of data word
+    g_ram_addr_lgth  => 9)                  -- 2^9: depth of consumed RAM
+                                            -- first 2 bits : identification of memory block
+                                            -- remaining 7  : address of a byte inside the blck
+  port map (
+    clk_porta_i      => uclk_i,	            -- user clock
+    addr_porta_i     => jc_mem_adr_rd_i,    -- address of byte to be read
+    clk_portb_i      => uclk_i,             -- 40 MHz clock
+    addr_portb_i     => s_adr,              -- address of byte to be written
+    data_portb_i     => byte_i,             -- byte to be written
+    write_en_portb_i => s_jc_mem_wr_en_p,   -- write enable
+   --------------------------------------------
+    data_porta_o     => jc_mem_data_o);     -- output byte read
    --------------------------------------------
 
 
@@ -187,28 +222,28 @@ begin
 --                         Slone mode Storage of consumed bytes to DATO                          --
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process Data_Transfer_To_Dat_o: In stand-alone mode, according to the signal
--- s_slone_write_byte_p, the first or second byte of the "User Interface, NON WISHBONE" bus DAT_O
+-- s_slone_wr_en_p, the first or second byte of the "User Interface, NON WISHBONE" bus DAT_O
 -- takes the byte byte_i.
 
   Data_Transfer_To_Dat_o: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_rst_i = '1' then
-        s_slone_data_out  <= (others => '0');         -- bus initialization
+      if nfip_rst_i = '1' then                     -- bus initialization
+        s_slone_data_out                <= (others => '0');
 
       else
 
-        if s_slone_write_byte_p(0) = '1' then     -- the 1st byte is transfered in the lsb of the bus
+        if s_slone_wr_en_p(0) = '1' then           -- the 1st byte is transfered in the lsb of the bus
 
-          s_slone_data_out(7 downto 0)   <= byte_i;   -- it stays there until a new cons. var arrives
-                                                  -- (or until a reset!)
+          s_slone_data_out(7 downto 0)  <= byte_i; -- it stays there until a new cons. var arrives
+                                                   -- (or until a reset!)
         end if;
 
 
-        if s_slone_write_byte_p(1) = '1' then     -- the 2nd byte is transfered in the msb of the bus
+        if s_slone_wr_en_p(1) = '1' then           -- the 2nd byte is transfered in the msb of the bus
 
-          s_slone_data_out(15 downto 8)  <= byte_i;   -- it stays there until a new cons. var arrives
-                                                  -- (or until a reset!)
+          s_slone_data_out(15 downto 8) <= byte_i; -- it stays there until a new cons. var arrives
+                                                   -- (or until a reset!)
         end if;
       end if;
     end if;
@@ -256,7 +291,7 @@ begin
 -- the first and second data bytes.
 
 
-  s_addr <= std_logic_vector (unsigned(byte_index_i)+s_base_addr - 1);    -- memory address of
+  s_adr <= std_logic_vector (unsigned(byte_index_i)+s_base_adr - 1);      -- memory address of
                                                                           -- the byte to be written
                                                                           -- (-1 bc the Ctrl
                                                                           -- byte is not written)
@@ -273,50 +308,51 @@ begin
 
       when var_1 =>
 
-            cons_var_rst_byte_1_o      <= (others => '0');
-            cons_var_rst_byte_2_o      <= (others => '0');
-            s_base_addr                <= c_VARS_ARRAY(c_VAR_1_INDEX).base_addr; -- base address
-                                                                                 -- from WF_package
+            cons_var_rst_byte_1_o  <= (others => '0');
+            cons_var_rst_byte_2_o  <= (others => '0');
+            s_jc_mem_wr_en_p       <= '0';
+            s_base_adr             <= c_VARS_ARRAY(c_VAR_1_INDEX).base_addr;-- base address
+                                                                            -- from WF_package
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then
 
-              s_slone_write_byte_p     <= (others => '0');
+              s_slone_wr_en_p      <= (others => '0');
 
               if (unsigned(byte_index_i)> 0 and  unsigned(byte_index_i)< 127) then -- memory limits
 
                 if byte_index_i > c_LGTH_BYTE_INDEX then                    -- after the reception
                                                                             -- of the Length byte
                   if unsigned(byte_index_i) <= unsigned(s_cons_lgth_byte) + 2  then -- less or eq
-                    s_mem_write_byte_p <= byte_ready_p_i;                   -- &Length amount of
+                    s_mem_wr_en_p  <= byte_ready_p_i;                       -- &Length amount of
                                                                             -- bytes are written
                                                                             --(to avoid writing CRC!)
                   else
-                    s_mem_write_byte_p <= '0';
+                    s_mem_wr_en_p  <= '0';
                   end if;
 
                 else                                                        -- before the reception
-                  s_mem_write_byte_p   <= byte_ready_p_i;                   -- of the Length byte
+                  s_mem_wr_en_p    <= byte_ready_p_i;                       -- of the Length byte
                 end if;                                                     -- all the bytes (after
                                                                             -- Control) are written
               else
-                s_mem_write_byte_p     <= '0';
+                s_mem_wr_en_p      <= '0';
               end if;
 
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in stand-alone mode
             elsif slone_i = '1' then
 
-              s_mem_write_byte_p       <= '0';
+              s_mem_wr_en_p        <= '0';
 
               if byte_index_i = c_1st_DATA_BYTE_INDEX then        -- 1st byte to be transferred
-                s_slone_write_byte_p   <= '0'& byte_ready_p_i;
+                s_slone_wr_en_p    <= '0'& byte_ready_p_i;
 
               elsif byte_index_i = c_2nd_DATA_BYTE_INDEX then     -- 2nd byte to be transferred
-                s_slone_write_byte_p   <= byte_ready_p_i & '0';
+                s_slone_wr_en_p    <= byte_ready_p_i & '0';
 
               else
-                s_slone_write_byte_p   <= (others=>'0');
+                s_slone_wr_en_p    <= (others=>'0');
               end if;
             end if;
 
@@ -324,76 +360,112 @@ begin
 
       when var_2 =>
             -- same treatment as var 1 on a different memory location (base_addr)
-            cons_var_rst_byte_1_o      <= (others => '0');
-            cons_var_rst_byte_2_o      <= (others => '0');
-            s_base_addr                <= c_VARS_ARRAY(c_VAR_2_INDEX).base_addr;
+            cons_var_rst_byte_1_o  <= (others => '0');
+            cons_var_rst_byte_2_o  <= (others => '0');
+            s_jc_mem_wr_en_p       <= '0';
+            s_base_adr             <= c_VARS_ARRAY(c_VAR_2_INDEX).base_addr;
 
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then
 
-              s_slone_write_byte_p     <= (others => '0');
+              s_slone_wr_en_p      <= (others => '0');
 
               if (unsigned(byte_index_i)> 0 and  unsigned(byte_index_i)< 127) then
 
                 if byte_index_i > c_LGTH_BYTE_INDEX then
 
                   if unsigned(byte_index_i) <= unsigned(s_cons_lgth_byte) + 2  then
-                    s_mem_write_byte_p <= byte_ready_p_i;
+                    s_mem_wr_en_p  <= byte_ready_p_i;
 
                   else
-                    s_mem_write_byte_p <= '0';
+                    s_mem_wr_en_p  <= '0';
                   end if;
 
                 else
-                  s_mem_write_byte_p   <= byte_ready_p_i;
+                  s_mem_wr_en_p    <= byte_ready_p_i;
                 end if;
 
               else
-                s_mem_write_byte_p     <= '0';
+                s_mem_wr_en_p      <= '0';
               end if;
 
             --  --  --  --  --  --  --  --  --  --  --  --
             -- stand-alone mode does not treat consumed broadcast vars
             else
-              s_mem_write_byte_p       <= '0';
-              s_slone_write_byte_p     <= (others => '0');
+              s_mem_wr_en_p        <= '0';
+              s_slone_wr_en_p      <= (others => '0');
             end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
       when var_rst =>
 
-            s_mem_write_byte_p         <= '0';   -- no writing in memory or DAT_O for the var_rst
-            s_slone_write_byte_p       <= (others => '0');
-            s_base_addr                <= (others => '0');
+            s_mem_wr_en_p          <= '0';   -- no writing in memory or DAT_O for the var_rst
+            s_jc_mem_wr_en_p       <= '0';
+            s_slone_wr_en_p        <= (others => '0');
+            s_base_adr             <= (others => '0');
 
             if (byte_ready_p_i = '1') and (byte_index_i = c_1st_DATA_BYTE_INDEX) then  -- 1st byte
 
-              cons_var_rst_byte_1_o    <= byte_i;
-              cons_var_rst_byte_2_o    <= (others => '0');
+              cons_var_rst_byte_1_o <= byte_i;
+              cons_var_rst_byte_2_o <= (others => '0');
 
 
             elsif (byte_ready_p_i='1') and (byte_index_i = c_2nd_DATA_BYTE_INDEX) then -- 2nd byte
 
-              cons_var_rst_byte_2_o    <= byte_i;
-              cons_var_rst_byte_1_o    <= (others => '0');
+              cons_var_rst_byte_2_o <= byte_i;
+              cons_var_rst_byte_1_o <= (others => '0');
 
             else
-              cons_var_rst_byte_1_o    <= (others => '0');
-              cons_var_rst_byte_2_o    <= (others => '0');
+              cons_var_rst_byte_1_o <= (others => '0');
+              cons_var_rst_byte_2_o <= (others => '0');
 
 
             end if;
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
+      when var_jc1 =>
+
+            cons_var_rst_byte_1_o   <= (others => '0');
+            cons_var_rst_byte_2_o   <= (others => '0');
+            s_slone_wr_en_p         <= (others => '0');
+            s_mem_wr_en_p           <= '0';
+            s_base_adr              <= c_VARS_ARRAY(c_VAR_JC1_INDEX).base_addr;-- base address
+                                                                               -- from WF_package
+            --  --  --  --  --  --  --  --  --  --  --  --
+
+            if (unsigned(byte_index_i)> 0 and  unsigned(byte_index_i)< 127) then -- memory limits
+
+              if byte_index_i > c_LGTH_BYTE_INDEX then                    -- after the reception
+                                                                          -- of the Length byte
+                if unsigned(byte_index_i) <= unsigned(s_cons_lgth_byte) + 2  then -- less or eq
+                  s_jc_mem_wr_en_p  <= byte_ready_p_i;                    -- &Length amount of
+                                                                          -- bytes are written
+                                                                          --(to avoid writing CRC!)
+                else
+                  s_jc_mem_wr_en_p  <= '0';
+                end if;
+
+              else                                                        -- before the reception
+                s_jc_mem_wr_en_p    <= byte_ready_p_i;                    -- of the Length byte
+              end if;                                                     -- all the bytes (after
+                                                                          -- Control) are written
+            else
+              s_jc_mem_wr_en_p      <= '0';
+            end if;
+
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
       when others =>
-            s_base_addr                <= (others => '0');
-            s_mem_write_byte_p         <= '0';
-            s_slone_write_byte_p       <= (others => '0');
-            cons_var_rst_byte_1_o      <= (others => '0');
-            cons_var_rst_byte_2_o      <= (others => '0');
+            s_base_adr              <= (others => '0');
+            s_mem_wr_en_p           <= '0';
+            s_jc_mem_wr_en_p        <= '0';
+            s_slone_wr_en_p         <= (others => '0');
+            cons_var_rst_byte_1_o   <= (others => '0');
+            cons_var_rst_byte_2_o   <= (others => '0');
 
       end case;
 
@@ -419,7 +491,7 @@ end process;
         s_cons_lgth_byte     <= (others => '0');
       else
 
-        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) then  -- only for consumed vars
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1)then  -- only for consumed vars
 
           if (byte_index_i = c_CTRL_BYTE_INDEX) and (byte_ready_p_i='1') then
             cons_ctrl_byte_o <= byte_i;

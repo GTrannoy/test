@@ -142,7 +142,7 @@ entity WF_consumption is
     -- nanoFIP User Interface, WISHBONE Slave
 
       wb_clk_i               : in std_logic;
-      wb_adr_i               : in std_logic_vector(8 downto 0);
+      wb_adr_i               : in std_logic_vector (8 downto 0);
       -- used by: WF_cons_bytes_processor for the managment of the Consumption RAM
 
 
@@ -160,12 +160,20 @@ entity WF_consumption is
       -- used by: WF_cons_outcome for the validation of the Length byte
 
 
+	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+    -- Signal from the WF_jtag_player unit
+    jc_mem_adr_rd_i          : in std_logic_vector (8 downto 0);
+
+
     -----------------------------------------------------------------------------------------------
   -- OUTPUTS
 
     -- nanoFIP User Interface, NON-WISHBONE outputs
       var1_rdy_o             : out std_logic;
       var2_rdy_o             : out std_logic;
+
+    -- Signals to the WF_JTAG_player
+      jc_start_p_o           : out std_logic;
 
     -- nanoFIP User Interface, WISHBONE Slave outputs
       data_o                 : out std_logic_vector (15 downto 0);
@@ -175,7 +183,10 @@ entity WF_consumption is
 
     -- Signals to the WF_reset_unit
       assert_rston_p_o       : out std_logic;
-      rst_nfip_and_fd_p_o    : out std_logic
+      rst_nfip_and_fd_p_o    : out std_logic;
+
+    -- Signals to the WF_jtag_player unit
+    jc_mem_data_o            : out std_logic_vector (7 downto 0)
     );
 
 end entity WF_consumption;
@@ -211,8 +222,10 @@ begin
     byte_i                => rx_byte_i,
     wb_clk_i              => wb_clk_i,
     wb_adr_i              => wb_adr_i,
+    jc_mem_adr_rd_i       => jc_mem_adr_rd_i,
    --------------------------------------------------------
     data_o                => data_o,
+    jc_mem_data_o         => jc_mem_data_o,
     cons_ctrl_byte_o      => s_cons_ctrl_byte,
     cons_pdu_byte_o       => s_cons_pdu_byte,
     cons_lgth_byte_o      => s_cons_lgth_byte,
@@ -245,6 +258,7 @@ begin
    --------------------------------------------------------
     var1_rdy_o             => var1_rdy_o,
     var2_rdy_o             => var2_rdy_o,
+    jc_start_p_o           => jc_start_p_o,
     nfip_status_r_tler_p_o => nfip_status_r_tler_p_o,
     assert_rston_p_o       => assert_rston_p_o,
     rst_nfip_and_fd_p_o    => rst_nfip_and_fd_p_o);
