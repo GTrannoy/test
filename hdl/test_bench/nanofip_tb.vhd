@@ -58,7 +58,13 @@ architecture archi of nanofip_tb is
     stb_i      : in  std_logic;  --! Strobe
     we_i       : in  std_logic;  --! Write enable
     ack_o      : out std_logic; --! Acknowledge
-    dat_o      : out std_logic_vector (15 downto 0) --! Data out
+    dat_o      : out std_logic_vector (15 downto 0); --! Data out
+
+  --  User Interface, JTAG Controller
+  jc_tdo_i   : in std_logic;
+  jc_tms_o   : out std_logic;
+  jc_tdi_o   : out std_logic;
+  jc_tck_o   : out std_logic
     );
   end component;
 
@@ -167,6 +173,10 @@ architecture archi of nanofip_tb is
 	signal stb			: std_logic;
 	signal wclk			: std_logic;
 	signal we			: std_logic;
+    signal jtag_tdi     : std_logic;
+    signal jtag_tdo     : std_logic;
+    signal jtag_tms     : std_logic;
+    signal jtag_tck     : std_logic;
 
 begin
 
@@ -215,8 +225,15 @@ begin
     stb_i     => stb,
     we_i      => we,
     ack_o     => ack,
-    dat_o     => dat_from_fip
+    dat_o     => dat_from_fip,
+    
+    jc_tdo_i  => jtag_tdo,
+    jc_tms_o  => jtag_tms,
+    jc_tdi_o  => jtag_tdi,
+    jc_tck_o  => jtag_tck
     );
+    
+    jtag_tdo    <= jtag_tdi;
 
 	board: board_settings
 	port map(
