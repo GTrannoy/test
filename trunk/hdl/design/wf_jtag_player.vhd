@@ -139,7 +139,7 @@ architecture rtl of WF_jtag_player is
   signal s_bytes_c, s_bytes_c_d1                                                : unsigned (6 downto 0);
   signal s_tck_c                                                  : unsigned (4 downto 0);
   signal s_frame_size_lsb, s_frame_size_msb                       : std_logic_vector (7 downto 0);
-  signal s_jc_tdo_byte                                            : std_logic_vector (7 downto 0);
+  signal s_jc_tdo_bit                                            : std_logic;
   signal s_frame_size                                             : unsigned (15 downto 0);
 
 --=================================================================================================
@@ -186,16 +186,8 @@ begin
                         end if;
 
     when set_address =>
-                        if s_bytes_c < 2 then -- getting size bytes
                           nx_jtag_pl_st <= get_byte;
 
-                        else
-                          if resize((s_bytes_c sll 3), s_frame_size'length)  > s_frame_size then
-                            nx_jtag_pl_st <= idle;
-                          else
-                            nx_jtag_pl_st <= get_byte;
-                          end if;
-                        end if;
 
     when get_byte =>
                         if s_bytes_c < 2 then -- getting size bytes
@@ -205,16 +197,27 @@ begin
                         end if;
 
     when play_byte =>
+                        if s_frame_size = 0 then   -- 
+                          nx_jtag_pl_st <= idle;
 
-                        if s_frame_size - resize((s_bytes_c sll 3), s_frame_size'length)  >= 8 then --complete bytes
+
+                        elsif s_frame_size - ((resize((s_bytes_c-2), s_frame_size'length)) sll 3)  > 8 then   -- complete bytes
                           if s_tck_c_is_full = '1' then 
                             nx_jtag_pl_st <= set_address;
                           else
                             nx_jtag_pl_st <= play_byte;
                           end if;
 
-                        else
-                          if s_tck_c <= (s_frame_size - resize((s_bytes_c sll 3), s_frame_size'length)) sll 2 then --last byte/ bits
+                        elsif s_frame_size - ((resize((s_bytes_c-2), s_frame_size'length)) sll 3)  = 8 then-- last complete byte
+                          if s_tck_c_is_full = '1' then 
+                            nx_jtag_pl_st <= idle;
+                          else
+                            nx_jtag_pl_st <= play_byte;
+                          end if;
+
+
+                        else                                                                               -- last bits
+                          if s_tck_c < ((s_frame_size - (resize((s_bytes_c-2), s_frame_size'length) sll 3)) sll 2)-1 then
                             nx_jtag_pl_st <= play_byte;
                           else
                             nx_jtag_pl_st <= idle;
@@ -308,7 +311,7 @@ begin
 -- Combinatorial process that according to the state of the FSM sets values to the
 -- Incoming_Bits_Index inputs.
 
-  Bit_Index: process (s_idle, s_get_size, s_get_byte, s_play_byte)
+  Bit_Index: process (s_idle, s_get_size, s_set_adr, s_get_byte, s_play_byte)
   begin
 
     if s_idle ='1' then
@@ -376,7 +379,7 @@ begin
         s_tck_d1     <= '0';
         s_bytes_c_d1 <= (others => '0');
         s_frame_size_msb <= (others => '0');
-        s_frame_size_msb <= (others => '0');
+        s_frame_size_lsb <= (others => '0');
       else
         s_tck_d1     <= s_tck;
         s_bytes_c_d1 <= s_bytes_c;
@@ -401,10 +404,6 @@ begin
   begin
 
     if falling_edge (s_tck_d1) then
-      if nfip_rst_i = '1' then
-        jc_tms_o    <= '0';
-        jc_tdi_o    <= '0';
-      else
         if s_tck_c < 4 then
           jc_tms_o    <= jc_mem_data_i(7);
           jc_tdi_o    <= jc_mem_data_i(6);
@@ -426,7 +425,6 @@ begin
           jc_tdi_o    <= jc_mem_data_i(6);
         end if;
       end if;        
-    end if;
   end process;
 
 
@@ -435,15 +433,15 @@ begin
 
     if rising_edge (s_tck_d1) then
       if nfip_rst_i = '1' or s_idle= '1' then
-        s_jc_tdo_byte <= (others => '0');
+        s_jc_tdo_bit <= '0';
       else
-        s_jc_tdo_byte <= s_jc_tdo_byte (6 downto 0) & jc_tdo_i;
+        s_jc_tdo_bit <= jc_tdo_i;
 
       end if;        
     end if;
   end process;
 
-  jc_tdo_byte_o <= s_jc_tdo_byte;
+  jc_tdo_byte_o <= "0000000" & s_jc_tdo_bit;
 
 
 end architecture rtl;

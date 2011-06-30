@@ -193,6 +193,11 @@ entity WF_production is
       -- used by: WF_prod_bytes_retriever for the production of a var_identif
 
 
+ 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+    -- Signals from the WF_jtag_player unit
+      jc_tdo_byte_i           : in std_logic_vector (7 downto 0);
+
+
 
   -------------------------------------------------------------------------------------------------
   -- OUTPUTS
@@ -269,6 +274,7 @@ begin
     wb_data_i            => wb_data_i,
     slone_data_i         => slone_data_i,
     var3_rdy_i           => s_var3_rdy,
+    jc_tdo_byte_i        => jc_tdo_byte_i,
    -----------------------------------------------
     rst_status_bytes_p_o => s_rst_status_bytes_p,
     byte_o               => byte_o);
@@ -298,6 +304,7 @@ begin
     var3_acc_a_i            => var3_acc_a_i,
     nfip_status_r_tler_p_i  => nfip_status_r_tler_p_i,
     rst_status_bytes_p_i    => s_rst_status_bytes_p,
+    var_i                   => var_i,
    -----------------------------------------------
     u_cacer_o               => u_cacer_o,
     u_pacer_o               => u_pacer_o,

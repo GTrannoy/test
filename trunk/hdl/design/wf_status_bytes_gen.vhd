@@ -153,6 +153,8 @@ port (
    -- Signals from the WF_prod_permit unit
     var3_rdy_i              : in std_logic;  -- variable 3 ready
 
+    -- Signal from the WF_engine_control unit
+    var_i                   : in t_var;      -- variable type that is being treated
 
   -- OUTPUTS
     -- nanoFIP User Interface, NON-WISHBONE outputs
@@ -256,10 +258,10 @@ begin
 -- Combinatorial process MPS_byte_Creation: Creation of the MPS byte
 -- (nanoFIP functional specification, Table 2)
 
-  MPS_byte_Creation: process (slone_i, s_refreshment)
+  MPS_byte_Creation: process (slone_i, s_refreshment, var_i)
 
   begin
-    if slone_i='1' then
+    if slone_i = '1' or var_i = var_jc3 then
       mps_status_byte_o (7 downto 3)           <= (others => '0');
       mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
       mps_status_byte_o (1)                    <= '0';
@@ -341,7 +343,7 @@ begin
 
            --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
           --r_fcser
-          if (nfip_status_r_fcser_p_i = '1') then
+          if (nfip_status_r_fcser_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
             s_nFIP_status_byte(c_R_FCSER_INDEX) <= '1';
           end if;
 

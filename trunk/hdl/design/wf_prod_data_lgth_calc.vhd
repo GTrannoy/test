@@ -27,7 +27,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --
 --
 -- Description  Calculation of the number of bytes, after the FSS and before the FCS, that have
---              to be transferred when a variable is produced (var_presence, var_identif, var_3).
+--              to be transferred when a variable is produced (var_pres, var_identif, var_3, var_jc3).
 --              In detail the unit adds:
 --               o  1 byte RP_DAT.Control,
 --               o  1 byte RP_DAT.Data.PDU_TYPE,
@@ -176,6 +176,20 @@ begin
             s_prod_data_lgth <= s_p3_lgth_decoded + 3;
           end if;
         end if;
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+      when var_jc3 =>
+      -- data length calculation regardless of the operational mode, the P3_LGTH and the NOSTAT
+
+      --                                 1 byte of data from the JTAG_player
+      -- to these there should be added: 1 byte Control
+      --                                 1 byte PDU_TYPE
+      --                                 1 byte Length
+      --                                 1 byte nFIP status (regardless of the NOSTAT input)
+      --                                 1 byte MPS status
+
+                                                              -- 6 bytes (counting starts from 0!)
+        s_prod_data_lgth <= to_unsigned(5, s_prod_data_lgth'length);
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 
