@@ -194,12 +194,12 @@ architecture rtl of WF_engine_control is
 
   type control_st_t  is (idle,
                          id_dat_control_byte, id_dat_var_byte, id_dat_subs_byte, id_dat_frame_ok,
-                         consume_wait_FSS, consume,
+                         consume_wait_FSS, consume, rst_rx,
                          produce_wait_turnar_time, produce);
 
   signal control_st, nx_control_st                                                     : control_st_t;
   signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_id_dat_frame_ok        : std_logic;
-  signal s_cons_wait_FSS, s_consuming                                                  : std_logic;
+  signal s_cons_wait_FSS, s_consuming, s_rst_rx_p                                      : std_logic;
   signal s_prod_wait_turnar_time, s_producing                                          : std_logic;
   signal s_var_aux, s_var                                                              : t_var;
   signal s_var_identified                                                              : std_logic;
@@ -291,13 +291,13 @@ begin
       when id_dat_control_byte      =>
 
         if s_session_timedout = '1' then       -- independent timeout
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         elsif (rx_byte_ready_p_i = '1') and (rx_byte_i(5 downto 0) = c_ID_DAT_CTRL_BYTE) then
           nx_control_st <= id_dat_var_byte;    -- check of ID_DAT Control byte
 
         elsif rx_byte_ready_p_i = '1' then
-          nx_control_st <= idle;               -- byte different than the expected ID_DAT Control
+          nx_control_st <= rst_rx;               -- byte different than the expected ID_DAT Control
 
         else
           nx_control_st <= id_dat_control_byte;-- ID_DAT Control byte being arriving
@@ -308,13 +308,13 @@ begin
       when id_dat_var_byte          =>
 
         if s_session_timedout = '1' then       -- independent timeout
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         elsif (rx_byte_ready_p_i = '1') and (s_var_identified = '1') then
           nx_control_st <= id_dat_subs_byte;   -- check of the ID_DAT variable
 
         elsif rx_byte_ready_p_i = '1' then
-          nx_control_st <= idle;               -- byte not corresponding to an expected variable
+          nx_control_st <= rst_rx;               -- byte not corresponding to an expected variable
 
         else
           nx_control_st <= id_dat_var_byte;    -- ID_DAT variable byte being arriving
@@ -325,7 +325,7 @@ begin
       when id_dat_subs_byte         =>
 
         if s_session_timedout = '1' then     -- independent timeout
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         elsif (rx_byte_ready_p_i = '1') and ((rx_byte_i = subs_i) or (s_broadcast_var = '1')) then
           nx_control_st <= id_dat_frame_ok;  -- check of the ID_DAT subscriber
@@ -336,7 +336,7 @@ begin
                                              -- also in stand-alone mode.
 
         elsif rx_byte_ready_p_i = '1' then   -- not the station's address, neither a broadcast
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         else
           nx_control_st <= id_dat_subs_byte; -- ID_DAT subscriber byte being arriving
@@ -347,7 +347,7 @@ begin
       when id_dat_frame_ok          =>
 
         if s_session_timedout = '1' then             -- independent timeout
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         elsif (rx_fss_crc_fes_ok_p_i = '1') and (s_prod_or_cons = "10") then
           nx_control_st <= produce_wait_turnar_time; -- ID_DAT frame ok! station has to produce
@@ -356,7 +356,7 @@ begin
           nx_control_st <= consume_wait_FSS;         -- ID_DAT frame ok! station has to consume
 
         elsif (s_rx_bytes_c > 2)  then               -- 3 bytes after the arrival of the subscriber
-          nx_control_st <= idle;                     -- byte, a FES has not been detected
+          nx_control_st <= rst_rx;                     -- byte, a FES has not been detected
 
         else
           nx_control_st <= id_dat_frame_ok;          -- CRC & FES bytes being arriving
@@ -367,7 +367,7 @@ begin
       when produce_wait_turnar_time =>
 
         if s_session_timedout = '1' then             -- independent timeout
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         elsif s_time_c_is_zero = '1' then            -- turnaround time passed
           nx_control_st <= produce;
@@ -387,7 +387,7 @@ begin
           nx_control_st <= consume;
 
         elsif s_time_c_is_zero = '1' then      -- if the FSS of the consumed RP_DAT frame doesn't
-          nx_control_st <= idle;               -- arrive before the expiration of the silence time,
+          nx_control_st <= rst_rx;               -- arrive before the expiration of the silence time,
                                                -- the engine goes back to idle
         else
           nx_control_st <= consume_wait_FSS;   -- counting silence time
@@ -398,13 +398,13 @@ begin
       when consume                  =>
 
         if s_session_timedout = '1' then       -- independent timeout
-          nx_control_st <= idle;
+          nx_control_st <= rst_rx;
 
         elsif (rx_fss_crc_fes_ok_p_i = '1') or -- the cons frame arrived to the end, as expected
               (rx_crc_wrong_p_i = '1')      or -- FES detected but wrong CRC or wrong # bits
               (s_rx_bytes_c > 130)        then -- no FES detected after the max number of bytes
 
-          nx_control_st <= idle;               -- back to idle
+          nx_control_st <= rst_rx;               -- back to idle
 
         else
           nx_control_st <= consume;            -- consuming bytes
@@ -423,6 +423,12 @@ begin
         else
           nx_control_st <= produce;            -- producing bytes
         end if;
+
+
+      --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+      when rst_rx                  =>
+
+          nx_control_st <= idle;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -451,6 +457,7 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -465,6 +472,7 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -479,6 +487,7 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -491,6 +500,7 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -505,6 +515,7 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -519,6 +530,7 @@ begin
                  ---------------------------------
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -533,6 +545,7 @@ begin
                   s_cons_wait_FSS         <= '1';
                  ---------------------------------
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -547,6 +560,7 @@ begin
                  ---------------------------------
                   s_consuming             <= '1';
                  ---------------------------------
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
 
@@ -559,6 +573,22 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                 ---------------------------------
+                  s_rst_rx_p              <= '1';
+                 ---------------------------------
+                  s_producing             <= '1';
+
+
+      when rst_rx =>
+
+                  s_idle_state            <= '0';
+                  s_id_dat_ctrl_byte      <= '0';
+                  s_id_dat_var_byte       <= '0';
+                  s_id_dat_frame_ok       <= '0';
+                  s_prod_wait_turnar_time <= '0';
+                  s_cons_wait_FSS         <= '0';
+                  s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                  ---------------------------------
                   s_producing             <= '1';
                  ---------------------------------
@@ -575,6 +605,7 @@ begin
                   s_prod_wait_turnar_time <= '0';
                   s_cons_wait_FSS         <= '0';
                   s_consuming             <= '0';
+                  s_rst_rx_p              <= '0';
                   s_producing             <= '0';
 
     end case;
@@ -959,8 +990,9 @@ begin
 -- It also stays reset during a production session.
 -- Note: the first 5 bytes of an ID_DAT and 2 bytes of an RP_DAT have been covered in the other
 -- states of the Engine_Control_FSM and the s_rx_bytes_c starts counting from 0!
-  rx_rst_o                   <= '1' when (s_id_dat_frame_ok = '1'and (s_rx_bytes_c > 2))   or 
-                                         ((s_consuming = '1')    and (s_rx_bytes_c > 130)) or
+  rx_rst_o                   <= '1' when s_rst_rx_p = '1' or
+                                         --(s_id_dat_frame_ok = '1'and (s_rx_bytes_c > 2))   or 
+                                         --((s_consuming = '1')    and (s_rx_bytes_c > 130)) or
                                          (s_prod_wait_turnar_time = '1' or s_producing = '1') else '0';
 
 -- indication of a consumed RP_DAT frame with more than 133 bytes 

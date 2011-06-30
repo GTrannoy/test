@@ -543,8 +543,8 @@ end component WF_rx_osc;
     var1_acc_a_i            : in std_logic;
     var2_acc_a_i            : in std_logic;
     var3_acc_a_i            : in std_logic;
-    fd_txer_a_i             : in  std_logic;
-    fd_wdgn_a_i             : in  std_logic;
+    fd_txer_a_i             : in std_logic;
+    fd_wdgn_a_i             : in std_logic;
     byte_index_i            : in std_logic_vector (7 downto 0);
     data_lgth_i             : in std_logic_vector (7 downto 0);
     byte_request_accept_p_i : in std_logic;
@@ -553,8 +553,9 @@ end component WF_rx_osc;
     var2_rdy_i              : in std_logic;
     nfip_status_r_fcser_p_i : in std_logic;
     nfip_status_r_tler_p_i  : in std_logic;
-    constr_id_dec_i         : in  std_logic_vector (7 downto 0);
-    model_id_dec_i          : in  std_logic_vector (7 downto 0);
+    constr_id_dec_i         : in std_logic_vector (7 downto 0);
+    model_id_dec_i          : in std_logic_vector (7 downto 0);
+    jc_tdo_byte_i           : in std_logic_vector (7 downto 0);
   -----------------------------------------------------------------
     byte_o                  : out std_logic_vector (7 downto 0);
     u_cacer_o               : out std_logic;
@@ -624,6 +625,7 @@ end component WF_rx_osc;
     byte_index_i         : in std_logic_vector (7 downto 0);
     byte_being_sent_p_i  : in std_logic;
     var3_rdy_i           : in std_logic;
+    jc_tdo_byte_i        : in std_logic_vector (7 downto 0);
   -----------------------------------------------------------------
     rst_status_bytes_p_o : out std_logic;
     byte_o               : out std_logic_vector (7 downto 0));
@@ -782,6 +784,7 @@ end component WF_rx_osc;
     nfip_status_r_tler_p_i  : in std_logic;
     nfip_status_r_fcser_p_i : in std_logic;
     rst_status_bytes_p_i    : in std_logic;
+    var_i                   : in t_var;
   -----------------------------------------------------------------
     u_cacer_o               : out std_logic;
     u_pacer_o               : out std_logic;

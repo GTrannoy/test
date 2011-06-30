@@ -279,6 +279,14 @@ entity nanofip is
 
 
   --  User Interface, JTAG Controller
+  TP39       : out std_logic;
+  TP10       : out std_logic;
+  TP11       : out std_logic;
+  TP12       : out std_logic;
+  TP13       : out std_logic;
+  TP14       : out std_logic;
+  TP15       : out std_logic;
+
   jc_tms_o   : out std_logic;
   jc_tdi_o   : out std_logic;
   jc_tck_o   : out std_logic
@@ -329,7 +337,9 @@ architecture struc of nanofip is
   signal s_wb_ack_prod                                                 : std_logic;
   -- WF_model_constr_dec outputs
   signal s_jc_mem_adr_rd                                           : std_logic_vector (8 downto 0);
-  signal jc_tdo_byte_o : std_logic_vector (7 downto 0);
+  signal s_jc_tdo_byte                                             : std_logic_vector (7 downto 0);
+
+  signal s_jc_tdi_o, s_jc_tms_o, s_jc_tck_o, s_fd_txd_o                : std_logic;
 
 
 --=================================================================================================
@@ -445,6 +455,7 @@ begin
     var2_rdy_i              => s_var2_rdy,
     model_id_dec_i          => s_model_id_dec,
     constr_id_dec_i         => s_constr_id_dec,
+    jc_tdo_byte_i           => s_jc_tdo_byte,
   -------------------------------------------------------------
     byte_o                  => s_byte_to_tx,
     u_cacer_o               => u_cacer_o,
@@ -472,12 +483,12 @@ begin
   -------------------------------------------------------------
     tx_byte_request_p_o        => s_tx_request_byte_p,
     tx_completed_p_o           => s_tx_completed_p,
-    tx_data_o                  => fd_txd_o,
+    tx_data_o                  => s_fd_txd_o,
     tx_enable_o                => fd_txena_o,
     tx_clk_o                   => fd_txck_o);
   -------------------------------------------------------------
 
- 
+  fd_txd_o <= s_fd_txd_o;
 
 ---------------------------------------------------------------------------------------------------
 --                                        WF_JTAG_player                                         --
@@ -491,14 +502,23 @@ begin
     jc_start_p_i    => s_jc_start_p,
     jc_tdo_i        => jc_tdo_i,
   -----------------------------------------------------------------
-    jc_tms_o        => jc_tms_o,
-    jc_tdi_o        => jc_tdi_o,
-    jc_tck_o        => jc_tck_o,
-    jc_tdo_byte_o   => jc_tdo_byte_o,
+    jc_tms_o        => s_jc_tms_o,
+    jc_tdi_o        => s_jc_tdi_o,
+    jc_tck_o        => s_jc_tck_o,
+    jc_tdo_byte_o   => s_jc_tdo_byte,
     jc_mem_adr_rd_o => s_jc_mem_adr_rd);
   -----------------------------------------------------------------
 
-
+  TP39      <= jc_tdo_i;
+  TP10      <= s_jc_tms_o;
+  TP11      <= s_jc_tdi_o;
+  TP12      <= s_jc_tck_o;
+  TP13      <= s_rx_crc_wrong_p;
+  TP14      <= s_rx_fss_received_p;
+  TP15      <= s_rx_fss_crc_fes_ok_p;
+  jc_tms_o  <= s_jc_tms_o;
+  jc_tdi_o  <= s_jc_tdi_o;
+  jc_tck_o  <= s_jc_tck_o;
 
 ---------------------------------------------------------------------------------------------------
 --                                       WF_engine_control                                       --

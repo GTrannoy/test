@@ -159,6 +159,8 @@ entity WF_prod_bytes_retriever is
     constr_id_dec_i      : in  std_logic_vector (7 downto 0); -- decoded constructor id settings
     model_id_dec_i       : in  std_logic_vector (7 downto 0); -- decoded model id settings
 
+    -- Signals from the WF_jtag_player unit
+    jc_tdo_byte_i        : in std_logic_vector (7 downto 0);  -- 8 last JC_TDO bits
 
   -- OUTPUTS
     -- Signal to the WF_status_bytes_gen
@@ -260,7 +262,7 @@ begin
 
   Bytes_Generation: process (var_i, s_byte_index_d1, data_lgth_i, constr_id_dec_i, model_id_dec_i,
                              nFIP_status_byte_i, mps_status_byte_i, s_slone_byte, s_byte_index_d_aux,
-                             s_mem_byte, nostat_i, byte_being_sent_p_i, s_lgth_byte, slone_i)
+                             s_mem_byte, nostat_i, byte_being_sent_p_i, s_lgth_byte, slone_i, jc_tdo_byte_i)
 
   begin
 
@@ -402,6 +404,52 @@ begin
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
+
+    -- case: jatg produced
+    -- For ..............
+    when var_jc3 =>
+
+        s_base_addr            <= (others => '0');            -- no memory access needed
+
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+        -- The first (Control) and second (PDU type) bytes to be sent
+        -- are predefined in the c_VARS_ARRAY matrix of the WF_package
+
+        if unsigned(s_byte_index_d1) <= c_VARS_ARRAY(c_VAR_JC3_INDEX).array_lgth then -- less or eq
+          byte_o               <= c_VARS_ARRAY(c_VAR_JC3_INDEX).byte_array(s_byte_index_d_aux);
+          rst_status_bytes_p_o <= '0';
+
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+        -- The &c_LGTH_BYTE_INDEX byte is the Length
+
+        elsif s_byte_index_d1 = c_LGTH_BYTE_INDEX then
+          byte_o               <= s_lgth_byte;
+          rst_status_bytes_p_o <= '0';
+
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+        -- The one but last byte is the nanoFIP status byte
+
+        elsif unsigned(s_byte_index_d1) = (unsigned(data_lgth_i)-1 ) then
+          byte_o               <= nFIP_status_byte_i;
+          rst_status_bytes_p_o <= '0';
+
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+        -- The last byte is the MPS status
+        elsif s_byte_index_d1 = data_lgth_i then
+          byte_o               <= mps_status_byte_i;
+          rst_status_bytes_p_o <= byte_being_sent_p_i; -- reset signal for both status bytes.
+                                                       -- The reset arrives after having sent the
+                                                       -- MPS byte to the WF_tx_serializer.
+
+        --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+        -- The other byte comes from the JATG_player
+        else
+          byte_o               <= jc_tdo_byte_i;
+          rst_status_bytes_p_o <= '0';
+
+        end if;
+
+    --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
     when others =>
       rst_status_bytes_p_o     <= '0';
