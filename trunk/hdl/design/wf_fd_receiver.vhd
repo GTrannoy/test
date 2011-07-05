@@ -120,6 +120,11 @@ entity WF_fd_receiver is
     rx_crc_wrong_p_o      : out std_logic; -- indication of a frame (ID_DAT or RP_DAT) with
                                            -- wrong CRC; pulse upon FES detection
 
+  TP14       : out std_logic;
+  TP15       : out std_logic;
+  TP16       : out std_logic;
+  TP39       : out std_logic;
+
     -- Signals to the WF_engine_control
     rx_fss_received_p_o   : out std_logic  -- pulse upon FSS detection (ID/ RP_DAT)
 
@@ -205,6 +210,12 @@ begin
     fss_crc_fes_ok_p_o   => rx_fss_crc_fes_ok_p_o,
     rx_osc_rst_o         => s_rx_osc_rst,
     fss_received_p_o     => rx_fss_received_p_o,
+
+  TP14       => TP14, 
+  TP15       => TP15,
+  TP16       => TP16, 
+  TP39       => TP39, 
+
     crc_wrong_p_o        => rx_crc_wrong_p_o);
    ------------------------------------------------------
 

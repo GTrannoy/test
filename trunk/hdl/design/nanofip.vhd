@@ -279,13 +279,14 @@ entity nanofip is
 
 
   --  User Interface, JTAG Controller
-  TP39       : out std_logic;
   TP10       : out std_logic;
   TP11       : out std_logic;
   TP12       : out std_logic;
   TP13       : out std_logic;
   TP14       : out std_logic;
   TP15       : out std_logic;
+  TP16       : out std_logic;
+  TP39       : out std_logic;
 
   jc_tms_o   : out std_logic;
   jc_tdi_o   : out std_logic;
@@ -339,7 +340,7 @@ architecture struc of nanofip is
   signal s_jc_mem_adr_rd                                           : std_logic_vector (8 downto 0);
   signal s_jc_tdo_byte                                             : std_logic_vector (7 downto 0);
 
-  signal s_jc_tdi_o, s_jc_tms_o, s_jc_tck_o, s_fd_txd_o                : std_logic;
+  signal s_jc_tdi_o, s_jc_tms_o, s_jc_tck_o, s_fd_txd_o, s_fd_rstn_o                : std_logic;
 
 
 --=================================================================================================
@@ -366,7 +367,7 @@ begin
       nFIP_rst_o          => s_nfip_intern_rst,
       wb_rst_o            => s_wb_rst,
       rston_o             => rston_o,
-      fd_rstn_o           => fd_rstn_o);
+      fd_rstn_o           => s_fd_rstn_o);
   -------------------------------------------------------------
 
 
@@ -420,6 +421,12 @@ begin
     rx_byte_ready_p_o     => s_rx_byte_ready_p,
     rx_fss_crc_fes_ok_p_o => s_rx_fss_crc_fes_ok_p,
     rx_fss_received_p_o   => s_rx_fss_received_p,
+
+  TP14       => TP14, 
+  TP15       => TP15,
+  TP16       => TP16, 
+  TP39       => TP39, 
+
     rx_crc_wrong_p_o      => s_rx_crc_wrong_p);
   -------------------------------------------------------------
 
@@ -509,13 +516,18 @@ begin
     jc_mem_adr_rd_o => s_jc_mem_adr_rd);
   -----------------------------------------------------------------
 
-  TP39      <= jc_tdo_i;
-  TP10      <= s_jc_tms_o;
-  TP11      <= s_jc_tdi_o;
-  TP12      <= s_jc_tck_o;
-  TP13      <= s_rx_crc_wrong_p;
-  TP14      <= s_rx_fss_received_p;
-  TP15      <= s_rx_fss_crc_fes_ok_p;
+--  TP39      <= jc_tdo_i;
+
+  TP10      <= fd_wdgn_i;        --s_jc_tck_o;--s_jc_tms_o;
+  TP11      <= not (s_fd_rstn_o);-- s_jc_tdi_o;
+  TP12      <= s_nfip_intern_rst;--s_rx_crc_wrong_p;--s_jc_tck_o;
+  TP13      <= fd_txer_i;      --s_rx_crc_wrong_p;
+
+
+--  TP14      <= s_rx_fss_received_p;
+--  TP15      <= s_rx_fss_crc_fes_ok_p;
+
+  fd_rstn_o <= s_fd_rstn_o;
   jc_tms_o  <= s_jc_tms_o;
   jc_tdi_o  <= s_jc_tdi_o;
   jc_tck_o  <= s_jc_tck_o;
