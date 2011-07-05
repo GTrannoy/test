@@ -491,7 +491,7 @@ end process;
         s_cons_lgth_byte     <= (others => '0');
       else
 
-        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1)then  -- only for consumed vars
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1) then  -- only for consumed vars
 
           if (byte_index_i = c_CTRL_BYTE_INDEX) and (byte_ready_p_i='1') then
             cons_ctrl_byte_o <= byte_i;

@@ -163,6 +163,13 @@ entity WF_rx_deserializer is
     -- Signal to the WF_engine_control unit
     fss_received_p_o     : out std_logic; -- pulse upon reception of a correct FSS (ID/RP)
 
+
+  TP14       : out std_logic;
+  TP15       : out std_logic;
+  TP16       : out std_logic;
+  TP39       : out std_logic;
+
+
     -- Signal to the WF_rx_osc unit
     rx_osc_rst_o         : out std_logic  -- resets the clk recovery procedure
 );
@@ -645,6 +652,10 @@ begin
   -- with number of bits not multiple of 8, but with correct FES, can be detected. 
   crc_wrong_p_o             <= s_fes_detected and s_sample_manch_bit_p_d1 and (not s_CRC_ok_p_d);
 
+  TP14      <= fd_rxd_i;
+  TP15      <= s_CRC_ok_p_d;
+  TP16      <= s_sample_manch_bit_p_d1;
+  TP39      <= s_byte_ready_p_d1;
 
 end architecture rtl;
 --=================================================================================================

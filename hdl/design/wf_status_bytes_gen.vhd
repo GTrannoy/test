@@ -294,8 +294,8 @@ begin
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- reinitialization after the transmission of a produced variable
-        if rst_status_bytes_p_i = '1' then                          -- bits 0 to 5 reinitialised
-          s_nFIP_status_byte(5 downto 0)        <= (others => '0'); -- after having been delivered
+        if rst_status_bytes_p_i = '1' then                          -- bits 0 to 5 reinitialised ------------------------------------------
+          s_nFIP_status_byte(7 downto 0)        <= (others => '0'); -- after having been delivered
                                                                     -- bits 6 and 7 are only reset
                                                                     -- when nanoFIP is reset
         else
@@ -343,7 +343,7 @@ begin
 
            --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
           --r_fcser
-          if (nfip_status_r_fcser_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
+          if (nfip_status_r_fcser_p_i = '1') then--and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
             s_nFIP_status_byte(c_R_FCSER_INDEX) <= '1';
           end if;
 
@@ -373,7 +373,7 @@ begin
 
     s_var1_rdy_c_reinit <= var1_rdy_i or nfip_rst_i;
     s_var1_rdy_c_incr   <= '1' when s_var1_rdy_c < "1111" else '0';
-    s_var1_rdy_extended       <= '1' when var1_rdy_i= '1' or s_var1_rdy_c_incr = '1' else '0';
+    s_var1_rdy_extended <= '1' when var1_rdy_i= '1' or s_var1_rdy_c_incr = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR2_RDY: WF_incr_counter
@@ -389,7 +389,7 @@ begin
 
     s_var2_rdy_c_reinit <= var2_rdy_i or nfip_rst_i;
     s_var2_rdy_c_incr   <= '1' when s_var2_rdy_c < "1111" else '0';
-    s_var2_rdy_extended       <= '1' when var2_rdy_i= '1' or s_var2_rdy_c_incr = '1' else '0';
+    s_var2_rdy_extended <= '1' when var2_rdy_i= '1' or s_var2_rdy_c_incr = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR3_RDY: WF_incr_counter
@@ -405,7 +405,7 @@ begin
 
     s_var3_rdy_c_reinit <= var3_rdy_i or nfip_rst_i;
     s_var3_rdy_c_incr   <= '1' when s_var3_rdy_c < "1111" else '0';
-    s_var3_rdy_extended       <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_c_incr = '1' else '0';
+    s_var3_rdy_extended <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_c_incr = '1' else '0';
 
 
 

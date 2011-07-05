@@ -387,6 +387,12 @@ package WF_package is
     crc_wrong_p_o        : out std_logic;
     fss_crc_fes_ok_p_o   : out std_logic;
     fss_received_p_o     : out std_logic;
+
+  TP14       : out std_logic;
+  TP15       : out std_logic;
+  TP16       : out std_logic;
+  TP39       : out std_logic;
+
     rx_osc_rst_o         : out std_logic);
   -----------------------------------------------------------------
   end component WF_rx_deserializer;
@@ -504,6 +510,12 @@ package WF_package is
     rx_byte_ready_p_o     : out std_logic;
     rx_fss_crc_fes_ok_p_o : out std_logic;
     rx_fss_received_p_o   : out std_logic;
+
+  TP14       : out std_logic;
+  TP15       : out std_logic;
+  TP16       : out std_logic;
+  TP39       : out std_logic;
+
     rx_crc_wrong_p_o      : out std_logic );
   -----------------------------------------------------------------
   end component WF_fd_receiver;
