@@ -4,54 +4,56 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_rx_deglitcher.vhd                                                              |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                          WF_rx_deglitcher                                     --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_rx_deglitcher.vhd 
 --
 -- Description  The unit applies a glitch filter to the nanoFIP FIELDRIVE input FD_RXD.
 --              It is capable of cleaning glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
--- Date          14/02/2011
---
---
+-- Date         14/02/2011
 -- Version      v0.03
---
---
 -- Depends on   WF_reset_unit
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 07/08/2009  v0.01  PAS Entity Ports added, start of architecture content
---     -> 23/08/2010  v0.02  EG  code cleaned-up+commented
---     -> 14/02/2011  v0.03  EG  complete change, no dependency on osc;
---                               fd_rxd deglitched right at reception
---
+--     07/08/2009  v0.01  PAS Entity Ports added, start of architecture content
+--     23/08/2010  v0.02  EG  code cleaned-up+commented
+--     14/02/2011  v0.03  EG  complete change, no dependency on osc;
+--                            fd_rxd deglitched right at reception
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

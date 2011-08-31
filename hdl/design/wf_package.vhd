@@ -4,52 +4,54 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_package.vhd                                                                    |
----------------------------------------------------------------------------------------------------
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.numeric_std.all;
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                           WF_package                                          --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_package.vhd 
 --
 -- Description  Definitions of constants, types, entities, functions
---
---
 -- Author       Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         11/01/2011
---
---
 -- Version      v0.04
---
---
--- Depends on
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->    8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed)
---     ->   10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of
---                              std_logic_vector (9 downto 0) to simplify calculations; cleaning-up
---     ->    1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs
---                              added DualClkRam
---     ->    2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics
---                              added Ctrl bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG
+--      8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed)
+--     10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of
+--                         std_logic_vector (9 downto 0) to simplify calculations; cleaning-up
+--      1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs
+--                         added DualClkRam
+--      2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics
+--                         added Ctrl bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG
 --
 ---------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
 
 
 
@@ -66,6 +68,15 @@ package WF_package is
   constant c_QUARTZ_PERIOD : real := 25.0;
 
   constant c_DEGLITCH_THRESHOLD : natural := 4;
+
+
+---------------------------------------------------------------------------------------------------
+--                            Constant regarding the frame structure                             --
+---------------------------------------------------------------------------------------------------
+
+  constant c_MAX_FRAME_BYTES : natural := 130; -- maximum number of bytes in a frame after the
+                                               -- FSS (counting starts from 0!)
+
 
 ---------------------------------------------------------------------------------------------------
 --                            Constants regarding the CRC calculation                            --
@@ -118,6 +129,20 @@ package WF_package is
   constant c_T_WDER_INDEX  : integer := 7;
 
 
+
+---------------------------------------------------------------------------------------------------
+--                            Constant regarding the JTAG controller                             --
+---------------------------------------------------------------------------------------------------
+
+  constant c_MAX_FRAME_BITS : natural := 976; -- maximum number of TMS/ TDI bits that can be sent in
+                                              -- one frame : 122 bytes * 8 bits
+
+  constant c_JC_TCK_DIV : unsigned (3 downto 0) := "1000"; -- JC_TCK is created by a frequency
+                                                           -- division of the 40 MHz uclk.
+                                                           -- c_JC_TCK_div = 8 gives a JC_TCK of 5 MHz
+
+  constant c_FOUR_JC_TCK_C_LGTH : integer       := 5;      -- length of a counter
+                                                           -- counting 4 JC_TCK periods
 
 ---------------------------------------------------------------------------------------------------
 --                        Constant regarding the Model & Constructor decoding                    --
@@ -387,12 +412,6 @@ package WF_package is
     crc_wrong_p_o        : out std_logic;
     fss_crc_fes_ok_p_o   : out std_logic;
     fss_received_p_o     : out std_logic;
-
-  TP14       : out std_logic;
-  TP15       : out std_logic;
-  TP16       : out std_logic;
-  TP39       : out std_logic;
-
     rx_osc_rst_o         : out std_logic);
   -----------------------------------------------------------------
   end component WF_rx_deserializer;
@@ -479,7 +498,7 @@ package WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_jtag_player is
+  component WF_jtag_controller is
   port (
     uclk_i          : in std_logic;
     nfip_rst_i      : in std_logic;
@@ -493,7 +512,7 @@ package WF_package is
     jc_tdo_byte_o   : out std_logic_vector (7 downto 0);
     jc_mem_adr_rd_o : out std_logic_vector (8 downto 0));
   -----------------------------------------------------------------
-  end component WF_jtag_player;
+  end component WF_jtag_controller;
 
 
 
@@ -510,12 +529,6 @@ package WF_package is
     rx_byte_ready_p_o     : out std_logic;
     rx_fss_crc_fes_ok_p_o : out std_logic;
     rx_fss_received_p_o   : out std_logic;
-
-  TP14       : out std_logic;
-  TP15       : out std_logic;
-  TP16       : out std_logic;
-  TP39       : out std_logic;
-
     rx_crc_wrong_p_o      : out std_logic );
   -----------------------------------------------------------------
   end component WF_fd_receiver;

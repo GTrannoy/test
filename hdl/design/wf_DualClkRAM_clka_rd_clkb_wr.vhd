@@ -7,24 +7,11 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
--- File         WF_DualClkRAM_clka_rd_clkb_wr.vhd                                                 |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
-
----------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                  WF_DualClkRAM_clka_rd_clkb_wr                                --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_DualClkRAM_clka_rd_clkb_wr.vhd  
 --
 -- Description  The unit provides the memory triplication, transparently to the outside world.
 --              The component DualClkRam (512 bytes) is triplicated: each incoming byte is written
@@ -37,24 +24,40 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         10/12/2010
---
---
 -- Version      v0.02
---
---
 -- Depends on   DualClkRAM.vhd
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 12/2010  v0.02  EG  code cleaned-up+commented
---
+--     12/2010  v0.02  EG  code cleaned-up+commented
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

@@ -4,59 +4,62 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_bits_to_txd.vhd                                                                |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                        WF_bits_to_txd                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_bits_to_txd.vhd
 --
 -- Description  According to the state of the FSM of the WF_tx_serializer, the unit is responsible
 --              for putting in nanoFIP's output FD_TXD one by one all the bits required for the
 --              formation of the RP_DAT frame (that is: manch. encoded FSS, data, CRC and FES bits).
 --              The unit also manages the output FD_TXENA.
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         07/01/2011
---
---
 -- Version      v0.03
---
---
 -- Depends on   WF_reset_unit
 --              WF_tx_osc
 --              WF_tx_serializer
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->   8/2010  v0.02  EG  tx_enable has to be synched with txd! sending_fss not enough;
---                             need for tx_sched_p_buff signal
---     -> 7/1/2011  v0.03  EG  tx_enable now starts 1 uclk tick earlier, at the same moment as txd
---                             becomes 1 for the 1st bit of preamble
---                             signals s_tx_enable & s_start_tx_enable removed for simplification
+--       8/2010  v0.02  EG  tx_enable has to be synched with txd! sending_fss not enough;
+--                          need for tx_sched_p_buff signal
+--     7/1/2011  v0.03  EG  tx_enable now starts 1 uclk tick earlier, at the same moment as txd
+--                          becomes 1 for the 1st bit of preamble
+--                          signals s_tx_enable & s_start_tx_enable removed for simplification
 --
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

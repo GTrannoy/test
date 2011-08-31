@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
--- File         WF_cons_bytes_processor.vhd                                                       |
+--                                                                                                |
+--                                     WF_cons_bytes_processor                                    |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
-
----------------------------------------------------------------------------------------------------
---                                                                                               --
---                                     WF_cons_bytes_processor                                   --
---                                                                                               --
----------------------------------------------------------------------------------------------------
---
+-- File         WF_cons_bytes_processor.vhd 
 --
 -- Description  The unit is consuming the RP_DAT data bytes that are arriving from the
 --              WF_fd_receiver, according to the following:
@@ -59,37 +45,51 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                                               |-----to DAT_O-----|
 --                                               |---to Reset Unit--|
 --
---
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         15/12/2010
---
---
 -- Version      v0.03
---
---
 -- Depends on   WF_reset_unit
 --              WF_fd_receiver
 --              WF_engine_control
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 11/09/2009  v0.01  EB  First version
---     ->    09/2010  v0.02  EG  Treatment of reset variable added; Bytes_Transfer_To_DATO unit
---                               creation for simplification; Signals renamed;
---                               Ctrl, PDU_TYPE, Length bytes registered;
---                               Code cleaned-up & commented.
---     -> 15/12/2010  v0.03  EG  Unit renamed from WF_cons_bytes_from_rx to WF_cons_bytes_processor
---                               byte_ready_p comes from the rx_deserializer (no need to pass from
---                               the engine) Code cleaned-up & commented (more!)
---
+--     11/09/2009  v0.01  EB  First version
+--        09/2010  v0.02  EG  Treatment of reset variable added; Bytes_Transfer_To_DATO unit
+--                            creation for simplification; Signals renamed;
+--                            Ctrl, PDU_TYPE, Length bytes registered;
+--                            Code cleaned-up & commented.
+--     15/12/2010  v0.03  EG  Unit renamed from WF_cons_bytes_from_rx to WF_cons_bytes_processor
+--                            byte_ready_p comes from the rx_deserializer (no need to pass from
+--                            the engine) Code cleaned-up & commented (more!)
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                             -------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -122,7 +122,7 @@ port (
     var_i                 : in t_var;                           -- variable type that is being treated
 
 
-    -- Signals from the WF_jtag_player unit
+    -- Signals from the WF_jtag_controller unit
     jc_mem_adr_rd_i       : in std_logic_vector (8 downto 0);
 
 
@@ -130,7 +130,7 @@ port (
     -- nanoFIP User Interface, WISHBONE Slave output
     data_o                : out std_logic_vector (15 downto 0); -- data out bus
 
-    -- Signals to the WF_jtag_player unit
+    -- Signals to the WF_jtag_controller unit
     jc_mem_data_o         : out std_logic_vector (7 downto 0);
 
     -- Signals to the WF_cons_outcome unit
@@ -140,7 +140,6 @@ port (
     cons_var_rst_byte_1_o : out std_logic_vector (7 downto 0);  -- received var_rst RP_DAT, 1st data byte
     cons_var_rst_byte_2_o : out std_logic_vector (7 downto 0)   -- received var_rst RP_DAT, 2nd data byte
 );
-
 end entity WF_cons_bytes_processor;
 
 
@@ -193,7 +192,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                      JTAG Consumed  RAM                                       --
---         Storage (by this unit) & retreival (by the JTAG_player unit) of consumed bytes        --
+--         Storage (by this unit) & retreival (by the JTAG_controller unit) of consumed bytes        --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a Dual Port Consumed RAM (for both the consumed and consumed broadcast vars).
 -- Port A is connected to the WISHBONE interface for the readings from the user and
@@ -491,7 +490,7 @@ end process;
         s_cons_lgth_byte     <= (others => '0');
       else
 
-        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1) then  -- only for consumed vars
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1)then  -- only for consumed vars
 
           if (byte_index_i = c_CTRL_BYTE_INDEX) and (byte_ready_p_i='1') then
             cons_ctrl_byte_o <= byte_i;

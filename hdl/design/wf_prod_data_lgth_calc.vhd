@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_prod_data_lgth_calc.vhd                                                        |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                     WF_prod_data_lgth_calc                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_prod_data_lgth_calc.vhd
 --
 -- Description  Calculation of the number of bytes, after the FSS and before the FCS, that have
 --              to be transferred when a variable is produced (var_pres, var_identif, var_3, var_jc3).
@@ -49,29 +35,42 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                                               |-----P3_LGTH-----|
 --
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         09/12/2010
---
---
 -- Version      v0.02
---
---
 -- Depends on   WF_engine_control
---
---
----------------------------------------------------------------------------------------------------
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 12/2010 v0.02 EG  code cleaned-up+commented
---
+--     12/2010 v0.02 EG  code cleaned-up+commented
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -96,7 +95,6 @@ entity WF_prod_data_lgth_calc is
   -- OUTPUT
     -- Signal to the WF_engine_control and WF_production units
     prod_data_lgth_o : out std_logic_vector (7 downto 0)
-
       );
 end entity WF_prod_data_lgth_calc;
 
@@ -181,7 +179,7 @@ begin
       when var_jc3 =>
       -- data length calculation regardless of the operational mode, the P3_LGTH and the NOSTAT
 
-      --                                 1 byte of data from the JTAG_player
+      --                                 1 byte of data from the JTAG_controller
       -- to these there should be added: 1 byte Control
       --                                 1 byte PDU_TYPE
       --                                 1 byte Length

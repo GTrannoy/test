@@ -4,37 +4,21 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- @file nanofip.vhd                                                                             |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
-
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
---                                              nanoFIP                                          --
+--                                           nanoFIP                                             --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
+-- File         nanofip.vhd 
 --
---
--- Description
--- The nanoFIP is an FPGA component implementing the WorldFIP protocol that can be used in field
--- devices. The nanoFIP is designed to be radiation tolerant by using different single event upset
--- mitigation techniques such as Triple Module Redundancy and several reset possibilities. The
--- nanoFIP design is to be implemented in an Actel ProASIC3 Flash family FPGA that is preserving
--- its configuration and has high tolerance to total dose radiation effects. The device is used
--- in conjunction with a FIELDRIVE chip and FIELDTR insulating transformer, both available from
--- the company ALSTOM.
+-- Description  The nanoFIP is an FPGA component implementing the WorldFIP protocol that can be
+-- used in field devices. The nanoFIP is designed to be radiation tolerant by using different
+-- single event upset mitigation techniques such as Triple Module Redundancy and several reset
+-- possibilities. The nanoFIP design is to be implemented in an Actel ProASIC3 Flash family FPGA
+-- that is preserving its configuration and has high tolerance to total dose radiation effects.
+-- The device is used in conjunction with a FIELDRIVE chip and FIELDTR insulating transformer,
+-- both available from the company ALSTOM.
 --
 -- In the WorldFIP protocol, the master of the bus, Bus Arbitrer (BA) initiates all the activity
 -- in the bus. The BA is broadcasting ID_DAT frames, requesting for a particular variable, to all
@@ -138,14 +122,8 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 -- Authors      Erik Van der Bij      (Erik.Van.der.Bij@cern.ch)
 --              Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
--- Date         15/01/2011
---
---
--- Version      v0.04
---
---
+-- Date         20/01/2011
+-- Version      v0.05
 -- Depends on   WF_reset_unit
 --              WF_model_constr_dec
 --              WF_tx_rx_osc
@@ -153,21 +131,43 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --              WF_production
 --              WF_engine_control
 --              WF_wb_controller
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->  30/06/2009  v0.010  EB  First version
---     ->  06/07/2009  v0.011  EB  Dummy blocks
---     ->  07/07/2009  v0.011  EB  Comments
---     ->  15/09/2009  v0.v2   PA
---     ->  09/12/2010  v0.v3   EG  Logic removed (new unit inputs_synchronizer added)
---     ->  7/01/2011   v0.04   EG  major restructuring; only 7 units on top level
---     ->  20/01/2011  v0.05   EG  new unit WF_wb_controller(removes the or gate from top level)
---
+--     30/06/2009  v0.010  EB  First version
+--     06/07/2009  v0.011  EB  Dummy blocks
+--     07/07/2009  v0.011  EB  Comments
+--     15/09/2009  v0.v2   PA
+--     09/12/2010  v0.v3   EG  Logic removed (new unit inputs_synchronizer added)
+--     7/01/2011   v0.04   EG  major restructuring; only 7 units on top level
+--     20/01/2011  v0.05   EG  new unit WF_wb_controller(removes the or gate from top level)
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -218,6 +218,7 @@ entity nanofip is
 
 
   --  User Interface, WISHBONE Slave
+
   wclk_i     : in std_logic;                     -- WISHBONE clock; may be independent of uclk
   adr_i      : in std_logic_vector (9 downto 0); -- WISHBONE address
   cyc_i      : in std_logic;                     -- WISHBONE cycle
@@ -233,8 +234,8 @@ entity nanofip is
 
 
   --  User Interface, JTAG Controller
-  jc_tdo_i   : in std_logic;
 
+  jc_tdo_i   : in std_logic;
 
 
 
@@ -279,14 +280,6 @@ entity nanofip is
 
 
   --  User Interface, JTAG Controller
-  TP10       : out std_logic;
-  TP11       : out std_logic;
-  TP12       : out std_logic;
-  TP13       : out std_logic;
-  TP14       : out std_logic;
-  TP15       : out std_logic;
-  TP16       : out std_logic;
-  TP39       : out std_logic;
 
   jc_tms_o   : out std_logic;
   jc_tdi_o   : out std_logic;
@@ -340,7 +333,7 @@ architecture struc of nanofip is
   signal s_jc_mem_adr_rd                                           : std_logic_vector (8 downto 0);
   signal s_jc_tdo_byte                                             : std_logic_vector (7 downto 0);
 
-  signal s_jc_tdi_o, s_jc_tms_o, s_jc_tck_o, s_fd_txd_o, s_fd_rstn_o                : std_logic;
+  signal s_jc_tdi_o, s_jc_tms_o, s_jc_tck_o, s_fd_txd_o,s_rston                : std_logic;
 
 
 --=================================================================================================
@@ -366,9 +359,11 @@ begin
   -------------------------------------------------------------
       nFIP_rst_o          => s_nfip_intern_rst,
       wb_rst_o            => s_wb_rst,
-      rston_o             => rston_o,
-      fd_rstn_o           => s_fd_rstn_o);
+      rston_o             => s_rston,
+      fd_rstn_o           => fd_rstn_o);
   -------------------------------------------------------------
+
+      rston_o   <= s_rston;
 
 
 
@@ -421,12 +416,6 @@ begin
     rx_byte_ready_p_o     => s_rx_byte_ready_p,
     rx_fss_crc_fes_ok_p_o => s_rx_fss_crc_fes_ok_p,
     rx_fss_received_p_o   => s_rx_fss_received_p,
-
-  TP14       => TP14, 
-  TP15       => TP15,
-  TP16       => TP16, 
-  TP39       => TP39, 
-
     rx_crc_wrong_p_o      => s_rx_crc_wrong_p);
   -------------------------------------------------------------
 
@@ -498,10 +487,10 @@ begin
   fd_txd_o <= s_fd_txd_o;
 
 ---------------------------------------------------------------------------------------------------
---                                        WF_JTAG_player                                         --
+--                                      WF_jtag_controller                                       --
 ---------------------------------------------------------------------------------------------------
 
-  JTAG_player: WF_jtag_player
+  JTAG_controller: WF_jtag_controller
   port map (
     uclk_i          => uclk_i,
     nfip_rst_i      => s_nfip_intern_rst,
@@ -509,28 +498,14 @@ begin
     jc_start_p_i    => s_jc_start_p,
     jc_tdo_i        => jc_tdo_i,
   -----------------------------------------------------------------
-    jc_tms_o        => s_jc_tms_o,
-    jc_tdi_o        => s_jc_tdi_o,
-    jc_tck_o        => s_jc_tck_o,
+    jc_tms_o        => jc_tms_o,
+    jc_tdi_o        => jc_tdi_o,
+    jc_tck_o        => jc_tck_o,
     jc_tdo_byte_o   => s_jc_tdo_byte,
     jc_mem_adr_rd_o => s_jc_mem_adr_rd);
   -----------------------------------------------------------------
 
---  TP39      <= jc_tdo_i;
 
-  TP10      <= fd_wdgn_i;        --s_jc_tck_o;--s_jc_tms_o;
-  TP11      <= not (s_fd_rstn_o);-- s_jc_tdi_o;
-  TP12      <= s_nfip_intern_rst;--s_rx_crc_wrong_p;--s_jc_tck_o;
-  TP13      <= fd_txer_i;      --s_rx_crc_wrong_p;
-
-
---  TP14      <= s_rx_fss_received_p;
---  TP15      <= s_rx_fss_crc_fes_ok_p;
-
-  fd_rstn_o <= s_fd_rstn_o;
-  jc_tms_o  <= s_jc_tms_o;
-  jc_tdi_o  <= s_jc_tdi_o;
-  jc_tck_o  <= s_jc_tck_o;
 
 ---------------------------------------------------------------------------------------------------
 --                                       WF_engine_control                                       --

@@ -4,26 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_rx_osc.vhd                                                                     |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                           WF_rx_osc                                           --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
+-- File         WF_rx_osc.vhd
 --
 -- Description  Generation of the clock signals needed for the FIELDRIVE reception
 --
@@ -39,36 +26,51 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                  may not result in an edge (eg. a 0 followed by a 0 will give an edge _|-|_|-,
 --                  but a 0 followed by a 1 will not _|--|_ ).
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         14/02/2011
---
---
 -- Version      v0.04
---
---
 -- Depends on   WF_reset_unit
 --              WF_deglitcher
 --              WF_rx_deserializer
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 08/2009  v0.01  PS  Entity Ports added, start of architecture content
---     -> 07/2010  v0.02  EG  rx counter changed from 20 bits signed, to 11 bits unsigned;
---                            rx clk generation depends on edge detection;code cleanedup+commented
---                            rst_rx_osc signal clearified
---     -> 12/2010  v0.03  EG  code cleaned-up
---     -> 01/2011  v0.031 EG  rxd_edge_i became fd_rxd_edge_p_i; small correctiond on comments
---     -> 02/2011  v0.04  EG  2 units WF_rx_osc and WF_tx_osc; process replaced by WF_incr_counter
---                            check for code violations removed completely
---
+--     08/2009  v0.01  PS  Entity Ports added, start of architecture content
+--     07/2010  v0.02  EG  rx counter changed from 20 bits signed, to 11 bits unsigned;
+--                         rx clk generation depends on edge detection;code cleanedup+commented
+--                         rst_rx_osc signal clearified
+--     12/2010  v0.03  EG  code cleaned-up
+--     01/2011  v0.031 EG  rxd_edge_i became fd_rxd_edge_p_i; small correctiond on comments
+--     02/2011  v0.04  EG  2 units WF_rx_osc and WF_tx_osc; process replaced by WF_incr_counter
+--                         check for code violations removed completely
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -108,7 +110,6 @@ entity WF_rx_osc is
     rx_adjac_bits_window_o  : out std_logic   -- time window where a transition between adjacent
                                               -- bits is expected
     );
-
 end entity WF_rx_osc;
 
 

@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_tx_serializer.vhd                                                              |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                        WF_tx_serializer                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_tx_serializer.vhd
 --
 -- Description  The unit is generating the nanoFIP FIELDRIVE outputs FD_TXD and FD_TXENA. It is
 --              retreiving bytes of data from:
@@ -41,46 +27,59 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --              be transmitted, the WF_engine_control asserts the last_byte_p_i which signals the
 --              unit to proceed with the transmission of the CRC bytes and the FES.
 --
---
---              Reminder:
---
---              Produced RP_DAT frame structure :
+--              Reminder of the Produced RP_DAT frame structure :
 --             ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
 --            |____FSS____|_Ctrl_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|
 --
 --                        |------------- Bytes from the WF_production -------------|
 --
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         21/01/2011
---
---
 -- Version      v0.04
---
 -- Depends on   WF_engine_control
 --              WF_production
 --              WF_tx_osc
 --              WF_reset_unit
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> v0.02     2009  PAS Entity Ports added, start of architecture content
---     -> v0.03  07/2010  EG  timing changes; tx_sched_p_buff_i got 1 more bit
---                            briefly byte_index_i needed to arrive 1 clock tick earlier
---                            renamed from tx to tx_serializer;
---                            stop_transmission state added for the synch of txena
---     -> v0.04  01/2011  EG  sync_to_txck state added to start always with the bits 1,2,3 of the
---                            clock buffer available(tx_start_p_i may arrive at any time)
---                            tx_completed_p_o signal added
---
+--     v0.02     2009  PAS Entity Ports added, start of architecture content
+--     v0.03  07/2010  EG  timing changes; tx_sched_p_buff_i got 1 more bit
+--                         briefly byte_index_i needed to arrive 1 clock tick earlier
+--                         renamed from tx to tx_serializer;
+--                         stop_transmission state added for the synch of txena
+--     v0.04  01/2011  EG  sync_to_txck state added to start always with the bits 1,2,3 of the
+--                         clock buffer available(tx_start_p_i may arrive at any time)
+--                         tx_completed_p_o signal added
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

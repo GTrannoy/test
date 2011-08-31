@@ -4,26 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_tx_osc.vhd                                                                     |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                            WF_tx_osc                                          --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
+-- File         WF_tx_osc.vhd 
 --
 -- Description  Generation of the clock signals needed for the FIELDRIVE transmission
 --
@@ -37,33 +24,46 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --              tx_sched_p_buff(1) :   0   1   0   0                           0   1   0   0
 --              tx_sched_p_buff(0) :   1   0   0   0                           1   0   0   0
 --
---
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
--- Date        14/02/2011
---
---
+-- Date         14/02/2011
 -- Version      v0.04
---
---
 -- Depends on   WF_reset_unit
---              WF_engine_control
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 08/2009  v0.01  PS  Entity Ports added, start of architecture content
---     -> 07/2010  v0.02  EG  tx counter changed from 20 bits signed, to 11 bits unsigned;
---                            c_TX_SCHED_BUFF_LGTH got 1 bit more
---     -> 12/2010  v0.03  EG  code cleaned-up
---     -> 01/2011  v0.04  EG  WF_tx_osc as different unit; use of WF_incr_counter;added tx_osc_rst_p_i
---
+--     08/2009  v0.01  PS  Entity Ports added, start of architecture content
+--     07/2010  v0.02  EG  tx counter changed from 20 bits signed, to 11 bits unsigned;
+--                         c_TX_SCHED_BUFF_LGTH got 1 bit more
+--     12/2010  v0.03  EG  code cleaned-up
+--     01/2011  v0.04  EG  WF_tx_osc as different unit; use of WF_incr_counter;added tx_osc_rst_p_i
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -93,7 +93,6 @@ entity WF_tx_osc is
                                                       -- buffer of pulses used for the scheduling
                                                       -- of the actions of the WF_tx_serializer
     );
-
 end entity WF_tx_osc;
 
 

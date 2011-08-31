@@ -6,24 +6,11 @@
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
--- File         WF_fd_receiver.vhd                                                                |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
-
----------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                         WF_fd_receiver                                        --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_fd_receiver.vhd
 --
 -- Description  The unit groups the main actions that regard FIELDRIVE data reception.
 --              It instantiates the units:
@@ -65,25 +52,41 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         15/02/2011
---
---
 -- Version      v0.01
---
---
 -- Depends on   WF_reset_unit
 --              WF_engine_control
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->
---
+--     02/2011  v0.01  EG  First version
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -120,16 +123,9 @@ entity WF_fd_receiver is
     rx_crc_wrong_p_o      : out std_logic; -- indication of a frame (ID_DAT or RP_DAT) with
                                            -- wrong CRC; pulse upon FES detection
 
-  TP14       : out std_logic;
-  TP15       : out std_logic;
-  TP16       : out std_logic;
-  TP39       : out std_logic;
-
     -- Signals to the WF_engine_control
     rx_fss_received_p_o   : out std_logic  -- pulse upon FSS detection (ID/ RP_DAT)
-
     );
-
 end entity WF_fd_receiver;
 
 
@@ -210,12 +206,6 @@ begin
     fss_crc_fes_ok_p_o   => rx_fss_crc_fes_ok_p_o,
     rx_osc_rst_o         => s_rx_osc_rst,
     fss_received_p_o     => rx_fss_received_p_o,
-
-  TP14       => TP14, 
-  TP15       => TP15,
-  TP16       => TP16, 
-  TP39       => TP39, 
-
     crc_wrong_p_o        => rx_crc_wrong_p_o);
    ------------------------------------------------------
 

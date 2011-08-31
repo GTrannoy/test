@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_consumption.vhd                                                                |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                          WF_consumption                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_consumption.vhd 
 --
 -- Description  The unit groups the main actions that regard data consumption.
 --              It instantiates the units:
@@ -72,26 +58,42 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         11/01/2011
---
---
 -- Version      v0.01
---
---
 -- Depends on   WF_reset_unit
 --              WF_fd_receiver
 --              WF_engine_control
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->
---
+--     01/2011  EG  v0.01  first version
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -161,7 +163,7 @@ entity WF_consumption is
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signal from the WF_jtag_player unit
+    -- Signal from the WF_jtag_controller unit
     jc_mem_adr_rd_i          : in std_logic_vector (8 downto 0);
 
 
@@ -172,7 +174,7 @@ entity WF_consumption is
       var1_rdy_o             : out std_logic;
       var2_rdy_o             : out std_logic;
 
-    -- Signals to the WF_JTAG_player
+    -- Signals to the WF_jtag_controller
       jc_start_p_o           : out std_logic;
 
     -- nanoFIP User Interface, WISHBONE Slave outputs
@@ -185,7 +187,7 @@ entity WF_consumption is
       assert_rston_p_o       : out std_logic;
       rst_nfip_and_fd_p_o    : out std_logic;
 
-    -- Signals to the WF_jtag_player unit
+    -- Signals to the WF_jtag_controller unit
     jc_mem_data_o            : out std_logic_vector (7 downto 0)
     );
 

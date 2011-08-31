@@ -4,58 +4,58 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         DualClkRAM.vhd                                                                    |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- ProASIC3 library
-library PROASIC3;            -- component specific library
--- ProASIC3 packages
-use PROASIC3.all;
-
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                          DualClkRAM                                           --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         DualClkRAM.vhd
 --
 -- Description  Instantiation of a template ProAsic3 RAM4K9 memory component with
 --                o word width : 8 bits and
 --                o depth      : 512 bytes.
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         15/12/2010
---
---
 -- Version      v0.02
---
 -- Depends on   ProASIC3 lib
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->   08/2010  v0.01  EG  pepeline not used! data appears in output 1 clock cycle after the
---                              address is given (otherwise it was 2 clock cycles later) slack
---                              checked and is ok! code cleaned-up and commented
---     ->15/12/2010  v0.02  EG  comments for BLKA, BLKB; cleaning-up
+--        08/2010  v0.01  EG  pepeline not used! data appears in output 1 clock cycle after the
+--                            address is given (otherwise it was 2 clock cycles later) slack
+--                            checked and is ok! code cleaned-up and commented
+--     15/12/2010  v0.02  EG  comments for BLKA, BLKB; cleaning-up
 --
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
