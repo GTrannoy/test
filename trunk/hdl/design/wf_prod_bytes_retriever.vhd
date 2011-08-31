@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_prod_bytes_retriever.vhd                                                       |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                    WF_prod_bytes_retriever                                    --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_prod_bytes_retriever.vhd
 --
 -- Description  After an ID_DAT frame requesting for a variable to be produced, the unit provides
 --              to the WF_tx_serializer unit one by one, all the bytes of data needed for the
@@ -66,39 +52,55 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         04/01/2011
---
---
 -- Version      v0.05
---
---
 -- Depends on   WF_reset_unit
 --              WF_wb_controller
 --              WF_engine_control
 --              WF_prod_permit
 --              WF_status_bytes_gen
 --              WF_model_constr_dec
---
---
----------------------------------------------------------------------------------------------------
+----------------
 -- Last changes
---     -> 06/2010  v0.02  EG  subs_i is not sent in the RP_DAT frames
---                            signal s_wb_we includes the wb_stb_r_edge_p_i
---                            cleaner structure
---     -> 06/2010  v0.03  EG  signal s_mem_byte was not in sensitivity list in v0.01! by adding it
---                            changes were essential in the timing of the tx (WF_osc, WF_tx,
---                            WF_engine_control and the configuration of the memory needed changes)
---     -> 11/2010  v0.04  EG  for simplification, new unit Slone_Data_Sampler created
---     -> 4/1/2011 v0.05  EG  unit renamed from WF_prod_bytes_to_tx to WF_prod_bytes_retriever;
---                            input byte_being_sent_p_i added, so that the reseting of status bytes
---                            does not pass from the engine; clening-up+commenting
---     ->   2/2011 v0.051 EG  WF_prod_bytes_from_dati unit removed.
---
---
+--     06/2010  v0.02  EG  subs_i is not sent in the RP_DAT frames
+--                         signal s_wb_we includes the wb_stb_r_edge_p_i
+--                         cleaner structure
+--     06/2010  v0.03  EG  signal s_mem_byte was not in sensitivity list in v0.01! by adding it
+--                         changes were essential in the timing of the tx (WF_osc, WF_tx,
+--                         WF_engine_control and the configuration of the memory needed changes)
+--     11/2010  v0.04  EG  for simplification, new unit Slone_Data_Sampler created
+--     4/1/2011 v0.05  EG  unit renamed from WF_prod_bytes_to_tx to WF_prod_bytes_retriever;
+--                         input byte_being_sent_p_i added, so that the reseting of status bytes
+--                         does not pass from the engine; clening-up+commenting
+--       2/2011 v0.051 EG  WF_prod_bytes_from_dati unit removed.
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -159,7 +161,7 @@ entity WF_prod_bytes_retriever is
     constr_id_dec_i      : in  std_logic_vector (7 downto 0); -- decoded constructor id settings
     model_id_dec_i       : in  std_logic_vector (7 downto 0); -- decoded model id settings
 
-    -- Signals from the WF_jtag_player unit
+    -- Signals from the WF_jtag_controller unit
     jc_tdo_byte_i        : in std_logic_vector (7 downto 0);  -- 8 last JC_TDO bits
 
   -- OUTPUTS
@@ -442,7 +444,7 @@ begin
                                                        -- MPS byte to the WF_tx_serializer.
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        -- The other byte comes from the JATG_player
+        -- The other byte comes from the JATG_controller
         else
           byte_o               <= jc_tdo_byte_i;
           rst_status_bytes_p_o <= '0';

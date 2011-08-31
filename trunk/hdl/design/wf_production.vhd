@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_production.vhd                                                                 |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                         WF_production                                         --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_production.vhd
 --
 -- Description  The unit groups the main actions that regard data production.
 --              It instantiates the units:
@@ -73,31 +59,46 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --              which of the instantiated units needs it.
 --
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         11/01/2011
---
---
 -- Version     v0.02
---
---
 -- Depends on   WF_reset_unit
 --              WF_consumption
 --              WF_engine_control
 --              WF_wb_controller
 --              WF_model_constr_decoder
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     ->    2/2011  v0.02  EG  WF_serializer removed from this unit
---
+--     2/2011  v0.02  EG  WF_serializer removed from this unit
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -194,7 +195,7 @@ entity WF_production is
 
 
  	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_jtag_player unit
+    -- Signals from the WF_jtag_controller unit
       jc_tdo_byte_i           : in std_logic_vector (7 downto 0);
 
 

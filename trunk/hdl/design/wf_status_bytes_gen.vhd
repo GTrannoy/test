@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_status_bytes_gen.vhd                                                           |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                      WF_status_bytes_gen                                      --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_status_bytes_gen.vhd 
 --
 -- Description  Generation of the nanoFIP status and MPS status bytes.
 --              The unit is also responsible for outputting the "nanoFIP User Interface,
@@ -37,14 +23,15 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                o the "nanoFIP User Interface, NON_WISHBONE" inputs (VAR_ACC) and outputs
 --                  (VAR_RDY), for the bits 2 and 3.
 --
+--              For the MPS byte, in memory mode, the refreshment and significance bits are set to
+--              1 if the user has updated the produced variable var3 since its last transmission;
+--              the signal "nanoFIP User Interface, NON_WISHBONE" input VAR3_ACC, is used for this.
+--              In stand-alone mode the refreshment and the significance are set to 1.
+--              Also, regardless of the mode, for the consumed variable jc_var3 the refreshment
+--              and significance are set to 1.
 --
---              For the refreshment and significance bits of the MPS status, the signal
---              "nanoFIP User Interface, NON_WISHBONE" input VAR3_ACC is used.
---
---              The MPS status byte and the bits 0 to 5 of the nanoFIP status byte are reset after
---              having been sent or after a nanoFIP internal reset. The bits 6 and 7 of the nanoFIP
---              status byte are only reset after a nanoFIP internal reset.
---
+--              The MPS and the nanoFIP status byte are reset after having been sent or after a
+--              nanoFIP internal reset.
 --
 --              Reminder:
 --                ______________________ __________ ____________________________________________
@@ -82,38 +69,55 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                   |       4-7        |              |     000      |
 --                   |__________________|_____________ |______________|
 --
---                  The refreshment and significance are set to 1 if the user has updated
---                   the produced variable since the last transmission of the variable.
---
 --
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
--- Date         10/01/2011
---
---
--- Version      v0.03
---
---
+-- Date         06/2011
+-- Version      v0.04
 -- Depends on   WF_reset_unit
 --              WF_consumption
 --              WF_prod_bytes_retriever
 --              WF_prod_permit
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 07/07/2009  v0.01  PA  First version
---     ->    08/2010  v0.02  EG  Internal extention of the var_rdy signals to avoid nanoFIP status
---                               errors few cycles after var_rdy deactivation
---     ->    01/2011  v0.03  EG  u_cacer,pacer etc outputs added; new input nfip_status_r_tler_p_i
---                               for nanoFIP status bit 4; var_i input not needed as the signals
---                               nfip_status_r_fcser_p_i and nfip_status_r_tler_p_i check the var
---
+--     07/07/2009  v0.01  PA  First version
+--        08/2010  v0.02  EG  Internal extention of the var_rdy signals to avoid nanoFIP status
+--                            errors few cycles after var_rdy deactivation
+--        01/2011  v0.03  EG  u_cacer,pacer etc outputs added; new input nfip_status_r_tler_p_i
+--                            for nanoFIP status bit 4; var_i input not needed as the signals
+--                            nfip_status_r_fcser_p_i and nfip_status_r_tler_p_i check the var
+--        06/2011  v0.04  EG  all bits of nanoFIP status byte are reset upon rst_status_bytes_p_i
+--                            var_i added for the jtag_var1 treatment; 
+--                            r_fcser, r_tler_o considered only for a cons variable (bf a wrong
+--                            crc on an id-dat could give r_fcser)
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -255,13 +259,12 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
--- Combinatorial process MPS_byte_Creation: Creation of the MPS byte
--- (nanoFIP functional specification, Table 2)
+-- Combinatorial process MPS_byte_Generation: Creation of the MPS byte (Table 2, functional specs)
 
-  MPS_byte_Creation: process (slone_i, s_refreshment, var_i)
+  MPS_byte_Generation: process (slone_i, s_refreshment, var_i)
 
-  begin
-    if slone_i = '1' or var_i = var_jc3 then
+  begin                                       -- var_jc3, regardless of the mode, has signif. & refresh. set to 1
+    if slone_i = '1' or var_i = var_jc3 then  -- stand-alone mode has signif. & refresh. set to 1
       mps_status_byte_o (7 downto 3)           <= (others => '0');
       mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
       mps_status_byte_o (1)                    <= '0';
@@ -280,10 +283,10 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                     nanoFIP status byte                                       --
 ---------------------------------------------------------------------------------------------------
--- Synchronous process Status_byte_Formation: Formation of the nanoFIP status byte
--- (nanoFIP functional specification, Table 8)
+-- Synchronous process nFIP_status_byte_Generation: Creation of the nanoFIP status byte (Table 8,
+-- functional specs)
 
-  nFIP_status_byte_generation: process (uclk_i)
+  nFIP_status_byte_Generation: process (uclk_i)
   begin
 
     if rising_edge (uclk_i) then
@@ -294,8 +297,8 @@ begin
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- reinitialization after the transmission of a produced variable
-        if rst_status_bytes_p_i = '1' then                          -- bits 0 to 5 reinitialised ------------------------------------------
-          s_nFIP_status_byte(7 downto 0)        <= (others => '0'); -- after having been delivered
+        if rst_status_bytes_p_i = '1' then                          -- bits 0 to 5 reinitialised
+          s_nFIP_status_byte                    <= (others => '0'); -- after having been delivered
                                                                     -- bits 6 and 7 are only reset
                                                                     -- when nanoFIP is reset
         else
@@ -336,14 +339,14 @@ begin
 
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-          --r_tler
-          if (nfip_status_r_tler_p_i = '1') then
+          --r_tler                                               -- PDU_TYPE or length error on a consumed var
+          if (nfip_status_r_tler_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
             s_nFIP_status_byte(c_R_TLER_INDEX)  <= '1';
           end if;
 
            --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
-          --r_fcser
-          if (nfip_status_r_fcser_p_i = '1') then--and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
+          --r_fcser                                               -- CRC or bit number error on a consumed var
+          if (nfip_status_r_fcser_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
             s_nFIP_status_byte(c_R_FCSER_INDEX) <= '1';
           end if;
 
@@ -373,7 +376,7 @@ begin
 
     s_var1_rdy_c_reinit <= var1_rdy_i or nfip_rst_i;
     s_var1_rdy_c_incr   <= '1' when s_var1_rdy_c < "1111" else '0';
-    s_var1_rdy_extended <= '1' when var1_rdy_i= '1' or s_var1_rdy_c_incr = '1' else '0';
+    s_var1_rdy_extended       <= '1' when var1_rdy_i= '1' or s_var1_rdy_c_incr = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR2_RDY: WF_incr_counter
@@ -389,7 +392,7 @@ begin
 
     s_var2_rdy_c_reinit <= var2_rdy_i or nfip_rst_i;
     s_var2_rdy_c_incr   <= '1' when s_var2_rdy_c < "1111" else '0';
-    s_var2_rdy_extended <= '1' when var2_rdy_i= '1' or s_var2_rdy_c_incr = '1' else '0';
+    s_var2_rdy_extended       <= '1' when var2_rdy_i= '1' or s_var2_rdy_c_incr = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   Extend_VAR3_RDY: WF_incr_counter
@@ -405,7 +408,7 @@ begin
 
     s_var3_rdy_c_reinit <= var3_rdy_i or nfip_rst_i;
     s_var3_rdy_c_incr   <= '1' when s_var3_rdy_c < "1111" else '0';
-    s_var3_rdy_extended <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_c_incr = '1' else '0';
+    s_var3_rdy_extended       <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_c_incr = '1' else '0';
 
 
 

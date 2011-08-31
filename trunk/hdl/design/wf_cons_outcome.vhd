@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_cons_outcome.vhd                                                               |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                         WF_cons_outcome                                       --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_cons_outcome.vhd   
 --
 -- Description  The unit starts by validating a consumed RP_DAT frame with respect to the
 --              correctness of:
@@ -55,37 +41,53 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         22/02/2011
---
---
 -- Version      v0.05
---
---
 -- Depends on   WF_reset_unit
 --              WF_engine_control
 --              WF_fd_receiver
 --              WF_consumption
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 10/2010  v0.01  EG  First version
---     -> 11/2010  v0.02  EG  Treatment of reset vars added to the unit
---                            Correction on var1_rdy, var2_rdy for slone
---     -> 12/2010  v0.03  EG  Finally no broadcast in slone, cleanning-up+commenting
---     -> 01/2010  v0.04  EG  Unit WF_var_rdy_generator separated in WF_cons_outcome
---                            (for var1_rdy,var2_rdy+var_rst outcome) & WF_prod_permit (for var3)
---     -> 02/2010  v0.05  EG  Added here functionality of wf_cons_frame_validator
---                            Bug on var1_rdy, var2_rdy generation corrected (the s_varX_received
---                            was always set to 1!)
---                            Added check of Ctrl byte for rtler
---                            Added cons_bytes_excess_i for tracking of too long RP_DATs
---
+--     10/2010  v0.01  EG  First version
+--     11/2010  v0.02  EG  Treatment of reset vars added to the unit
+--                         Correction on var1_rdy, var2_rdy for slone
+--     12/2010  v0.03  EG  Finally no broadcast in slone, cleanning-up+commenting
+--     01/2010  v0.04  EG  Unit WF_var_rdy_generator separated in WF_cons_outcome
+--                         (for var1_rdy,var2_rdy+var_rst outcome) & WF_prod_permit (for var3)
+--     02/2010  v0.05  EG  Added here functionality of wf_cons_frame_validator
+--                         Bug on var1_rdy, var2_rdy generation corrected (the s_varX_received
+--                         was always set to 1!)
+--                         Added check of Ctrl byte for rtler
+--                         Added cons_bytes_excess_i for tracking of too long RP_DATs
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                      Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -131,7 +133,7 @@ entity WF_cons_outcome is
     var1_rdy_o             : out std_logic; -- signals new data is received and can safely be read
     var2_rdy_o             : out std_logic; -- signals new data is received and can safely be read
 
-    -- Signal to the WF_JTAG_player unit
+    -- Signal to the WF_jtag_controller unit
     jc_start_p_o           : out std_logic;
 
     -- Signal to the WF_status_bytes_gen unit
@@ -317,7 +319,7 @@ begin
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --  --  -- -- 
 
 
-        -- JTAG_player --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --
+        -- JTAG_controller --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --  --  --
         if (var_i = var_jc1) and (s_cons_frame_ok_p = '1') then
  
           jc_start_p_o <= '1';

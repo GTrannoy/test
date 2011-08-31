@@ -4,27 +4,13 @@
 --                                                                                                |
 --                                        CERN,BE/CO-HT                                           |
 --________________________________________________________________________________________________|
---________________________________________________________________________________________________|
-
----------------------------------------------------------------------------------------------------
--- File         WF_rx_deserializer.vhd                                                            |
----------------------------------------------------------------------------------------------------
-
--- Standard library
-library IEEE;
--- Standard packages
-use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
-use IEEE.NUMERIC_STD.all;    -- conversion functions
-
--- Specific packages
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                               --
 --                                       WF_rx_deserializer                                      --
 --                                                                                               --
 ---------------------------------------------------------------------------------------------------
---
+-- File         WF_rx_deserializer.vhd
 --
 -- Description  De-serialization of the "nanoFIP FIELDRIVE" input signal FD_RXD and construction
 --              of bytes of data to be provided to:
@@ -63,58 +49,71 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                 sample_bit_p       : ^   ^   (this sampling will give the 0 and the 1)
 --
 --
---              Reminder:
---
---              Consumed RP_DAT frame structure :
+--               Reminder of the consumed RP_DAT frame structure:
 --           _______ _______ ______  _______ ______ ________________ _______  ___________ _______
 --          |__PRE__|__FSD__|_Ctrl_||__PDU__|_LGTH_|_..ApplicData.._|__MPS__||____FCS____|__FES__|
 --
 --
---
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
---
---
 -- Date         15/02/2011
---
---
 -- Version      v0.05
---
---
 -- Depends on   WF_reset_unit
 --              WF_rx_osc
 --              WF_rx_deglitcher
 --              WF_engine_control
---
---
----------------------------------------------------------------------------------------------------
---
+----------------
 -- Last changes
---     -> 09/2009 v0.01 PAS First version
---     -> 10/2010 v0.02 EG  state switch_to_deglitched added;
---                          output signal rx_osc_rst_o added; signals renamed;
---                          state machine rewritten (moore style);
---                          units WF_rx_manch_code_check and Incoming_Bits_Index created;
---                          each manch bit of FES checked (bf was just each bit, so any D5 was FES)
---                          code cleaned-up + commented.
---     -> 12/2010 v0.03 EG  CRC_ok pulse transfered 16 bits later to match the FES;
---                          like this we confirm that the CRC_ok_p arrived just before the FES,
---                          and any 2 bytes that could by chanche be seen as CRC, are neglected.
---                          FSM data_field_byte state: redundant code removed:
---                          "s_fes_wrong_bit = '1' and s_manch_code_viol_p = '1' then idle"
---                          code(more!)cleaned-up
---     -> 01/2011 v0.04 EG  changed way of detecting the FES to be able to detect a FES even if
---                          bytes with size different than 8 have preceeded.
---                          crc_wrong_p_o replaced the crc_wrong_p_o.
---     -> 02/2011 v0.05 EG  changed crc pulse transfer; removed switch to deglitch state
---                          s_fes_detected removed and s_byte_ready_p_d1; if bytes arrive with
---                          bits not x8, the fss_crc_fes_ok_p_o stays 0 (bc of s_byte_ready_p_d1)
---                          and the crc_wrong_p_o is asserted (bc of s_sample_manch_bit_p_d1);
---                          unit reset during production;
---                          check for code vilations completely removed!
---
+--     09/2009 v0.01 PAS First version
+--     10/2010 v0.02 EG  state switch_to_deglitched added;
+--                       output signal rx_osc_rst_o added; signals renamed;
+--                       state machine rewritten (moore style);
+--                       units WF_rx_manch_code_check and Incoming_Bits_Index created;
+--                       each manch bit of FES checked (bf was just each bit, so any D5 was FES)
+--                       code cleaned-up + commented.
+--     12/2010 v0.03 EG  CRC_ok pulse transfered 16 bits later to match the FES;
+--                       like this we confirm that the CRC_ok_p arrived just before the FES,
+--                       and any 2 bytes that could by chanche be seen as CRC, are neglected.
+--                       FSM data_field_byte state: redundant code removed:
+--                       "s_fes_wrong_bit = '1' and s_manch_code_viol_p = '1' then idle"
+--                       code(more!)cleaned-up
+--     01/2011 v0.04 EG  changed way of detecting the FES to be able to detect a FES even if
+--                       bytes with size different than 8 have preceeded.
+--                       crc_wrong_p_o replaced the crc_wrong_p_o.
+--     02/2011 v0.05 EG  changed crc pulse transfer; removed switch to deglitch state
+--                       s_fes_detected removed and s_byte_ready_p_d1; if bytes arrive with
+--                       bits not x8, the fss_crc_fes_ok_p_o stays 0 (bc of s_byte_ready_p_d1)
+--                       and the crc_wrong_p_o is asserted (bc of s_sample_manch_bit_p_d1);
+--                       unit reset during production;
+--                       check for code vilations completely removed!
 ---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                |
+--                              ------------------------------------                              |
+-- This source file is free software; you can redistribute it and/or modify it under the terms of |
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     |
+-- version 2.1 of the License, or (at your option) any later version.                             |
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       |
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.      |
+-- See the GNU Lesser General Public License for more details.                                    |
+-- You should have received a copy of the GNU Lesser General Public License along with this       |
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     |
+---------------------------------------------------------------------------------------------------
+
+
+
+--=================================================================================================
+--                                       Libraries & Packages
+--=================================================================================================
+
+-- Standard library
+library IEEE;
+use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
+use IEEE.NUMERIC_STD.all;    -- conversion functions
+-- Specific library
+library work;
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -163,17 +162,9 @@ entity WF_rx_deserializer is
     -- Signal to the WF_engine_control unit
     fss_received_p_o     : out std_logic; -- pulse upon reception of a correct FSS (ID/RP)
 
-
-  TP14       : out std_logic;
-  TP15       : out std_logic;
-  TP16       : out std_logic;
-  TP39       : out std_logic;
-
-
     -- Signal to the WF_rx_osc unit
     rx_osc_rst_o         : out std_logic  -- resets the clk recovery procedure
-);
-
+        );
 end entity WF_rx_deserializer;
 
 
@@ -652,10 +643,6 @@ begin
   -- with number of bits not multiple of 8, but with correct FES, can be detected. 
   crc_wrong_p_o             <= s_fes_detected and s_sample_manch_bit_p_d1 and (not s_CRC_ok_p_d);
 
-  TP14      <= fd_rxd_i;
-  TP15      <= s_CRC_ok_p_d;
-  TP16      <= s_sample_manch_bit_p_d1;
-  TP39      <= s_byte_ready_p_d1;
 
 end architecture rtl;
 --=================================================================================================
