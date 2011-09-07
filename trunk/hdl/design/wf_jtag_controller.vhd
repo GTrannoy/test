@@ -19,9 +19,9 @@
 --                  every JC_TMS/ JC_TDI pair.
 --                o JC_TMS and JC_TDI are being retreived from the JC_consumed memory and are
 --                  put to the corresponding outputs on each falling edge of the JC_TCK.
---                  Bytes 0 and 1 of the JC_consumed memory do not contain JC_TMS and JC_TDI bits,
---                  but are used to indicate, in big indian order, the amount of JC_TMS and JC_TDI
---                  bits that have to be output.
+--                  The first and second data bytes of the JC_consumed memory do not contain JC_TMS
+--                  and JC_TDI bits, but are used to indicate, in big indian order, the amount of
+--                  JC_TMS and JC_TDI bits that have to be output.
 --                  
 --                o the JC_TDO input is sampled on the rising edge of JC_TCK; only the last sampled 
 --                  JC_TDO bit is significant and it is registered and sent at the next var_jc2
@@ -83,8 +83,8 @@ port (
     nfip_rst_i      : in std_logic;                     -- nanoFIP internal reset
 
     -- Signals from the WF_consumption unit
-    jc_mem_data_i   : in std_logic_vector (7 downto 0); -- byte retreived from the JC_cons memory
     jc_start_p_i    : in std_logic;                     -- pulse upon validation of a jc_var1 RP_DAT frame
+    jc_mem_data_i   : in std_logic_vector (7 downto 0); -- byte retreived from the JC_consumed memory
 
 
   -- OUTPUTS
@@ -111,15 +111,15 @@ architecture rtl of WF_jtag_controller is
   signal jc_st, nx_jc_st                              : jc_st_t;
   signal s_idle, s_get_byte, s_play_byte, s_set_adr   : std_logic;
 
-  signal s_bytes_c_reinit, s_bytes_c_incr             : std_logic;
   signal s_bytes_c, s_bytes_c_d1                      : unsigned (6 downto 0);
 
+  signal s_bits_so_far                                : unsigned (15 downto 0);
+
   signal s_frame_bits_lsb, s_frame_bits_msb           : std_logic_vector (7 downto 0);
-  signal s_frame_bits, s_bits_so_far                  : unsigned (15 downto 0);
+  signal s_frame_bits                                 : unsigned (15 downto 0);
 
-  signal s_tck_c_reinit, s_tck_c_incr, s_tck_c_is_full: std_logic;
-  signal s_tck                                        : std_logic;
-
+  signal s_tck, s_tck_transition, s_tck_c_is_full     : std_logic;
+   
   signal s_tck_c, s_tck_period, s_tck_four_periods    : unsigned (c_FOUR_JC_TCK_C_LGTH-1 downto 0);
   signal s_tck_half_period, s_tck_quarter_period      : unsigned (c_FOUR_JC_TCK_C_LGTH-1 downto 0);
 
@@ -151,21 +151,19 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Combinatorial process JC_FSM_Comb_State_Transitions: Definition of the state
 -- transitions of the FSM.
-
--- 2 first bytes                        : big indian number of bits to be considered in this frame
--- s_bits_so_far                        : number of treated TMS and TDI bits
--- (s_frame_bits - s_bits_so_far) srl 1 : remaining number of TMS/ TDI pairs
--- 2 ^ (c_JC_TCK_DIV'left)              : number of uclk cycles for 1 JC_TCK period  
+-- s_frame_bits indicates the amount of TMS/ TDI bits that have to be output, according to the
+-- first 2 data bytes in the JC_consumed memory
+-- s_bits_so_far indicates the amount of bits that have been output so far 
 
   JC_FSM_Comb_State_Transitions: process (jc_st, s_bytes_c, s_frame_bits, s_bits_so_far,
-                                          jc_start_p_i, s_tck_c, s_tck_c_is_full)
+                                          jc_start_p_i, s_tck_c_is_full, s_tck_transition)
   begin
 
   case jc_st is
 
 
     when idle =>
-                        if jc_start_p_i = '1' then -- consumed jc_var1 frame validated
+                        if jc_start_p_i = '1' then     -- consumed jc_var1 frame validated
                           nx_jc_st <= set_address;
 
                         else
@@ -173,40 +171,33 @@ begin
                         end if;
 
     when set_address =>
-                        nx_jc_st <= get_byte;      -- 1 uclk cycle for the setting of the memory
-                                                   -- address; byte available at the next cycle 
+                        nx_jc_st <= get_byte;          -- 1 uclk cycle for the setting of the memory
+                                                       -- address; byte available at the next cycle 
 
 
     when get_byte =>
-                        if s_bytes_c < 2 then      -- 2 first bytes: number of jc_TMS & JC_TDI bits
+                        if s_bytes_c < 2 then          -- 2 first bytes: amount of JC_TMS & JC_TDI bits
                           nx_jc_st <= set_address;
-                        else                       -- the rest of the bytes have to be output
+                        else                           -- the rest of the bytes have to be "played"
                           nx_jc_st <= play_byte;
                         end if;
 
     when play_byte =>
-                        if s_frame_bits = 0  or s_frame_bits > c_MAX_FRAME_BITS then -- outside expected limits
+                        if s_frame_bits <= 0 or s_frame_bits > c_MAX_FRAME_BITS then -- outside expected limits
                           nx_jc_st <= idle;
 
-                        elsif s_frame_bits - s_bits_so_far  > 8 then                 -- full bytes still available
-                          if s_tck_c_is_full = '1' then                              -- byte completed
+                        elsif s_frame_bits > s_bits_so_far then
+                          if s_tck_c_is_full = '1' then -- byte completed
                             nx_jc_st <= set_address;
-                          else                                                       -- byte being output
+                          else                          -- byte being output
                             nx_jc_st <= play_byte;
                           end if;
 
-                        elsif s_frame_bits - s_bits_so_far  = 8 then                 -- last full byte
-                          if s_tck_c_is_full = '1' then                              -- byte completed
-                            nx_jc_st <= idle;
-                          else                                                       -- byte being output
-                            nx_jc_st <= play_byte;
-                          end if;
-
-                        else                                                          -- bits of last byte
-                          if s_tck_c < (((s_frame_bits - s_bits_so_far) srl 1) sll c_JC_TCK_DIV'left) -1 then
-                            nx_jc_st <= play_byte;
+                        else                            -- last bit
+                          if s_tck_transition = '1' then
+                            nx_jc_st <= idle;           -- wait until the completion of a JC_TCK cycle
                           else
-                            nx_jc_st <= idle;
+                            nx_jc_st <= play_byte;
                           end if;
                         end if;
 
@@ -223,9 +214,9 @@ begin
     case jc_st is
 
     when idle =>
-                        ---------------------------------
+                        -----------------------------
                           s_idle      <= '1';
-                        ---------------------------------
+                        -----------------------------
                           s_set_adr   <= '0';
                           s_get_byte  <= '0';
                           s_play_byte <= '0';
@@ -234,9 +225,9 @@ begin
     when set_address =>
 
                           s_idle      <= '0';
-                        ---------------------------------
+                        -----------------------------
                           s_set_adr   <= '1';
-                        ---------------------------------
+                        -----------------------------
                           s_get_byte  <= '0';
                           s_play_byte <= '0';
 
@@ -244,9 +235,9 @@ begin
 
                           s_idle      <= '0';
                           s_set_adr   <= '0';
-                        ---------------------------------
+                        -----------------------------
                           s_get_byte  <= '1';
-                        ---------------------------------
+                        -----------------------------
                           s_play_byte <= '0';
 
     when play_byte  =>
@@ -254,9 +245,9 @@ begin
                           s_idle      <= '0';
                           s_set_adr   <= '0';
                           s_get_byte  <= '0';
-                        ---------------------------------
+                        -----------------------------
                           s_play_byte <= '1';
-                        ---------------------------------
+                        -----------------------------
     end case;
   end process;
 
@@ -265,7 +256,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                       JC_TCK generation                                       --
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a WF_incr_counter used for the generation of the 5 MHz JC_TCK output clock.
+-- Instantiation of a WF_incr_counter used for the generation of the JC_TCK output clock.
 -- The counter is filled up after having counted 4 JC_TCK periods; this corresponds to the amount
 -- of periods needed for outputting a full JC_TMS/ JC_TDI byte;
 
@@ -273,8 +264,8 @@ begin
   generic map (g_counter_lgth => c_FOUR_JC_TCK_C_LGTH)
   port map (
     uclk_i            => uclk_i,
-    reinit_counter_i  => s_tck_c_reinit,
-    incr_counter_i    => s_tck_c_incr,
+    reinit_counter_i  => (not s_play_byte),
+    incr_counter_i    => s_play_byte,
     counter_is_full_o => s_tck_c_is_full,
     ------------------------------------------
     counter_o         => s_tck_c);
@@ -288,13 +279,8 @@ begin
         s_tck   <= '1';
       else
 
-        if (s_tck_c >= s_tck_quarter_period  and s_tck_c < s_tck_half_period+s_tck_quarter_period) or
-           (s_tck_c >= (2*s_tck_half_period) +s_tck_quarter_period and s_tck_c < (3*s_tck_half_period) +s_tck_quarter_period) or
-           (s_tck_c >= (4*s_tck_half_period) +s_tck_quarter_period and s_tck_c < (5*s_tck_half_period) +s_tck_quarter_period) or
-           (s_tck_c >= (6*s_tck_half_period) +s_tck_quarter_period and s_tck_c < (7*s_tck_half_period) +s_tck_quarter_period) then
-          s_tck <= '0';
-        else
-          s_tck <= '1';
+        if s_tck_transition = '1' then
+          s_tck <= not s_tck;
         end if;
 
       end if;
@@ -307,7 +293,13 @@ begin
   s_tck_half_period    <= (s_tck_four_periods srl 3)+1;  -- # uclk ticks for 1/2 JC_TCK period
   s_tck_quarter_period <= (s_tck_four_periods srl 4)+1;  -- # uclk ticks for 1/4 JC_TCK period
 
+  s_tck_transition     <= '1' when (s_tck_c = s_tck_quarter_period)  or (s_tck_c = s_tck_half_period+s_tck_quarter_period) or
+                                   (s_tck_c = (2*s_tck_half_period) +s_tck_quarter_period) or (s_tck_c = (3*s_tck_half_period) +s_tck_quarter_period) or
+                                   (s_tck_c = (4*s_tck_half_period) +s_tck_quarter_period) or (s_tck_c = (5*s_tck_half_period) +s_tck_quarter_period) or
+                                   (s_tck_c = (6*s_tck_half_period) +s_tck_quarter_period) or (s_tck_c = (7*s_tck_half_period) +s_tck_quarter_period) else '0';
+
   jc_tck_o             <= s_tck;  
+
 
 
 ---------------------------------------------------------------------------------------------------
@@ -319,8 +311,8 @@ begin
   generic map (g_counter_lgth => 7)
   port map (
     uclk_i            => uclk_i,
-    reinit_counter_i  => s_bytes_c_reinit,
-    incr_counter_i    => s_bytes_c_incr,
+    reinit_counter_i  => s_idle,
+    incr_counter_i    => s_set_adr,
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_bytes_c);
@@ -329,75 +321,10 @@ begin
     jc_mem_adr_rd_o <= std_logic_vector (resize((s_bytes_c + 2), jc_mem_adr_rd_o'length));
                        -- "+2" is bc the first 2 bytes in the memory (PDU_TYPE and Lenght) are not read
 
-    s_bits_so_far   <= (resize((s_bytes_c-2), s_frame_bits'length)) sll 3;
-                        -- "-2" is bc the first 2 bytes read from the memory, represent the number of TMS
-                        -- and TDI bits and are not to be played
-
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Combinatorial process that according to the state of the FSM sets values to the
--- JC_TCK_periods_counter and JC_bytes_count inputs.
-
-  Bit_Index: process (s_idle, s_set_adr, s_get_byte, s_play_byte)
-  begin
-
-    --------------------------------------
-    if s_idle ='1' then
-      -- bytes counter reinitialization
-      s_bytes_c_reinit <= '1';
-      s_bytes_c_incr   <= '0';
-
-      -- JC_TCK counter reinitialization
-      s_tck_c_reinit   <= '1';
-      s_tck_c_incr     <= '0';
-
-    --------------------------------------
-    elsif s_set_adr = '1' then
-      -- bytes counter counting
-      s_bytes_c_reinit <= '0';
-      s_bytes_c_incr   <= '1';
-
-      -- JC_TCK counter reinitialization
-      s_tck_c_reinit   <= '1';
-      s_tck_c_incr     <= '0';
-
-    --------------------------------------
-    elsif s_get_byte = '1' then
-      -- bytes counter retains previous value
-      s_bytes_c_reinit <= '0';
-      s_bytes_c_incr   <= '0';
-
-      -- JC_TCK counter reinitialization
-      s_tck_c_reinit   <= '1';
-      s_tck_c_incr     <= '0';
-
-    --------------------------------------
-    elsif s_play_byte = '1' then
-      -- bytes counter retains previous value
-      s_bytes_c_reinit <= '0';
-      s_bytes_c_incr   <= '0';
-
-      -- JC_TCK counter counting
-      s_tck_c_reinit   <= '0';
-      s_tck_c_incr     <= '1';
-
-    --------------------------------------
-    else
-      -- bytes counter
-      s_bytes_c_reinit <= '1';
-      s_bytes_c_incr   <= '0';
-
-      -- JC_TCK counter reinitialization
-      s_tck_c_reinit   <= '1';
-      s_tck_c_incr     <= '0';
-
-    end if;
-  end process;
-
 
  
 ---------------------------------------------------------------------------------------------------
---                               Number of TMS and TDI bits retreival                            --
+--                                     Frame bits retreival                                      --
 ---------------------------------------------------------------------------------------------------
   Bits_Number_Retreival: process (uclk_i)
   begin
@@ -409,17 +336,17 @@ begin
       else
         s_bytes_c_d1       <= s_bytes_c;
 
-        if s_bytes_c_d1 = 0 then
+        if s_set_adr = '1' and s_bytes_c_d1 = 0 then
           s_frame_bits_msb <= jc_mem_data_i;
         end if;
-        if s_bytes_c_d1 = 1 then
+        if s_set_adr = '1' and s_bytes_c_d1 = 1 then
           s_frame_bits_lsb <= jc_mem_data_i;
         end if;
       end if;
     end if;
   end process;
 
-  s_frame_bits      <= unsigned(s_frame_bits_msb) & unsigned (s_frame_bits_lsb);
+  s_frame_bits      <= unsigned (s_frame_bits_msb) & unsigned (s_frame_bits_lsb);
 
 
 
@@ -433,6 +360,7 @@ begin
     if nfip_rst_i = '1' then                                   -- asynchronous reset
         jc_tms_o     <= '0';
         jc_tdi_o     <= '0';
+
     
     elsif falling_edge (s_tck) then
 
@@ -457,19 +385,32 @@ begin
 
 
 
+---------------------------------------------------------------------------------------------------
+--                                    Delivered bits counter                                     --
+---------------------------------------------------------------------------------------------------
+  JC_bits_counter: process (s_tck, nfip_rst_i, s_idle)
+
+  begin
+
+    if s_idle = '1' then                                       -- asynchronous reset
+      s_bits_so_far <= (others => '0');
+    elsif falling_edge (s_tck) then
+      s_bits_so_far <= s_bits_so_far + 2;
+    end if;        
+  end process;
+
 --------------------------------------------------------------------------------------------------
 --                                          TDO sampler                                          --
 ---------------------------------------------------------------------------------------------------
 
-  JC_TDO_sampling: process (s_tck)
+  JC_TDO_sampling: process (s_tck, nfip_rst_i)
   begin
 
-    if rising_edge (s_tck) then
-      if s_idle= '1' then
-        jc_tdo_byte_o <= (others => '0');
-      else
-        jc_tdo_byte_o <= "0000000" & jc_tdo_i;
-      end if;        
+    if nfip_rst_i = '1' then
+      jc_tdo_byte_o <= (others => '0');
+
+    elsif rising_edge (s_tck) then
+      jc_tdo_byte_o <= "0000000" & jc_tdo_i;
     end if;
   end process;
 
