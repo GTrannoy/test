@@ -53,9 +53,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
--- Specific library
-library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+-- Component specific library
+library PROASIC3;            -- ProASIC3 library
+use PROASIC3.all;
 
 
 --=================================================================================================

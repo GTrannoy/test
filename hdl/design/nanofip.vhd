@@ -278,6 +278,7 @@ entity nanofip is
 
   ack_o      : out std_logic;                     -- WISHBONE acknowledge
 
+  TP39 : out std_logic;
 
   --  User Interface, JTAG Controller
 
@@ -300,8 +301,8 @@ architecture struc of nanofip is
 ---------------------------------------------------------------------------------------------------
 --                              Synplify Triple Module Redundancy                                --
 ---------------------------------------------------------------------------------------------------
- -- attribute syn_radhardlevel          : string;                                                --
- -- attribute syn_radhardlevel of struc : architecture is "tmr";                                 --
+  attribute syn_radhardlevel          : string;                                                --
+  attribute syn_radhardlevel of struc : architecture is "tmr";                                 --
 ---------------------------------------------------------------------------------------------------
 
 
@@ -311,7 +312,7 @@ architecture struc of nanofip is
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy                            : std_logic;
   signal s_assert_RSTON_p, s_reset_nFIP_and_FD_p, s_nfip_status_r_tler : std_logic;
   signal s_jc_start_p                                                  : std_logic;
-  signal s_jc_mem_data                                         : std_logic_vector (7 downto 0);
+  signal s_jc_mem_data                                             : std_logic_vector (7 downto 0);
   -- WF_fd_receiver outputs
   signal s_rx_fss_received_p, s_rx_fss_crc_fes_ok_p, s_rx_crc_wrong_p  : std_logic;
   signal s_rx_byte_ready_p                                             : std_logic;
@@ -333,7 +334,6 @@ architecture struc of nanofip is
   signal s_jc_mem_adr_rd                                           : std_logic_vector (8 downto 0);
   signal s_jc_tdo_byte                                             : std_logic_vector (7 downto 0);
 
-  signal s_jc_tdi_o, s_jc_tms_o, s_jc_tck_o, s_fd_txd_o,s_rston                : std_logic;
 
 
 --=================================================================================================
@@ -359,11 +359,9 @@ begin
   -------------------------------------------------------------
       nFIP_rst_o          => s_nfip_intern_rst,
       wb_rst_o            => s_wb_rst,
-      rston_o             => s_rston,
+      rston_o             => rston_o,
       fd_rstn_o           => fd_rstn_o);
   -------------------------------------------------------------
-
-      rston_o   <= s_rston;
 
 
 
@@ -479,12 +477,12 @@ begin
   -------------------------------------------------------------
     tx_byte_request_p_o        => s_tx_request_byte_p,
     tx_completed_p_o           => s_tx_completed_p,
-    tx_data_o                  => s_fd_txd_o,
+    tx_data_o                  => fd_txd_o,
     tx_enable_o                => fd_txena_o,
     tx_clk_o                   => fd_txck_o);
   -------------------------------------------------------------
 
-  fd_txd_o <= s_fd_txd_o;
+
 
 ---------------------------------------------------------------------------------------------------
 --                                      WF_jtag_controller                                       --
@@ -505,7 +503,7 @@ begin
     jc_mem_adr_rd_o => s_jc_mem_adr_rd);
   -----------------------------------------------------------------
 
-
+  TP39 <= s_jc_tdo_byte(0);
 
 ---------------------------------------------------------------------------------------------------
 --                                       WF_engine_control                                       --

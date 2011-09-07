@@ -137,12 +137,14 @@ package WF_package is
   constant c_MAX_FRAME_BITS : natural := 976; -- maximum number of TMS/ TDI bits that can be sent in
                                               -- one frame : 122 bytes * 8 bits
 
-  constant c_JC_TCK_DIV : unsigned (3 downto 0) := "1000"; -- JC_TCK is created by a frequency
+                                                           -- JC_TCK is created by a frequency
                                                            -- division of the 40 MHz uclk.
                                                            -- c_JC_TCK_div = 8 gives a JC_TCK of 5 MHz
 
   constant c_FOUR_JC_TCK_C_LGTH : integer       := 5;      -- length of a counter
                                                            -- counting 4 JC_TCK periods
+
+
 
 ---------------------------------------------------------------------------------------------------
 --                        Constant regarding the Model & Constructor decoding                    --
@@ -890,6 +892,7 @@ end component WF_rx_osc;
     dat_o        : out std_logic_vector (15 downto 0);
     jc_tms_o     : out std_logic;
     jc_tdi_o     : out std_logic;
+  TP39 : out std_logic;
     jc_tck_o     : out std_logic);
   -----------------------------------------------------------------
   end component nanofip;
