@@ -1,32 +1,33 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                           WF_package                                          --
---                                                                                               --
+--                                                                                                |
+--                                           WF_package                                           |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_package.vhd 
---
--- Description  Definitions of constants, types, entities, functions
--- Author       Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         11/01/2011
--- Version      v0.04
-----------------
--- Last changes
---      8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed)
---     10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of
---                         std_logic_vector (9 downto 0) to simplify calculations; cleaning-up
---      1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs
---                         added DualClkRam
---      2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics
---                         added Ctrl bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG
---
+-- File         WF_package.vhd                                                                    |
+--                                                                                                |
+-- Description  Definitions of constants, types, entities, functions                              |
+-- Author       Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         11/01/2011                                                                        |
+-- Version      v0.05                                                                             |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--      8/2010  v0.01  EG  byte_array of all vars cleaned_up (ex: subs_i removed)                 |
+--     10/2010  v0.02  EG  base_addr unsigned(8 downto 0) instead of                              |
+--                         std_logic_vector (9 downto 0) to simplify calculations; cleaning-up    |
+--      1/2011  v0.03  EG  turnaround times & broadcast var (91h) updated following new specs     |
+--                         added DualClkRam                                                       |
+--      2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics          |
+--                         added CTRL bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG        |
+--      2/2011  v0.05  EG  JTAG variables added                                                   |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -103,7 +104,7 @@ package WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
---       Constants regarding the Control and PDU_TYPE bytes of ID_DAT and RP_DAT frames          --
+--       Constants regarding the CTRL and PDU_TYPE bytes of ID_DAT and RP_DAT frames          --
 ---------------------------------------------------------------------------------------------------
 
   constant c_ID_DAT_CTRL_BYTE         : std_logic_vector (5 downto 0) := "000011";
@@ -311,7 +312,7 @@ package WF_package is
                               prod_or_cons => "10",
                               broadcast    => '0',
                               base_addr    => "---------",
-                              array_lgth   => "00000111", -- 8 bytes in total including the Control byte
+                              array_lgth   => "00000111", -- 8 bytes in total including the CTRL byte
                                                           -- (counting starts from 0;-))
                               byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => x"50", 2 => x"05",
                                                3 => x"80", 4 => x"03" , 5 => x"00", 6 => x"f0",
@@ -323,7 +324,7 @@ package WF_package is
                               prod_or_cons => "10",
                               broadcast    => '0',
                               base_addr    => "---------",
-                              array_lgth   => "00001010", -- 11 bytes in total including the Control byte
+                              array_lgth   => "00001010", -- 11 bytes in total including the CTRL byte
                               byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => x"52", 2 => x"08",
                                                3 => x"01", 4 => x"00" , 5 => x"00", 6 => x"ff",
                                                7 => x"ff", 8 => x"00" , 9 => x"00", 10 => x"00",
@@ -335,7 +336,7 @@ package WF_package is
                               prod_or_cons => "10",
                               broadcast    => '0',
                               base_addr    => "100000000",
-                              array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
+                              array_lgth   => "00000001", -- only the CTRL and PDU_TYPE bytes are
                                                           -- predefined
                               byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")),
@@ -346,9 +347,8 @@ package WF_package is
                               prod_or_cons => "01",
                               broadcast    => '0',
                               base_addr    => "000000000",
-                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
-                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
-                                               others => x"ff")),
+                              array_lgth   => "00000000", -- array_lgth & byte_array fields not used
+                              byte_array   => (others => x"ff")),
 
 
      c_VAR_2_INDEX        => (var          => var_2,
@@ -356,34 +356,31 @@ package WF_package is
                               prod_or_cons => "01",
                               broadcast    => '1',
                               base_addr    => "010000000",
-                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
-                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
-                                               others => x"ff")),
+                              array_lgth   => "00000000", -- array_lgth & byte_array fields not used
+                              byte_array   => (others => x"ff")),
 
      c_VAR_RST_INDEX    =>   (var          => var_rst,
                               hexvalue     => x"e0",
                               prod_or_cons => "01",
                               broadcast    => '1',
                               base_addr    => "---------",
-                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
-                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
-                                               others => x"ff")),
+                              array_lgth   => "00000000", -- array_lgth & byte_array fields not used
+                              byte_array   => (others => x"ff")),
 
      c_VAR_JC1_INDEX    =>   (var          => var_jc1,
                               hexvalue     => x"aa",
                               prod_or_cons => "01",
                               broadcast    => '0',
                               base_addr    => "000000000",
-                              array_lgth   => "00000001", -- array_lgth & byte_array fields not used
-                              byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
-                                               others => x"ff")),
+                              array_lgth   => "00000000", -- array_lgth & byte_array fields not used
+                              byte_array   => (others => x"ff")),
 
      c_VAR_JC3_INDEX    =>   (var          => var_jc3,
                               hexvalue     => x"ab",
                               prod_or_cons => "10",
                               broadcast    => '0',
-                              base_addr    => "000000000",
-                              array_lgth   => "00000001", -- only the Control and PDU_TYPE bytes are
+                              base_addr    => "---------",
+                              array_lgth   => "00000001", -- only the CTRL and PDU_TYPE bytes are
                                                           -- predefined
                               byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
                                                others => x"ff")));
@@ -512,6 +509,7 @@ package WF_package is
     jc_tdi_o        : out std_logic;
     jc_tck_o        : out std_logic;
     jc_tdo_byte_o   : out std_logic_vector (7 downto 0);
+--TP39 : out std_logic;
     jc_mem_adr_rd_o : out std_logic_vector (8 downto 0));
   -----------------------------------------------------------------
   end component WF_jtag_controller;
@@ -682,7 +680,8 @@ end component WF_rx_osc;
     tx_byte_request_accept_p_o  : out std_logic;
     tx_last_data_byte_p_o       : out std_logic;
     tx_start_p_o                : out std_logic;
-    prod_cons_byte_index_o      : out std_logic_vector (7 downto 0);
+    prod_byte_index_o           : out std_logic_vector (7 downto 0);
+    cons_byte_index_o           : out std_logic_vector (7 downto 0);
     prod_data_lgth_o            : out std_logic_vector (7 downto 0);
     cons_bytes_excess_o         : out std_logic; 
     rx_rst_o                    : out std_logic;
@@ -714,25 +713,23 @@ end component WF_rx_osc;
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_DualClkRAM_clka_rd_clkb_wr
-  generic (g_ram_data_lgth : integer;
-           g_ram_addr_lgth : integer);
+  component WF_dualram_512x8_clka_rd_clkb_wr
   port (
     clk_porta_i      : in std_logic;
-    addr_porta_i     : in std_logic_vector (g_ram_addr_lgth - 1 downto 0);
+    addr_porta_i     : in std_logic_vector (8 downto 0);
     clk_portb_i      : in std_logic;
-    addr_portb_i     : in std_logic_vector (g_ram_addr_lgth - 1 downto 0);
-    data_portb_i     : in std_logic_vector (g_ram_data_lgth - 1 downto 0);
+    addr_portb_i     : in std_logic_vector (8 downto 0);
+    data_portb_i     : in std_logic_vector (7 downto 0);
     write_en_portb_i : in std_logic;
   -----------------------------------------------------------------
-    data_porta_o     : out std_logic_vector (g_ram_data_lgth -1 downto 0));
+    data_porta_o     : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_DualClkRAM_clka_rd_clkb_wr;
+  end component WF_dualram_512x8_clka_rd_clkb_wr;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component DualClkRam is
+  component dualram_512x8 is
   port (
     CLKA   : in std_logic;
     ADDRA  : in std_logic_vector (8 downto 0);
@@ -747,7 +744,7 @@ end component WF_rx_osc;
     DOUTA  : out std_logic_vector (7 downto 0);
     DOUTB  : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component DualClkRam;
+  end component dualram_512x8;
 
 
 
@@ -892,7 +889,6 @@ end component WF_rx_osc;
     dat_o        : out std_logic_vector (15 downto 0);
     jc_tms_o     : out std_logic;
     jc_tdi_o     : out std_logic;
-  TP39 : out std_logic;
     jc_tck_o     : out std_logic);
   -----------------------------------------------------------------
   end component nanofip;
@@ -907,7 +903,7 @@ end component WF_rx_osc;
     model_id_i      : in std_logic_vector (3 downto 0);
     constr_id_i     : in std_logic_vector (3 downto 0);
   -----------------------------------------------------------------
-    select_id_o     : out std_logic_vector (1 downto 0);
+    s_id_o          : out std_logic_vector (1 downto 0);
     model_id_dec_o  : out std_logic_vector (7 downto 0);
     constr_id_dec_o : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
@@ -950,6 +946,8 @@ end component WF_rx_osc;
 ---------------------------------------------------------------------------------------------------
   component WF_prod_data_lgth_calc is
   port (
+    uclk_i               : in std_logic;
+    nfip_rst_i         : in std_logic;
     slone_i            : in std_logic;
     nostat_i           : in std_logic;
     p3_lgth_i          : in std_logic_vector (2 downto 0);

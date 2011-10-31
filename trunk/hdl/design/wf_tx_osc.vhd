@@ -1,40 +1,40 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                            WF_tx_osc                                          --
---                                                                                               --
+--                                                                                                |
+--                                           WF_tx_osc                                            |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_tx_osc.vhd 
---
--- Description  Generation of the clock signals needed for the FIELDRIVE transmission
---
---              The unit generates the nanoFIP FIELDRIVE output FD_TXCK (line driver half bit clock)
---              and the nanoFIP internal signal tx_sched_p_buff:
---
---              uclk               :  _|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_
---              FD_TXCK            :  _____|--------...--------|________...________|--------...----
---              tx_sched_p_buff(3) :   0   0   0   1                           0   0   0   1
---              tx_sched_p_buff(2) :   0   0   1   0                           0   0   1   0
---              tx_sched_p_buff(1) :   0   1   0   0                           0   1   0   0
---              tx_sched_p_buff(0) :   1   0   0   0                           1   0   0   0
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         14/02/2011
--- Version      v0.04
--- Depends on   WF_reset_unit
-----------------
--- Last changes
---     08/2009  v0.01  PS  Entity Ports added, start of architecture content
---     07/2010  v0.02  EG  tx counter changed from 20 bits signed, to 11 bits unsigned;
---                         c_TX_SCHED_BUFF_LGTH got 1 bit more
---     12/2010  v0.03  EG  code cleaned-up
+-- File         WF_tx_osc.vhd                                                                     |
+--                                                                                                |
+-- Description  Generation of the clock signals needed for the FIELDRIVE transmission.            |
+--                                                                                                |
+--              The unit generates the nanoFIP FIELDRIVE output FD_TXCK (line driver half bit     |
+--              clock) and the nanoFIP internal signal tx_sched_p_buff:                           |
+--                                                                                                |
+--              uclk              :  _|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-| |
+--              FD_TXCK           :  _____|--------...--------|________...________|--------...--- |
+--              tx_sched_p_buff(3):   0   0   0   1                           0   0   0   1       |
+--              tx_sched_p_buff(2):   0   0   1   0                           0   0   1   0       |
+--              tx_sched_p_buff(1):   0   1   0   0                           0   1   0   0       |
+--              tx_sched_p_buff(0):   1   0   0   0                           1   0   0   0       |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         14/02/2011                                                                        |
+-- Version      v0.04                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     08/2009  v0.01  PS  Entity Ports added, start of architecture content                      |
+--     07/2010  v0.02  EG  tx counter changed from 20 bits signed, to 11 bits unsigned;           |
+--                         c_TX_SCHED_BUFF_LGTH got 1 bit more                                    |
+--     12/2010  v0.03  EG  code cleaned-up                                                        |
 --     01/2011  v0.04  EG  WF_tx_osc as different unit; use of WF_incr_counter;added tx_osc_rst_p_i
 ---------------------------------------------------------------------------------------------------
 
@@ -89,10 +89,9 @@ entity WF_tx_osc is
     tx_clk_o          : out std_logic;                -- line driver half bit clock
 
     -- Signal to the WF_tx_serializer unit
-    tx_sched_p_buff_o : out std_logic_vector (c_TX_SCHED_BUFF_LGTH -1 downto 0)
+    tx_sched_p_buff_o : out std_logic_vector (c_TX_SCHED_BUFF_LGTH -1 downto 0));
                                                       -- buffer of pulses used for the scheduling
                                                       -- of the actions of the WF_tx_serializer
-    );
 end entity WF_tx_osc;
 
 
@@ -101,10 +100,14 @@ end entity WF_tx_osc;
 --=================================================================================================
 architecture rtl of WF_tx_osc is
 
+  -- transmission periods counter
   signal s_period_c, s_period                   : unsigned  (c_PERIODS_COUNTER_LGTH -1 downto 0);
   signal s_one_forth_period                     : unsigned  (c_PERIODS_COUNTER_LGTH -1 downto 0);
+  signal s_period_c_is_full, s_period_c_reinit  : std_logic;
+  -- clocks
+  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p      : std_logic;
   signal s_tx_sched_p_buff                      : std_logic_vector (c_TX_SCHED_BUFF_LGTH-1 downto 0);
-  signal s_tx_clk_d1, s_tx_clk, s_tx_clk_p, s_period_c_is_full, s_period_c_reinit    : std_logic;
+
 
 --=================================================================================================
 --                                       architecture begin
@@ -112,19 +115,24 @@ architecture rtl of WF_tx_osc is
 begin
 
 
+---------------------------------------------------------------------------------------------------
+--                                       Periods Counter                                         --
+---------------------------------------------------------------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   s_period           <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));-- # uclk ticks for a
                                                                             -- transmission period
+
   s_one_forth_period <= s_period srl 2;                                     -- 1/4 s_period
   s_period_c_is_full <= '1' when s_period_c = s_period -1 else '0';         -- counter full
-
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of a WF_incr_counter counting transmission periods.
 
   tx_periods_count: WF_incr_counter
-  generic map (g_counter_lgth => c_PERIODS_COUNTER_LGTH)
-  port map (
+  generic map(g_counter_lgth => c_PERIODS_COUNTER_LGTH)
+  port map(
     uclk_i            => uclk_i,
     reinit_counter_i  => s_period_c_reinit,
     incr_counter_i    => '1',
@@ -133,34 +141,39 @@ begin
     counter_o         => s_period_c);
     ------------------------------------------
 
-    --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- counter reinitialized : if the nfip_rst_i is active or
-    --                         if the tx_osc_rst_p_i is active or
-    --                         if it fills up
-    s_period_c_reinit <= nfip_rst_i or tx_osc_rst_p_i or s_period_c_is_full;
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  -- counter reinitialized : if the nfip_rst_i is active or
+  --                         if the tx_osc_rst_p_i is active or
+  --                         if it fills up
+  s_period_c_reinit <= nfip_rst_i or tx_osc_rst_p_i or s_period_c_is_full;
 
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Clocks Constraction: Concurrent signals assignments and a synchronous process that use
+---------------------------------------------------------------------------------------------------
+--                                     Clocks Construction                                       --
+---------------------------------------------------------------------------------------------------
+
+-- Concurrent signals assignments and a synchronous process that use
 -- the s_period_c to construct the tx_clk_o clock and the buffer of pulses tx_sched_p_buff_o.
 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- Creation of the clock for the transmitter with period: 1/2 transmission period
   s_tx_clk        <= '1' when ((s_period_c < s_one_forth_period) or
                                 ((s_period_c > (2*s_one_forth_period)-1) and
                                  (s_period_c < 3*s_one_forth_period)))
                 else '0';
-                                            -- transm. period        : _|----------|__________|--
-                                            -- tx_counter            :  0   1/4   1/2   3/4   1
-                                            -- s_tx_clk              : _|----|_____|----|_____|--
+                                            -- transm. period       : _|-----------|___________|--
+                                            -- tx_counter           :  0    1/4   1/2    3/4   1
+                                            -- s_tx_clk             : _|-----|_____|-----|_____|--
 
 
-  -- Creation of a pulse starting 1 uclk period before tx_clk_o
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  -- Edge detector for s_tx_clk
   s_tx_clk_p      <= s_tx_clk and (not s_tx_clk_d1);
-                                            -- s_tx_clk              : __|-----|_____|-----|_____
-                                            -- tx_clk_o/ s_tx_clk_d1 : ____|-----|_____|-----|___
-                                            -- not s_tx_clk_d1       : ----|_____|-----|_____|---
-                                            -- s_tx_clk_p            : __|-|___|-|___|-|___|-|___
+                                            -- s_tx_clk             : _|-----|_____|-----|_____
+                                            -- tx_clk_o/ s_tx_clk_d1: ___|-----|_____|-----|___
+                                            -- not s_tx_clk_d1      : ---|_____|-----|_____|---
+                                            -- s_tx_clk_p           : _|-|___|-|___|-|___|-|___
 
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -179,10 +192,8 @@ begin
     end if;
   end process;
 
-
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Output signals assignments
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  -- Output signals
 
   tx_clk_o          <= s_tx_clk_d1;
   tx_sched_p_buff_o <= s_tx_sched_p_buff;

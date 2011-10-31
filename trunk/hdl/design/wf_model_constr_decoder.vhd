@@ -1,41 +1,41 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                     WF_model_constr_decoder                                   --
---                                                                                               --
+--                                                                                                |
+--                                     WF_model_constr_decoder                                    |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_model_constr_decoder.vhd 
---
--- Description  Generation of the nanoFIP output S_ID and decoding of the inputs C_ID and M_ID.
---              The output S_ID0 is a clock with period the double of uclk's period and the S_ID1
---              is the opposite clock (it is '0' when S_ID0 is '1' and '1' when S_ID0 is '0').
---              Each one of the 4 pins of the M_ID and C_ID can be connected to either Vcc, Gnd,
---              S_ID1 or S_ID0. Like this (after 2 uclk periods) the 8 bits of the Model and
---              Constructor words take a value, according to the table: Gnd    00
---                                                                      S_ID0  01
---                                                                      S_ID1  10
---                                                                      Vcc    11
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         21/01/2011
--- Version      v0.03
--- Depends on   WF_reset_unit
-----------------
--- Last changes
---     11/09/2009  v0.01  PAS First version
---     20/08/2010  v0.02  EG  S_ID corrected so that S_ID0 is always the opposite of S_ID1
---                            "for" loop replaced with signals concatenation;
---                            Counter is of c_RELOAD_MID_CID bits; Code cleaned-up
---     06/10/2010  v0.03  EG  generic c_RELOAD_MID_CID removed;
---                            counter unit instantiated
---     01/2011     v0.031 EG  loading aftern the 2nd cycle (no need for 3)
+-- File         WF_model_constr_decoder.vhd                                                       |
+--                                                                                                |
+-- Description  Generation of the nanoFIP output S_ID and decoding of the inputs C_ID and M_ID.   |
+--              The output S_ID0 is a clock with period the double of uclk's period and the S_ID1 |
+--              is the opposite clock (it is '0' when S_ID0 is '1' and '1' when S_ID0 is '0').    |
+--              Each one of the 4 pins of the M_ID and C_ID can be connected to either Vcc, Gnd,  |
+--              S_ID1 or S_ID0. Like this (after 2 uclk periods) the 8 bits of the Model and      |
+--              Constructor words take a value, according to the table: Gnd    00                 |
+--                                                                      S_ID0  01                 |
+--                                                                      S_ID1  10                 |
+--                                                                      Vcc    11                 |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         21/01/2011                                                                        |
+-- Version      v0.03                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     11/09/2009  v0.01  PAS First version                                                       |
+--     20/08/2010  v0.02  EG  S_ID corrected so that S_ID0 is always the opposite of S_ID1        |
+--                            "for" loop replaced with signals concatenation;                     |
+--                            Counter is of c_RELOAD_MID_CID bits; Code cleaned-up                |
+--     06/10/2010  v0.03  EG  generic c_RELOAD_MID_CID removed;                                   |
+--                            counter unit instantiated                                           |
+--     01/2011     v0.031 EG  loading aftern the 2nd cycle (no need for 3)                        |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -69,9 +69,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --=================================================================================================
 --                             Entity declaration for WF_model_constr_decoder
 --=================================================================================================
-entity WF_model_constr_decoder is
-
-  port (
+entity WF_model_constr_decoder is port(
   -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i          : in std_logic;                      -- 40 Mhz clock
@@ -86,12 +84,11 @@ entity WF_model_constr_decoder is
 
   -- OUTPUTS
     -- nanoFIP WorldFIP Settings output
-    select_id_o     : out std_logic_vector (1 downto 0); -- Identification selection
+    s_id_o     : out std_logic_vector (1 downto 0);      -- Identification selection
 
     -- Signal to the WF_prod_bytes_retriever unit
     constr_id_dec_o : out std_logic_vector (7 downto 0); -- Constructor identification decoded
-    model_id_dec_o  : out std_logic_vector (7 downto 0)  -- Model identification decoded
-    );
+    model_id_dec_o  : out std_logic_vector (7 downto 0));-- Model identification decoded
 
 end entity WF_model_constr_decoder;
 
@@ -119,7 +116,7 @@ begin
 -- and on the second uclk tick, the values of the odd bits move to the registers s_model_stage2/
 -- s_constr_stage2, giving place to all the even bits to be loaded to the s_model_stage1/
 -- s_constr_stage1. The loaded odd and even values are combined after the 2 periods to give the
---  decoded outputs model_id_dec_o & constr_id_dec_o.
+-- decoded outputs model_id_dec_o & constr_id_dec_o.
 
   Model_Constructor_Decoder: process (uclk_i)
   begin
@@ -163,8 +160,8 @@ begin
 -- Instantiation of a counter WF_incr_counter
 
   Free_Counter: WF_incr_counter
-  generic map (g_counter_lgth => 2)
-  port map (
+  generic map(g_counter_lgth => 2)
+  port map(
     uclk_i            => uclk_i,
     reinit_counter_i  => nfip_rst_i,
     incr_counter_i    => '1',
@@ -175,13 +172,13 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
--- Concurrent signal assignment for the output select_id_o
+-- Concurrent signal assignment for the output s_id_o
 
-   select_id_o <=  ((not s_counter(0)) & s_counter(0));-- 2 opposite clocks generated using
-                                                       -- the LSB of the counter
-                                                       -- uclk_i: |-|__|-|__|-|__|-|__|-|__|-|_
-                                                       -- S_ID0 : |----|____|----|____|----|___
-                                                       -- S_ID1 : |____|----|____|----|____|---
+   s_id_o <=  ((not s_counter(0)) & s_counter(0)); -- 2 opposite clocks generated using
+                                                   -- the LSB of the counter
+                                                   -- uclk_i: |-|__|-|__|-|__|-|__|-|__|-|_
+                                                   -- S_ID0 : |----|____|----|____|----|___
+                                                   -- S_ID1 : |____|----|____|----|____|---
 
 
 end architecture rtl;

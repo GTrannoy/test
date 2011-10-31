@@ -1,48 +1,53 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                     WF_prod_data_lgth_calc                                    --
---                                                                                               --
+--                                                                                                |
+--                                     WF_prod_data_lgth_calc                                     |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_prod_data_lgth_calc.vhd
---
--- Description  Calculation of the number of bytes, after the FSS and before the FCS, that have
---              to be transferred when a variable is produced (var_pres, var_identif, var_3, var_jc3).
---              In detail the unit adds:
---               o  1 byte RP_DAT.Control,
---               o  1 byte RP_DAT.Data.PDU_TYPE,
---               o  1 byte RP_DAT.Data.Length,
---               o  2-124 bytes RP_DAT.Data.User_Data, defined by the "nanoFIP User Interface,
---                  General signal" SLONE and the "nanoFIP WorldFIP Settings" input P3_LGTH
---               o  1 byte RP_DAT.Data.nanoFIP_status, only for a var_3, if the "nanoFIP User
---                  Interface General signal" NOSTAT is negated
---               o  1 byte RP_DAT.Data.MPS_status, only for a var_3.
---
---
---              Reminder:
---
---              Produced RP_DAT frame structure :
---                               ||--------------------- Data ---------------------||
---             ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
---            |____FSS____|_Ctrl_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|
---
---                                               |-----P3_LGTH-----|
---
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         09/12/2010
--- Version      v0.02
--- Depends on   WF_engine_control
-----------------
--- Last changes
---     12/2010 v0.02 EG  code cleaned-up+commented
+-- File         WF_prod_data_lgth_calc.vhd                                                        |
+--                                                                                                |
+-- Description  Calculation of the number of bytes, after the FSS and before the FCS, that have to|
+--              be transferred when a variable is produced (var_pres, var_identif, var_3, var_jc3)|
+--              In detail, the unit adds-up:                                                      |
+--               o  1 byte RP_DAT.CTRL,                                                           |
+--               o  1 byte RP_DAT.Data.PDU_TYPE,                                                  |
+--               o  1 byte RP_DAT.Data.LGTH,                                                      |
+--               o  1-124 RP_DAT.Data.User_Data bytes according to the variable type:             |
+--                  - var_pres: 5 bytes                                                           |
+--                  - var_pres: 8 bytes                                                           |
+--                  - var_jc3 : 1 byte                                                            |
+--                  - var_3   : 2-124 bytes defined by the "nanoFIP User Interface,General signal"| 
+--                              SLONE and the "nanoFIP WorldFIP Settings" input P3_LGTH           |
+--               o  1 byte RP_DAT.Data.nanoFIP_status, always for a var_jc3                       |
+--                                                     and for a var_3, if the "nanoFIP User      |
+--                                                     Interface General signal" NOSTAT is negated|
+--               o  1 byte RP_DAT.Data.MPS_status, for a var_jc3 and a var_3                      |
+--                                                                                                |
+--                                                                                                |
+--              Reminder:                                                                         |
+--                                                                                                |
+--              Produced RP_DAT frame structure :                                                 |
+--                     ||--------------------- Data ---------------------||                       |
+--   ___________ ______  _______ ______ _________________ _______ _______  ___________ _______    |
+--  |____FSS____|_CTRL_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|   |
+--                                                                                                |
+--                                     |-----P3_LGTH-----|                                        |
+--                                                                                                |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         09/12/2010                                                                        |
+-- Version      v0.02                                                                             |
+-- Depends on   WF_engine_control                                                                 |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     12/2010 v0.02 EG  code cleaned-up+commented                                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -77,10 +82,14 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                           Entity declaration for WF_prod_data_lgth_calc
 --=================================================================================================
 
-entity WF_prod_data_lgth_calc is
-
-  port (
+entity WF_prod_data_lgth_calc is port(
   -- INPUTS
+    -- nanoFIP User Interface, General signals
+    uclk_i               : in std_logic;                 -- 40 MHz clock
+
+    -- Signal from the WF_reset_unit
+    nfip_rst_i           : in std_logic;                 -- nanoFIP internal reset
+
     -- nanoFIP WorldFIP Settings
     p3_lgth_i        : in std_logic_vector (2 downto 0); -- produced var user-data length
 
@@ -94,8 +103,8 @@ entity WF_prod_data_lgth_calc is
 
   -- OUTPUT
     -- Signal to the WF_engine_control and WF_production units
-    prod_data_lgth_o : out std_logic_vector (7 downto 0)
-      );
+    prod_data_lgth_o : out std_logic_vector (7 downto 0));
+
 end entity WF_prod_data_lgth_calc;
 
 
@@ -143,16 +152,16 @@ begin
       -- data length calculation according to the operational mode (memory or stand-alone)
 
       -- in slone mode                   2 bytes of user-data are produced (independently of P3_LGTH)
-      -- to these there should be added: 1 byte Control
+      -- to these there should be added: 1 byte CTRL
       --                                 1 byte PDU_TYPE
-      --                                 1 byte Length
+      --                                 1 byte LGTH
       --                                 1 byte MPS status
       --                      optionally 1 byte nFIP status
 
       -- in memory mode the signal      "s_p3_lgth_decoded" indicates the amount of user-data;
-      -- to these, there should be added 1 byte Control
+      -- to these, there should be added 1 byte CTRL
       --                                 1 byte PDU_TYPE
-      --                                 1 byte Length
+      --                                 1 byte LGTH
       --                                 1 byte MPS status
       --                      optionally 1 byte nFIP status
 
@@ -180,9 +189,9 @@ begin
       -- data length calculation regardless of the operational mode, the P3_LGTH and the NOSTAT
 
       --                                 1 byte of data from the JTAG_controller
-      -- to these there should be added: 1 byte Control
+      -- to these there should be added: 1 byte CTRL
       --                                 1 byte PDU_TYPE
-      --                                 1 byte Length
+      --                                 1 byte LGTH
       --                                 1 byte nFIP status (regardless of the NOSTAT input)
       --                                 1 byte MPS status
 
@@ -198,10 +207,23 @@ begin
     end case;
   end process;
 
-  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  -- Concurrent signal assignment for the output
 
-  prod_data_lgth_o           <= std_logic_vector (s_prod_data_lgth);
+
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  -- Registration of the output (coz of slack)
+
+  Prod_Data_Lgth_Reg: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then
+        prod_data_lgth_o <= (others =>'0');
+
+      else
+        prod_data_lgth_o <= std_logic_vector (s_prod_data_lgth);
+ 
+      end if;
+    end if;
+  end process;
 
 
 end architecture behavior;

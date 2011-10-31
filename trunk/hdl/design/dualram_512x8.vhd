@@ -1,33 +1,32 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                          DualClkRAM                                           --
---                                                                                               --
+--                                                                                                |
+--                                         dualram_512x8                                          |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         DualClkRAM.vhd
---
--- Description  Instantiation of a template ProAsic3 RAM4K9 memory component with
---                o word width : 8 bits and
---                o depth      : 512 bytes.
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         15/12/2010
--- Version      v0.02
--- Depends on   ProASIC3 lib
-----------------
--- Last changes
---        08/2010  v0.01  EG  pepeline not used! data appears in output 1 clock cycle after the
---                            address is given (otherwise it was 2 clock cycles later) slack
---                            checked and is ok! code cleaned-up and commented
---     15/12/2010  v0.02  EG  comments for BLKA, BLKB; cleaning-up
---
+-- File         dualram_512x8.vhd                                                                 |
+--                                                                                                |
+-- Description  Instantiation of a template ProAsic3 RAM4K9 memory component with                 |
+--                o word width: 8 bits and                                                        |
+--                o depth     : 512 bytes.                                                        |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         15/12/2010                                                                        |
+-- Version      v0.02                                                                             |
+-- Depends on   ProASIC3 lib                                                                      |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--        08/2010  v0.01  EG  pepeline not used! data appears in output 1 clock cycle after the   |
+--                            address is given (otherwise it was 2 clock cycles later) slack      |
+--                            checked and is ok! code cleaned-up and commented                    |
+--     15/12/2010  v0.02  EG  comments for BLKA, BLKB; cleaning-up                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -59,11 +58,10 @@ use PROASIC3.all;
 
 
 --=================================================================================================
---                             Entity declaration for DualClkRAM
+--                             Entity declaration for dualram_512x8
 --=================================================================================================
 
-entity DualClkRAM is
-  port(
+entity dualram_512x8 is port(
   -- INPUTS
     -- Inputs concerning port A
     CLKA   : in std_logic;  -- clock A for synchronous read/ write operations
@@ -86,15 +84,14 @@ entity DualClkRAM is
     DOUTA  : out std_logic_vector (7 downto 0); -- data out A
 
     -- Output concerning port B
-    DOUTB  : out std_logic_vector (7 downto 0)  -- data out B
-    );
-end DualClkRAM;
+    DOUTB  : out std_logic_vector (7 downto 0));-- data out B
+end dualram_512x8;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture RAM4K9 of DualClkRAM is
+architecture RAM4K9 of dualram_512x8 is
 
 ---------------------------------------------------------------------------------------------------
 -- General information concerning RAM4K9: a fully synchronous, true dual-port RAM with an optional
@@ -142,10 +139,10 @@ architecture RAM4K9 of DualClkRAM is
       WENA, WENB,
       CLKA, CLKB,
       RESET : in std_logic := 'U';
-
+  ----------------------------------------------------
       DOUTA8, DOUTA7, DOUTA6, DOUTA5, DOUTA4, DOUTA3, DOUTA2, DOUTA1, DOUTA0,
-      DOUTB8, DOUTB7, DOUTB6, DOUTB5, DOUTB4, DOUTB3, DOUTB2, DOUTB1, DOUTB0 : out std_logic
-      );
+      DOUTB8, DOUTB7, DOUTB6, DOUTB5, DOUTB4, DOUTB3, DOUTB2, DOUTB1, DOUTB0 : out std_logic);  
+  ----------------------------------------------------
   end component;
 
 ---------------------------------------------------------------------------------------------------
@@ -172,8 +169,8 @@ architecture RAM4K9 of DualClkRAM is
 begin
 
 
-  power_supply_signal : VCC port map (Y => POWER);
-  ground_signal       : GND port map (Y => GROUND);
+  power_supply_signal : VCC port map(Y => POWER);
+  ground_signal       : GND port map(Y => GROUND);
 
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of the component RAM4K9.
@@ -186,7 +183,7 @@ begin
 --  o WMODEA, WMODEB : GND      (in write mode the output retains the data from the previous read)
 
   A9D8DualClkRAM_R0C0 : RAM4K9
-  port map (
+  port map(
   -- INPUTS
     -- inputs concerning port A
     -- data in A (1 byte, (7 downto 0))

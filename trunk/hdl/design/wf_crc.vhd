@@ -1,35 +1,36 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                             WF_crc                                            --
---                                                                                               --
+--                                                                                                |
+--                                             WF_crc                                             |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_crc.vhd 
--- Description  The unit creates the modules for:
---                o the generation of the CRC of serial data,
---                o the verification of an incoming CRC syndrome.
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
--- Date         23/02/2011
--- Version      v0.04
--- Depends on   WF_reset_unit
---              WF_rx_deserializer
---              WF_tx_serializer
-----------------
--- Last changes
---     07/08/2009  v0.02  PAS Entity Ports added, start of architecture content
---        08/2010  v0.03  EG  Data_FCS_select and crc_ready_p_o signals removed,
---                            variable v_q_check_mask replaced with a signal,
---                            code cleaned-up+commented
---        02/2011  v0.04  EG  s_q_check_mask was not in Syndrome_Verification sensitivity list!
---                            xor replaced with if(Syndrome_Verification); processes rewritten;
---                            delay on data_bit_ready_p_i removed.
+-- File         WF_crc.vhd                                                                        |
+--                                                                                                |
+-- Description  The unit creates the modules for:                                                 |
+--                o the generation of the CRC of serial data,                                     |
+--                o the verification of an incoming CRC syndrome.                                 |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+-- Date         23/02/2011                                                                        |
+-- Version      v0.04                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+--              WF_rx_deserializer                                                                |
+--              WF_tx_serializer                                                                  |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     07/08/2009  v0.02  PAS Entity Ports added, start of architecture content                   |
+--        08/2010  v0.03  EG  Data_FCS_select and crc_ready_p_o signals removed,                  |
+--                            variable v_q_check_mask replaced with a signal,                     |
+--                            code cleaned-up+commented                                           |
+--        02/2011  v0.04  EG  s_q_check_mask was not in Syndrome_Verification sensitivity list!   |
+--                            xor replaced with if(Syndrome_Verification); processes rewritten;   |
+--                            delay on data_bit_ready_p_i removed.                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -63,8 +64,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --=================================================================================================
 --                                 Entity declaration for WF_crc
 --=================================================================================================
-entity WF_crc is
-  port (
+entity WF_crc is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i             : in std_logic;              -- 40 MHz clock
@@ -83,8 +83,7 @@ entity WF_crc is
     crc_ok_p_o         : out std_logic;             -- signals a correct received CRC syndrome
 
     -- Signal to the WF_tx_serializer unit
-    crc_o              : out  std_logic_vector (c_CRC_POLY_LGTH-1 downto 0) -- calculated CRC
-     );
+    crc_o              : out  std_logic_vector (c_CRC_POLY_LGTH-1 downto 0)); -- calculated CRC
 
 end entity WF_crc;
 
@@ -96,13 +95,17 @@ architecture rtl of WF_crc is
 
   signal s_q, s_q_nx : std_logic_vector (c_CRC_POLY_LGTH - 1 downto 0);
 
+
 --=================================================================================================
 --                                       architecture begin
 --=================================================================================================
 begin
 
-
 ---------------------------------------------------------------------------------------------------
+--                                         CRC Calculation                                       --
+---------------------------------------------------------------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- The Gen_16_bit_Register_and_Interconnections generator, follows the scheme of figure A.1
 -- of the Annex A 61158-4-7 IEC:2007 and constructs a register of 16 master-slave flip-flops which
 -- are interconnected as a linear feedback shift register.
@@ -116,8 +119,7 @@ begin
     end generate;
 
 
-
----------------------------------------------------------------------------------------------------
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process CRC_calculation: the process "moves" the shift register described
 -- above, for the calculation of the CRC.
 
@@ -146,25 +148,18 @@ begin
   crc_o         <= not s_q;
 
 
+
 ---------------------------------------------------------------------------------------------------
--- Combinatorial process Syndrome_Verification: On the reception, the CRC is being
--- calculated as data is arriving (same as in the transmission) and it is being compared to the
--- predefined c_CRC_VERIF_POLY. When the CRC calculated from the received data matches the
--- c_CRC_VERIF_POLY, it is implied that a correct CRC word has been received for the preceded
--- data and the signal crc_ok_p_o gives a 1 uclk-wide pulse.
+--                                       CRC Verification                                        --
+---------------------------------------------------------------------------------------------------
 
-  Syndrome_Verification: process (s_q, data_bit_ready_p_i)
-  begin
+-- During reception, the CRC is being calculated as data is arriving (same as in the transmission)
+-- and it is being compared to the predefined c_CRC_VERIF_POLY. When the CRC calculated from the
+-- received data matches the c_CRC_VERIF_POLY, it is implied that a correct CRC word has been
+-- received for the preceded data and the signal crc_ok_p_o gives a 1 uclk-wide pulse.
 
-    if s_q = not c_CRC_VERIF_POLY then
+  crc_ok_p_o <= data_bit_ready_p_i when s_q = not c_CRC_VERIF_POLY else '0';
 
-      crc_ok_p_o <= data_bit_ready_p_i;
-
-    else
-      crc_ok_p_o <= '0';
-
-    end if;
-  end process;
 
 
 end architecture rtl;
