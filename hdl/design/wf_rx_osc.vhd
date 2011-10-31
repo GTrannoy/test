@@ -1,48 +1,49 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                           WF_rx_osc                                           --
---                                                                                               --
+--                                                                                                |
+--                                           WF_rx_osc                                            |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_rx_osc.vhd
---
--- Description  Generation of the clock signals needed for the FIELDRIVE reception
---
---              Even if the bit rate of the communication is known, jitter is expected to affect the
---              arriving time of the incoming signal. The main idea of the unit is to recalculate
---              the expected arrival time of the next incoming bit, based on the arrival of the
---              previous one, so that drifts are not accumulated. The clock recovery is based on the
---              Manchester 2 coding which ensures that there is one edge (transition) for each bit.
---
---              In this unit, we refer to
---                o a significant edge : for the edge of a manch. encoded bit (bit 0: _|-, bit 1: -|_)
---                o a transition	   : for the moment in between two adjacent bits, that may or
---                  may not result in an edge (eg. a 0 followed by a 0 will give an edge _|-|_|-,
---                  but a 0 followed by a 1 will not _|--|_ ).
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         14/02/2011
--- Version      v0.04
--- Depends on   WF_reset_unit
---              WF_deglitcher
---              WF_rx_deserializer
-----------------
--- Last changes
---     08/2009  v0.01  PS  Entity Ports added, start of architecture content
---     07/2010  v0.02  EG  rx counter changed from 20 bits signed, to 11 bits unsigned;
---                         rx clk generation depends on edge detection;code cleanedup+commented
---                         rst_rx_osc signal clearified
---     12/2010  v0.03  EG  code cleaned-up
---     01/2011  v0.031 EG  rxd_edge_i became fd_rxd_edge_p_i; small correctiond on comments
---     02/2011  v0.04  EG  2 units WF_rx_osc and WF_tx_osc; process replaced by WF_incr_counter
---                         check for code violations removed completely
+-- File         WF_rx_osc.vhd                                                                     |
+--                                                                                                |
+-- Description  Generation of the clock signals needed for the FIELDRIVE reception                |
+--                                                                                                |
+--              Even if the bit rate of the communication is known, jitter is expected to affect  |
+--              the arriving time of the incoming signal. The main idea of the unit is to         |
+--              recalculate the expected arrival time of the next incoming bit, based on the      |
+--              arrival of the previous one, so that drifts are not accumulated. The clock        |
+--              recovery is based on the Manchester 2 coding which ensures that there is one edge |
+--              (transition) for each bit.                                                        |
+--                                                                                                |
+--              In this unit, we refer to                                                         |
+--              o a significant edge: for the edge of a manch. encoded bit (bit 0:_|-, bit 1: -|_)|
+--              o a transition	    : for the moment in between two adjacent bits, that may or    |
+--                may not result in an edge (eg. a 0 followed by a 0 will give an edge _|-|_|-,   |
+--                but a 0 followed by a 1 will not _|--|_ ).                                      |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         14/02/2011                                                                        |
+-- Version      v0.04                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+--              WF_deglitcher                                                                     |
+--              WF_rx_deserializer                                                                |
+------------------                                                                                |
+-- Last changes                                                                                   |
+--     08/2009  v0.01  PS  Entity Ports added, start of architecture content                      |
+--     07/2010  v0.02  EG  rx counter changed from 20 bits signed, to 11 bits unsigned;           |
+--                         rx clk generation depends on edge detection;code cleanedup+commented   |
+--                         rst_rx_osc signal clearified                                           |
+--     12/2010  v0.03  EG  code cleaned-up                                                        |
+--     01/2011  v0.031 EG  rxd_edge_i became fd_rxd_edge_p_i; small correctiond on comments       |
+--     02/2011  v0.04  EG  2 units WF_rx_osc and WF_tx_osc; process replaced by WF_incr_counter   |
+--                         check for code violations removed completely                           |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -77,8 +78,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                            Entity declaration for WF_rx_osc
 --=================================================================================================
 
-entity WF_rx_osc is
-  port (
+entity WF_rx_osc is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;                      -- 40 MHz clock
@@ -107,9 +107,8 @@ entity WF_rx_osc is
 
     rx_signif_edge_window_o : out std_logic;  -- time window where a significant edge is expected
 
-    rx_adjac_bits_window_o  : out std_logic   -- time window where a transition between adjacent
+    rx_adjac_bits_window_o  : out std_logic); -- time window where a transition between adjacent
                                               -- bits is expected
-    );
 end entity WF_rx_osc;
 
 
@@ -119,26 +118,36 @@ end entity WF_rx_osc;
 --=================================================================================================
 architecture rtl of WF_rx_osc is
 
+  -- reception period counter
   signal s_period_c, s_period, s_margin             : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
   signal s_half_period                              : unsigned (c_PERIODS_COUNTER_LGTH-1 downto 0);
   signal s_period_c_reinit, s_period_c_is_full                                         : std_logic;
+  -- windows formed, based on the counter
   signal s_adjac_bits_window, s_signif_edge_window                                     : std_logic;
+  -- fd_rxd signal combined with the windows
   signal s_adjac_bits_edge_found, s_signif_edge_found                                  : std_logic;
+  -- clocks
   signal s_bit_clk, s_bit_clk_d1, s_manch_clk, s_manch_clk_d1                          : std_logic;
+
 
 --=================================================================================================
 --                                       architecture begin
 --=================================================================================================
 begin
 
+
+---------------------------------------------------------------------------------------------------
+--                  Generation of windows where edges/ transitions are expected                  --
+---------------------------------------------------------------------------------------------------
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
                    --  # uclock ticks for a bit period, defined by the WorldFIP bit rate
   s_period      <= c_BIT_RATE_UCLK_TICKS(to_integer(unsigned(rate_i)));
   s_half_period <= s_period srl 1; -- 1/2 s_period
   s_margin      <= s_period srl 3; -- margin for jitter defined as 1/8 of the period
 
 
-
----------------------------------------------------------------------------------------------------
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of a WF_incr_counter unit : the rx_counter starts counting after the
 -- release of the reset signal rx_osc_rst_i. This takes place after a falling edge on the
 -- filtered FD_RXD; this edge should be representing the 1st Manchester (manch.) encoded bit '1'
@@ -150,8 +159,8 @@ begin
 -- is reinitialialized through the rx_osc_rst_i signal from the WF_rx_deserializer.
 
   rx_periods_count: WF_incr_counter
-  generic map (g_counter_lgth => c_PERIODS_COUNTER_LGTH)
-  port map (
+  generic map(g_counter_lgth => c_PERIODS_COUNTER_LGTH)
+  port map(
     uclk_i            => uclk_i,
     reinit_counter_i  => s_period_c_reinit,
     incr_counter_i    => '1',
@@ -163,25 +172,44 @@ begin
     s_period_c_is_full <= '1' when s_period_c = s_period -1 else '0'; -- counter full indicator
 
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- counter reinitialized : if nfip_rst_i is active                       or
-    --                         if rx_osc_rst_i is active                     or
-    --                         if an edge is detected in the expected window or
-    --                         if it fills up
+    -- counter reinitialized: if nfip_rst_i is active                       or
+    --                        if rx_osc_rst_i is active                     or
+    --                        if an edge is detected in the expected window or
+    --                        if it fills up
     s_period_c_reinit <= nfip_rst_i or rx_osc_rst_i or (s_signif_edge_window and fd_rxd_edge_p_i)
                         or s_period_c_is_full;
 
 
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+-- Concurrent signal assignments: creation of the windows where
+-- "significant edges" and "adjacent bits transitions" are expected on the input signal.
+--   o s_signif_edge_window: extends s_margin uclk ticks before and s_margin uclk ticks after
+--     the completion of a period, where significant edges are expected.
+--   o s_adjac_bits_window : extends s_margin uclk ticks before and s_margin uclk ticks after
+--     the middle of a period, where transitions between adjacent bits are expected.
+
+  s_signif_edge_window    <= '1' when ((s_period_c < s_margin) or
+                                       (s_period_c  > s_period-1 - s_margin-1)) else '0';
+                       
+
+  s_adjac_bits_window     <= '1' when ((s_period_c >= s_half_period-s_margin-1) and
+                                       (s_period_c <  s_half_period+s_margin)) else '0';
+
+ 
 
 ---------------------------------------------------------------------------------------------------
+--                                      Clocks Generation                                        --
+---------------------------------------------------------------------------------------------------
+
 -- Synchronous process rx_clks: the process rx_clk is following the edges that appear on the
 -- nanoFIP FIELDRIVE input fd_rxd and constructs two clock signals: rx_manch_clk & rx_bit_clk.
 
--- In detail, the process is looking for moments :
+-- In detail, the process is looking for moments:
 --   o of significant edges
 --   o between boundary bits
 
--- The signal rx_manch_clk : is inverted on each significant edge, as well as between adjacent bits
--- The signal rx_bit_clk   : is inverted only between adjacent bits
+-- The signal rx_manch_clk: is inverted on each significant edge, as well as between adjacent bits
+-- The signal rx_bit_clk  : is inverted only between adjacent bits
 
 -- The significant edges are normally expected inside the signif_edge_window. In the cases of a
 -- code violation (V+ or V-) no edge will arrive in this window. In this situation rx_manch_clk
@@ -263,25 +291,8 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
--- Concurrent signal assignments: creation of the windows where
--- "significant edges" and "adjacent bits transitions" are expected on the input signal.
---   o s_signif_edge_window : extends s_margin uclk ticks before and s_margin uclk ticks after
---     the completion of a period, where significant edges are expected.
---   o s_adjac_bits_window      : extends s_margin uclk ticks before and s_margin uclk ticks after
---     the middle of a period, where transitions between adjacent bits are expected.
-
-  s_signif_edge_window    <= '1' when ((s_period_c < s_margin) or
-                                       (s_period_c  > s_period-1 - s_margin-1))
-                       else '0';
-
-  s_adjac_bits_window     <= '1' when ((s_period_c >= s_half_period-s_margin-1) and
-                                       (s_period_c <  s_half_period+s_margin))
-
-                        else '0';
-
-
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Output signals concurrent assignments
+--                                 Concurrent signal assignments                                 --
+---------------------------------------------------------------------------------------------------
 
   rx_manch_clk_p_o        <= s_manch_clk_d1 xor s_manch_clk; -- a 1 uclk-wide pulse, after
                                                              --  o a significant edge

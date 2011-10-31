@@ -1,117 +1,115 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                        WF_reset_unit                                          --
---                                                                                               --
+--                                                                                                |
+--                                        WF_reset_unit                                           |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_reset_unit.vhd
---
--- Description  The unit is responsible for the generation of the:
---
---                o nanoFIP internal reset: that resets all nanoFIP's logic, apart from the WISHBONE
---                  It is asserted after a proper assertion of the "nanoFIP User Interface General
---                  signal" RSTIN (synchronized to the uclk), or
---                  after the reception of a valid var_rst with its 1st application-data byte
---                  containing the station's address. In those cases, the signal stays active for
---                  2 uclk cycles.
---                  It is also asserted during the activation of the "nanoFIP User Interface
---                  General signal" RSTPON. In this case it stays active for as long as the
---                  RSTPON is active.
---                                          __________
---                                  RSTIN  |          |       \ \
---                                 ________|   FSM    |_______ \ \
---                                         |  RSTIN   |         \  \
---                                         |__________|          \  \
---                                          __________            |  \
---                      rst_nFIP_and_FD_p  |          |           |   |      nFIP_rst
---                                 ________|   FSM    |________   |OR |  _______________
---                                         |  var_rst |           |   |
---                                         |__________|           |  /
---                                                               /  /
---                                 RSTPON                       /  /
---                                 __________________________  / /
---                                                            / /
---
---
---                o FIELDRIVE reset: nanoFIP FIELDRIVE output FD_RSTN
---                  Same as the nanoFIP internal reset, it can be activated by the RSTIN,
---                  a var_rst or the RSTPON. Regarding the activation time, for the first
---                  two cases (RSTIN, var_rst) it stays asserted for 4 FD_TXCK cycles whereas in
---                  the case of the RSTPON, it stays active for as long as the RSTPON is active.
---
---                                          __________
---                                  RSTIN  |          |       \ \
---                                 ________|   FSM    |_______ \ \
---                                         |  RSTIN   |         \  \
---                                         |__________|          \  \
---                                          __________            |  \
---                      rst_nFIP_and_FD_p  |          |           |   |      FD_RSTN
---                                 ________|   FSM    |________   |OR |  _______________
---                                         |  var_rst |           |   |
---                                         |__________|           |  /
---                                                               /  /
---                                 RSTPON                       /  /
---                                 __________________________  / /
---                                                            / /
---
---                o reset to the external logic: nanoFIP User Interface, General signal RSTON
---                  It is asserted after the reception of a valid var_rst with its 2nd data byte
---                  containing the station's address. It stays active for 8 uclk cycles.
---                                          _________
---                         assert_RSTON_p  |          |                       RSTON
---                                 ________|   FSM    |_________________________________
---                                         |  var_rst |
---                                         |__________|
---
---
---                o nanoFIP internal reset for the WISHBONE logic:
---                  It is asserted after the assertion of the "nanoFIP User Interface, WISHBONE
---                  Slave" input RST_I (not synchronized, to comply with with WISHBONE rule 3.15)
---                  or of the "nanoFIP User Interface General signal" RSTPON.
---                  It stays asserted for as long as the RST_I or RSTPON stay asserted.
---
---                                 RSTPON
---                                 __________________________ \ \
---                                                             \  \           wb_rst
---                                 RST_I                        |OR|____________________
---                                 __________________________  /  /
---                                                            / /
---
---
---              o The input signal RSTIN is considered only if it has been active for >8 uclk cycles
---              o The pulses rst_nFIP_and_FD_p and assert_RSTON_p come from the WF_cons_outcome unit
---                only after the sucessful validation of the frame structure and of the application-
---                data bytes of a var_rst; in this unit they are used here directly,
---                without any handling.
---              o The Power On Reset signal is used directly, without any handling.
---                --->>Still missing the synchronization with the uclk and wb_clk of the falling edge
---                     of RSTPON
---
---              The unit implements 2 state machines: one for resets coming from RSTIN
---                                                    and one for resets coming from a var_rst.
---
---
--- Authors      Erik van der Bij      (Erik.van.der.Bij@cern.ch)
---              Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         21/01/2011
--- Version      v0.03
--- Depends on   WF_cons_bytes_processor
-----------------
--- Last changes
---     07/2009  v0.01  EB  First version
---     08/2010  v0.02  EG  checking of bytes1 and 2 of reset var added
---                         fd_rstn_o, nFIP_rst_o enabled only if rstin has been active for>4 uclk
---     01/2011  v0.03  EG  PoR added; signals assert_RSTON_p_i & rst_nFIP_and_FD_p_i are inputs
---                         treated in the wf_cons_outcome; 2 state machines created; clean-up
---                         PoR also for internal WISHBONE resets
---     02/2011  v0.031  EG state nfip_off_fd_off added
+-- File         WF_reset_unit.vhd                                                                 |
+--                                                                                                |
+-- Description  The unit is responsible for the generation of the:                                |
+--                                                                                                |
+--              o nanoFIP internal reset: that resets all nanoFIP's logic, apart from WISHBONE.   |
+--                It is asserted after a proper assertion of the "nanoFIP User Interface General  |
+--                signal" RSTIN (synchronized to the uclk), or                                    |
+--                after the reception of a valid var_rst with its 1st application-data byte       |
+--                containing the station's address. In both cases, the signal stays active for    |
+--                2 uclk cycles.                                                                  |
+--                It is also asserted during the activation of the "nanoFIP User Interface        |
+--                General signal" RSTPON. In this case it stays active for as long as the         |
+--                RSTPON is active.                                                               |
+--                                          __________                                            |
+--                                  RSTIN  |          |       \ \                                 |
+--                                 ________|   FSM    |_______ \ \                                |
+--                                         |  RSTIN   |         \  \                              |
+--                                         |__________|          \  \                             |
+--                                          __________            |  \                            |
+--                      rst_nFIP_and_FD_p  |          |           |   |      nFIP_rst             |
+--                                 ________|   FSM    |________   |OR |  _______________          |
+--                                         |  var_rst |           |   |                           |
+--                                         |__________|           |  /                            |
+--                                                               /  /                             |
+--                                 RSTPON                       /  /                              |
+--                                 __________________________  / /                                |
+--                                                            / /                                 |
+--                                                                                                |
+--                                                                                                |
+--              o FIELDRIVE reset: nanoFIP FIELDRIVE output FD_RSTN                               |
+--                Same as the nanoFIP internal reset, it can be activated by the RSTIN,           |
+--                the var_rst or the RSTPON. Regarding the activation time, for the first         |
+--                two cases (RSTIN, var_rst) it stays asserted for 4 FD_TXCK cycles whereas in    |
+--                the case of the RSTPON, it stays active for as long as the RSTPON is active.    |
+--                                                                                                |
+--                                          __________                                            |
+--                                  RSTIN  |          |       \ \                                 |
+--                                 ________|   FSM    |_______ \ \                                |
+--                                         |  RSTIN   |         \  \                              |
+--                                         |__________|          \  \                             |
+--                                          __________            |  \                            |
+--                      rst_nFIP_and_FD_p  |          |           |   |      FD_RSTN              |
+--                                 ________|   FSM    |________   |OR |  _______________          |
+--                                         |  var_rst |           |   |                           |
+--                                         |__________|           |  /                            |
+--                                                               /  /                             |
+--                                 RSTPON                       /  /                              |
+--                                 __________________________  / /                                |
+--                                                            / /                                 |
+--                                                                                                |
+--              o reset to the external logic: "nanoFIP User Interface, General signal" RSTON     |
+--                It is asserted after the reception of a valid var_rst with its 2nd data byte    |
+--                containing the station's address. It stays active for 8 uclk cycles.            |
+--                                          _________                                             |
+--                         assert_RSTON_p  |          |                       RSTON               |
+--                                 ________|   FSM    |_________________________________          |
+--                                         |  var_rst |                                           |
+--                                         |__________|                                           |
+--                                                                                                |
+--              o nanoFIP internal reset for the WISHBONE logic:                                  |
+--                It is asserted after the assertion of the "nanoFIP User Interface, WISHBONE     |
+--                Slave" input RST_I (not synchronized, to comply with with WISHBONE rule 3.15)   |
+--                or of the "nanoFIP User Interface General signal" RSTPON.                       |
+--                It stays asserted for as long as the RST_I or RSTPON stay asserted.             |
+--                                                                                                |
+--                                 RSTPON                                                         |
+--                                 __________________________ \ \                                 |
+--                                                             \  \           wb_rst              |
+--                                 RST_I                        |OR|____________________          |
+--                                 __________________________  /  /                               |
+--                                                            / /                                 |
+--                                                                                                |
+--            Notes:                                                                              |
+--            - The input signal RSTIN is considered only if it has been active for >8 uclk cycles|
+--            - The pulses rst_nFIP_and_FD_p and assert_RSTON_p come from the WF_cons_outcome     |
+--              unit only after the sucessful validation of the frame structure and of the        |
+--              application-data bytes of a var_rst; in this unit they are used here directly,    |
+--              without any handling.                                                             |
+--            - The RSTPON (Power On Reset generated with an RC circuit) removal is synchronized  |
+--              with both uclk and wb_clk.                                                        |
+--                                                                                                |
+--            The unit implements 2 state machines: one for resets coming from RSTIN              |
+--                                                  and one for resets coming from a var_rst.     |
+--                                                                                                |
+--                                                                                                |
+-- Authors      Erik van der Bij      (Erik.van.der.Bij@cern.ch)                                  |
+--              Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         21/01/2011                                                                        |
+-- Version      v0.03                                                                             |
+-- Depends on   WF_cons_bytes_processor                                                           |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     07/2009  v0.01  EB  First version                                                          |
+--     08/2010  v0.02  EG  checking of bytes1 and 2 of reset var added                            |
+--                         fd_rstn_o, nFIP_rst_o enabled only if rstin has been active for>4 uclk |
+--     01/2011  v0.03  EG  PoR added; signals assert_RSTON_p_i & rst_nFIP_and_FD_p_i are inputs   |
+--                         treated in the wf_cons_outcome; 2 state machines created; clean-up     |
+--                         PoR also for internal WISHBONE resets                                  |
+--     02/2011  v0.031  EG state nfip_off_fd_off added                                            |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -145,8 +143,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --=================================================================================================
 --                           Entity declaration for WF_reset_unit
 --=================================================================================================
-entity WF_reset_unit is
-  port (
+entity WF_reset_unit is port(
   -- INPUTS
     -- nanoFIP User Interface General signals
     uclk_i                                : in std_logic;    -- 40 MHz clock
@@ -180,8 +177,8 @@ entity WF_reset_unit is
     rston_o             : out std_logic;    -- reset output, active low
 
     -- nanoFIP FIELDRIVE output
-    fd_rstn_o           : out std_logic     -- FIELDRIVE reset, active low
-       );
+    fd_rstn_o           : out std_logic);   -- FIELDRIVE reset, active low
+
 end entity WF_reset_unit;
 
 
@@ -190,21 +187,30 @@ end entity WF_reset_unit;
 --=================================================================================================
 architecture rtl of WF_reset_unit is
 
+  -- RSTIN and RSTPON synchronizers
+  signal s_rsti_synch                                 : std_logic_vector (2 downto 0);
+  signal s_wb_por_synch, s_u_por_synch                : std_logic_vector (1 downto 0);
+  -- FSM for RSTIN
   type rstin_st_t   is (idle, rstin_eval, nfip_on_fd_on, nfip_off_fd_on, nfip_off_fd_off);
+  signal rstin_st, nx_rstin_st                        : rstin_st_t;
+  -- RSTIN counter
+  signal s_rstin_c, s_var_rst_c                       : unsigned (c_2_PERIODS_COUNTER_LGTH-1 downto 0);
+  signal s_rstin_c_reinit, s_rstin_c_is_four, s_rstin_c_is_ten, s_rstin_c_is_full          : std_logic;
+  -- resets generated after a RSTIN
+  signal s_rstin_nfip, s_rstin_fd                                                          : std_logic;
+  -- FSM for var_rst
   type var_rst_st_t is (var_rst_idle, var_rst_rston_on, var_rst_nfip_on_fd_on_rston_on,
                         var_rst_nfip_off_fd_on_rston_on, var_rst_nfip_on_fd_on,
                         var_rst_nfip_off_fd_on_rston_off);
-
   signal var_rst_st, nx_var_rst_st                    : var_rst_st_t;
-  signal rstin_st, nx_rstin_st                        : rstin_st_t;
-  signal s_rstin_c, s_var_rst_c                       : unsigned (c_2_PERIODS_COUNTER_LGTH-1 downto 0);
-  signal s_rstin_c_reinit, s_rstin_c_is_four, s_rstin_c_is_ten, s_rstin_c_is_full          : std_logic;
+  -- var_rst counter 
   signal s_var_rst_c_reinit, s_var_rst_c_is_two, s_var_rst_c_is_eight, s_var_rst_c_is_full : std_logic;
-  signal s_rstin_nfip, s_rstin_fd, s_var_rst_fd, s_var_rst_nfip, s_rston                   : std_logic;
+  -- resets generated after a var_rst
+  signal s_var_rst_fd, s_var_rst_nfip, s_rston                                             : std_logic;
+  -- info needed to define the length of the FD_RSTN
   signal s_transm_period                              : unsigned (c_PERIODS_COUNTER_LGTH - 1 downto 0);
   signal s_txck_four_periods                          : unsigned (c_2_PERIODS_COUNTER_LGTH-1 downto 0);
-  signal s_u_por_ff1, s_u_por, s_wb_por_ff1, s_wb_por : std_logic;
-  signal s_rsti_synch                                 : std_logic_vector (2 downto 0);
+
 
 --=================================================================================================
 --                                       architecture begin
@@ -226,33 +232,29 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Synchronization of the de-assertion of the Power On reset, with the wb_clk.
+-- Synchronization of the Power On Reset removal, with the wb_clk.
 -- The second flip-flop is used to remove metastabilities.
 
   PoR_wb_clk_Synchronizer: process (wb_clk_i, rstpon_a_i)
     begin
       if rstpon_a_i = '0' then
-        s_wb_por_ff1 <= '1';
-        s_wb_por     <= '1';
+        s_wb_por_synch <= (others => '1');
       elsif rising_edge (wb_clk_i) then
-        s_wb_por_ff1 <= '0';
-        s_wb_por     <= s_wb_por_ff1;
+        s_wb_por_synch <= s_wb_por_synch(0) & '0';
       end if;
     end process;
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Synchronization of the de-assertion of the Power On reset, with the uclk.
+-- Synchronization of the Power On Reset removal, with the uclk.
 -- The second flip-flop is used to remove metastabilities.
 
   PoR_uclk_Synchronizer: process (uclk_i, rstpon_a_i)
     begin
       if rstpon_a_i = '0' then
-        s_u_por_ff1 <= '1';
-        s_u_por     <= '1';
+        s_u_por_synch <= (others => '1');
       elsif rising_edge (uclk_i) then
-        s_u_por_ff1 <= '0';
-        s_u_por     <= s_u_por_ff1;
+        s_u_por_synch <= s_u_por_synch(0) & '0';
       end if;
     end process;
 
@@ -290,7 +292,7 @@ begin
   RSTIN_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if s_u_por = '1' or rst_nFIP_and_FD_p_i = '1' then
+        if s_u_por_synch(1) = '1' or rst_nFIP_and_FD_p_i = '1' then
           rstin_st <= idle;
         else
           rstin_st <= nx_rstin_st;
@@ -433,8 +435,8 @@ begin
 -- Instantiation of a WF_incr_counter: the counter counts from 0 to 4 FD_TXCK.
 
 RSTIN_free_counter: WF_incr_counter
-  generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
-  port map (
+  generic map(g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
+  port map(
     uclk_i            => uclk_i,
     reinit_counter_i  => s_rstin_c_reinit,
     incr_counter_i    => '1',
@@ -472,7 +474,7 @@ RSTIN_free_counter: WF_incr_counter
    Resets_after_a_var_rst_synch: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if s_u_por = '1' or s_rstin_nfip = '1' then
+        if s_u_por_synch(1) = '1' or s_rstin_nfip = '1' then
           var_rst_st <= var_rst_idle;
         else
           var_rst_st <= nx_var_rst_st;
@@ -579,7 +581,7 @@ RSTIN_free_counter: WF_incr_counter
     when var_rst_idle =>
                                      s_var_rst_c_reinit <= '1';    -- counter initialized
 
-                                     s_rston            <= '0';
+                                     s_rston            <= '1';
                                      s_var_rst_nfip     <= '0';
                                      s_var_rst_fd       <= '0';
 
@@ -588,7 +590,7 @@ RSTIN_free_counter: WF_incr_counter
                                      s_var_rst_c_reinit <= '0';    -- counting 8 uclk cycles
 
                                     -------------------------------------
-                                     s_rston            <= '1';    -- RSTON         active
+                                     s_rston            <= '0';    -- RSTON         active
                                     -------------------------------------
                                      s_var_rst_nfip     <= '0';
                                      s_var_rst_fd       <= '0';
@@ -598,7 +600,7 @@ RSTIN_free_counter: WF_incr_counter
                                      s_var_rst_c_reinit <= '0';    -- counting 2 uclk cycles
 
                                     -------------------------------------
-                                     s_rston            <= '1';    -- RSTON         active
+                                     s_rston            <= '0';    -- RSTON         active
                                      s_var_rst_nfip     <= '1';    -- nFIP internal active
                                      s_var_rst_fd       <= '1';    -- FIELDRIVE     active
                                     -------------------------------------
@@ -609,7 +611,7 @@ RSTIN_free_counter: WF_incr_counter
 
                                      s_var_rst_nfip     <= '0';
                                     -------------------------------------
-                                     s_rston            <= '1';    -- RSTON         active
+                                     s_rston            <= '0';    -- RSTON         active
                                      s_var_rst_fd       <= '1';    -- FIELDRIVE     active
                                     -------------------------------------
 
@@ -617,7 +619,7 @@ RSTIN_free_counter: WF_incr_counter
     when var_rst_nfip_on_fd_on =>
                                      s_var_rst_c_reinit <= '0';    -- counting 2 uclk cycles
 
-                                     s_rston            <= '0';
+                                     s_rston            <= '1';
                                     -------------------------------------
                                      s_var_rst_nfip     <= '1';    -- nFIP internal active
                                      s_var_rst_fd       <= '1';    -- FIELDRIVE     active
@@ -627,7 +629,7 @@ RSTIN_free_counter: WF_incr_counter
     when var_rst_nfip_off_fd_on_rston_off =>
                                      s_var_rst_c_reinit <= '0';    -- counting 4 FD_TXCK cycles
 
-                                     s_rston            <= '0';
+                                     s_rston            <= '1';
                                      s_var_rst_nfip     <= '0';
                                     -------------------------------------
                                     s_var_rst_fd        <= '1';    -- FIELDRIVE     active
@@ -637,7 +639,7 @@ RSTIN_free_counter: WF_incr_counter
     when others =>
                                      s_var_rst_c_reinit <= '1';    -- no counting
 
-                                     s_rston            <= '0';
+                                     s_rston            <= '1';
                                      s_var_rst_nfip     <= '0';
                                      s_var_rst_fd       <= '0';
 
@@ -653,8 +655,8 @@ RSTIN_free_counter: WF_incr_counter
 --                    from 0 to 4 * FD_TXCK, if rst_nFIP_and_FD_p has been activated.
 
 free_counter: WF_incr_counter
-  generic map (g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
-  port map (
+  generic map(g_counter_lgth => c_2_PERIODS_COUNTER_LGTH)
+  port map(
     uclk_i            => uclk_i,
     reinit_counter_i  => s_var_rst_c_reinit,
     incr_counter_i    => '1',
@@ -674,26 +676,32 @@ free_counter: WF_incr_counter
 --                                         Output Signals                                        --
 ---------------------------------------------------------------------------------------------------
 
-  wb_rst_o      <= rst_i or s_wb_por;
-  nFIP_rst_o    <= s_rstin_nfip or s_var_rst_nfip or s_u_por;
+  wb_rst_o      <= rst_i or s_wb_por_synch(1);
 
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  nFIP_rst_o    <= s_rstin_nfip or s_var_rst_nfip or s_u_por_synch(1);
+
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
   -- Flip-flop with asynchronous reset to be sure that whenever nanoFIP is reset the user is not
-  RSTON_Buffering: process (uclk_i, s_u_por, s_rstin_nfip, s_var_rst_nfip)
+  RSTON_Buffering: process (uclk_i, s_u_por_synch(1), s_rstin_nfip, s_var_rst_nfip)
   begin
-    if s_rstin_nfip = '1' or s_var_rst_nfip = '1' or s_u_por = '1' then
+    if s_rstin_nfip = '1' or s_var_rst_nfip = '1' or s_u_por_synch(1) = '1' then
       rston_o   <=  '1';
     elsif rising_edge (uclk_i) then
-      rston_o   <= not s_rston;
+      rston_o   <= s_rston;
     end if;
   end process;
 
-
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+  -- FIELDRIVE reset
   FD_RST_Buffering: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      fd_rstn_o <= not (s_rstin_fd or s_var_rst_fd or s_u_por);
+      fd_rstn_o <= not (s_rstin_fd or s_var_rst_fd or s_u_por_synch(1));
     end if;
   end process;
+
+
 
 end architecture rtl;
 --=================================================================================================

@@ -1,31 +1,31 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                          WF_rx_deglitcher                                     --
---                                                                                               --
+--                                                                                                |
+--                                        WF_rx_deglitcher                                        |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_rx_deglitcher.vhd 
---
--- Description  The unit applies a glitch filter to the nanoFIP FIELDRIVE input FD_RXD.
---              It is capable of cleaning glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         14/02/2011
--- Version      v0.03
--- Depends on   WF_reset_unit
-----------------
--- Last changes
---     07/08/2009  v0.01  PAS Entity Ports added, start of architecture content
---     23/08/2010  v0.02  EG  code cleaned-up+commented
---     14/02/2011  v0.03  EG  complete change, no dependency on osc;
---                            fd_rxd deglitched right at reception
+-- File         WF_rx_deglitcher.vhd                                                              |
+--                                                                                                |
+-- Description  The unit applies a glitch filter to the nanoFIP FIELDRIVE input FD_RXD.           |
+--              It is capable of cleaning glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.    |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         14/02/2011                                                                        |
+-- Version      v0.03                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     07/08/2009  v0.01  PAS Entity Ports added, start of architecture content                   |
+--     23/08/2010  v0.02  EG  code cleaned-up+commented                                           |
+--     14/02/2011  v0.03  EG  complete change, no dependency on osc;                              |
+--                            fd_rxd deglitched right at reception                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -60,9 +60,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                             Entity declaration for WF_rx_deglitcher
 --=================================================================================================
 
-entity WF_rx_deglitcher is
-
-  port(
+entity WF_rx_deglitcher is port(
   -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i                 : in std_logic;  -- 40 MHz clock
@@ -78,8 +76,8 @@ entity WF_rx_deglitcher is
     -- Signals to the WF_rx_deserializer unit
     fd_rxd_filt_o          : out std_logic; -- filtered output signal
     fd_rxd_filt_edge_p_o   : out std_logic; -- indicates an edge on the filtered signal
-    fd_rxd_filt_f_edge_p_o : out std_logic  -- indicates a falling edge on the filtered signal
-      );
+    fd_rxd_filt_f_edge_p_o : out std_logic);-- indicates a falling edge on the filtered signal
+
 end WF_rx_deglitcher;
 
 
@@ -94,13 +92,17 @@ architecture rtl of WF_rx_deglitcher is
   signal s_fd_rxd_filt_r_edge_p, s_fd_rxd_filt_f_edge_p : std_logic;
   signal s_filt_c                                       : unsigned (3 downto 0);
 
+
 --=================================================================================================
 --                                       architecture begin
 --=================================================================================================
 begin
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+---------------------------------------------------------------------------------------------------
+--                                     FD_RXD synchronization                                    --
+---------------------------------------------------------------------------------------------------
+
 -- Synchronous process FD_RXD_synchronizer: Synchronization of the nanoFIP FIELDRIVE input
 -- FD_RXD to the uclk, using a set of 2 registers.
 
@@ -117,7 +119,12 @@ begin
   end process;
 
 
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
+
+---------------------------------------------------------------------------------------------------
+--                                          Deglitching                                         --
+---------------------------------------------------------------------------------------------------
+
+  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
 -- Synchronous process FD_RXD_deglitcher: the output signal s_fd_rxd_filt is updated only
 -- after the accumulation of a sufficient (c_DEGLITCH_THRESHOLD + 1) amount of identical bits.
 -- The signal is therefore cleaned of any glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.
@@ -155,7 +162,6 @@ begin
       end if;
     end if;
   end process;
-
 
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -

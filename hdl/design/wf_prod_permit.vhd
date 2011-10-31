@@ -1,29 +1,29 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                        WF_prod_permit                                         --
---                                                                                               --
+--                                                                                                |
+--                                        WF_prod_permit                                          |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_prod_permit.vhd 
---
--- Description  Generation of the "nanoFIP User Interface, NON_WISHBONE" output signal VAR3_RDY,
---              according to the variable (var_i) that is being treated.
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         14/1/2011
--- Version      v0.01
--- Depends on   WF_engine_control
---              WF_reset_unit
-----------------
--- Last changes
---     1/2011  v0.01  EG  First version
+-- File         WF_prod_permit.vhd                                                                |
+--                                                                                                |
+-- Description  Generation of the "nanoFIP User Interface, NON_WISHBONE" output signal VAR3_RDY,  |
+--              according to the variable (var_i) that is being treated.                          |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         14/1/2011                                                                         |
+-- Version      v0.01                                                                             |
+-- Depends on   WF_engine_control                                                                 |
+--              WF_reset_unit                                                                     |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     1/2011  v0.01  EG  First version                                                           |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -58,9 +58,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                           Entity declaration for WF_prod_permit
 --=================================================================================================
 
-entity WF_prod_permit is
-
-  port (
+entity WF_prod_permit is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                : in std_logic;      -- 40 MHz clock
@@ -74,8 +72,8 @@ entity WF_prod_permit is
 
   -- OUTPUT
     -- nanoFIP User Interface, NON-WISHBONE outputs
-    var3_rdy_o            : out std_logic      -- signals the user that data can safely be written
-      );
+    var3_rdy_o            : out std_logic);    -- signals the user that data can safely be written
+
 end entity WF_prod_permit;
 
 
@@ -99,9 +97,13 @@ begin
 -- corresponding RP_DAT from nanoFIP.
 
 -- Note: A correct ID_DAT frame along with the variable it contained is signaled by the var_i.
--- For produced variables, the signal var_i gets its value (var3, var_presence, var_identif)
--- after the reception of a correct ID_DAT frame (with correct FSS, Control, PDU_TYPE, Length, CRC
--- and FES bytes) and retains it until the end of the transmission of the corresponding RP_DAT.
+-- For produced variables, the signal var_i gets its value after the reception of a correct ID_DAT
+-- frame (with correct FSS, CTRL, PDU_TYPE, LGTH, CRC and FES bytes) and retains it until the end
+-- of the transmission of the corresponding RP_DAT. An example follows:
+--
+-- frames  : ___[ID_DAT,var_3]__[......RP_DAT......]______________[ID_DAT,var_3]___[.....RP_DAT..
+-- var_i   :    var_whatever  > <       var_3      > <        var_whatever        > <   var_3
+-- VAR3_RDY: -------------------|__________________|--------------------------------|___________
 
   VAR_RDY_Generation: process (uclk_i)
   begin

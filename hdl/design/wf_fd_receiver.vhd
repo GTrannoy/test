@@ -1,64 +1,64 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                         WF_fd_receiver                                        --
---                                                                                               --
+--                                                                                                |
+--                                         WF_fd_receiver                                         |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_fd_receiver.vhd
---
--- Description  The unit groups the main actions that regard FIELDRIVE data reception.
---              It instantiates the units:
---
---              o WF_rx_deserializer : for the formation of bytes of data to be provided to the:
---                                     o WF_engine_control unit, for the contents of ID_DAT frames
---                                     o WF_cons_bytes_processor unit, for the contents of consumed
---                                       RP_DAT frames
---
---              o WF_rx_osc          : for the clock recovery
---
---              o WF_rx_deglitcher   : for the filtering of the input FD_RXD
---
---
---                                _________________________         _________________________
---                               |                         |       |                         |
---                               |      WF_Consumption     |       |    WF_engine_control    |
---                               |_________________________|       |_________________________|
---                                           /\                                /\
---                                ___________________________________________________________
---                               |                      WF_fd_revceiver                      |
---                               |                                                _________  |
---                               |   _______________________________________     |         | |
---                               |  |                                       |    |         | |
---                               |  |           WF_rx_deserializer          |    |  WF_rx  | |
---                               |  |                                       |  < |  _osc   | |
---                               |  |_______________________________________|    |         | |
---                               |                     /\                        |_________| |
---                               |   _______________________________________                 |
---                               |  |                                       |                |
---                               |  |            WF_rx_deglitcher           |                |
---                               |  |_______________________________________|                |
---                               |                                                           |
---                               |___________________________________________________________|
---                                                            \/
---                            ___________________________________________________________________
---                          0_____________________________FIELDBUS______________________________O
---
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         15/02/2011
--- Version      v0.01
--- Depends on   WF_reset_unit
---              WF_engine_control
-----------------
--- Last changes
---     02/2011  v0.01  EG  First version
+-- File         WF_fd_receiver.vhd                                                                |
+--                                                                                                |
+-- Description  The unit groups the main actions that regard FIELDRIVE data reception.            |
+--              It instantiates the units:                                                        |
+--                                                                                                |
+--              o WF_rx_deserializer: for the formation of bytes of data to be provided to the:   |
+--                                    o WF_engine_control unit, for the contents of ID_DAT frames |
+--                                    o WF_cons_bytes_processor unit, for the contents of consumed|
+--                                      RP_DAT frames                                             |
+--                                                                                                |
+--              o WF_rx_osc         : for the clock recovery                                      |
+--                                                                                                |
+--              o WF_rx_deglitcher  : for the filtering of the input FD_RXD                       |
+--                                                                                                |
+--                                                                                                |
+--                     _________________________         _________________________                |
+--                    |                         |       |                         |               |
+--                    |      WF_Consumption     |       |    WF_engine_control    |               |
+--                    |_________________________|       |_________________________|               |
+--                                /\                                /\                            |
+--                     ___________________________________________________________                |
+--                    |                      WF_fd_revceiver                      |               |
+--                    |                                                _________  |               |
+--                    |   _______________________________________     |         | |               |
+--                    |  |                                       |    |         | |               |
+--                    |  |           WF_rx_deserializer          |    |  WF_rx  | |               |
+--                    |  |                                       |  < |  _osc   | |               |
+--                    |  |_______________________________________|    |         | |               |
+--                    |                     /\                        |_________| |               |
+--                    |   _______________________________________                 |               |
+--                    |  |                                       |                |               |
+--                    |  |            WF_rx_deglitcher           |                |               |
+--                    |  |_______________________________________|                |               |
+--                    |                                                           |               |
+--                    |___________________________________________________________|               |
+--                                                 \/                                             |
+--              ___________________________________________________________________               |
+--               0_____________________________FIELDBUS______________________________O            |
+--                                                                                                |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         15/02/2011                                                                        |
+-- Version      v0.01                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+--              WF_engine_control                                                                 |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     02/2011  v0.01  EG  First version                                                          |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -92,9 +92,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --=================================================================================================
 --                              Entity declaration for WF_fd_receiver
 --=================================================================================================
-entity WF_fd_receiver is
-
-  port (
+entity WF_fd_receiver is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                : in std_logic;  -- 40 MHZ clock
@@ -124,8 +122,8 @@ entity WF_fd_receiver is
                                            -- wrong CRC; pulse upon FES detection
 
     -- Signals to the WF_engine_control
-    rx_fss_received_p_o   : out std_logic  -- pulse upon FSS detection (ID/ RP_DAT)
-    );
+    rx_fss_received_p_o   : out std_logic);-- pulse upon FSS detection (ID/ RP_DAT)
+
 end entity WF_fd_receiver;
 
 
@@ -139,6 +137,7 @@ architecture struc of WF_fd_receiver is
   signal s_fd_rxd_filt, s_rxd_filt_edge_p                        : std_logic;
   signal s_fd_rxd_filt_f_edge_p, s_fd_rxd_filt_r_edge_p          : std_logic;
 
+
 --=================================================================================================
 --                                       architecture begin
 --=================================================================================================
@@ -150,7 +149,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 
   FIELDRIVE_Receiver_Deglitcher: WF_rx_deglitcher
-  port map (
+  port map(
     uclk_i                 => uclk_i,
     nfip_rst_i             => nfip_rst_i,
     fd_rxd_a_i             => fd_rxd_a_i,
@@ -169,7 +168,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 
   FIELDRIVE_Receiver_Oscillator: WF_rx_osc
-  port map (
+  port map(
     uclk_i                  => uclk_i,
     rate_i                  => rate_i,
     nfip_rst_i              => nfip_rst_i,
@@ -189,7 +188,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 
   FIELDRIVE_Receiver_Deserializer: WF_rx_deserializer
-  port map (
+  port map(
     uclk_i               => uclk_i,
     nfip_rst_i           => nfip_rst_i,
     rx_rst_i             => rx_rst_i,

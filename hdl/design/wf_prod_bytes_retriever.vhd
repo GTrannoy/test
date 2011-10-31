@@ -1,78 +1,90 @@
 --_________________________________________________________________________________________________
 --                                                                                                |
---                                        |The nanoFIP|                                           |
+--                                         |The nanoFIP|                                          |
 --                                                                                                |
---                                        CERN,BE/CO-HT                                           |
+--                                         CERN,BE/CO-HT                                          |
 --________________________________________________________________________________________________|
 
 ---------------------------------------------------------------------------------------------------
---                                                                                               --
---                                    WF_prod_bytes_retriever                                    --
---                                                                                               --
+--                                                                                                |
+--                                    WF_prod_bytes_retriever                                     |
+--                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_prod_bytes_retriever.vhd
---
--- Description  After an ID_DAT frame requesting for a variable to be produced, the unit provides
---              to the WF_tx_serializer unit one by one, all the bytes of data needed for the
---              RP_DAT frame (apart from the  FSS, FCS and FES bytes). The coordination of the
---              retreival is done through the WF_engine_control and the signal byte_index_i.
---
---              General structure of a produced RP_DAT frame :
---    ___________ ______  _______ ______ _________________ _______ _______  ___________ _______
---   |____FSS____|_Ctrl_||__PDU__|_LGTH_|_...User-Data..._|_nstat_|__MPS__||____FCS____|__FES__|
---
---              Data provided by the this unit :
---                ______  _______ ______ ________________________________________ _______ _______
---               |_Ctrl_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||
---
---              If the variable to be produced is the
---                o presence       : The unit retreives the bytes from the WF_package.
---                                   No MPS & no nanoFIP status are associated with this variable.
---                ______  _______ ______ ______ ______ ______ ______ ______
---               |_Ctrl_||__PDU__|__05__|__80__|__03__|__00__|__F0__|__00__||
---
---
---                o identification : The unit retreives the Constructor & Model bytes from the
---                                   WF_model_constr_decoder, and all the rest from the WF_package.
---                                   No MPS & no nanoFIP status are associated with this variable.
---                ______  _______ ______ ______ ______ ______ ______ _______ ______ ______ ______
---               |_Ctrl_||__PDU__|__08__|__01__|__00__|__00__|_cons_|__mod__|__00__|__00__|__00__||
---
---
---                o var_3          : If the operation is in stand-alone mode, the unit retreives the
---                                   user-data bytes from the "nanoFIP User Interface, NON-WISHBONE"
---                                   bus DAT_I. If it is in memory mode, it retreives them from the
---                                   Produced RAM. The unit retreives the MPS and nanoFIP status
---                                   bytes from the WF_status_bytes_gen, and the LGTH byte from the
---                                   WF_prod_data_lgth_calc (inside the WF_engine_control). The
---                                   rest of the bytes (Ctrl & PDU) come from the WF_package.
---                ______  _______ ______ ________________________________________ _______ _______
---               |_Ctrl_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||
---
---
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)
---              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)
--- Date         04/01/2011
--- Version      v0.05
--- Depends on   WF_reset_unit
---              WF_wb_controller
---              WF_engine_control
---              WF_prod_permit
---              WF_status_bytes_gen
---              WF_model_constr_dec
-----------------
--- Last changes
---     06/2010  v0.02  EG  subs_i is not sent in the RP_DAT frames
---                         signal s_wb_we includes the wb_stb_r_edge_p_i
---                         cleaner structure
---     06/2010  v0.03  EG  signal s_mem_byte was not in sensitivity list in v0.01! by adding it
---                         changes were essential in the timing of the tx (WF_osc, WF_tx,
---                         WF_engine_control and the configuration of the memory needed changes)
---     11/2010  v0.04  EG  for simplification, new unit Slone_Data_Sampler created
---     4/1/2011 v0.05  EG  unit renamed from WF_prod_bytes_to_tx to WF_prod_bytes_retriever;
---                         input byte_being_sent_p_i added, so that the reseting of status bytes
---                         does not pass from the engine; clening-up+commenting
---       2/2011 v0.051 EG  WF_prod_bytes_from_dati unit removed.
+-- File         WF_prod_bytes_retriever.vhd                                                       |
+--                                                                                                |
+-- Description  After an ID_DAT frame requesting for a variable to be produced, the unit provides |
+--              to the WF_tx_serializer unit one by one, all the bytes of data needed for the     |
+--              RP_DAT frame (apart from the  FSS, FCS and FES bytes). The coordination of the    |
+--              retreival is done through the WF_engine_control and the signal byte_index_i.      |
+--                                                                                                |
+--              General structure of a produced RP_DAT frame:                                     |
+--    ___________ ______  _______ ______ _________________ _______ _______  ___________ _______   |
+--   |____FSS____|_CTRL_||__PDU__|_LGTH_|_...User-Data..._|_nstat_|__MPS__||____FCS____|__FES__|  |
+--                                                                                                |
+--              Data provided by the this unit:                                                   |
+--                ______  _______ ______ _________________ _______ _______                        |
+--               |_CTRL_||__PDU__|_LGTH_|_...User-Data..._|_nstat_|__MPS__||                      |
+--                                                                                                |
+--              If the variable to be produced is the                                             |
+--                o presence      : The unit retreives the bytes from the WF_package.             |
+--                                  No MPS & no nanoFIP status are associated with this variable. |
+--                ______  _______ ______ ______ ______ ______ ______ ______                       |
+--               |_CTRL_||__PDU__|__05__|__80__|__03__|__00__|__F0__|__00__||                     |
+--                                                                                                |
+--                                                                                                |
+--                o identification: The unit retreives the Constructor & Model bytes from the     |
+--                                  WF_model_constr_decoder, & all the rest from the WF_package.  |
+--                                  No MPS & no nanoFIP status are associated with this variable. |
+--        ______  _______ ______ ______ ______ ______ ______ _______ ______ ______ ______         |
+--       |_CTRL_||__PDU__|__08__|__01__|__00__|__00__|_cons_|__mod__|__00__|__00__|__00__||       |
+--                                                                                                |
+--                                                                                                |
+--                o var_3         : If the operation is in stand-alone mode, the unit retreives   |
+--                                  the user-data bytes from the "nanoFIP User Interface, NON-    |
+--                                  WISHBONE" bus DAT_I. If it is in memory mode, it retreives    |
+--                                  them from the Produced RAM. The unit retreives the MPS and    |
+--                                  nanoFIP status bytes from the WF_status_bytes_gen, and the    |
+--                                  LGTH byte from the WF_prod_data_lgth_calc (inside the         |
+--                                  WF_engine_control). The rest of the bytes (CTRL & PDU) come   |
+--                                  from the WF_package.                                          |
+--        ______  _______ ______ ________________________________________ _______ _______         |
+--       |_CTRL_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||       |
+--                                                                                                |
+--                                                                                                |
+--                o var_jc3       : Regardless of the operational mode or the P3_LGTH, the unit   |
+--                                  sends 1 user-data byte coming from the WF_jtag_controller.    |
+--                                  The nanoFIP status is always sent regardless of the NOSTAT    |
+--                                  input. The MPS, LGTH, CTRL, PDU_TYPE bytes are as before.     |
+--                                                                                                |
+--                ______  _______ ______ ________ _______ _______                                 |
+--               |_CTRL_||__PDU__|_LGTH_|_jc_tdo_|_nstat_|__MPS__||                               |
+--                                                                                                |
+--                                                                                                |
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
+--              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
+-- Date         04/01/2011                                                                        |
+-- Version      v0.05                                                                             |
+-- Depends on   WF_reset_unit                                                                     |
+--              WF_wb_controller                                                                  |
+--              WF_engine_control                                                                 |
+--              WF_prod_permit                                                                    |
+--              WF_status_bytes_gen                                                               |
+--              WF_model_constr_dec                                                               |
+--              WF_jtag_controller                                                                |
+----------------                                                                                  |
+-- Last changes                                                                                   |
+--     06/2010  v0.02  EG  subs_i is not sent in the RP_DAT frames                                |
+--                         signal s_wb_we includes the wb_stb_r_edge_p_i                          |
+--                         cleaner structure                                                      |
+--     06/2010  v0.03  EG  signal s_mem_byte was not in sensitivity list in v0.01! by adding it   |
+--                         changes were essential in the timing of the tx (WF_osc, WF_tx,         |
+--                         WF_engine_control and the configuration of the memory needed changes)  |
+--     11/2010  v0.04  EG  for simplification, new unit Slone_Data_Sampler created                |
+--     4/1/2011 v0.05  EG  unit renamed from WF_prod_bytes_to_tx to WF_prod_bytes_retriever;      |
+--                         input byte_being_sent_p_i added, so that the reseting of status bytes  |
+--                         does not pass from the engine; clening-up+commenting                   |
+--       2/2011 v0.051 EG  WF_prod_bytes_from_dati unit removed.                                  |
+--       6/2011 v0.051 EG  added jc var treatment.                                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -107,9 +119,7 @@ use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 --                           Entity declaration for WF_prod_bytes_retriever
 --=================================================================================================
 
-entity WF_prod_bytes_retriever is
-
-  port (
+entity WF_prod_bytes_retriever is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i               : in std_logic;                      -- 40 MHz clock
@@ -139,9 +149,9 @@ entity WF_prod_bytes_retriever is
 
     data_lgth_i          : in std_logic_vector (7 downto 0);  -- # bytes of the Conrol&Data fields
                                                               -- of the RP_DAT frame; includes:
-                                                              -- 1 byte RP_DAT.Control,
+                                                              -- 1 byte RP_DAT.CTRL,
                                                               -- 1 byte RP_DAT.Data.PDU_type,
-                                                              -- 1 byte RP_DAT.Data.LENGTH
+                                                              -- 1 byte RP_DAT.Data.LGTH
                                                               -- 2-124 bytes of RP_DAT.Data,
                                                               -- 1 byte RP_DAT.Data.MPS_status &
                                                               -- optionally 1 byte for the
@@ -162,7 +172,8 @@ entity WF_prod_bytes_retriever is
     model_id_dec_i       : in  std_logic_vector (7 downto 0); -- decoded model id settings
 
     -- Signals from the WF_jtag_controller unit
-    jc_tdo_byte_i        : in std_logic_vector (7 downto 0);  -- 8 last JC_TDO bits
+    jc_tdo_byte_i        : in std_logic_vector (7 downto 0);  -- sampling of JC_TDO input
+
 
   -- OUTPUTS
     -- Signal to the WF_status_bytes_gen
@@ -171,9 +182,8 @@ entity WF_prod_bytes_retriever is
                                                               -- the delivery of the last one (MPS)
 
     -- Signal to the WF_tx_serializer
-    byte_o               : out std_logic_vector (7 downto 0)  -- output byte to be serialized
-
-      );
+    byte_o               : out std_logic_vector (7 downto 0));-- output byte to be serialized
+    
 end entity WF_prod_bytes_retriever;
 
 
@@ -182,13 +192,18 @@ end entity WF_prod_bytes_retriever;
 --=================================================================================================
 architecture rtl of WF_prod_bytes_retriever is
 
+  -- addressing the memory
   signal s_base_addr, s_mem_addr_offset : unsigned (8 downto 0);
   signal s_mem_addr_A                   : std_logic_vector (8 downto 0);
+  -- index of byte to be sent
   signal s_byte_index_d1                : std_logic_vector (7 downto 0);
   signal s_byte_index_d_aux             : integer range 0 to 15;
+  -- data bytes
   signal s_mem_byte, s_slone_byte       : std_logic_vector (7 downto 0);
   signal s_slone_bytes                  : std_logic_vector (15 downto 0);
+  -- Length byte
   signal s_lgth_byte                    : std_logic_vector (7 downto 0);
+
 
 --=================================================================================================
 --                                       architecture begin
@@ -204,13 +219,8 @@ begin
 -- Port A is used by the nanoFIP for the readings from the Produced RSM;
 -- Port B is connected to the WISHBONE interface for the writings from the user.
 
-  Produced_Bytes_From_RAM:  WF_DualClkRAM_clka_rd_clkb_wr
-  generic map (
-    g_ram_data_lgth  => 8,                     -- 8 bits: length of data word
-    g_ram_addr_lgth  => 9)                     -- 2^9: depth of Produced ram
-                                               -- first 2 bits : identification of memory block
-                                               -- remaining 7  : address of a byte inside the blck
-  port map (
+  Produced_Bytes_From_RAM:  WF_dualram_512x8_clka_rd_clkb_wr
+  port map(
     clk_porta_i      => uclk_i,	               -- 40 MHz clock
     addr_porta_i     => s_mem_addr_A,          -- address of byte to be read from memory
     clk_portb_i      => wb_clk_i,              -- WISHBONE clock
@@ -253,7 +263,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                        Bytes Generation                                       --
 ---------------------------------------------------------------------------------------------------
--- Combinatorial process Bytes_Generation: Generation of bytes for the Control and Data
+-- Combinatorial process Bytes_Generation: Generation of bytes for the CTRL and Data
 -- fields of an RP_DAT frame: If the variable requested in the ID_DAT is of "produced" type
 -- (identification/ presence/ var3) the process prepares accordingly, one by one, bytes of data
 -- to be sent. The pointer "s_byte_index_d1" (or "s_byte_index_d_aux") indicates which byte of the
@@ -274,7 +284,7 @@ begin
 
 
 	-- case: presence variable
-    -- all the bytes for the RP_DAT.Control and RP_DAT.Data fields are predefined
+    -- all the bytes for the RP_DAT.CTRL and RP_DAT.Data fields are predefined
     -- in the c_VARS_ARRAY matrix.
     when var_presence =>
 
@@ -309,7 +319,7 @@ begin
 
     -- case: variable 3
     -- For a var_3 there is a separation according to the operational mode (stand-alone or memory)
-    -- In general, few of the bytes are predefined in the c_VARS_ARRAY matrix, wereas the rest come
+    -- In general, few of the bytes are predefined in the c_VARS_ARRAY matrix, whereas the rest come
     -- either from the memory/ DAT_I bus or from wf_status_bytes_generator unit.
     when var_3 =>
 
@@ -322,7 +332,7 @@ begin
 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        -- The first (Control) and second (PDU_TYPE) bytes to be sent
+        -- The first (CTRL) and second (PDU_TYPE) bytes to be sent
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
         if unsigned(s_byte_index_d1) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_lgth  then  -- less or eq
@@ -366,7 +376,7 @@ begin
         s_base_addr            <= (others => '0');            -- no memory access needed
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        -- The first (Control) and second (PDU type) bytes to be sent
+        -- The first (CTRL) and second (PDU_TYPE) bytes to be sent
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
         if unsigned(s_byte_index_d1) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_lgth then -- less or eq
@@ -407,14 +417,17 @@ begin
     --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 
-    -- case: jatg produced
-    -- For ..............
+    -- case: jtag variable 3
+    -- For a var_jc3 the 1 user-data byte comes from the wf_jtag_controller unit.
+    -- The nanoFIP status byte comes from the wf_status_bytes_gen and it is always sent regardless
+    -- of the NOSTAT input. The rest of the bytes come from the wf_package, wf_data_lgth_calc and
+    -- the wf_status_bytes_gen.
     when var_jc3 =>
 
         s_base_addr            <= (others => '0');            -- no memory access needed
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-        -- The first (Control) and second (PDU type) bytes to be sent
+        -- The first (CTRL) and second (PDU_TYPE) bytes to be sent
         -- are predefined in the c_VARS_ARRAY matrix of the WF_package
 
         if unsigned(s_byte_index_d1) <= c_VARS_ARRAY(c_VAR_JC3_INDEX).array_lgth then -- less or eq
@@ -491,8 +504,8 @@ begin
 
   s_mem_addr_A       <= std_logic_vector (s_base_addr + s_mem_addr_offset - 1);
   -- address of the byte to be read from memory: base_address(from WF_package) + byte_index_i - 1
-  -- (the -1 is because the byte_index_i counts also the Control byte, that is not part of the
-  -- memory; for example when byte_index_i is 3 which means that the Control, PDU_TYPE and Length
+  -- (the -1 is because the byte_index_i counts also the CTRL byte, that is not part of the
+  -- memory; for example when byte_index_i is 3 which means that the CTRL, PDU_TYPE and LGTH
   -- bytes have preceded and a byte from the memory is now requested, the byte from the memory cell
   -- 2 (00000010) has to be retrieved).
 
@@ -505,12 +518,12 @@ begin
                                                       -- width of 15 bytes
 
   s_lgth_byte        <= std_logic_vector (resize((unsigned(data_lgth_i)-2),byte_o'length));
-                                                      -- represents the RP_DAT.Data.LENGTH byte
+                                                      -- represents the RP_DAT.Data.LGTH byte
                                                       -- it includes the # bytes of user-data
                                                       -- (P3_LGTH) plus 1 byte of MPS_status
                                                       -- plus 1 byte of nanoFIP_status, if
                                                       -- applicable. It does not include the
-                                                      -- Control byte and itself.
+                                                      -- CTRL byte and itself.
 
 
 end architecture rtl;
