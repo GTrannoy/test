@@ -10,8 +10,8 @@ KEY IDE_DES_BA_EXPORTED "FALSE"
 KEY IDE_DES_ERROR_FOUND "FALSE"
 KEY IDE_DES_ADB_PATH "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb"
 LIST SOURCE_FILES
-VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn;edn"
-VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc;pdc"
+VALUE "C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip.edf;edn"
+VALUE "C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanofip.pdc;pdc"
 ENDLIST
 LIST OPTIONAL_FILES
 VALUE "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip_sdc.sdc;Skipped"

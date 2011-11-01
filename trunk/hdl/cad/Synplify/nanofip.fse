@@ -1,0 +1,100 @@
+
+fsm_encoding {2547664761} onehot
+
+fsm_state_encoding {2547664761} var_rst_idle {000001}
+
+fsm_state_encoding {2547664761} var_rst_rston_on {000010}
+
+fsm_state_encoding {2547664761} var_rst_nfip_on_fd_on_rston_on {000100}
+
+fsm_state_encoding {2547664761} var_rst_nfip_off_fd_on_rston_on {001000}
+
+fsm_state_encoding {2547664761} var_rst_nfip_on_fd_on {010000}
+
+fsm_state_encoding {2547664761} var_rst_nfip_off_fd_on_rston_off {100000}
+
+fsm_registers {2547664761} {var_rst_st[0]}  {var_rst_st[1]}  {var_rst_st[2]}  {var_rst_st[3]}  {var_rst_st[4]}  {var_rst_st[5]} 
+
+fsm_encoding {2529462942} onehot
+
+fsm_state_encoding {2529462942} idle {00001}
+
+fsm_state_encoding {2529462942} rstin_eval {00010}
+
+fsm_state_encoding {2529462942} nfip_on_fd_on {00100}
+
+fsm_state_encoding {2529462942} nfip_off_fd_on {01000}
+
+fsm_state_encoding {2529462942} nfip_off_fd_off {10000}
+
+fsm_registers {2529462942} {rstin_st[0]}  {rstin_st[1]}  {rstin_st[2]}  {rstin_st[3]}  {rstin_st[4]} 
+
+fsm_encoding {1322062203} onehot
+
+fsm_state_encoding {1322062203} idle {000001}
+
+fsm_state_encoding {1322062203} pre_field_first_f_edge {000010}
+
+fsm_state_encoding {1322062203} pre_field_r_edge {000100}
+
+fsm_state_encoding {1322062203} pre_field_f_edge {001000}
+
+fsm_state_encoding {1322062203} fsd_field {010000}
+
+fsm_state_encoding {1322062203} ctrl_data_fcs_fes_fields {100000}
+
+fsm_registers {1322062203} {rx_st[0]}  {rx_st[1]}  {rx_st[2]}  {rx_st[3]}  {rx_st[4]}  {rx_st[5]} 
+
+fsm_encoding {1821042104} onehot
+
+fsm_state_encoding {1821042104} idle {0000001}
+
+fsm_state_encoding {1821042104} sync_to_txck {0000010}
+
+fsm_state_encoding {1821042104} send_fss {0000100}
+
+fsm_state_encoding {1821042104} send_data_byte {0001000}
+
+fsm_state_encoding {1821042104} send_crc_bytes {0010000}
+
+fsm_state_encoding {1821042104} send_fes {0100000}
+
+fsm_state_encoding {1821042104} stop_transmission {1000000}
+
+fsm_registers {1821042104} {tx_st[0]}  {tx_st[1]}  {tx_st[2]}  {tx_st[3]}  {tx_st[4]}  {tx_st[5]}  {tx_st[6]} 
+
+fsm_encoding {2916861685} onehot
+
+fsm_state_encoding {2916861685} idle {0001}
+
+fsm_state_encoding {2916861685} get_byte {0010}
+
+fsm_state_encoding {2916861685} play_byte {0100}
+
+fsm_state_encoding {2916861685} set_address {1000}
+
+fsm_registers {2916861685} {jc_st[0]}  {jc_st[1]}  {jc_st[2]}  {jc_st[3]} 
+
+fsm_encoding {2826842686} onehot
+
+fsm_state_encoding {2826842686} idle {0000000001}
+
+fsm_state_encoding {2826842686} id_dat_control_byte {0000000010}
+
+fsm_state_encoding {2826842686} id_dat_var_byte {0000000100}
+
+fsm_state_encoding {2826842686} id_dat_subs_byte {0000001000}
+
+fsm_state_encoding {2826842686} id_dat_frame_ok {0000010000}
+
+fsm_state_encoding {2826842686} consume_wait_fss {0000100000}
+
+fsm_state_encoding {2826842686} consume {0001000000}
+
+fsm_state_encoding {2826842686} rst_rx {0010000000}
+
+fsm_state_encoding {2826842686} produce_wait_turnar_time {0100000000}
+
+fsm_state_encoding {2826842686} produce {1000000000}
+
+fsm_registers {2826842686} {control_st[0]}  {control_st[1]}  {control_st[2]}  {control_st[3]}  {control_st[4]}  {control_st[5]}  {control_st[6]}  {control_st[7]}  {control_st[8]}  {control_st[9]} 

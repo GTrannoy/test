@@ -9,52 +9,117 @@ KEY VendorTechnology_Package "pq208"
 KEY ProjectLocation "C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip"
 KEY SimulationType "VHDL"
 KEY Vendor "Actel"
-KEY ActiveRoot "nanofip_tb::work"
+KEY ActiveRoot "nanofip::work::WF_package"
 LIST REVISIONS
 VALUE="Impl1",NUM=1
 VALUE="Impl2",NUM=2
 CURREV=2
 ENDLIST
 LIST FileManager
-VALUE "<project>\constraint\NanoFip.pdc,pdc"
+VALUE "<project>\constraint\Copy of NanoFip.pdc,pdc"
 STATE="utd"
-TIME="1295532427"
-SIZE="9898"
+TIME="1304427716"
+SIZE="10848"
 ENDFILE
 VALUE "<project>\designer\impl2\nanofip.adb,adb"
 STATE="ood"
-TIME="1295462163"
-SIZE="4249088"
+TIME="1317058054"
+SIZE="8757760"
 ENDFILE
 VALUE "<project>\designer\impl2\nanofip.pdb,pdb"
 STATE="ood"
-TIME="1295530132"
-SIZE="147456"
+TIME="1317055688"
+SIZE="169984"
 ENDFILE
 VALUE "<project>\designer\impl2\nanofip_18jan11.pdb,pdb"
 STATE="utd"
 TIME="1295373206"
 SIZE="150528"
 ENDFILE
+VALUE "<project>\designer\impl2\nanofip_19Jan11_8CDE.pdb,pdb"
+STATE="utd"
+TIME="1295438323"
+SIZE="144384"
+ENDFILE
 VALUE "<project>\designer\impl2\nanofip_broadcast91_turnaround14_v2.pdb,pdb"
 STATE="utd"
 TIME="1291886324"
 SIZE="151040"
 ENDFILE
+VALUE "<project>\hdl\halfer.vhd,hdl"
+STATE="utd"
+TIME="1283329749"
+SIZE="1630"
+ENDFILE
+VALUE "<project>\hdl\wf_consumed_vars.vhd,hdl"
+STATE="utd"
+TIME="1283329749"
+SIZE="17506"
+ENDFILE
+VALUE "<project>\hdl\wf_manchester_encoder.vhd,hdl"
+STATE="utd"
+TIME="1286532864"
+SIZE="4681"
+ENDFILE
+VALUE "<project>\hdl\wf_produced_vars.vhd,hdl"
+STATE="utd"
+TIME="1283329749"
+SIZE="22056"
+ENDFILE
+VALUE "<project>\hdl\wf_rx.vhd,hdl"
+STATE="utd"
+TIME="1283329749"
+SIZE="28403"
+ENDFILE
+VALUE "<project>\hdl\wf_rx_tx_osc.vhd,hdl"
+STATE="utd"
+TIME="1283329352"
+SIZE="20053"
+ENDFILE
+VALUE "<project>\hdl\wf_slone_bytes_sampler.vhd,hdl"
+STATE="utd"
+TIME="1286352841"
+SIZE="5557"
+ENDFILE
+VALUE "<project>\hdl\wf_slone_bytes_to_DATO.vhd,hdl"
+STATE="utd"
+TIME="1286532863"
+SIZE="5736"
+ENDFILE
+VALUE "<project>\hdl\wf_slone_DATI_bytes_sampler.vhd,hdl"
+STATE="utd"
+TIME="1286532864"
+SIZE="5840"
+ENDFILE
+VALUE "<project>\hdl\wf_tx.vhd,hdl"
+STATE="utd"
+TIME="1283329749"
+SIZE="23808"
+ENDFILE
+VALUE "<project>\hdl\wf_tx_rx.vhd,hdl"
+STATE="utd"
+TIME="1283329749"
+SIZE="7207"
+ENDFILE
 VALUE "<project>\simulation\run.do,do"
 STATE="utd"
-TIME="1295623836"
-SIZE="6525"
+TIME="1320084367"
+SIZE="7036"
 ENDFILE
 VALUE "<project>\simulation\runrun.txt,txt"
 STATE="utd"
 TIME="1288888183"
 SIZE="6032"
 ENDFILE
-VALUE "<project>\synthesis\nanofip.edn,syn_edn"
+VALUE "<project>\simulation\tcl_stacktrace.txt,txt"
 STATE="utd"
-TIME="1295860748"
-SIZE="2234174"
+TIME="1300108548"
+SIZE="637"
+ENDFILE
+VALUE "<project>\synthesis\nanofip.edn,syn_edn"
+STATE="ood"
+TIME="1319722866"
+SIZE="1556024"
 ENDFILE
 VALUE "<project>\synthesis\nanofip.vhd,syn_hdl"
 STATE="ood"
@@ -62,9 +127,15 @@ TIME="1286201547"
 SIZE="866049"
 ENDFILE
 VALUE "<project>\synthesis\nanofip_sdc.sdc,syn_sdc"
-STATE="utd"
-TIME="1295860748"
+STATE="ood"
+TIME="1319722866"
 SIZE="450"
+ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanofip.pdc,pdc"
+STATE="utd"
+TIME="1317659861"
+SIZE="9241"
+IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-FIP\trunk\hdl\design\clk_gen.vhd,hdl"
 STATE="utd"
@@ -103,14 +174,14 @@ SIZE="7669"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\DualClkRAM.vhd,hdl"
 STATE="utd"
-TIME="1295640737"
-SIZE="12174"
+TIME="1314785241"
+SIZE="12378"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd,hdl"
 STATE="utd"
-TIME="1295818832"
-SIZE="31903"
+TIME="1319814704"
+SIZE="37524"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-FIP\trunk\hdl\design\produced_ram.vhd,hdl"
@@ -150,14 +221,14 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_bits_to_txd.vhd,hdl"
 STATE="utd"
-TIME="1295817431"
-SIZE="10021"
+TIME="1314779017"
+SIZE="9779"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_consumption.vhd,hdl"
 STATE="utd"
-TIME="1295806400"
-SIZE="20343"
+TIME="1320083567"
+SIZE="15981"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_from_rx.vhd,hdl"
@@ -168,38 +239,38 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd,hdl"
 STATE="utd"
-TIME="1295859336"
-SIZE="23567"
+TIME="1320079714"
+SIZE="28559"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_to_dato.vhd,hdl"
 STATE="utd"
-TIME="1295734737"
-SIZE="7535"
+TIME="1298309133"
+SIZE="7012"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_cons_frame_validator.vhd,hdl"
 STATE="utd"
-TIME="1295859364"
-SIZE="11155"
+TIME="1298482894"
+SIZE="11308"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd,hdl"
 STATE="utd"
-TIME="1295721924"
-SIZE="14800"
+TIME="1320083567"
+SIZE="24318"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd,hdl"
 STATE="utd"
-TIME="1295716405"
-SIZE="8754"
+TIME="1320083567"
+SIZE="10082"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd,hdl"
 STATE="utd"
-TIME="1295716534"
-SIZE="6226"
+TIME="1320083567"
+SIZE="7231"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_dec_m_ids.vhd,hdl"
@@ -210,8 +281,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_DualClkRAM_clka_rd_clkb_wr.vhd,hdl"
 STATE="utd"
-TIME="1295725100"
-SIZE="7662"
+TIME="1320084035"
+SIZE="7616"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-FIP\trunk\hdl\design\wf_engine.vhd,hdl"
@@ -222,20 +293,44 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd,hdl"
 STATE="utd"
-TIME="1295860739"
-SIZE="43996"
+TIME="1320077438"
+SIZE="51982"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_fd_receiver.vhd,hdl"
+STATE="utd"
+TIME="1320083567"
+SIZE="14231"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_fd_transmitter.vhd,hdl"
+STATE="utd"
+TIME="1320083567"
+SIZE="12860"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd,hdl"
 STATE="utd"
-TIME="1295716148"
-SIZE="5824"
+TIME="1320083567"
+SIZE="6972"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_inputs_synchronizer.vhd,hdl"
 STATE="utd"
-TIME="1295804929"
-SIZE="16680"
+TIME="1298023443"
+SIZE="8613"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd,hdl"
+STATE="utd"
+TIME="1320083567"
+SIZE="25133"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_player.vhd,hdl"
+STATE="utd"
+TIME="1310373106"
+SIZE="18017"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_manchester_encoder.vhd,hdl"
@@ -246,62 +341,56 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_manch_code_viol_check.vhd,hdl"
 STATE="utd"
-TIME="1295730487"
-SIZE="8009"
-IS_READONLY="TRUE"
-ENDFILE
-VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_manch_encoder.vhd,hdl"
-STATE="utd"
-TIME="1295718384"
-SIZE="5718"
+TIME="1298990187"
+SIZE="7958"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_model_constr_decoder.vhd,hdl"
 STATE="utd"
-TIME="1295810254"
-SIZE="10599"
+TIME="1319814582"
+SIZE="11460"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd,hdl"
 STATE="utd"
-TIME="1295806610"
-SIZE="48549"
+TIME="1320079750"
+SIZE="50631"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_production.vhd,hdl"
 STATE="utd"
-TIME="1295732729"
-SIZE="18522"
+TIME="1320083567"
+SIZE="18964"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd,hdl"
 STATE="utd"
-TIME="1295734475"
-SIZE="27619"
+TIME="1320079307"
+SIZE="32266"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_to_dati.vhd,hdl"
 STATE="utd"
-TIME="1295723651"
-SIZE="7489"
+TIME="1298309133"
+SIZE="6908"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd,hdl"
 STATE="utd"
-TIME="1295859719"
-SIZE="10356"
+TIME="1320075387"
+SIZE="13613"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd,hdl"
 STATE="utd"
-TIME="1295634017"
-SIZE="7459"
+TIME="1319814616"
+SIZE="8251"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd,hdl"
 STATE="utd"
-TIME="1295738213"
-SIZE="33155"
+TIME="1320078770"
+SIZE="38323"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_rx.vhd,hdl"
@@ -312,20 +401,21 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deglitcher.vhd,hdl"
 STATE="utd"
-TIME="1295729096"
-SIZE="9678"
+TIME="1320083567"
+SIZE="10213"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd,hdl"
 STATE="utd"
-TIME="1295807163"
-SIZE="34608"
+TIME="1320083567"
+SIZE="34834"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-FIP\trunk\hdl\design\wf_rx_osc.vhd,hdl"
 STATE="utd"
-TIME="1283269596"
-SIZE="20035"
+TIME="1320083567"
+SIZE="19264"
+IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-FIP\trunk\hdl\design\wf_rx_osc_tb.vhd,hdl"
 STATE="utd"
@@ -341,7 +431,7 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_rx_tx_osc.vhd,hdl"
 STATE="utd"
-TIME="1295718512"
+TIME="1297872214"
 SIZE="23429"
 IS_READONLY="TRUE"
 ENDFILE
@@ -371,14 +461,20 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd,hdl"
 STATE="utd"
-TIME="1295859401"
-SIZE="21617"
+TIME="1320083567"
+SIZE="26490"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_tx.vhd,hdl"
 STATE="utd"
 TIME="1294836224"
 SIZE="23341"
+IS_READONLY="TRUE"
+ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_tx_osc.vhd,hdl"
+STATE="utd"
+TIME="1320079851"
+SIZE="12737"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_tx_rx.vhd,hdl"
@@ -389,8 +485,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd,hdl"
 STATE="utd"
-TIME="1295859719"
-SIZE="25996"
+TIME="1320083567"
+SIZE="31953"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_VAR_RDY_generator.vhd,hdl"
@@ -407,8 +503,8 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\design\wf_wb_controller.vhd,hdl"
 STATE="utd"
-TIME="1295730107"
-SIZE="7716"
+TIME="1320083567"
+SIZE="10257"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\bin_byte_transcriber.vhd,hdl"
@@ -419,31 +515,31 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\board_settings.vhd,hdl"
 STATE="utd"
-TIME="1295633873"
-SIZE="10198"
+TIME="1297846063"
+SIZE="10299"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\bus_arbitrer.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="4902"
+TIME="1308915104"
+SIZE="6728"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\bus_config.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="10894"
+TIME="1308915104"
+SIZE="18245"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\bus_monitor.vhd,hdl"
 STATE="utd"
-TIME="1295633873"
-SIZE="7784"
+TIME="1308915104"
+SIZE="10642"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\crc_check.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
+TIME="1297439753"
 SIZE="6761"
 IS_READONLY="TRUE"
 ENDFILE
@@ -466,19 +562,19 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\fes_gen.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="1703"
+TIME="1300815594"
+SIZE="1709"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\fieldrive_interface.vhd,hdl"
 STATE="utd"
-TIME="1295633873"
-SIZE="7668"
+TIME="1308915104"
+SIZE="8256"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\frame_chopper.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
+TIME="1297439753"
 SIZE="4268"
 IS_READONLY="TRUE"
 ENDFILE
@@ -490,14 +586,14 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\frame_monitor.vhd,hdl"
 STATE="utd"
-TIME="1295633873"
-SIZE="16177"
+TIME="1308915104"
+SIZE="17617"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\fss_gen.vhd,hdl"
 STATE="utd"
-TIME="1295523608"
-SIZE="1739"
+TIME="1300815594"
+SIZE="1746"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\halfer.vhd,hdl"
@@ -514,26 +610,26 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\manchester_decoder.vhd,hdl"
 STATE="utd"
-TIME="1288887295"
-SIZE="9042"
+TIME="1302082265"
+SIZE="9213"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\manchester_encoder.vhd,hdl"
 STATE="utd"
-TIME="1295637047"
+TIME="1302082265"
 SIZE="1691"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\msg_sender.vhd,hdl"
 STATE="utd"
-TIME="1295633873"
-SIZE="11056"
+TIME="1298999777"
+SIZE="11057"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\nanofip_tb.vhd,hdl"
 STATE="utd"
-TIME="1295543960"
-SIZE="8644"
+TIME="1308915104"
+SIZE="9114"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\onetime_serializer.vhd,hdl"
@@ -542,16 +638,22 @@ TIME="1295036707"
 SIZE="1508"
 IS_READONLY="TRUE"
 ENDFILE
+VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\reception_meddler.vhd,hdl"
+STATE="utd"
+TIME="1308915104"
+SIZE="6413"
+IS_READONLY="TRUE"
+ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\rx.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="9490"
+TIME="1301402027"
+SIZE="10412"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\rx_feeder.vhd,hdl"
 STATE="utd"
-TIME="1295036707"
-SIZE="5088"
+TIME="1300815594"
+SIZE="5092"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\sequencer.vhd,hdl"
@@ -562,32 +664,32 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\serializer.vhd,hdl"
 STATE="utd"
-TIME="1295036707"
-SIZE="1518"
+TIME="1300815594"
+SIZE="1725"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\slone_interface.vhd,hdl"
 STATE="utd"
-TIME="1288887295"
-SIZE="2828"
+TIME="1298999777"
+SIZE="2830"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\slone_monitor.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="3962"
+TIME="1297439753"
+SIZE="4343"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\tb_package.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="628"
+TIME="1300820500"
+SIZE="815"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\transmission_meddler.vhd,hdl"
 STATE="utd"
-TIME="1295036714"
-SIZE="711"
+TIME="1308915104"
+SIZE="3474"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\tx.vhd,hdl"
@@ -598,26 +700,26 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\user_access_monitor.vhd,hdl"
 STATE="utd"
-TIME="1288887295"
-SIZE="4049"
+TIME="1308915104"
+SIZE="12148"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\user_config.vhd,hdl"
 STATE="utd"
-TIME="1295633873"
-SIZE="4778"
+TIME="1308915104"
+SIZE="4969"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\user_interface.vhd,hdl"
 STATE="utd"
-TIME="1295523608"
-SIZE="9173"
+TIME="1300815594"
+SIZE="9524"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\user_sequencer.vhd,hdl"
 STATE="utd"
-TIME="1288887295"
-SIZE="6161"
+TIME="1302082265"
+SIZE="6504"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\wb_monitor.vhd,hdl"
@@ -628,45 +730,20 @@ IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\wishbone_interface.vhd,hdl"
 STATE="utd"
-TIME="1295036707"
-SIZE="6495"
+TIME="1298999777"
+SIZE="6496"
 IS_READONLY="TRUE"
 ENDFILE
 VALUE "C:\ohr\cern-fip\trunk\hdl\test_bench\wishbone_monitor.vhd,hdl"
 STATE="utd"
-TIME="1295383238"
-SIZE="5081"
+TIME="1308915104"
+SIZE="5129"
 IS_READONLY="TRUE"
 ENDFILE
 ENDLIST
 LIST UsedFile
 ENDLIST
 LIST NewModulesInfo
-LIST "nanofip::work::WF_package"
-FILE "C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd,hdl"
-LIST ProjectState5.1
-LIST Impl1
-LiberoState=Post_Synthesis
-ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
-LIST FlowOptions
-UsePhySynth=FALSE
-UseSynth=TRUE
-ENDLIST
-Used_File_List
-ENDUsed_File_List
-ENDLIST
-LIST Impl2
-LiberoState=Post_Synthesis
-ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
-LIST FlowOptions
-UsePhySynth=FALSE
-UseSynth=TRUE
-ENDLIST
-Used_File_List
-ENDUsed_File_List
-ENDLIST
-ENDLIST
-ENDLIST
 ENDLIST
 LIST AssociatedStimulus
 ENDLIST
@@ -738,28 +815,6 @@ BATCH=0
 EndProfile
 ENDLIST
 LIST ProjectState5.1
-LIST "nanofip::work::WF_package"
-LIST Impl1
-LiberoState=Post_Synthesis
-ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
-LIST FlowOptions
-UsePhySynth=FALSE
-UseSynth=TRUE
-ENDLIST
-Used_File_List
-ENDUsed_File_List
-ENDLIST
-LIST Impl2
-LiberoState=Post_Synthesis
-ideSYNTHESIS(<project>\synthesis\nanofip.edn,syn_edn)=StateSuccess
-LIST FlowOptions
-UsePhySynth=FALSE
-UseSynth=TRUE
-ENDLIST
-Used_File_List
-ENDUsed_File_List
-ENDLIST
-ENDLIST
 ENDLIST
 LIST ExcludePackageForSimulation
 ENDLIST

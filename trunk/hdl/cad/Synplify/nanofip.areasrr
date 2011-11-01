@@ -1,0 +1,1092 @@
+----------------------------------------------------------------------
+Report for cell nanofip.struc
+                                          Cell usage:
+                               cell       count     area    count*area
+                               BUFF         7       1.0        7.0
+                             CLKBUF         2       0.0        0.0
+                             CLKINT         1       0.0        0.0
+                                GND         1       0.0        0.0
+                              INBUF        62       0.0        0.0
+                             OUTBUF        34       0.0        0.0
+                                VCC         1       0.0        0.0
+                     WF_consumption         1     305.0      305.0
+                  WF_engine_control         1     505.0      505.0
+                     WF_fd_receiver         1     586.0      586.0
+                  WF_fd_transmitter         1     436.0      436.0
+                 WF_jtag_controller         1     358.0      358.0
+            WF_model_constr_decoder         1      87.0       87.0
+                      WF_production         1     392.0      392.0
+                      WF_reset_unit         1     205.0      205.0
+                   WF_wb_controller         1      29.0       29.0
+                            
+                         TOTAL            117               2910.0
+----------------------------------------------------------------------
+Report for cell WF_wb_controller.netlist
+     Instance path:  WISHBONE_controller
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AOI1         1       1.0        1.0
+                               DFI1         1       1.0        1.0
+                               DFN1        11       1.0       11.0
+                                GND         1       0.0        0.0
+                               NOR2         1       1.0        1.0
+                              NOR2A        10       1.0       10.0
+                              NOR3A         1       1.0        1.0
+                                OR2         1       1.0        1.0
+                                OR3         1       1.0        1.0
+                               OR3B         2       1.0        2.0
+                                VCC         1       0.0        0.0
+                            
+                         TOTAL             31                 29.0
+----------------------------------------------------------------------
+Report for cell WF_model_constr_decoder.netlist
+     Instance path:  model_constr_decoder
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        32       1.0       32.0
+                                GND         1       0.0        0.0
+                                MX2        16       1.0       16.0
+                              NOR2B        32       1.0       32.0
+                                VCC         1       0.0        0.0
+                  WF_incr_counter_2         1       7.0        7.0
+                            
+                         TOTAL             83                 87.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_2.netlist
+     Instance path:  model_constr_decoder.Free_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1         2       1.0        2.0
+                                GND         1       0.0        0.0
+                                INV         1       1.0        1.0
+                              NOR2A         3       1.0        3.0
+                                VCC         1       0.0        0.0
+                                XA1         1       1.0        1.0
+                            
+                         TOTAL              9                  7.0
+----------------------------------------------------------------------
+Report for cell WF_engine_control.netlist
+     Instance path:  engine_control
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         2       1.0        2.0
+                                AO1         4       1.0        4.0
+                               AO1A         1       1.0        1.0
+                               AO1B         3       1.0        3.0
+                               AO1C         1       1.0        1.0
+                               AO1D         1       1.0        1.0
+                               AOI1         1       1.0        1.0
+                              AOI1B         5       1.0        5.0
+                               DFN1        27       1.0       27.0
+                             DFN1E1        10       1.0       10.0
+                                GND         1       0.0        0.0
+                               MIN3         1       1.0        1.0
+                                MX2        10       1.0       10.0
+                               MX2A         1       1.0        1.0
+                               NOR2        10       1.0       10.0
+                              NOR2A        24       1.0       24.0
+                              NOR2B        24       1.0       24.0
+                               NOR3         4       1.0        4.0
+                              NOR3A         7       1.0        7.0
+                              NOR3B         5       1.0        5.0
+                              NOR3C         9       1.0        9.0
+                               OA1C         1       1.0        1.0
+                               OAI1         3       1.0        3.0
+                                OR2        15       1.0       15.0
+                               OR2A        17       1.0       17.0
+                               OR2B        11       1.0       11.0
+                                OR3         5       1.0        5.0
+                               OR3A         4       1.0        4.0
+                               OR3B         3       1.0        3.0
+                               OR3C         4       1.0        4.0
+                                VCC         1       0.0        0.0
+                 WF_decr_counter_18         1     116.0      116.0
+          WF_decr_counter_21_0_Session_Timeout_Counter_0_3         1      70.0       70.0
+          WF_incr_counter_8_Prod_Bytes_Counter         1      23.0       23.0
+          WF_incr_counter_8_Prod_Bytes_Counter_1         1      28.0       28.0
+             WF_prod_data_lgth_calc         1      36.0       36.0
+                               XA1A         6       1.0        6.0
+                               XAI1         1       1.0        1.0
+                              XNOR2        11       1.0       11.0
+                               XOR2         1       1.0        1.0
+                            
+                         TOTAL            239                505.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_18.netlist
+     Instance path:  engine_control.Turnaround_and_Silence_Time_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO12         1       1.0        1.0
+                               AO15         1       1.0        1.0
+                               DFN1        18       1.0       18.0
+                                GND         1       0.0        0.0
+                               MX2C        12       1.0       12.0
+                               NOR2         5       1.0        5.0
+                              NOR2A         1       1.0        1.0
+                              NOR2B         5       1.0        5.0
+                              NOR3A         4       1.0        4.0
+                              NOR3C         1       1.0        1.0
+                                OR2        10       1.0       10.0
+                               OR2A         6       1.0        6.0
+                               OR2B        12       1.0       12.0
+                                OR3        19       1.0       19.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                                XA1         1       1.0        1.0
+                               XA1C         1       1.0        1.0
+                              XNOR2        17       1.0       17.0
+                              XNOR3         1       1.0        1.0
+                            
+                         TOTAL            118                116.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_21_0_Session_Timeout_Counter_0_3.netlist
+  Original Cell name WF_decr_counter_21_0_Session_Timeout_Counter_0
+     Instance path:  engine_control.Session_Timeout_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        21       1.0       21.0
+                                GND         1       0.0        0.0
+                               NOR2         4       1.0        4.0
+                              NOR2A         7       1.0        7.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         1       1.0        1.0
+                              NOR3C         1       1.0        1.0
+                               OA1A         1       1.0        1.0
+                                OR2         9       1.0        9.0
+                               OR2A         5       1.0        5.0
+                                VCC         1       0.0        0.0
+                                XO1         9       1.0        9.0
+                               XO1A        11       1.0       11.0
+                            
+                         TOTAL             72                 70.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_8_Prod_Bytes_Counter_1.netlist
+  Original Cell name WF_incr_counter_8_Prod_Bytes_Counter
+     Instance path:  engine_control.Rx_Bytes_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AOI1         2       1.0        2.0
+                              AOI1B         1       1.0        1.0
+                             DFN1E1        11       1.0       11.0
+                                GND         1       0.0        0.0
+                                INV         1       1.0        1.0
+                               NOR2         1       1.0        1.0
+                              NOR2A         2       1.0        2.0
+                              NOR3A         2       1.0        2.0
+                              NOR3C         1       1.0        1.0
+                               OR2A         2       1.0        2.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                                XA1         3       1.0        3.0
+                               XA1A         1       1.0        1.0
+                            
+                         TOTAL             30                 28.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_8_Prod_Bytes_Counter.netlist
+  Original Cell name WF_incr_counter_8
+     Instance path:  engine_control.Prod_Bytes_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AOI1         1       1.0        1.0
+                             DFN1E1         9       1.0        9.0
+                                GND         1       0.0        0.0
+                              NOR2A         1       1.0        1.0
+                              NOR2B         3       1.0        3.0
+                              NOR3A         1       1.0        1.0
+                              NOR3C         1       1.0        1.0
+                               OR2B         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                                XA1         6       1.0        6.0
+                            
+                         TOTAL             25                 23.0
+----------------------------------------------------------------------
+Report for cell WF_prod_data_lgth_calc.netlist
+     Instance path:  engine_control.Produced_Data_Length_Calculator
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1C         1       1.0        1.0
+                               AOI5         1       1.0        1.0
+                                AX1         1       1.0        1.0
+                              AXOI3         1       1.0        1.0
+                               DFN1         9       1.0        9.0
+                                GND         1       0.0        0.0
+                               MX2B         1       1.0        1.0
+                               MX2C         3       1.0        3.0
+                               NOR2         1       1.0        1.0
+                              NOR2A         1       1.0        1.0
+                              NOR2B         1       1.0        1.0
+                               NOR3         1       1.0        1.0
+                               OA1C         1       1.0        1.0
+                                OR2         1       1.0        1.0
+                               OR2A         2       1.0        2.0
+                               OR2B         3       1.0        3.0
+                               OR3A         1       1.0        1.0
+                               OR3B         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XA1B         3       1.0        3.0
+                               XAI1         1       1.0        1.0
+                              XNOR2         1       1.0        1.0
+                               XOR2         1       1.0        1.0
+                            
+                         TOTAL             38                 36.0
+----------------------------------------------------------------------
+Report for cell WF_jtag_controller.netlist
+     Instance path:  JTAG_controller
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         1       1.0        1.0
+                              AND2A         4       1.0        4.0
+                               AND3         8       1.0        8.0
+                                AO1         3       1.0        3.0
+                               AO1B         2       1.0        2.0
+                               AO1C         3       1.0        3.0
+                               AOI1         1       1.0        1.0
+                              AOI1A         8       1.0        8.0
+                              AOI1B         4       1.0        4.0
+                               DFN1        36       1.0       36.0
+                             DFN1E1        15       1.0       15.0
+                                GND         1       0.0        0.0
+                                INV         1       1.0        1.0
+                               MAJ3         1       1.0        1.0
+                                MX2        19       1.0       19.0
+                               MX2C         6       1.0        6.0
+                               NOR2         8       1.0        8.0
+                              NOR2A        11       1.0       11.0
+                              NOR2B        34       1.0       34.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         4       1.0        4.0
+                              NOR3B         1       1.0        1.0
+                              NOR3C         5       1.0        5.0
+                                OA1         2       1.0        2.0
+                               OA1A         2       1.0        2.0
+                               OAI1         1       1.0        1.0
+                                OR2         5       1.0        5.0
+                               OR2A        20       1.0       20.0
+                               OR2B         1       1.0        1.0
+                                OR3         1       1.0        1.0
+                               OR3B         1       1.0        1.0
+                               OR3C         5       1.0        5.0
+                                VCC         1       0.0        0.0
+          WF_decr_counter_21_0_Session_Timeout_Counter_0_2         1      70.0       70.0
+                  WF_incr_counter_5         1      17.0       17.0
+                  WF_incr_counter_7         1      23.0       23.0
+                               XA1B         6       1.0        6.0
+                               XA1C         7       1.0        7.0
+                               XAI1         1       1.0        1.0
+                              XNOR2        14       1.0       14.0
+                               XO1A         1       1.0        1.0
+                               XOR2         5       1.0        5.0
+                            
+                         TOTAL            253                358.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_21_0_Session_Timeout_Counter_0_2.netlist
+  Original Cell name WF_decr_counter_21_0_Session_Timeout_Counter_0
+     Instance path:  JTAG_controller.Session_Timeout_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        21       1.0       21.0
+                                GND         1       0.0        0.0
+                               NOR2         4       1.0        4.0
+                              NOR2A         7       1.0        7.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         1       1.0        1.0
+                              NOR3C         1       1.0        1.0
+                               OAI1         2       1.0        2.0
+                                OR2         5       1.0        5.0
+                               OR2A         6       1.0        6.0
+                                OR3         2       1.0        2.0
+                               OR3B         2       1.0        2.0
+                                VCC         1       0.0        0.0
+                                XO1         9       1.0        9.0
+                               XO1A         9       1.0        9.0
+                            
+                         TOTAL             72                 70.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_7.netlist
+     Instance path:  JTAG_controller.JC_bytes_counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                             DFN1E1         7       1.0        7.0
+                                GND         1       0.0        0.0
+                               NOR2         3       1.0        3.0
+                              NOR2A         1       1.0        1.0
+                              NOR2B         3       1.0        3.0
+                              NOR3A         1       1.0        1.0
+                                OR2         1       1.0        1.0
+                               OR2B         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XA1B         5       1.0        5.0
+                               XA1C         1       1.0        1.0
+                            
+                         TOTAL             25                 23.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_5.netlist
+     Instance path:  JTAG_controller.JC_TCK_periods_counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1         5       1.0        5.0
+                                GND         1       0.0        0.0
+                               NOR2         1       1.0        1.0
+                              NOR2A         2       1.0        2.0
+                              NOR2B         1       1.0        1.0
+                                OR2         1       1.0        1.0
+                               OR2A         1       1.0        1.0
+                               OR2B         1       1.0        1.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                                XA1         3       1.0        3.0
+                               XA1A         1       1.0        1.0
+                            
+                         TOTAL             19                 17.0
+----------------------------------------------------------------------
+Report for cell WF_fd_transmitter.netlist
+     Instance path:  FIELDRIVE_Transmitter
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                          WF_tx_osc         1     152.0      152.0
+                   WF_tx_serializer         1     284.0      284.0
+                            
+                         TOTAL              4                436.0
+----------------------------------------------------------------------
+Report for cell WF_tx_serializer.netlist
+     Instance path:  FIELDRIVE_Transmitter.tx_serializer
+                                          Cell usage:
+                               cell       count     area    count*area
+                                AO1         1       1.0        1.0
+                               AO13         1       1.0        1.0
+                               AO1B         3       1.0        3.0
+                               AO1C         1       1.0        1.0
+                               AO1D         1       1.0        1.0
+                              AOI1B         4       1.0        4.0
+                               DFN1        18       1.0       18.0
+                                GND         1       0.0        0.0
+                               MIN3         1       1.0        1.0
+                                MX2        10       1.0       10.0
+                               MX2B         1       1.0        1.0
+                               MX2C        23       1.0       23.0
+                               NOR2         1       1.0        1.0
+                              NOR2A         1       1.0        1.0
+                              NOR2B        13       1.0       13.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         6       1.0        6.0
+                              NOR3B         1       1.0        1.0
+                              NOR3C         2       1.0        2.0
+                               OAI1         1       1.0        1.0
+                                OR2         4       1.0        4.0
+                               OR2A         6       1.0        6.0
+                               OR2B         3       1.0        3.0
+                                OR3         2       1.0        2.0
+                               OR3C         2       1.0        2.0
+                                VCC         1       0.0        0.0
+            WF_crc_crc_generation_1         1      58.0       58.0
+          WF_decr_counter_21_0_Session_Timeout_Counter_0_1         1      71.0       71.0
+                  WF_decr_counter_5         1      43.0       43.0
+                               XAI1         3       1.0        3.0
+                               XOR2         2       1.0        2.0
+                            
+                         TOTAL            117                284.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_21_0_Session_Timeout_Counter_0_1.netlist
+  Original Cell name WF_decr_counter_21_0_Session_Timeout_Counter_0
+     Instance path:  FIELDRIVE_Transmitter.tx_serializer.Session_Timeout_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1C         3       1.0        3.0
+                               DFN1        21       1.0       21.0
+                                GND         1       0.0        0.0
+                               NOR2         3       1.0        3.0
+                              NOR2A         5       1.0        5.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         2       1.0        2.0
+                                OR2        11       1.0       11.0
+                               OR2A         1       1.0        1.0
+                               OR2B         3       1.0        3.0
+                               OR3B         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                                XO1         7       1.0        7.0
+                               XO1A        13       1.0       13.0
+                            
+                         TOTAL             73                 71.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_5.netlist
+     Instance path:  FIELDRIVE_Transmitter.tx_serializer.Outgoing_Bits_Index
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         5       1.0        5.0
+                                AO1         4       1.0        4.0
+                               DFN1         8       1.0        8.0
+                                GND         1       0.0        0.0
+                               NOR2         2       1.0        2.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         1       1.0        1.0
+                              NOR3C         3       1.0        3.0
+                               OA1B         1       1.0        1.0
+                                OR2         4       1.0        4.0
+                               OR2B         1       1.0        1.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XOR2        12       1.0       12.0
+                            
+                         TOTAL             45                 43.0
+----------------------------------------------------------------------
+Report for cell WF_crc_crc_generation_1.netlist
+  Original Cell name WF_crc_crc_generation
+     Instance path:  FIELDRIVE_Transmitter.tx_serializer.crc_generation
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        16       1.0       16.0
+                                GND         1       0.0        0.0
+                                MX2        16       1.0       16.0
+                               OA1A        16       1.0       16.0
+                                VCC         1       0.0        0.0
+                               XOR2        10       1.0       10.0
+                            
+                         TOTAL             60                 58.0
+----------------------------------------------------------------------
+Report for cell WF_tx_osc.netlist
+     Instance path:  FIELDRIVE_Transmitter.tx_oscillator
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         4       1.0        4.0
+                              AND2A         1       1.0        1.0
+                               AND3         1       1.0        1.0
+                              AND3A         2       1.0        2.0
+                                AO1         7       1.0        7.0
+                               AO1A         1       1.0        1.0
+                               AO1B         1       1.0        1.0
+                               AO1C         2       1.0        2.0
+                              AOI1A         5       1.0        5.0
+                               DFN1         5       1.0        5.0
+                                GND         1       0.0        0.0
+                               NOR2         8       1.0        8.0
+                              NOR2A        20       1.0       20.0
+                              NOR2B         4       1.0        4.0
+                              NOR3A         1       1.0        1.0
+                              NOR3B         1       1.0        1.0
+                               OA1A         4       1.0        4.0
+                               OA1B         1       1.0        1.0
+                               OAI1         1       1.0        1.0
+                                OR2         5       1.0        5.0
+                               OR2A         9       1.0        9.0
+                               OR2B         2       1.0        2.0
+                                VCC         1       0.0        0.0
+          WF_incr_counter_11_tx_periods_count_1         1      56.0       56.0
+                              XNOR2         9       1.0        9.0
+                               XOR2         2       1.0        2.0
+                            
+                         TOTAL             99                152.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_11_tx_periods_count_1.netlist
+  Original Cell name WF_incr_counter_11_tx_periods_count
+     Instance path:  FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1B         1       1.0        1.0
+                               AX1C         1       1.0        1.0
+                               AX1E         3       1.0        3.0
+                               DFN1        16       1.0       16.0
+                                GND         1       0.0        0.0
+                              NOR2B         2       1.0        2.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         6       1.0        6.0
+                              NOR3B         4       1.0        4.0
+                              NOR3C         5       1.0        5.0
+                               OA1A         1       1.0        1.0
+                               OAI1         2       1.0        2.0
+                                OR2         1       1.0        1.0
+                               OR3A         2       1.0        2.0
+                               OR3B         2       1.0        2.0
+                               OR3C         3       1.0        3.0
+                                VCC         1       0.0        0.0
+                               XA1C         1       1.0        1.0
+                              XNOR2         2       1.0        2.0
+                               XOR2         3       1.0        3.0
+                            
+                         TOTAL             58                 56.0
+----------------------------------------------------------------------
+Report for cell WF_production.netlist
+     Instance path:  Production
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+            WF_prod_bytes_retriever         1     284.0      284.0
+                     WF_prod_permit         1       3.0        3.0
+                WF_status_bytes_gen         1     105.0      105.0
+                            
+                         TOTAL              5                392.0
+----------------------------------------------------------------------
+Report for cell WF_status_bytes_gen.netlist
+     Instance path:  Production.production_status_bytes_generator
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1D         1       1.0        1.0
+                               DFN1        22       1.0       22.0
+                                GND         1       0.0        0.0
+                              NOR2A         2       1.0        2.0
+                              NOR2B        18       1.0       18.0
+                              NOR3B         1       1.0        1.0
+                              NOR3C         1       1.0        1.0
+                                OA1         7       1.0        7.0
+                                OR2         2       1.0        2.0
+                               OR2A         4       1.0        4.0
+                                VCC         1       0.0        0.0
+          WF_incr_counter_4_Extend_VAR1_RDY         1      15.0       15.0
+          WF_incr_counter_4_Extend_VAR1_RDY_1         1      17.0       17.0
+          WF_incr_counter_4_Extend_VAR1_RDY_2         1      15.0       15.0
+                            
+                         TOTAL             63                105.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_4_Extend_VAR1_RDY_2.netlist
+  Original Cell name WF_incr_counter_4_Extend_VAR1_RDY
+     Instance path:  Production.production_status_bytes_generator.Extend_VAR3_RDY
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1         3       1.0        3.0
+                             DFN1E1         1       1.0        1.0
+                                GND         1       0.0        0.0
+                                MX2         3       1.0        3.0
+                               NOR2         1       1.0        1.0
+                              NOR2B         2       1.0        2.0
+                               OR2B         1       1.0        1.0
+                               OR3B         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XA1B         2       1.0        2.0
+                               XA1C         1       1.0        1.0
+                            
+                         TOTAL             17                 15.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_4_Extend_VAR1_RDY_1.netlist
+  Original Cell name WF_incr_counter_4_Extend_VAR1_RDY
+     Instance path:  Production.production_status_bytes_generator.Extend_VAR2_RDY
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1         4       1.0        4.0
+                                GND         1       0.0        0.0
+                               MX2A         4       1.0        4.0
+                               NOR2         1       1.0        1.0
+                              NOR2B         4       1.0        4.0
+                               OR2A         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XA1B         3       1.0        3.0
+                            
+                         TOTAL             19                 17.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_4_Extend_VAR1_RDY.netlist
+  Original Cell name WF_incr_counter_4
+     Instance path:  Production.production_status_bytes_generator.Extend_VAR1_RDY
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1         3       1.0        3.0
+                             DFN1E1         1       1.0        1.0
+                                GND         1       0.0        0.0
+                                MX2         3       1.0        3.0
+                               NOR2         1       1.0        1.0
+                              NOR2A         1       1.0        1.0
+                                OR2         1       1.0        1.0
+                               OR2B         1       1.0        1.0
+                               OR3B         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XA1B         2       1.0        2.0
+                               XA1C         1       1.0        1.0
+                            
+                         TOTAL             17                 15.0
+----------------------------------------------------------------------
+Report for cell WF_prod_bytes_retriever.netlist
+     Instance path:  Production.production_bytes_retriever
+                                          Cell usage:
+                               cell       count     area    count*area
+                                AO1         1       1.0        1.0
+                               AO1B         6       1.0        6.0
+                               AO1C         1       1.0        1.0
+                               AO1D         3       1.0        3.0
+                              AOI1B        16       1.0       16.0
+                               DFN1        27       1.0       27.0
+                                GND         1       0.0        0.0
+                                INV         1       1.0        1.0
+                                MX2        16       1.0       16.0
+                               NOR2         6       1.0        6.0
+                              NOR2A         5       1.0        5.0
+                              NOR2B        28       1.0       28.0
+                               NOR3         3       1.0        3.0
+                              NOR3A         3       1.0        3.0
+                              NOR3B         2       1.0        2.0
+                              NOR3C        18       1.0       18.0
+                               OA1A         3       1.0        3.0
+                               OA1C         1       1.0        1.0
+                               OAI1         4       1.0        4.0
+                                OR2        16       1.0       16.0
+                               OR2A         7       1.0        7.0
+                               OR2B        13       1.0       13.0
+                                OR3        19       1.0       19.0
+                               OR3A        11       1.0       11.0
+                               OR3B         1       1.0        1.0
+                               OR3C        25       1.0       25.0
+                                VCC         1       0.0        0.0
+          WF_dualram_512x8_clka_rd_clkb_wr_2         1      10.0       10.0
+                                XA1         2       1.0        2.0
+                               XA1A         5       1.0        5.0
+                              XNOR2        31       1.0       31.0
+                            
+                         TOTAL            277                284.0
+----------------------------------------------------------------------
+Report for cell WF_dualram_512x8_clka_rd_clkb_wr_2.netlist
+  Original Cell name WF_dualram_512x8_clka_rd_clkb_wr
+     Instance path:  Production.production_bytes_retriever.Produced_Bytes_From_RAM
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                    dualram_512x8_2         1      10.0       10.0
+                            
+                         TOTAL              3                 10.0
+----------------------------------------------------------------------
+Report for cell dualram_512x8_2.netlist
+  Original Cell name dualram_512x8
+     Instance path:  Production.production_bytes_retriever.Produced_Bytes_From_RAM.DualRam
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                              NOR3C         2       1.0        2.0
+                               OR3C         8       1.0        8.0
+                             RAM4K9         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                            
+                         TOTAL             13                 10.0
+----------------------------------------------------------------------
+Report for cell WF_prod_permit.netlist
+     Instance path:  Production.production_VAR3_RDY_generation
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1         2       1.0        2.0
+                                GND         1       0.0        0.0
+                              NOR2A         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                            
+                         TOTAL              5                  3.0
+----------------------------------------------------------------------
+Report for cell WF_fd_receiver.netlist
+     Instance path:  FIELDRIVE_Receiver
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                   WF_rx_deglitcher         1      36.0       36.0
+                 WF_rx_deserializer         1     336.0      336.0
+                          WF_rx_osc         1     214.0      214.0
+                            
+                         TOTAL              5                586.0
+----------------------------------------------------------------------
+Report for cell WF_rx_deserializer.netlist
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         2       1.0        2.0
+                               AO13         1       1.0        1.0
+                               AO1A         1       1.0        1.0
+                               AO1B         2       1.0        2.0
+                               AO1D         1       1.0        1.0
+                               AOI1         1       1.0        1.0
+                              AOI1B         3       1.0        3.0
+                               DFN1        47       1.0       47.0
+                             DFN1E1         1       1.0        1.0
+                                GND         1       0.0        0.0
+                               MIN3         1       1.0        1.0
+                                MX2        24       1.0       24.0
+                               NOR2         3       1.0        3.0
+                              NOR2A         4       1.0        4.0
+                              NOR2B        32       1.0       32.0
+                               NOR3         2       1.0        2.0
+                              NOR3A         6       1.0        6.0
+                              NOR3B         2       1.0        2.0
+                              NOR3C         3       1.0        3.0
+                                OA1         1       1.0        1.0
+                               OA1A         3       1.0        3.0
+                               OA1B         2       1.0        2.0
+                                OR2         7       1.0        7.0
+                               OR2A         4       1.0        4.0
+                               OR2B         2       1.0        2.0
+                                OR3         2       1.0        2.0
+                               OR3A         1       1.0        1.0
+                               OR3B         3       1.0        3.0
+                               OR3C         2       1.0        2.0
+                                VCC         1       0.0        0.0
+              WF_crc_crc_generation         1      69.0       69.0
+          WF_decr_counter_21_0_Session_Timeout_Counter_0         1      67.0       67.0
+                  WF_decr_counter_4         1      33.0       33.0
+                                XA1         3       1.0        3.0
+                               XAI1         1       1.0        1.0
+                            
+                         TOTAL            172                336.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_21_0_Session_Timeout_Counter_0.netlist
+  Original Cell name WF_decr_counter_21
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.Session_Timeout_Counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        21       1.0       21.0
+                                GND         1       0.0        0.0
+                               NOR2         4       1.0        4.0
+                              NOR2A         7       1.0        7.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         1       1.0        1.0
+                              NOR3C         1       1.0        1.0
+                               OAI1         2       1.0        2.0
+                                OR2         5       1.0        5.0
+                               OR2A         3       1.0        3.0
+                                OR3         2       1.0        2.0
+                               OR3B         2       1.0        2.0
+                                VCC         1       0.0        0.0
+                                XO1         9       1.0        9.0
+                               XO1A         9       1.0        9.0
+                            
+                         TOTAL             69                 67.0
+----------------------------------------------------------------------
+Report for cell WF_crc_crc_generation.netlist
+  Original Cell name WF_crc
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.CRC_Verification
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        16       1.0       16.0
+                                GND         1       0.0        0.0
+                                MX2        16       1.0       16.0
+                               NOR2         3       1.0        3.0
+                              NOR2B         3       1.0        3.0
+                              NOR3A         1       1.0        1.0
+                              NOR3C         4       1.0        4.0
+                                OA1        16       1.0       16.0
+                                VCC         1       0.0        0.0
+                               XOR2        10       1.0       10.0
+                            
+                         TOTAL             71                 69.0
+----------------------------------------------------------------------
+Report for cell WF_decr_counter_4.netlist
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.Incoming_Bits_Index
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         3       1.0        3.0
+                                AO1         2       1.0        2.0
+                               DFN1         4       1.0        4.0
+                                GND         1       0.0        0.0
+                               MX2B         3       1.0        3.0
+                               MX2C         1       1.0        1.0
+                               NOR2         1       1.0        1.0
+                                OR2         3       1.0        3.0
+                               OR2B         5       1.0        5.0
+                                VCC         1       0.0        0.0
+                              XNOR2         1       1.0        1.0
+                               XOR2        10       1.0       10.0
+                            
+                         TOTAL             35                 33.0
+----------------------------------------------------------------------
+Report for cell WF_rx_osc.netlist
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         7       1.0        7.0
+                              AND2A         5       1.0        5.0
+                               AND3         1       1.0        1.0
+                              AND3A         3       1.0        3.0
+                                AO1         8       1.0        8.0
+                               AO1A         2       1.0        2.0
+                               AO1C         3       1.0        3.0
+                               AO1D         1       1.0        1.0
+                              AOI1A         9       1.0        9.0
+                               DFN1         6       1.0        6.0
+                                GND         1       0.0        0.0
+                                MX2         1       1.0        1.0
+                               NOR2        15       1.0       15.0
+                              NOR2A        18       1.0       18.0
+                              NOR2B        10       1.0       10.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         4       1.0        4.0
+                              NOR3C         1       1.0        1.0
+                                OA1         2       1.0        2.0
+                               OA1A         2       1.0        2.0
+                               OA1B         2       1.0        2.0
+                               OAI1         1       1.0        1.0
+                                OR2         5       1.0        5.0
+                               OR2A        17       1.0       17.0
+                               OR2B         2       1.0        2.0
+                               OR3A         1       1.0        1.0
+                                VCC         1       0.0        0.0
+          WF_incr_counter_11_tx_periods_count         1      67.0       67.0
+                               XA1A         1       1.0        1.0
+                               XAI1         1       1.0        1.0
+                              XNOR2        12       1.0       12.0
+                               XOR2         6       1.0        6.0
+                            
+                         TOTAL            150                214.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_11_tx_periods_count.netlist
+  Original Cell name WF_incr_counter_11
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count
+                                          Cell usage:
+                               cell       count     area    count*area
+                                AO1         1       1.0        1.0
+                               AO1A         1       1.0        1.0
+                               DFN1        21       1.0       21.0
+                                GND         1       0.0        0.0
+                               NOR2         3       1.0        3.0
+                              NOR2A         2       1.0        2.0
+                              NOR2B         2       1.0        2.0
+                               NOR3         2       1.0        2.0
+                              NOR3B         3       1.0        3.0
+                              NOR3C         4       1.0        4.0
+                               OR2A         1       1.0        1.0
+                               OR2B         1       1.0        1.0
+                               OR3B         3       1.0        3.0
+                               OR3C         3       1.0        3.0
+                                VCC         1       0.0        0.0
+                               XA1B         5       1.0        5.0
+                               XA1C         4       1.0        4.0
+                              XNOR2         3       1.0        3.0
+                               XOR2         6       1.0        6.0
+                               ZOR3         2       1.0        2.0
+                            
+                         TOTAL             69                 67.0
+----------------------------------------------------------------------
+Report for cell WF_rx_deglitcher.netlist
+     Instance path:  FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deglitcher
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1D         1       1.0        1.0
+                              AOI1B         1       1.0        1.0
+                               DFN1         9       1.0        9.0
+                                GND         1       0.0        0.0
+                                MX2         1       1.0        1.0
+                              NOR2A         1       1.0        1.0
+                              NOR2B         4       1.0        4.0
+                               OA1A         1       1.0        1.0
+                                OR2         2       1.0        2.0
+                               OR2A         1       1.0        1.0
+                               OR2B         3       1.0        3.0
+                                OR3         1       1.0        1.0
+                               OR3A         1       1.0        1.0
+                               OR3B         2       1.0        2.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                              XAI1A         1       1.0        1.0
+                              XNOR2         1       1.0        1.0
+                               XOR2         2       1.0        2.0
+                               XOR3         3       1.0        3.0
+                            
+                         TOTAL             38                 36.0
+----------------------------------------------------------------------
+Report for cell WF_consumption.netlist
+     Instance path:  Consumption
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+            WF_cons_bytes_processor         1     220.0      220.0
+                    WF_cons_outcome         1      85.0       85.0
+                            
+                         TOTAL              4                305.0
+----------------------------------------------------------------------
+Report for cell WF_cons_outcome.netlist
+     Instance path:  Consumption.Consumption_Outcome
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         1       1.0        1.0
+                                AO1         3       1.0        3.0
+                               AO1B         1       1.0        1.0
+                              AOI1B         1       1.0        1.0
+                               AX1E        14       1.0       14.0
+                               DFN1         7       1.0        7.0
+                                GND         1       0.0        0.0
+                               MX2C         1       1.0        1.0
+                               NOR2         4       1.0        4.0
+                              NOR2A         5       1.0        5.0
+                              NOR2B         5       1.0        5.0
+                               NOR3         1       1.0        1.0
+                              NOR3A         1       1.0        1.0
+                              NOR3B         2       1.0        2.0
+                              NOR3C        15       1.0       15.0
+                                OA1         1       1.0        1.0
+                               OA1C         1       1.0        1.0
+                               OR2A         3       1.0        3.0
+                               OR2B         2       1.0        2.0
+                               OR3C         4       1.0        4.0
+                                VCC         1       0.0        0.0
+                                XA1         4       1.0        4.0
+                              XNOR3         3       1.0        3.0
+                               XOR2         5       1.0        5.0
+                               XOR3         1       1.0        1.0
+                            
+                         TOTAL             87                 85.0
+----------------------------------------------------------------------
+Report for cell WF_cons_bytes_processor.netlist
+     Instance path:  Consumption.Consumption_Bytes_Processor
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AND2         1       1.0        1.0
+                              AND2A         2       1.0        2.0
+                               AND3         5       1.0        5.0
+                                AO1         1       1.0        1.0
+                               AO16         1       1.0        1.0
+                               AO1B        16       1.0       16.0
+                               AO1C         2       1.0        2.0
+                              AOI1A         2       1.0        2.0
+                                AX1         1       1.0        1.0
+                               AX1B         1       1.0        1.0
+                               DFN1        37       1.0       37.0
+                                GND         1       0.0        0.0
+                                MX2        21       1.0       21.0
+                               NOR2         4       1.0        4.0
+                              NOR2A         4       1.0        4.0
+                              NOR2B        43       1.0       43.0
+                               NOR3         3       1.0        3.0
+                              NOR3A         3       1.0        3.0
+                              NOR3C         1       1.0        1.0
+                                OA1         2       1.0        2.0
+                               OA1A         2       1.0        2.0
+                               OAI1         4       1.0        4.0
+                                OR2         4       1.0        4.0
+                               OR2A        11       1.0       11.0
+                               OR2B        13       1.0       13.0
+                               OR3A         1       1.0        1.0
+                               OR3B         3       1.0        3.0
+                               OR3C         8       1.0        8.0
+                                VCC         1       0.0        0.0
+          WF_dualram_512x8_clka_rd_clkb_wr         1       9.0        9.0
+          WF_dualram_512x8_clka_rd_clkb_wr_1         1       1.0        1.0
+                              XNOR2         5       1.0        5.0
+                               XOR2         8       1.0        8.0
+                               XOR3         1       1.0        1.0
+                            
+                         TOTAL            214                220.0
+----------------------------------------------------------------------
+Report for cell WF_dualram_512x8_clka_rd_clkb_wr_1.netlist
+  Original Cell name WF_dualram_512x8_clka_rd_clkb_wr
+     Instance path:  Consumption.Consumption_Bytes_Processor.Consumption_JTAG_RAM
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                    dualram_512x8_1         1       1.0        1.0
+                            
+                         TOTAL              3                  1.0
+----------------------------------------------------------------------
+Report for cell dualram_512x8_1.netlist
+  Original Cell name dualram_512x8
+     Instance path:  Consumption.Consumption_Bytes_Processor.Consumption_JTAG_RAM.DualRam
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                               OR2B         1       1.0        1.0
+                             RAM4K9         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                            
+                         TOTAL              4                  1.0
+----------------------------------------------------------------------
+Report for cell WF_dualram_512x8_clka_rd_clkb_wr.netlist
+     Instance path:  Consumption.Consumption_Bytes_Processor.Consumption_RAM
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                      dualram_512x8         1       9.0        9.0
+                            
+                         TOTAL              3                  9.0
+----------------------------------------------------------------------
+Report for cell dualram_512x8.netlist
+     Instance path:  Consumption.Consumption_Bytes_Processor.Consumption_RAM.DualRam
+                                          Cell usage:
+                               cell       count     area    count*area
+                                GND         1       0.0        0.0
+                                MX2         8       1.0        8.0
+                               OR3B         1       1.0        1.0
+                             RAM4K9         1       0.0        0.0
+                                VCC         1       0.0        0.0
+                            
+                         TOTAL             12                  9.0
+----------------------------------------------------------------------
+Report for cell WF_reset_unit.netlist
+     Instance path:  reset_unit
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1B         2       1.0        2.0
+                               AO1D         1       1.0        1.0
+                               AOI1         2       1.0        2.0
+                              AOI1B         6       1.0        6.0
+                             CLKINT         1       0.0        0.0
+                               DFN1        18       1.0       18.0
+                             DFN1P0         5       1.0        5.0
+                                GND         1       0.0        0.0
+                                INV         1       1.0        1.0
+                               MIN3         2       1.0        2.0
+                               NOR2         5       1.0        5.0
+                              NOR2A         6       1.0        6.0
+                              NOR2B         4       1.0        4.0
+                               NOR3         4       1.0        4.0
+                              NOR3A         5       1.0        5.0
+                              NOR3B         1       1.0        1.0
+                              NOR3C         2       1.0        2.0
+                                OA1         3       1.0        3.0
+                               OA1A         3       1.0        3.0
+                               OA1B         3       1.0        3.0
+                               OA1C         2       1.0        2.0
+                               OAI1         2       1.0        2.0
+                                OR2        12       1.0       12.0
+                               OR2A         4       1.0        4.0
+                                OR3         3       1.0        3.0
+                               OR3A         2       1.0        2.0
+                               OR3B         2       1.0        2.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+          WF_incr_counter_12_RSTIN_free_counter         1      51.0       51.0
+          WF_incr_counter_12_RSTIN_free_counter_1         1      51.0       51.0
+                               XAI1         2       1.0        2.0
+                            
+                         TOTAL            108                205.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_12_RSTIN_free_counter_1.netlist
+  Original Cell name WF_incr_counter_12_RSTIN_free_counter
+     Instance path:  reset_unit.free_counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               AO1B         1       1.0        1.0
+                               AOI1         1       1.0        1.0
+                               DFN1        12       1.0       12.0
+                                GND         1       0.0        0.0
+                               NOR2         4       1.0        4.0
+                              NOR2A         3       1.0        3.0
+                              NOR2B         3       1.0        3.0
+                               NOR3         2       1.0        2.0
+                              NOR3A         1       1.0        1.0
+                                OR2         2       1.0        2.0
+                               OR2A         4       1.0        4.0
+                               OR2B         4       1.0        4.0
+                               OR3A         3       1.0        3.0
+                               OR3C         1       1.0        1.0
+                                VCC         1       0.0        0.0
+                               XA1B         5       1.0        5.0
+                               XA1C         5       1.0        5.0
+                            
+                         TOTAL             53                 51.0
+----------------------------------------------------------------------
+Report for cell WF_incr_counter_12_RSTIN_free_counter.netlist
+  Original Cell name WF_incr_counter_12
+     Instance path:  reset_unit.RSTIN_free_counter
+                                          Cell usage:
+                               cell       count     area    count*area
+                               DFN1        12       1.0       12.0
+                                GND         1       0.0        0.0
+                               NOR2         5       1.0        5.0
+                              NOR2A         2       1.0        2.0
+                              NOR2B         5       1.0        5.0
+                              NOR3B         1       1.0        1.0
+                              NOR3C         2       1.0        2.0
+                               OA1B         1       1.0        1.0
+                                OR2         3       1.0        3.0
+                               OR2A         3       1.0        3.0
+                               OR2B         4       1.0        4.0
+                               OR3B         2       1.0        2.0
+                                VCC         1       0.0        0.0
+                               XA1B         6       1.0        6.0
+                               XA1C         5       1.0        5.0
+                            
+                         TOTAL             53                 51.0
