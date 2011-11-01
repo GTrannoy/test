@@ -1,0 +1,911 @@
+#Build: Synplify Premier D-2009.12, Build 035R, Nov 24 2009
+#install: C:\Synopsys\fpga_D200912
+#OS: Windows XP 5.1
+#Hostname: PCBE13136
+
+#Implementation: Synplify
+
+#Tue Nov 01 17:23:16 2011
+
+$ Start of Compile
+#Tue Nov 01 17:23:17 2011
+
+Synopsys VHDL Compiler, version comp475rc, Build 015R, built Nov 17 2009
+Copyright (C) 1994-2009, Synopsys Inc.  All Rights Reserved
+
+@N: CD720 :"C:\Synopsys\fpga_D200912\lib\vhd\std.vhd":123:18:123:21|Setting time resolution to ns
+Top entity isn't set yet!
+VHDL syntax check successful!
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd":213:7:213:13|Synthesizing work.nanofip.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_wb_controller.vhd":60:7:60:22|Synthesizing work.wf_wb_controller.rtl 
+Post processing for work.wf_wb_controller.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_model_constr_decoder.vhd":72:7:72:29|Synthesizing work.wf_model_constr_decoder.rtl 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_model_constr_decoder.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":104:7:104:23|Synthesizing work.wf_engine_control.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":195:21:195:22|Using onehot encoding for type control_st_t (idle="1000000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":425:6:425:37|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":587:6:587:19|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":85:7:85:28|Synthesizing work.wf_prod_data_lgth_calc.behavior 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_prod_data_lgth_calc.behavior
+Post processing for work.wf_engine_control.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":79:7:79:24|Synthesizing work.wf_jtag_controller.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":115:16:115:17|Using onehot encoding for type jc_st_t (idle="1000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":230:4:230:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":276:4:276:18|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_jtag_controller.rtl
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(1) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(2) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(3) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(4) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(5) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(6) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(7) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 7 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 6 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 5 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 4 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 3 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 2 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 1 of jc_tdo_byte_o(7 downto 0)  
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_fd_transmitter.vhd":96:7:96:23|Synthesizing work.wf_fd_transmitter.struc 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":83:7:83:22|Synthesizing work.wf_tx_serializer.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":128:16:128:17|Using onehot encoding for type tx_st_t (idle="1000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":299:6:299:19|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":385:6:385:19|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd":67:7:67:12|Synthesizing work.wf_crc.rtl 
+Post processing for work.wf_crc.rtl
+Post processing for work.wf_tx_serializer.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_osc.vhd":73:7:73:15|Synthesizing work.wf_tx_osc.rtl 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_tx_osc.rtl
+Post processing for work.wf_fd_transmitter.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_production.vhd":110:7:110:19|Synthesizing work.wf_production.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":126:7:126:25|Synthesizing work.wf_status_bytes_gen.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_status_bytes_gen.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":122:7:122:29|Synthesizing work.wf_prod_bytes_retriever.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_dualram_512x8_clka_rd_clkb_wr.vhd":69:7:69:38|Synthesizing work.wf_dualram_512x8_clka_rd_clkb_wr.syn 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\dualram_512x8.vhd":64:7:64:19|Synthesizing work.dualram_512x8.ram4k9 
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":2884:10:2884:15|Synthesizing proasic3.ram4k9.syn_black_box 
+Post processing for proasic3.ram4k9.syn_black_box
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":1782:10:1782:12|Synthesizing proasic3.gnd.syn_black_box 
+Post processing for proasic3.gnd.syn_black_box
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":2722:10:2722:12|Synthesizing proasic3.vcc.syn_black_box 
+Post processing for proasic3.vcc.syn_black_box
+Post processing for work.dualram_512x8.ram4k9
+Post processing for work.wf_dualram_512x8_clka_rd_clkb_wr.syn
+Post processing for work.wf_prod_bytes_retriever.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":61:7:61:20|Synthesizing work.wf_prod_permit.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_prod_permit.rtl
+Post processing for work.wf_production.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_fd_receiver.vhd":95:7:95:20|Synthesizing work.wf_fd_receiver.struc 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":123:7:123:24|Synthesizing work.wf_rx_deserializer.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":175:16:175:17|Using onehot encoding for type rx_st_t (idle="100000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":335:4:335:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":390:4:390:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+Post processing for work.wf_rx_deserializer.rtl
+@N: CD630 :"C:\ohr\cern-FIP\trunk\hdl\design\wf_rx_osc.vhd":81:7:81:15|Synthesizing work.wf_rx_osc.rtl 
+Post processing for work.wf_rx_osc.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deglitcher.vhd":63:7:63:22|Synthesizing work.wf_rx_deglitcher.rtl 
+Post processing for work.wf_rx_deglitcher.rtl
+Post processing for work.wf_fd_receiver.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_consumption.vhd":99:7:99:20|Synthesizing work.wf_consumption.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":101:7:101:21|Synthesizing work.wf_cons_outcome.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_cons_outcome.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":98:7:98:29|Synthesizing work.wf_cons_bytes_processor.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_cons_bytes_processor.rtl
+Post processing for work.wf_consumption.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":146:7:146:19|Synthesizing work.wf_reset_unit.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":194:20:194:21|Using onehot encoding for type rstin_st_t (idle="10000")
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":202:20:202:21|Using onehot encoding for type var_rst_st_t (var_rst_idle="100000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":368:4:368:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":423:4:423:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":565:4:565:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":639:4:639:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_reset_unit.rtl
+Post processing for work.nanofip.struc
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":476:6:476:7|Trying to extract state machine for register var_rst_st
+Extracted state machine for register var_rst_st
+State machine has 6 reachable states with original encodings of:
+   000001
+   000010
+   000100
+   001000
+   010000
+   100000
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":294:6:294:7|Trying to extract state machine for register rstin_st
+Extracted state machine for register rstin_st
+State machine has 5 reachable states with original encodings of:
+   00001
+   00010
+   00100
+   01000
+   10000
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":120:4:120:8|Input port bits 0 to 1 of var_i(0 to 8) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":120:4:120:8|Input port bit 4 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":120:4:120:8|Input port bits 7 to 8 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":121:4:121:19|Input port bits 7 to 6 of cons_ctrl_byte_i(7 downto 0) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":121:4:121:19|Input port bit 2 of cons_ctrl_byte_i(7 downto 0) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":130:4:130:8|Input port bits 0 to 1 of var_i(0 to 8) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":130:4:130:8|Input port bit 4 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":130:4:130:8|Input port bits 7 to 8 of var_i(0 to 8) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":220:6:220:7|Trying to extract state machine for register rx_st
+Extracted state machine for register rx_st
+State machine has 6 reachable states with original encodings of:
+   000001
+   000010
+   000100
+   001000
+   010000
+   100000
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":70:4:70:8|Input port bits 0 to 3 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":70:4:70:8|Input port bits 5 to 8 of var_i(0 to 8) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":161:4:161:8|Input port bit 0 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":161:4:161:8|Input port bits 2 to 3 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":161:4:161:8|Input port bits 5 to 6 of var_i(0 to 8) are unused 
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Register bit s_nFIP_status_byte(0) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Register bit s_nFIP_status_byte(1) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Pruning Register bit 1 of s_nFIP_status_byte(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Pruning Register bit 0 of s_nFIP_status_byte(7 downto 0)  
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":159:4:159:8|Input port bit 0 of var_i(0 to 8) is unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":159:4:159:8|Input port bit 4 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":159:4:159:8|Input port bits 7 to 8 of var_i(0 to 8) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":210:4:210:5|Trying to extract state machine for register tx_st
+Extracted state machine for register tx_st
+State machine has 7 reachable states with original encodings of:
+   0000001
+   0000010
+   0000100
+   0001000
+   0010000
+   0100000
+   1000000
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":376:4:376:5|Register bit s_bits_so_far(0) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":376:4:376:5|Pruning Register bit 0 of s_bits_so_far(15 downto 0)  
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":168:6:168:7|Trying to extract state machine for register jc_st
+Extracted state machine for register jc_st
+State machine has 4 reachable states with original encodings of:
+   0001
+   0010
+   0100
+   1000
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":101:4:101:8|Input port bit 0 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":101:4:101:8|Input port bits 2 to 3 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":101:4:101:8|Input port bits 5 to 6 of var_i(0 to 8) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":268:4:268:5|Trying to extract state machine for register control_st
+Extracted state machine for register control_st
+State machine has 10 reachable states with original encodings of:
+   0000000001
+   0000000010
+   0000000100
+   0000001000
+   0000010000
+   0000100000
+   0001000000
+   0010000000
+   0100000000
+   1000000000
+@W: CL159 :"C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd":228:2:228:11|Input fd_rxcdn_i is unused
+@END
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+# Tue Nov 01 17:23:18 2011
+
+###########################################################]
+Synopsys Actel Technology Mapper, Version map500rc, Build 035R, Built Nov 17 2009 20:15:07
+Copyright (C) 1994-2009, Synopsys Inc.  All Rights Reserved
+Product Version D-2009.12
+Reading constraint file: C:\ohr\cern-fip\trunk\hdl\cad\Synplify\synplify_constraints.sdc
+@N: MF249 |Running in 32-bit mode.
+@N: MF258 |Gated clock conversion disabled 
+Adding property syn_encoding, value "safe, onehot", to instance engine_control.control_st[0:9]
+Adding property syn_encoding, value "safe, onehot", to instance JTAG_controller.jc_st[0:3]
+Adding property syn_encoding, value "safe, onehot", to instance FIELDRIVE_Transmitter.tx_serializer.tx_st[0:6]
+Adding property syn_encoding, value "safe, onehot", to instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[0:5]
+Adding property syn_encoding, value "safe, onehot", to instance reset_unit.rstin_st[0:4]
+Adding property syn_encoding, value "safe, onehot", to instance reset_unit.var_rst_st[0:5]
+
+Automatic dissolve during optimization of view:work.WF_dualram_512x8_clka_rd_clkb_wr(syn) of DualRam(dualram_512x8)
+Automatic dissolve at startup in view:work.WF_cons_bytes_processor(rtl) of Consumption_JTAG_RAM(WF_dualram_512x8_clka_rd_clkb_wr_Consumption_JTAG_RAM)
+Automatic dissolve at startup in view:work.WF_cons_bytes_processor(rtl) of Consumption_RAM(WF_dualram_512x8_clka_rd_clkb_wr)
+Automatic dissolve at startup in view:work.WF_prod_bytes_retriever(rtl) of Produced_Bytes_From_RAM(WF_dualram_512x8_clka_rd_clkb_wr)
+Automatic dissolve at startup in view:work.WF_production(struc) of production_VAR3_RDY_generation(WF_prod_permit)
+
+Available hyper_sources - for debug and ip models
+	None Found
+
+Finished RTL optimizations (Time elapsed 0h:00m:00s; Memory used current: 56MB peak: 57MB)
+
+Encoding state machine work.WF_reset_unit(rtl)-var_rst_st[0:5]
+original code -> new code
+   000001 -> 000001
+   000010 -> 000010
+   000100 -> 000100
+   001000 -> 001000
+   010000 -> 010000
+   100000 -> 100000
+Building reset logic for illegal states
+
+Encoding state machine work.WF_reset_unit(rtl)-rstin_st[0:4]
+original code -> new code
+   00001 -> 00001
+   00010 -> 00010
+   00100 -> 00100
+   01000 -> 01000
+   10000 -> 10000
+Building reset logic for illegal states
+
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_12_RSTIN_free_counter(rtl) inst s_counter[11:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_12_free_counter(rtl) inst s_counter[11:0]
+@N: MF176 |Default generator successful 
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":317:21:317:79|Found 8 bit by 8 bit '<' comparator, 'Bytes_Processing\.un20_slone_i'
+@N: MF238 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":317:47:317:79|Found 7 bit incrementor, 'un17_slone_i[1:7]'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_deglitcher.vhd":134:4:134:5|Found updn counter in view:work.WF_rx_deglitcher(rtl) inst s_filt_c[3:0] 
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_osc.vhd":196:40:196:75|Found 11 bit by 11 bit '<' comparator, 'un2_s_adjac_bits_window'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_osc.vhd":195:40:195:77|Found 11 bit by 11 bit '<' comparator, 'un9_s_adjac_bits_window'
+@N: MF176 |Default generator successful 
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_osc.vhd":192:40:192:76|Found 11 bit by 11 bit '<' comparator, 'un10_s_signif_edge_window'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_osc.vhd":191:40:191:60|Found 11 bit by 11 bit '<' comparator, 's_signif_edge_window'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_11_rx_periods_count(rtl) inst s_counter[10:0]
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":472:47:472:83|Found ROM, 'un4_s_fsd_bit', 16 words by 1 bits 
+Encoding state machine work.WF_rx_deserializer(rtl)-rx_st[0:5]
+original code -> new code
+   000001 -> 000001
+   000010 -> 000010
+   000100 -> 000100
+   001000 -> 001000
+   010000 -> 010000
+   100000 -> 100000
+Building reset logic for illegal states
+
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":101:4:101:5|Found counter in view:work.WF_decr_counter_21(rtl) inst s_counter[20:0]
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":311:34:311:97|Found ROM, 'Bytes_Generation\.byte_o_4[7:0]', 16 words by 8 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":291:34:291:98|Found ROM, 'byte_o_1[7]', 16 words by 1 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":291:34:291:98|Found ROM, 'byte_o_1[5:4]', 16 words by 2 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":291:34:291:98|Found ROM, 'byte_o_1[2:0]', 16 words by 3 bits 
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":505:42:505:76|Found 9 bit decrementor, 's_mem_addr_A[8:0]'
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":352:15:352:66|Found 8 bit decrementor, 'Bytes_Generation\.un14_slone_i_a_4[7:0]'
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":520:42:520:48|Found 7 bit decrementor, 's_lgth_byte[7:1]'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_4(rtl) inst s_counter[3:0]
+@N: MF176 |Default generator successful 
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_tx_osc.vhd":161:32:161:62|Found 11 bit by 11 bit '<' comparator, 'un14_s_tx_clk'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_tx_osc.vhd":162:34:162:70|Found 11 bit by 11 bit '<' comparator, 'un12_s_tx_clk'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_tx_osc.vhd":163:34:163:66|Found 11 bit by 11 bit '<' comparator, 'un4_s_tx_clk'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_11_tx_periods_count(rtl) inst s_counter[10:0]
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":525:21:525:61|Found ROM, 'Bits_Delivery\.s_txd_4', 16 words by 1 bits 
+@N: MO106 :"c:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":516:21:516:52|Found ROM, 'Bits_Delivery\.s_txd_1', 32 words by 1 bits 
+Encoding state machine work.WF_tx_serializer(rtl)-tx_st[0:6]
+original code -> new code
+   0000001 -> 0000001
+   0000010 -> 0000010
+   0000100 -> 0000100
+   0001000 -> 0001000
+   0010000 -> 0010000
+   0100000 -> 0100000
+   1000000 -> 1000000
+Building reset logic for illegal states
+
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":376:4:376:5|Found counter in view:work.WF_jtag_controller(rtl) inst s_bits_so_far[15:1]
+Encoding state machine work.WF_jtag_controller(rtl)-jc_st[0:3]
+original code -> new code
+   0001 -> 0001
+   0010 -> 0010
+   0100 -> 0100
+   1000 -> 1000
+Building reset logic for illegal states
+
+@N: MF238 :"c:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":361:49:361:61|Found 6 bit incrementor, 'un1_jc_mem_adr_rd_o[6:1]'
+@N: MF179 :"c:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":215:30:215:57|Found 16 bit by 16 bit '<' comparator, 'JC_FSM_Comb_State_Transitions\.un1_s_bits_so_far'
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_5(rtl) inst s_counter[4:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_7(rtl) inst s_counter[6:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":101:4:101:5|Found counter in view:work.WF_decr_counter_21_0(rtl) inst s_counter[20:0]
+Encoding state machine work.WF_engine_control(rtl)-control_st[0:9]
+original code -> new code
+   0000000001 -> 0000000001
+   0000000010 -> 0000000010
+   0000000100 -> 0000000100
+   0000001000 -> 0000001000
+   0000010000 -> 0000010000
+   0000100000 -> 0000100000
+   0001000000 -> 0001000000
+   0010000000 -> 0010000000
+   0100000000 -> 0100000000
+   1000000000 -> 1000000000
+Building reset logic for illegal states
+
+@N: MF176 |Default generator successful 
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_8_Prod_Bytes_Counter(rtl) inst s_counter[7:0]
+@N:"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":97:4:97:5|Found counter in view:work.WF_incr_counter_8_Rx_Bytes_Counter(rtl) inst s_counter[7:0]
+@N: MF239 :"c:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":111:23:111:35|Found 18 bit decrementor, 'un1_s_counter_1[18:1]'
+Automatic dissolve during optimization of view:work.WF_tx_osc(rtl) of un1_s_period_0(ADD__const_cin_w9_0)
+Automatic dissolve during optimization of view:work.WF_incr_counter_2(rtl) of un1_s_counter_1(PM_nanofip_ADDC__0_2_A3P400_PQFP208_Std)
+Finished factoring (Time elapsed 0h:00m:02s; Memory used current: 61MB peak: 62MB)
+
+@N: BN116 :"c:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":760:4:760:5|Removing sequential instance engine_control.s_var[0] of view:PrimLib.dff(prim) because there are no references to its outputs 
+@N: BN116 :"c:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":760:4:760:5|Removing sequential instance engine_control.s_var_aux[0] of view:PrimLib.dff(prim) because there are no references to its outputs 
+@N: BN116 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":480:4:480:5|Removing sequential instance Consumption.Consumption_Bytes_Processor.cons_ctrl_byte_o[7] of view:PrimLib.dff(prim) because there are no references to its outputs 
+@N: BN116 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":480:4:480:5|Removing sequential instance Consumption.Consumption_Bytes_Processor.cons_ctrl_byte_o[6] of view:PrimLib.dff(prim) because there are no references to its outputs 
+@N: BN116 :"c:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":480:4:480:5|Removing sequential instance Consumption.Consumption_Bytes_Processor.cons_ctrl_byte_o[2] of view:PrimLib.dff(prim) because there are no references to its outputs 
+Finished gated-clock and generated-clock conversion (Time elapsed 0h:00m:02s; Memory used current: 62MB peak: 63MB)
+
+Finished generic timing optimizations - Pass 1 (Time elapsed 0h:00m:03s; Memory used current: 64MB peak: 65MB)
+
+Starting Early Timing Optimization (Time elapsed 0h:00m:03s; Memory used current: 65MB peak: 65MB)
+
+Finished Early Timing Optimization (Time elapsed 0h:00m:03s; Memory used current: 65MB peak: 66MB)
+
+Finished generic timing optimizations - Pass 2 (Time elapsed 0h:00m:03s; Memory used current: 65MB peak: 66MB)
+
+Finished preparing to map (Time elapsed 0h:00m:03s; Memory used current: 67MB peak: 68MB)
+
+
+High Fanout Net Report
+**********************
+
+Driver Instance / Pin Name                                                              Fanout, notes                 
+----------------------------------------------------------------------------------------------------------------------
+reset_unit.wb_rst_o / Y                                                                 12                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[0] / Q                        20                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[1] / Q                        17                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[2] / Q                        17                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[3] / Q                        14                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[4] / Q                        19                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[5] / Q                        15                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[6] / Q                        15                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[7] / Q                        12                            
+engine_control.s_var[7] / Q                                                             14                            
+engine_control.Rx_Bytes_Counter.s_counter[2] / Q                                        15                            
+engine_control.Rx_Bytes_Counter.s_counter[3] / Q                                        12                            
+engine_control.Rx_Bytes_Counter.s_counter[7] / Q                                        12                            
+engine_control.Prod_Bytes_Counter.s_counter[3] / Q                                      11                            
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[1] / Q                  11                            
+engine_control.control_st[0] / Q                                                        14                            
+JTAG_controller.jc_st[3] / Q                                                            29                            
+JTAG_controller.jc_st[1] / Q                                                            11                            
+FIELDRIVE_Transmitter.tx_serializer.Outgoing_Bits_Index.s_counter[2] / Q                17                            
+FIELDRIVE_Transmitter.tx_serializer.Outgoing_Bits_Index.s_counter[3] / Q                15                            
+FIELDRIVE_Transmitter.tx_serializer.s_bit_index_decr_p_i / Y                            12                            
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[4] / Q                   11                            
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[5] / Q                   11                            
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[7] / Q                   12                            
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[8] / Q                   11                            
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[9] / Q                   13                            
+Production.production_bytes_retriever.s_byte_index_d1[2] / Q                            13                            
+Production.production_bytes_retriever.s_byte_index_d1[3] / Q                            13                            
+Production.production_bytes_retriever.s_byte_index_d1[1] / Q                            11                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deglitcher.s_fd_rxd_filt / Q                      13                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[1] / Q                         24                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[0] / Q                         24                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[1] / Q      11                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[2] / Q      11                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[3] / Q      13                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[4] / Q      15                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[5] / Q      16                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[6] / Q      11                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[7] / Q      13                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[8] / Q      15                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[9] / Q      14                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[10] / Q     13                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un2_s_period_0 / Y                     75                            
+engine_control.s_time_c_top_0_a2[4] / Y                                                 34                            
+reset_unit.var_rst_st[5] / Q                                                            19                            
+reset_unit.RSTON_Buffering.un5_s_rstin_nfip_i_a3 / Y                                    269 : 1 asynchronous set/reset
+rate_i_pad[0] / Y                                                                       13                            
+rate_i_pad[1] / Y                                                                       29                            
+slone_i_pad / Y                                                                         23                            
+Production.production_VAR3_RDY_generation.var3_rdy_o / Q                                19                            
+FIELDRIVE_Transmitter.tx_serializer.Serializer_FSM_Sync.un2_nfip_rst_i / Y              25                            
+FIELDRIVE_Transmitter.tx_serializer.s_data_bit_to_crc_p / Y                             16                            
+FIELDRIVE_Transmitter.tx_serializer.nx_tx_st_0_sqmuxa_1_0_a3 / Y                        17                            
+model_constr_decoder.Model_Constructor_Decoder.un1_s_counter / Y                        16                            
+engine_control.ID_DAT_var.un13_s_idle_state_i_0_a2 / Y                                  13                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_write_bit_to_byte_p / Y            25                            
+Consumption.Consumption_Bytes_Processor.cons_pdu_byte_o_0_sqmuxa_i_a2 / Y               18                            
+engine_control.s_rx_bytes_c_inc_i_a2_0_a5_0_a3 / Y                                      12                            
+reset_unit.s_rstin_c_reinit_0_i_a2_0_a3 / Y                                             12                            
+FIELDRIVE_Transmitter.tx_serializer.Session_Timeout_Counter.un1_s_counter12 / Y         21                            
+JTAG_controller.s_bits_so_farlde_0 / Y                                                  15                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_manch_clk_p_o_0 / Y                 21                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.s_period_c_reinit / Y                  11                            
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.s_period_c_reinit_1 / Y                22                            
+JTAG_controller.Session_Timeout_Counter.un1_s_counter12 / Y                             21                            
+engine_control.Session_Timeout_Counter.un1_s_counter12 / Y                              21                            
+engine_control.s_time_c_load_0_a2_0_a2 / Y                                              18                            
+FIELDRIVE_Transmitter.tx_oscillator.s_period_c_reinit_0_a2 / Y                          11                            
+======================================================================================================================
+
+@N: FP130 |Promoting Net uclk_i_c on CLKBUF  uclk_i_pad 
+@N: FP130 |Promoting Net reset_unit.N_63 on CLKINT  I_219 
+@N: FP130 |Promoting Net FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un8_s_signif_edge_window.N_22 on CLKINT  I_220 
+@N: FP130 |Promoting Net wclk_i_c on CLKBUF  wclk_i_pad 
+Replicating Combinational Instance FIELDRIVE_Transmitter.tx_oscillator.s_period_c_reinit_0_a2, fanout 11 segments 2
+Replicating Combinational Instance engine_control.s_time_c_load_0_a2_0_a2, fanout 18 segments 2
+Replicating Combinational Instance engine_control.Session_Timeout_Counter.un1_s_counter12, fanout 21 segments 3
+Replicating Combinational Instance JTAG_controller.Session_Timeout_Counter.un1_s_counter12, fanout 21 segments 3
+Replicating Combinational Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.s_period_c_reinit_1, fanout 22 segments 3
+Replicating Combinational Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.s_period_c_reinit, fanout 11 segments 2
+Replicating Combinational Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_manch_clk_p_o_0, fanout 21 segments 3
+Replicating Combinational Instance JTAG_controller.s_bits_so_farlde_0, fanout 15 segments 2
+Replicating Combinational Instance FIELDRIVE_Transmitter.tx_serializer.Session_Timeout_Counter.un1_s_counter12, fanout 21 segments 3
+Replicating Combinational Instance reset_unit.s_rstin_c_reinit_0_i_a2_0_a3, fanout 12 segments 2
+Replicating Combinational Instance engine_control.s_rx_bytes_c_inc_i_a2_0_a5_0_a3, fanout 12 segments 2
+Replicating Combinational Instance Consumption.Consumption_Bytes_Processor.cons_pdu_byte_o_0_sqmuxa_i_a2, fanout 18 segments 2
+Replicating Combinational Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_write_bit_to_byte_p, fanout 25 segments 3
+Replicating Combinational Instance engine_control.ID_DAT_var.un13_s_idle_state_i_0_a2, fanout 13 segments 2
+Replicating Combinational Instance model_constr_decoder.Model_Constructor_Decoder.un1_s_counter, fanout 16 segments 2
+Replicating Combinational Instance FIELDRIVE_Transmitter.tx_serializer.nx_tx_st_0_sqmuxa_1_0_a3, fanout 17 segments 2
+Replicating Combinational Instance FIELDRIVE_Transmitter.tx_serializer.s_data_bit_to_crc_p, fanout 16 segments 2
+Replicating Combinational Instance FIELDRIVE_Transmitter.tx_serializer.Serializer_FSM_Sync.un2_nfip_rst_i, fanout 25 segments 3
+Replicating Sequential Instance Production.production_VAR3_RDY_generation.var3_rdy_o, fanout 19 segments 2
+Buffering slone_i_c, fanout 23 segments 3
+Buffering rate_i_c[1], fanout 29 segments 3
+Buffering rate_i_c[0], fanout 13 segments 2
+Replicating Sequential Instance reset_unit.var_rst_st[5], fanout 19 segments 2
+Replicating Combinational Instance engine_control.s_time_c_top_0_a2[4], fanout 34 segments 4
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[10], fanout 13 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[9], fanout 14 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[8], fanout 15 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[7], fanout 13 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[6], fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[5], fanout 16 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[4], fanout 15 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[3], fanout 13 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[2], fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.rx_periods_count.s_counter[1], fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[1], fanout 24 segments 3
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[0], fanout 26 segments 3
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deglitcher.s_fd_rxd_filt, fanout 13 segments 2
+Replicating Sequential Instance Production.production_bytes_retriever.s_byte_index_d1[1], fanout 11 segments 2
+Replicating Sequential Instance Production.production_bytes_retriever.s_byte_index_d1[3], fanout 13 segments 2
+Replicating Sequential Instance Production.production_bytes_retriever.s_byte_index_d1[2], fanout 13 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[9], fanout 13 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[8], fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[7], fanout 12 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[5], fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[4], fanout 11 segments 2
+Replicating Combinational Instance FIELDRIVE_Transmitter.tx_serializer.s_bit_index_decr_p_i, fanout 12 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_serializer.Outgoing_Bits_Index.s_counter[3], fanout 15 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_serializer.Outgoing_Bits_Index.s_counter[2], fanout 17 segments 2
+Replicating Sequential Instance JTAG_controller.jc_st[3], fanout 32 segments 4
+Replicating Sequential Instance JTAG_controller.jc_st[1], fanout 11 segments 2
+Replicating Sequential Instance engine_control.control_st[0], fanout 14 segments 2
+Replicating Sequential Instance engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[1], fanout 11 segments 2
+Replicating Sequential Instance engine_control.Prod_Bytes_Counter.s_counter[3], fanout 11 segments 2
+Replicating Sequential Instance engine_control.Rx_Bytes_Counter.s_counter[7], fanout 12 segments 2
+Replicating Sequential Instance engine_control.Rx_Bytes_Counter.s_counter[3], fanout 12 segments 2
+Replicating Sequential Instance engine_control.Rx_Bytes_Counter.s_counter[2], fanout 15 segments 2
+Replicating Sequential Instance engine_control.s_var[7], fanout 14 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[7], fanout 12 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[6], fanout 15 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[5], fanout 15 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[4], fanout 19 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[3], fanout 14 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[2], fanout 17 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[1], fanout 17 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte[0], fanout 20 segments 2
+Replicating Combinational Instance reset_unit.wb_rst_o, fanout 12 segments 2
+Replicating Combinational Instance engine_control.Rx_Bytes_Counter.s_counterlde, fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Transmitter.tx_serializer.Outgoing_Bits_Index.s_counter[0], fanout 11 segments 2
+Replicating Sequential Instance FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.s_byte_ready_p_d1, fanout 11 segments 2
+Finished technology mapping (Time elapsed 0h:00m:04s; Memory used current: 75MB peak: 76MB)
+
+Finished technology timing optimizations and critical path resynthesis (Time elapsed 0h:00m:04s; Memory used current: 75MB peak: 76MB)
+
+Replicating Combinational Instance rate_i_pad_1[1], fanout 13 segments 2
+
+Added 6 Buffers
+Added 80 Cells via replication
+	Added 48 Sequential Cells via replication
+	Added 32 Combinational Cells via replication
+Finished restoring hierarchy (Time elapsed 0h:00m:04s; Memory used current: 75MB peak: 76MB)
+
+Writing Analyst data base C:\ohr\cern-fip\trunk\hdl\cad\Synplify\nanofip.srm
+Finished Writing Netlist Databases (Time elapsed 0h:00m:04s; Memory used current: 74MB peak: 76MB)
+
+Writing EDIF Netlist and constraint files
+D-2009.12
+Finished Writing EDIF Netlist and constraint files (Time elapsed 0h:00m:05s; Memory used current: 75MB peak: 76MB)
+
+Found clock uclk_i with period 25.00ns 
+Found clock wclk_i with period 25.00ns 
+
+
+##### START OF TIMING REPORT #####[
+# Timing Report written on Tue Nov 01 17:23:26 2011
+#
+
+
+Top view:               nanofip
+Library name:           PA3
+Operating conditions:   COMWCSTD ( T = 70.0, V = 1.42, P = 1.74, tree_type = balanced_tree )
+Requested Frequency:    40.0 MHz
+Wire load mode:         top
+Wire load model:        proasic3
+Paths requested:        5
+Constraint File(s):    C:\ohr\cern-fip\trunk\hdl\cad\Synplify\synplify_constraints.sdc
+                       
+@N: MT320 |This timing report estimates place and route data. Please look at the place and route timing report for final timing..
+
+@N: MT322 |Clock constraints cover only FF-to-FF paths associated with the clock..
+
+
+
+Performance Summary 
+*******************
+
+
+Worst slack in design: 3.317
+
+                   Requested     Estimated     Requested     Estimated                Clock        Clock              
+Starting Clock     Frequency     Frequency     Period        Period        Slack      Type         Group              
+----------------------------------------------------------------------------------------------------------------------
+uclk_i             40.0 MHz      46.1 MHz      25.000        21.683        3.317      declared     default_clkgroup__1
+wclk_i             40.0 MHz      196.0 MHz     25.000        5.103         19.898     declared     default_clkgroup__2
+======================================================================================================================
+
+
+
+
+
+Clock Relationships
+*******************
+
+Clocks            |    rise  to  rise    |    fall  to  fall   |    rise  to  fall   |    fall  to  rise 
+---------------------------------------------------------------------------------------------------------
+Starting  Ending  |  constraint  slack   |  constraint  slack  |  constraint  slack  |  constraint  slack
+---------------------------------------------------------------------------------------------------------
+uclk_i    uclk_i  |  25.000      3.317   |  No paths    -      |  No paths    -      |  No paths    -    
+wclk_i    wclk_i  |  25.000      19.898  |  No paths    -      |  No paths    -      |  No paths    -    
+=========================================================================================================
+ Note: 'No paths' indicates there are no paths in the design for that pair of clock edges.
+       'Diff grp' indicates that paths exist but the starting clock and ending clock are in different clock groups.
+
+
+
+Interface Information 
+*********************
+
+		No IO constraint found 
+
+
+
+====================================
+Detailed Report for Clock: uclk_i
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                                                                         Starting                                                 Arrival          
+Instance                                                                 Reference     Type     Pin     Net                       Time        Slack
+                                                                         Clock                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[2]       uclk_i        DFN1     Q       s_prod_data_lgth[2]       0.737       3.317
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[0]       uclk_i        DFN1     Q       s_prod_data_lgth[0]       0.737       3.610
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[1]       uclk_i        DFN1     Q       s_prod_data_lgth[1]       0.737       3.743
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[4]       uclk_i        DFN1     Q       s_prod_data_lgth[4]       0.737       4.056
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[3]       uclk_i        DFN1     Q       s_prod_data_lgth[3]       0.737       4.195
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o_0[1]     uclk_i        DFN1     Q       s_prod_data_lgth_0[1]     0.737       4.604
+Production.production_bytes_retriever.s_byte_index_d1[5]                 uclk_i        DFN1     Q       s_byte_index_d1[5]        0.737       4.897
+Production.production_bytes_retriever.s_byte_index_d1[7]                 uclk_i        DFN1     Q       s_byte_index_d1[7]        0.737       4.925
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[5]       uclk_i        DFN1     Q       s_prod_data_lgth[5]       0.737       5.029
+Production.production_bytes_retriever.s_byte_index_d1[4]                 uclk_i        DFN1     Q       s_byte_index_d1[4]        0.737       5.036
+===================================================================================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                                                                        Starting                                              Required          
+Instance                                                                Reference     Type     Pin     Net                    Time         Slack
+                                                                        Clock                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[2]                      uclk_i        DFN1     D       s_data_byte_RNO[2]     24.427       3.317
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[3]                      uclk_i        DFN1     D       s_data_byte_RNO[3]     24.427       3.317
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[4]                      uclk_i        DFN1     D       s_data_byte_RNO[4]     24.427       3.317
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[5]                      uclk_i        DFN1     D       s_data_byte_RNO[5]     24.427       3.317
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[6]                      uclk_i        DFN1     D       s_data_byte_RNO[6]     24.427       3.317
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[7]                      uclk_i        DFN1     D       s_data_byte_RNO[7]     24.427       3.317
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[0]                      uclk_i        DFN1     D       s_data_byte_RNO[0]     24.427       3.741
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[1]                      uclk_i        DFN1     D       s_data_byte_RNO[1]     24.427       3.741
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter[9]       uclk_i        DFN1     D       s_counter_n9           24.427       6.561
+FIELDRIVE_Transmitter.tx_oscillator.tx_periods_count.s_counter_0[9]     uclk_i        DFN1     D       s_counter_n9           24.427       6.561
+================================================================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      25.000
+    - Setup time:                            0.573
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         24.427
+
+    - Propagation time:                      21.109
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (critical) :                     3.317
+
+    Number of logic level(s):                13
+    Starting point:                          engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[2] / Q
+    Ending point:                            FIELDRIVE_Transmitter.tx_serializer.s_data_byte[2] / D
+    The start point is clocked by            uclk_i [rising] on pin CLK
+    The end   point is clocked by            uclk_i [rising] on pin CLK
+
+Instance / Net                                                                             Pin      Pin               Arrival     No. of    
+Name                                                                             Type      Name     Dir     Delay     Time        Fan Out(s)
+--------------------------------------------------------------------------------------------------------------------------------------------
+engine_control.Produced_Data_Length_Calculator.prod_data_lgth_o[2]               DFN1      Q        Out     0.737     0.737       -         
+s_prod_data_lgth[2]                                                              Net       -        -       1.669     -           9         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_a_4.I_16    OR3       C        In      -         2.405       -         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_a_4.I_16    OR3       Y        Out     0.751     3.156       -         
+DWACT_FDEC_E_0[0]                                                                Net       -        -       1.184     -           4         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_a_4.I_19    OR2       B        In      -         4.340       -         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_a_4.I_19    OR2       Y        Out     0.646     4.986       -         
+N_17                                                                             Net       -        -       0.322     -           1         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_a_4.I_20    XNOR2     A        In      -         5.308       -         
+Production.production_bytes_retriever.Bytes_Generation\.un14_slone_i_a_4.I_20    XNOR2     Y        Out     0.488     5.796       -         
+un14_slone_i_a_4[4]                                                              Net       -        -       0.322     -           1         
+Production.production_bytes_retriever.s_byte_index_d1_RNIHF3T[4]                 XNOR2     B        In      -         6.118       -         
+Production.production_bytes_retriever.s_byte_index_d1_RNIHF3T[4]                 XNOR2     Y        Out     0.937     7.054       -         
+s_byte_index_d1_RNIHF3T[4]                                                       Net       -        -       0.322     -           1         
+Production.production_bytes_retriever.s_byte_index_d1_0_0_RNIJE0T2[2]            NOR3C     C        In      -         7.376       -         
+Production.production_bytes_retriever.s_byte_index_d1_0_0_RNIJE0T2[2]            NOR3C     Y        Out     0.666     8.041       -         
+un14_slone_i_NE_3                                                                Net       -        -       0.322     -           1         
+Production.production_bytes_retriever.s_byte_index_d1_RNIK71I6[5]                NOR3C     A        In      -         8.363       -         
+Production.production_bytes_retriever.s_byte_index_d1_RNIK71I6[5]                NOR3C     Y        Out     0.525     8.888       -         
+un14_slone_i_NE_i_0                                                              Net       -        -       1.279     -           5         
+Production.production_bytes_retriever.s_byte_index_d1_RNIOM40B[5]                OA1A      A        In      -         10.167      -         
+Production.production_bytes_retriever.s_byte_index_d1_RNIOM40B[5]                OA1A      Y        Out     0.636     10.803      -         
+un21_slone_i                                                                     Net       -        -       1.669     -           9         
+Production.production_bytes_retriever.s_byte_index_d1_RNI59A0B[5]                NOR2B     B        In      -         12.472      -         
+Production.production_bytes_retriever.s_byte_index_d1_RNI59A0B[5]                NOR2B     Y        Out     0.627     13.099      -         
+byte_o_6_sqmuxa_1                                                                Net       -        -       1.669     -           9         
+Production.production_bytes_retriever.s_byte_index_d1_RNIRRVTB[5]                NOR3C     C        In      -         14.767      -         
+Production.production_bytes_retriever.s_byte_index_d1_RNIRRVTB[5]                NOR3C     Y        Out     0.641     15.409      -         
+byte_o_5_sqmuxa                                                                  Net       -        -       1.639     -           8         
+Production.production_bytes_retriever.s_slone_bytes_RNIBKI4O[2]                  AOI1B     B        In      -         17.048      -         
+Production.production_bytes_retriever.s_slone_bytes_RNIBKI4O[2]                  AOI1B     Y        Out     0.911     17.958      -         
+byte_o_0_iv_7[2]                                                                 Net       -        -       0.322     -           1         
+Production.production_bytes_retriever.s_slone_bytes_RNIAULG82[2]                 OR3C      C        In      -         18.280      -         
+Production.production_bytes_retriever.s_slone_bytes_RNIAULG82[2]                 OR3C      Y        Out     0.666     18.945      -         
+s_byte_to_tx[2]                                                                  Net       -        -       0.322     -           1         
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte_RNO_0[2]                         MX2       B        In      -         19.267      -         
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte_RNO_0[2]                         MX2       Y        Out     0.572     19.839      -         
+N_70                                                                             Net       -        -       0.322     -           1         
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte_RNO[2]                           NOR2B     B        In      -         20.160      -         
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte_RNO[2]                           NOR2B     Y        Out     0.627     20.788      -         
+s_data_byte_RNO[2]                                                               Net       -        -       0.322     -           1         
+FIELDRIVE_Transmitter.tx_serializer.s_data_byte[2]                               DFN1      D        In      -         21.109      -         
+============================================================================================================================================
+Total path delay (propagation time + setup) of 21.683 is 10.003(46.1%) logic and 11.679(53.9%) route.
+Path delay compensated for clock skew. Clock skew is added to clock-to-out value, and is subtracted from setup time value
+
+
+
+
+====================================
+Detailed Report for Clock: wclk_i
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                                          Starting                                               Arrival           
+Instance                                  Reference     Type       Pin     Net                   Time        Slack 
+                                          Clock                                                                    
+-------------------------------------------------------------------------------------------------------------------
+WISHBONE_controller.s_wb_stb_synch[3]     wclk_i        DFN1       Q       s_wb_stb_synch[3]     0.737       19.898
+WISHBONE_controller.s_wb_stb_synch[2]     wclk_i        DFN1       Q       s_wb_stb_synch[2]     0.580       20.117
+WISHBONE_controller.s_wb_cyc_synch[2]     wclk_i        DFN1       Q       s_wb_cyc_synch[2]     0.580       20.280
+reset_unit.s_wb_por_synch[1]              wclk_i        DFN1P0     Q       s_wb_por_synch[1]     0.737       20.422
+WISHBONE_controller.s_wb_we_synch[2]      wclk_i        DFN1       Q       s_wb_we_synch[2]      0.737       21.276
+WISHBONE_controller.s_wb_cyc_synch[0]     wclk_i        DFN1       Q       s_wb_cyc_synch[0]     0.737       22.419
+WISHBONE_controller.s_wb_cyc_synch[1]     wclk_i        DFN1       Q       s_wb_cyc_synch[1]     0.737       22.419
+WISHBONE_controller.s_wb_stb_synch[0]     wclk_i        DFN1       Q       s_wb_stb_synch[0]     0.737       22.419
+WISHBONE_controller.s_wb_stb_synch[1]     wclk_i        DFN1       Q       s_wb_stb_synch[1]     0.737       22.419
+WISHBONE_controller.s_wb_we_synch[0]      wclk_i        DFN1       Q       s_wb_we_synch[0]      0.737       22.419
+===================================================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                                          Starting                                                 Required           
+Instance                                  Reference     Type     Pin     Net                       Time         Slack 
+                                          Clock                                                                       
+----------------------------------------------------------------------------------------------------------------------
+WISHBONE_controller.wb_ack_p_o            wclk_i        DFN1     D       wb_ack_p_o_RNO            24.461       19.898
+WISHBONE_controller.wb_ack_prod_p_o       wclk_i        DFI1     D       wb_ack_prod_p_o_RNO       24.461       20.162
+WISHBONE_controller.s_wb_cyc_synch[0]     wclk_i        DFN1     D       s_wb_cyc_synch_RNO[0]     24.461       20.541
+WISHBONE_controller.s_wb_cyc_synch[1]     wclk_i        DFN1     D       s_wb_cyc_synch_RNO[1]     24.461       20.541
+WISHBONE_controller.s_wb_cyc_synch[2]     wclk_i        DFN1     D       s_wb_cyc_synch_RNO[2]     24.461       20.541
+WISHBONE_controller.s_wb_stb_synch[0]     wclk_i        DFN1     D       s_wb_stb_synch_0[0]       24.461       20.541
+WISHBONE_controller.s_wb_stb_synch[1]     wclk_i        DFN1     D       s_wb_stb_synch_0[1]       24.461       20.541
+WISHBONE_controller.s_wb_stb_synch[2]     wclk_i        DFN1     D       s_wb_stb_synch_0[2]       24.461       20.541
+WISHBONE_controller.s_wb_stb_synch[3]     wclk_i        DFN1     D       s_wb_stb_synch_0[3]       24.461       20.541
+WISHBONE_controller.s_wb_we_synch[0]      wclk_i        DFN1     D       s_wb_we_synch_RNO[0]      24.461       20.541
+======================================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      25.000
+    - Setup time:                            0.539
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         24.461
+
+    - Propagation time:                      4.564
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (non-critical) :                 19.898
+
+    Number of logic level(s):                3
+    Starting point:                          WISHBONE_controller.s_wb_stb_synch[3] / Q
+    Ending point:                            WISHBONE_controller.wb_ack_p_o / D
+    The start point is clocked by            wclk_i [rising] on pin CLK
+    The end   point is clocked by            wclk_i [rising] on pin CLK
+
+Instance / Net                                             Pin      Pin               Arrival     No. of    
+Name                                              Type     Name     Dir     Delay     Time        Fan Out(s)
+------------------------------------------------------------------------------------------------------------
+WISHBONE_controller.s_wb_stb_synch[3]             DFN1     Q        Out     0.737     0.737       -         
+s_wb_stb_synch[3]                                 Net      -        -       0.322     -           1         
+WISHBONE_controller.s_wb_stb_synch_RNISOJ9[3]     OR3B     C        In      -         1.058       -         
+WISHBONE_controller.s_wb_stb_synch_RNISOJ9[3]     OR3B     Y        Out     0.751     1.809       -         
+un9_s_wb_ack_read_p_1                             Net      -        -       0.386     -           2         
+WISHBONE_controller.s_wb_we_synch_RNIFBVE[2]      OR3B     C        In      -         2.195       -         
+WISHBONE_controller.s_wb_we_synch_RNIFBVE[2]      OR3B     Y        Out     0.751     2.946       -         
+un9_s_wb_ack_write_p_i                            Net      -        -       0.386     -           2         
+WISHBONE_controller.wb_ack_p_o_RNO                AOI1     A        In      -         3.332       -         
+WISHBONE_controller.wb_ack_p_o_RNO                AOI1     Y        Out     0.911     4.242       -         
+wb_ack_p_o_RNO                                    Net      -        -       0.322     -           1         
+WISHBONE_controller.wb_ack_p_o                    DFN1     D        In      -         4.564       -         
+============================================================================================================
+Total path delay (propagation time + setup) of 5.102 is 3.688(72.3%) logic and 1.415(27.7%) route.
+Path delay compensated for clock skew. Clock skew is added to clock-to-out value, and is subtracted from setup time value
+
+
+
+##### END OF TIMING REPORT #####]
+
+--------------------------------------------------------------------------------
+Target Part: A3P400_PQFP208_Std
+Report for cell nanofip.struc
+  Core Cell usage:
+              cell count     area count*area
+              AND2    26      1.0       26.0
+             AND2A    12      1.0       12.0
+              AND3    15      1.0       15.0
+             AND3A     5      1.0        5.0
+               AO1    35      1.0       35.0
+              AO12     1      1.0        1.0
+              AO13     2      1.0        2.0
+              AO15     1      1.0        1.0
+              AO16     1      1.0        1.0
+              AO1A     6      1.0        6.0
+              AO1B    38      1.0       38.0
+              AO1C    17      1.0       17.0
+              AO1D    10      1.0       10.0
+              AOI1    10      1.0       10.0
+             AOI1A    24      1.0       24.0
+             AOI1B    41      1.0       41.0
+              AOI5     1      1.0        1.0
+               AX1     2      1.0        2.0
+              AX1B     1      1.0        1.0
+              AX1C     1      1.0        1.0
+              AX1E    17      1.0       17.0
+             AXOI3     1      1.0        1.0
+              BUFF     7      1.0        7.0
+            CLKINT     2      0.0        0.0
+               GND    48      0.0        0.0
+               INV     5      1.0        5.0
+              MAJ3     1      1.0        1.0
+              MIN3     5      1.0        5.0
+               MX2   164      1.0      164.0
+              MX2A     5      1.0        5.0
+              MX2B     5      1.0        5.0
+              MX2C    46      1.0       46.0
+              NOR2   112      1.0      112.0
+             NOR2A   157      1.0      157.0
+             NOR2B   285      1.0      285.0
+              NOR3    31      1.0       31.0
+             NOR3A    63      1.0       63.0
+             NOR3B    24      1.0       24.0
+             NOR3C    83      1.0       83.0
+               OA1    34      1.0       34.0
+              OA1A    38      1.0       38.0
+              OA1B    10      1.0       10.0
+              OA1C     6      1.0        6.0
+              OAI1    23      1.0       23.0
+               OR2   135      1.0      135.0
+              OR2A   138      1.0      138.0
+              OR2B    91      1.0       91.0
+               OR3    57      1.0       57.0
+              OR3A    27      1.0       27.0
+              OR3B    33      1.0       33.0
+              OR3C    71      1.0       71.0
+               VCC    48      0.0        0.0
+               XA1    23      1.0       23.0
+              XA1A    14      1.0       14.0
+              XA1B    37      1.0       37.0
+              XA1C    26      1.0       26.0
+              XAI1    10      1.0       10.0
+             XAI1A     1      1.0        1.0
+             XNOR2   107      1.0      107.0
+             XNOR3     4      1.0        4.0
+               XO1    34      1.0       34.0
+              XO1A    43      1.0       43.0
+              XOR2    83      1.0       83.0
+              XOR3     5      1.0        5.0
+              ZOR3     2      1.0        2.0
+
+
+              DFI1     1      1.0        1.0
+              DFN1   537      1.0      537.0
+            DFN1E1    55      1.0       55.0
+            DFN1P0     5      1.0        5.0
+            RAM4K9     3      0.0        0.0
+                   -----          ----------
+             TOTAL  3011              2910.0
+
+
+  IO Cell usage:
+              cell count
+            CLKBUF     2
+             INBUF    62
+            OUTBUF    34
+                   -----
+             TOTAL    98
+
+
+Core Cells         : 2910 of 9216 (32%)
+IO Cells           : 98
+
+  RAM/ROM Usage Summary
+Block Rams : 3 of 12 (25%)
+
+Mapper successful!
+Process took 0h:00m:05s realtime, 0h:00m:05s cputime
+# Tue Nov 01 17:23:26 2011
+
+###########################################################]

@@ -1,0 +1,201 @@
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd":213:7:213:13|Synthesizing work.nanofip.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_wb_controller.vhd":60:7:60:22|Synthesizing work.wf_wb_controller.rtl 
+Post processing for work.wf_wb_controller.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_model_constr_decoder.vhd":72:7:72:29|Synthesizing work.wf_model_constr_decoder.rtl 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_model_constr_decoder.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":104:7:104:23|Synthesizing work.wf_engine_control.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":195:21:195:22|Using onehot encoding for type control_st_t (idle="1000000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":425:6:425:37|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":587:6:587:19|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":85:7:85:28|Synthesizing work.wf_prod_data_lgth_calc.behavior 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_prod_data_lgth_calc.behavior
+Post processing for work.wf_engine_control.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":79:7:79:24|Synthesizing work.wf_jtag_controller.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":115:16:115:17|Using onehot encoding for type jc_st_t (idle="1000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":230:4:230:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":276:4:276:18|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_jtag_controller.rtl
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(1) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(2) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(3) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(4) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(5) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(6) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Register bit jc_tdo_byte_o(7) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 7 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 6 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 5 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 4 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 3 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 2 of jc_tdo_byte_o(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":470:4:470:5|Pruning Register bit 1 of jc_tdo_byte_o(7 downto 0)  
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_fd_transmitter.vhd":96:7:96:23|Synthesizing work.wf_fd_transmitter.struc 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":83:7:83:22|Synthesizing work.wf_tx_serializer.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":128:16:128:17|Using onehot encoding for type tx_st_t (idle="1000000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":299:6:299:19|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":385:6:385:19|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_crc.vhd":67:7:67:12|Synthesizing work.wf_crc.rtl 
+Post processing for work.wf_crc.rtl
+Post processing for work.wf_tx_serializer.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_osc.vhd":73:7:73:15|Synthesizing work.wf_tx_osc.rtl 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_tx_osc.rtl
+Post processing for work.wf_fd_transmitter.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_production.vhd":110:7:110:19|Synthesizing work.wf_production.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":126:7:126:25|Synthesizing work.wf_status_bytes_gen.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_status_bytes_gen.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":122:7:122:29|Synthesizing work.wf_prod_bytes_retriever.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_dualram_512x8_clka_rd_clkb_wr.vhd":69:7:69:38|Synthesizing work.wf_dualram_512x8_clka_rd_clkb_wr.syn 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\dualram_512x8.vhd":64:7:64:19|Synthesizing work.dualram_512x8.ram4k9 
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":2884:10:2884:15|Synthesizing proasic3.ram4k9.syn_black_box 
+Post processing for proasic3.ram4k9.syn_black_box
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":1782:10:1782:12|Synthesizing proasic3.gnd.syn_black_box 
+Post processing for proasic3.gnd.syn_black_box
+@N: CD630 :"C:\Synopsys\fpga_D200912\lib\proasic\proasic3.vhd":2722:10:2722:12|Synthesizing proasic3.vcc.syn_black_box 
+Post processing for proasic3.vcc.syn_black_box
+Post processing for work.dualram_512x8.ram4k9
+Post processing for work.wf_dualram_512x8_clka_rd_clkb_wr.syn
+Post processing for work.wf_prod_bytes_retriever.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":61:7:61:20|Synthesizing work.wf_prod_permit.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_prod_permit.rtl
+Post processing for work.wf_production.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_fd_receiver.vhd":95:7:95:20|Synthesizing work.wf_fd_receiver.struc 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":123:7:123:24|Synthesizing work.wf_rx_deserializer.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":175:16:175:17|Using onehot encoding for type rx_st_t (idle="100000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":335:4:335:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":390:4:390:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_decr_counter.vhd":58:7:58:21|Synthesizing work.wf_decr_counter.rtl 
+Post processing for work.wf_decr_counter.rtl
+Post processing for work.wf_rx_deserializer.rtl
+@N: CD630 :"C:\ohr\cern-FIP\trunk\hdl\design\wf_rx_osc.vhd":81:7:81:15|Synthesizing work.wf_rx_osc.rtl 
+Post processing for work.wf_rx_osc.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deglitcher.vhd":63:7:63:22|Synthesizing work.wf_rx_deglitcher.rtl 
+Post processing for work.wf_rx_deglitcher.rtl
+Post processing for work.wf_fd_receiver.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_consumption.vhd":99:7:99:20|Synthesizing work.wf_consumption.struc 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":101:7:101:21|Synthesizing work.wf_cons_outcome.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_cons_outcome.rtl
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":98:7:98:29|Synthesizing work.wf_cons_bytes_processor.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_package.vhd":282:13:282:14|Using onehot encoding for type t_var (var_presence="100000000")
+Post processing for work.wf_cons_bytes_processor.rtl
+Post processing for work.wf_consumption.struc
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":146:7:146:19|Synthesizing work.wf_reset_unit.rtl 
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":194:20:194:21|Using onehot encoding for type rstin_st_t (idle="10000")
+@N: CD231 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":202:20:202:21|Using onehot encoding for type var_rst_st_t (var_rst_idle="100000")
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":368:4:368:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":423:4:423:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":565:4:565:17|OTHERS clause is not synthesized 
+@W: CD604 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":639:4:639:17|OTHERS clause is not synthesized 
+@N: CD630 :"C:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|Synthesizing work.wf_incr_counter.rtl 
+Post processing for work.wf_incr_counter.rtl
+Post processing for work.wf_reset_unit.rtl
+Post processing for work.nanofip.struc
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":476:6:476:7|Trying to extract state machine for register var_rst_st
+Extracted state machine for register var_rst_st
+State machine has 6 reachable states with original encodings of:
+   000001
+   000010
+   000100
+   001000
+   010000
+   100000
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_reset_unit.vhd":294:6:294:7|Trying to extract state machine for register rstin_st
+Extracted state machine for register rstin_st
+State machine has 5 reachable states with original encodings of:
+   00001
+   00010
+   00100
+   01000
+   10000
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":120:4:120:8|Input port bits 0 to 1 of var_i(0 to 8) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":120:4:120:8|Input port bit 4 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_bytes_processor.vhd":120:4:120:8|Input port bits 7 to 8 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":121:4:121:19|Input port bits 7 to 6 of cons_ctrl_byte_i(7 downto 0) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":121:4:121:19|Input port bit 2 of cons_ctrl_byte_i(7 downto 0) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":130:4:130:8|Input port bits 0 to 1 of var_i(0 to 8) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":130:4:130:8|Input port bit 4 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_cons_outcome.vhd":130:4:130:8|Input port bits 7 to 8 of var_i(0 to 8) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_rx_deserializer.vhd":220:6:220:7|Trying to extract state machine for register rx_st
+Extracted state machine for register rx_st
+State machine has 6 reachable states with original encodings of:
+   000001
+   000010
+   000100
+   001000
+   010000
+   100000
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":70:4:70:8|Input port bits 0 to 3 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_permit.vhd":70:4:70:8|Input port bits 5 to 8 of var_i(0 to 8) are unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":161:4:161:8|Input port bit 0 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":161:4:161:8|Input port bits 2 to 3 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_bytes_retriever.vhd":161:4:161:8|Input port bits 5 to 6 of var_i(0 to 8) are unused 
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Register bit s_nFIP_status_byte(0) is always 0, optimizing ...
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Register bit s_nFIP_status_byte(1) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Pruning Register bit 1 of s_nFIP_status_byte(7 downto 0)  
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":298:4:298:5|Pruning Register bit 0 of s_nFIP_status_byte(7 downto 0)  
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":159:4:159:8|Input port bit 0 of var_i(0 to 8) is unused 
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":159:4:159:8|Input port bit 4 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_status_bytes_gen.vhd":159:4:159:8|Input port bits 7 to 8 of var_i(0 to 8) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_tx_serializer.vhd":210:4:210:5|Trying to extract state machine for register tx_st
+Extracted state machine for register tx_st
+State machine has 7 reachable states with original encodings of:
+   0000001
+   0000010
+   0000100
+   0001000
+   0010000
+   0100000
+   1000000
+@W: CL189 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":376:4:376:5|Register bit s_bits_so_far(0) is always 0, optimizing ...
+@W: CL260 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":376:4:376:5|Pruning Register bit 0 of s_bits_so_far(15 downto 0)  
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_jtag_controller.vhd":168:6:168:7|Trying to extract state machine for register jc_st
+Extracted state machine for register jc_st
+State machine has 4 reachable states with original encodings of:
+   0001
+   0010
+   0100
+   1000
+@W: CL247 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":101:4:101:8|Input port bit 0 of var_i(0 to 8) is unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":101:4:101:8|Input port bits 2 to 3 of var_i(0 to 8) are unused 
+@W: CL246 :"C:\ohr\cern-fip\trunk\hdl\design\wf_prod_data_lgth_calc.vhd":101:4:101:8|Input port bits 5 to 6 of var_i(0 to 8) are unused 
+@N: CL201 :"C:\ohr\cern-fip\trunk\hdl\design\wf_engine_control.vhd":268:4:268:5|Trying to extract state machine for register control_st
+Extracted state machine for register control_st
+State machine has 10 reachable states with original encodings of:
+   0000000001
+   0000000010
+   0000000100
+   0000001000
+   0000010000
+   0000100000
+   0001000000
+   0010000000
+   0100000000
+   1000000000
+@W: CL159 :"C:\ohr\cern-fip\trunk\hdl\design\nanofip.vhd":228:2:228:11|Input fd_rxcdn_i is unused

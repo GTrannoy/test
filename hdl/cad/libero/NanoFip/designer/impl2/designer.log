@@ -8,7 +8,7 @@ Imported the files:
    C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
    C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
 
-The Import command succeeded ( 00:00:04 )
+The Import command succeeded ( 00:00:28 )
 Info: The design C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb was
       last modified by software version 8.6.1.3.
 Opened an existing Libero design
@@ -24,7 +24,6 @@ C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb.
 'IDE_DESIGNERVIEW_LASTREV' set to '2'
 
 The Execute Script command succeeded ( 00:00:00 )
-Checking for software updates...
 =====================================================================
 Parameters used to run compile:
 ===============================
@@ -36,7 +35,7 @@ Source      : C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
               C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
 Format      : EDIF
 Topcell     : nanofip
-Speed grade : -2
+Speed grade : STD
 Temp        : 0:25:70
 Voltage     : 1.58:1.50:1.42
 
@@ -61,186 +60,96 @@ report_high_fanout_nets_limit      : 10
 Compile starts ...
 
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[0] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[1] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[2] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[3] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[4] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[5] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[6] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[7] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0_1 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0_1 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTA8 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB1 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB2 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB3 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB4 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB5 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB6 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB7 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0_1 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB8 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0 drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTA8_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB0_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB1_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB2_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB3_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB4_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB5_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB6_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB7_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0_1 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTA8_0 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTB8_0 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTA8_1 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTB8_1 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTA8 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTB8 drives no load.
-Warning: Top level port fx_rxa_i is not connected to any IO pad
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB8_0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
 
 Netlist Optimization Report
 ===========================
@@ -250,11 +159,378 @@ Optimized macros:
   - Buffers:                0
   - Inverters:              0
   - Tieoff:                 0
-  - Logic combining:        75
+  - Logic combining:        102
 
-    Total macros optimized  75
+    Total macros optimized  102
+Info: CMP702: Promoted the net 'FIELDRIVE_Receiver/s_sample_manch_bit_p' because of PDC
+      constraints (assign_quadrant_clock or assign_global_clock).
 
-There were 0 error(s) and 61 warning(s) in this design.
+There were 0 error(s) and 31 warning(s) in this design.
+=====================================================================
+
+Reading previous post-compile physical placement constraints.
+
+
+There were 0 error(s) and 0 warning(s).
+
+=====================================================================
+
+Reading user pdc (Physical Design Constraints) file(s) postcompile
+
+
+There were 0 error(s) and 0 warning(s) in reading the user pdc.
+
+=====================================================================
+Compile report:
+===============
+
+    CORE                     Used:   4459  Total:   9216   (48.38%)
+    IO (W/ clocks)           Used:     98  Total:    151   (64.90%)
+    Differential IO          Used:      0  Total:     34   (0.00%)
+    GLOBAL (Chip+Quadrant)   Used:      7  Total:     18   (38.89%)
+    PLL                      Used:      0  Total:      1   (0.00%)
+    RAM/FIFO                 Used:      3  Total:     12   (25.00%)
+    Low Static ICC           Used:      0  Total:      1   (0.00%)
+    FlashROM                 Used:      0  Total:      1   (0.00%)
+    User JTAG                Used:      0  Total:      1   (0.00%)
+
+Global Information:
+
+    Type            | Used   | Total
+    ----------------|--------|-------------
+    Chip global     | 6      | 6  (100.00%)
+    Quadrant global | 1      | 12 (8.33%)
+
+Core Information:
+
+    Type    | Instances    | Core tiles
+    --------|--------------|-----------
+    COMB    | 2812         | 2812
+    SEQ     | 1647         | 1647
+
+I/O Function:
+
+    Type                          | w/o register  | w/ register  | w/ DDR register
+    ------------------------------|---------------|--------------|----------------
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 34            | 0            | 0
+    Bidirectional I/O             | 0             | 0            | 0
+    Differential Input I/O Pairs  | 0             | 0            | 0
+    Differential Output I/O Pairs | 0             | 0            | 0
+
+I/O Technology:
+
+                                    |   Voltages    |             I/Os
+    --------------------------------|-------|-------|-------|--------|--------------
+    I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
+    --------------------------------|-------|-------|-------|--------|--------------
+    LVTTL                           | 3.30v | N/A   | 64    | 34     | 0
+
+I/O Placement:
+
+    Locked  :  98 ( 100.00% )
+    Placed  :   0
+    UnPlaced:   0
+
+Net information report:
+=======================
+
+The following nets have been assigned to a chip global resource:
+    Fanout  Type          Name
+    --------------------------
+    1555    CLK_NET       Net   : uclk_i_c
+                          Driver: uclk_i_pad
+                          Source: NETLIST
+    412     INT_NET       Net   : Production.nfip_rst_i_i_1
+                          Driver: reset_unit/var_rst_st_maj_RNI3U8C_0[1]
+                          Source: NETLIST
+    85      INT_NET       Net   : JTAG_controller/jc_st_d[3]
+                          Driver: JTAG_controller/jc_st_maj_RNI7QVF_2[1]
+                          Source: NETLIST
+    82      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.N_22
+                          Driver: I_269
+                          Source: NETLIST
+    55      CLK_NET       Net   : jc_tck_o_c
+                          Driver: JTAG_controller/s_tck_maj_RNIMFD3
+                          Source: NETLIST
+    44      CLK_NET       Net   : wclk_i_c
+                          Driver: wclk_i_pad
+                          Source: NETLIST
+
+The following nets have been assigned to a quadrant global resource:
+    Fanout  Type          Name
+    --------------------------
+    23      INT_NET       Net   : FIELDRIVE_Receiver/s_sample_manch_bit_p
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Oscillator/s_manch_clk_d1_maj_RNIQSK3_CLKINT
+                          Region: quadrant_LL
+
+High fanout nets in the post compile netlist:
+    Fanout  Type          Name
+    --------------------------
+    40      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.A_i[3]
+                          Driver: engine_control/s_time_c_top_0_0_a3[4]
+    37      INT_NET       Net   : engine_control/control_st_i[9]
+                          Driver: engine_control/control_st_i_maj[9]
+    35      INT_NET       Net   : FIELDRIVE_Transmitter/tx_serializer/counter_load_i_i
+                          Driver: FIELDRIVE_Transmitter/tx_serializer/tx_st_i_maj_RNILR5C[6]
+    30      INT_NET       Net   : engine_control/N_7
+                          Driver: engine_control/control_st_maj_RNIPFDP[7]
+    26      INT_NET       Net   : rate_i_c[1]
+                          Driver: rate_i_pad[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[1]
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/N_4
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj_RNI9CNA[0]
+    24      INT_NET       Net   : slone_i_c
+                          Driver: slone_i_pad
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Prod_Bytes_Counter/s_countere
+                          Driver: engine_control/Prod_Bytes_Counter/s_counterlde
+
+Nets that are candidates for clock assignment and the resulting fanout:
+    Fanout  Type          Name
+    --------------------------
+    40      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.A_i[3]
+                          Driver: engine_control/s_time_c_top_0_0_a3[4]
+    37      INT_NET       Net   : engine_control/control_st_i[9]
+                          Driver: engine_control/control_st_i_maj[9]
+    35      INT_NET       Net   : FIELDRIVE_Transmitter/tx_serializer/counter_load_i_i
+                          Driver: FIELDRIVE_Transmitter/tx_serializer/tx_st_i_maj_RNILR5C[6]
+    30      INT_NET       Net   : engine_control/N_7
+                          Driver: engine_control/control_st_maj_RNIPFDP[7]
+    26      INT_NET       Net   : rate_i_c[1]
+                          Driver: rate_i_pad[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[1]
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/N_4
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj_RNI9CNA[0]
+    24      INT_NET       Net   : slone_i_c
+                          Driver: slone_i_pad
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Prod_Bytes_Counter/s_countere
+                          Driver: engine_control/Prod_Bytes_Counter/s_counterlde
+
+The Compile command succeeded ( 00:00:16 )
+
+Running I/O Bank Assigner.
+
+I/O Bank Assigner completed successfully.
+ 
+
+Planning global net placement...
+
+
+
+Global net placement completed successfully.
+
+                        o - o - o - o - o - o
+
+Timing-driven Placer Started: Mon Sep 26 17:33:43 2011
+
+Placer Finished: Mon Sep 26 17:34:43 2011
+Total Placer CPU Time:     00:01:00
+
+                        o - o - o - o - o - o
+
+
+Timing-driven Router 
+Design: nanofip                         Started: Mon Sep 26 17:34:57 2011
+
+ 
+Iterative improvement...
+
+Timing-driven Router completed successfully.
+
+Design: nanofip                         
+Finished: Mon Sep 26 17:35:20 2011
+Total CPU Time:     00:00:23            Total Elapsed Time: 00:00:23
+                        o - o - o - o - o - o
+
+Loading the Timing data for the design.
+Finished loading the Timing data.
+TIMER: Max delay timing requirements have been met.
+TIMER: Min delay timing requirements have been met.
+
+The Layout command succeeded ( 00:01:59 )
+Warning: The following files already exist:
+         
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+         
+         Do you want to replace the files? [YES]
+
+The Export-map command succeeded ( 00:00:10 )
+Warning: Overwriting the existing file:
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb.
+Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+CHECKSUM: BE7B
+
+The Generate programming file command succeeded ( 00:00:13 )
+Warning: Before proceeding, the following tool(s) must be shut down:
+         SmartTime Constraint Editor
+         SmartTime Timing Analyzer
+         MultiView Navigator:
+             PinEditor
+             
+          [OK]
+
+ Netlist Reading Time = 0.0 seconds
+Imported the files:
+   C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
+   C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
+
+The Import command succeeded ( 00:00:33 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
+              C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : Yes
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : Yes
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[0] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[1] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[2] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[3] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[4] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[5] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[6] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[7] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0_1 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTA8_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB0_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB1_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB2_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB3_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB4_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB5_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB6_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB7_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB8_0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        102
+
+    Total macros optimized  102
+Info: CMP702: Promoted the net 'FIELDRIVE_Receiver/s_sample_manch_bit_p' because of PDC
+      constraints (assign_quadrant_clock or assign_global_clock).
+
+There were 0 error(s) and 31 warning(s) in this design.
 =====================================================================
 
 Reading previous post-compile physical placement constraints.
@@ -267,14 +543,14 @@ There were 0 error(s) and 0 warning(s).
 Reading user pdc (Physical Design Constraints) file(s) postcompile
 
 Error: PDC01: port name doesn't exist in the netlist or is not connected to an IoCell macro at
-PDC Line : set_io fx_rxa_i -pinname 121 -fixed yes -DIRECTION Inout
+PDC Line : set_io fd_rxcdn_i -pinname 121 -fixed yes -DIRECTION Input
 
 There were 1 error(s) and 0 warning(s) in reading the user pdc.
 
 Info: There were errors found due to conflicting constraints in the user PDC and previous
       post-compile physical constraints.
 
-The Compile command failed ( 00:00:00 )
+The Compile command failed ( 00:00:01 )
 =====================================================================
 Parameters used to run compile:
 ===============================
@@ -286,7 +562,7 @@ Source      : C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
               C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
 Format      : EDIF
 Topcell     : nanofip
-Speed grade : -2
+Speed grade : STD
 Temp        : 0:25:70
 Voltage     : 1.58:1.50:1.42
 
@@ -311,186 +587,96 @@ report_high_fanout_nets_limit      : 10
 Compile starts ...
 
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[0] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[1] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[2] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[3] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[4] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[5] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[6] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[7] drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_2_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0_1 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0_1 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTA8 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB1 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB2 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB3 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB4 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB5 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB6 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB7 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_1_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0_1 drives no load.
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB8 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0 drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTA8_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB0_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB1_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB2_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB3_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB4_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB5_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB6_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB7_0 drives no load.
 Warning: CMP201: Net
-         consumed_vars/Consumption_DPRAM/G_memory_triplication_0_UDualClkRam/un1_A9D8DualClkRAM\
-         _R0C0_1 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTA8_0 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_2_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTB8_0 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTA8_1 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_1_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTB8_1 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTA8 drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[0]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[1]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[2]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[3]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[4]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[5]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[6]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/un1_UDualClkRam[7]
-         drives no load.
-Warning: CMP201: Net
-         produced_vars/production_dpram/G_memory_triplication_0_UDualClkRam/A9D8DualClkRAM_R0C0\
-         _DOUTB8 drives no load.
-Warning: Top level port fx_rxa_i is not connected to any IO pad
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB8_0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
 
 Netlist Optimization Report
 ===========================
@@ -500,11 +686,13 @@ Optimized macros:
   - Buffers:                0
   - Inverters:              0
   - Tieoff:                 0
-  - Logic combining:        75
+  - Logic combining:        102
 
-    Total macros optimized  75
+    Total macros optimized  102
+Info: CMP702: Promoted the net 'FIELDRIVE_Receiver/s_sample_manch_bit_p' because of PDC
+      constraints (assign_quadrant_clock or assign_global_clock).
 
-There were 0 error(s) and 61 warning(s) in this design.
+There were 0 error(s) and 31 warning(s) in this design.
 =====================================================================
 
 Reading previous post-compile physical placement constraints.
@@ -517,7 +705,7 @@ There were 0 error(s) and 0 warning(s).
 Reading user pdc (Physical Design Constraints) file(s) postcompile
 
 Warning: PDC01: port name doesn't exist in the netlist or is not connected to an IoCell macro at
-PDC Line : set_io fx_rxa_i -pinname 121 -fixed yes -DIRECTION Inout
+PDC Line : set_io fd_rxcdn_i -pinname 121 -fixed yes -DIRECTION Input
 
 There were 0 error(s) and 1 warning(s) in reading the user pdc.
 
@@ -525,12 +713,12 @@ There were 0 error(s) and 1 warning(s) in reading the user pdc.
 Compile report:
 ===============
 
-    CORE                     Used:   3521  Total:   9216   (38.21%)
-    IO (W/ clocks)           Used:     89  Total:    151   (58.94%)
+    CORE                     Used:   4459  Total:   9216   (48.38%)
+    IO (W/ clocks)           Used:     98  Total:    151   (64.90%)
     Differential IO          Used:      0  Total:     34   (0.00%)
-    GLOBAL (Chip+Quadrant)   Used:      5  Total:     18   (27.78%)
+    GLOBAL (Chip+Quadrant)   Used:      7  Total:     18   (38.89%)
     PLL                      Used:      0  Total:      1   (0.00%)
-    RAM/FIFO                 Used:      6  Total:     12   (50.00%)
+    RAM/FIFO                 Used:      3  Total:     12   (25.00%)
     Low Static ICC           Used:      0  Total:      1   (0.00%)
     FlashROM                 Used:      0  Total:      1   (0.00%)
     User JTAG                Used:      0  Total:      1   (0.00%)
@@ -539,22 +727,22 @@ Global Information:
 
     Type            | Used   | Total
     ----------------|--------|-------------
-    Chip global     | 5      | 6  (83.33%)
-    Quadrant global | 0      | 12 (0.00%)
+    Chip global     | 6      | 6  (100.00%)
+    Quadrant global | 1      | 12 (8.33%)
 
 Core Information:
 
     Type    | Instances    | Core tiles
     --------|--------------|-----------
-    COMB    | 2132         | 2132
-    SEQ     | 1389         | 1389
+    COMB    | 2812         | 2812
+    SEQ     | 1647         | 1647
 
 I/O Function:
 
     Type                          | w/o register  | w/ register  | w/ DDR register
     ------------------------------|---------------|--------------|----------------
-    Input I/O                     | 62            | 0            | 0
-    Output I/O                    | 27            | 0            | 0
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 34            | 0            | 0
     Bidirectional I/O             | 0             | 0            | 0
     Differential Input I/O Pairs  | 0             | 0            | 0
     Differential Output I/O Pairs | 0             | 0            | 0
@@ -565,11 +753,11 @@ I/O Technology:
     --------------------------------|-------|-------|-------|--------|--------------
     I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
     --------------------------------|-------|-------|-------|--------|--------------
-    LVTTL                           | 3.30v | N/A   | 62    | 27     | 0
+    LVTTL                           | 3.30v | N/A   | 64    | 34     | 0
 
 I/O Placement:
 
-    Locked  :  89 ( 100.00% )
+    Locked  :  98 ( 100.00% )
     Placed  :   0
     UnPlaced:   0
 
@@ -579,71 +767,1605 @@ Net information report:
 The following nets have been assigned to a chip global resource:
     Fanout  Type          Name
     --------------------------
-    1194    CLK_NET       Net   : uclk_i_c
+    1555    CLK_NET       Net   : uclk_i_c
                           Driver: uclk_i_pad
                           Source: NETLIST
-    344     INT_NET       Net   : s_rst
-                          Driver: reset_unit/nFIP_rst_o_maj_RNI86A2
+    412     INT_NET       Net   : Production.nfip_rst_i_i_1
+                          Driver: reset_unit/var_rst_st_maj_RNI3U8C_0[1]
                           Source: NETLIST
-    207     CLK_NET       Net   : wclk_i_c
+    85      INT_NET       Net   : JTAG_controller/jc_st_d[3]
+                          Driver: JTAG_controller/jc_st_maj_RNI7QVF_2[1]
+                          Source: NETLIST
+    82      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.N_22
+                          Driver: I_269
+                          Source: NETLIST
+    55      CLK_NET       Net   : jc_tck_o_c
+                          Driver: JTAG_controller/s_tck_maj_RNIMFD3
+                          Source: NETLIST
+    44      CLK_NET       Net   : wclk_i_c
                           Driver: wclk_i_pad
                           Source: NETLIST
-    77      INT_NET       Net   : tx_rx.rx_tx_osc.un8_s_rxd_signif_edge_window.N_15
-                          Driver: I_90
+
+The following nets have been assigned to a quadrant global resource:
+    Fanout  Type          Name
+    --------------------------
+    23      INT_NET       Net   : FIELDRIVE_Receiver/s_sample_manch_bit_p
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Oscillator/s_manch_clk_d1_maj_RNIQSK3_CLKINT
+                          Region: quadrant_LL
+
+High fanout nets in the post compile netlist:
+    Fanout  Type          Name
+    --------------------------
+    40      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.A_i[3]
+                          Driver: engine_control/s_time_c_top_0_0_a3[4]
+    37      INT_NET       Net   : engine_control/control_st_i[9]
+                          Driver: engine_control/control_st_i_maj[9]
+    35      INT_NET       Net   : FIELDRIVE_Transmitter/tx_serializer/counter_load_i_i
+                          Driver: FIELDRIVE_Transmitter/tx_serializer/tx_st_i_maj_RNILR5C[6]
+    30      INT_NET       Net   : engine_control/N_7
+                          Driver: engine_control/control_st_maj_RNIPFDP[7]
+    26      INT_NET       Net   : rate_i_c[1]
+                          Driver: rate_i_pad[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[1]
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/N_4
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj_RNI9CNA[0]
+    24      INT_NET       Net   : slone_i_c
+                          Driver: slone_i_pad
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Prod_Bytes_Counter/s_countere
+                          Driver: engine_control/Prod_Bytes_Counter/s_counterlde
+
+Nets that are candidates for clock assignment and the resulting fanout:
+    Fanout  Type          Name
+    --------------------------
+    40      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.A_i[3]
+                          Driver: engine_control/s_time_c_top_0_0_a3[4]
+    37      INT_NET       Net   : engine_control/control_st_i[9]
+                          Driver: engine_control/control_st_i_maj[9]
+    35      INT_NET       Net   : FIELDRIVE_Transmitter/tx_serializer/counter_load_i_i
+                          Driver: FIELDRIVE_Transmitter/tx_serializer/tx_st_i_maj_RNILR5C[6]
+    30      INT_NET       Net   : engine_control/N_7
+                          Driver: engine_control/control_st_maj_RNIPFDP[7]
+    26      INT_NET       Net   : rate_i_c[1]
+                          Driver: rate_i_pad[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver.FIELDRIVE_Receiver_Deserializer.rx_st[1]
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj[1]
+    25      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/N_4
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj_RNI9CNA[0]
+    24      INT_NET       Net   : slone_i_c
+                          Driver: slone_i_pad
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Prod_Bytes_Counter/s_countere
+                          Driver: engine_control/Prod_Bytes_Counter/s_counterlde
+
+The Compile command succeeded ( 00:00:17 )
+
+Running I/O Bank Assigner.
+
+I/O Bank Assigner completed successfully.
+ 
+
+Planning global net placement...
+
+
+
+Global net placement completed successfully.
+
+                        o - o - o - o - o - o
+
+Timing-driven Placer Started: Mon Sep 26 17:51:13 2011
+
+Placer Finished: Mon Sep 26 17:52:12 2011
+Total Placer CPU Time:     00:00:59
+
+                        o - o - o - o - o - o
+
+
+Timing-driven Router 
+Design: nanofip                         Started: Mon Sep 26 17:52:27 2011
+
+ 
+Iterative improvement...
+
+Timing-driven Router completed successfully.
+
+Design: nanofip                         
+Finished: Mon Sep 26 17:52:49 2011
+Total CPU Time:     00:00:22            Total Elapsed Time: 00:00:22
+                        o - o - o - o - o - o
+
+Loading the Timing data for the design.
+Finished loading the Timing data.
+TIMER: Max delay timing requirements have been met.
+TIMER: Min delay timing requirements have been met.
+
+The Layout command succeeded ( 00:01:59 )
+Warning: The following files already exist:
+         
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+         
+         Do you want to replace the files? [YES]
+
+The Export-map command succeeded ( 00:00:11 )
+Warning: Overwriting the existing file:
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb.
+Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+CHECKSUM: BE7B
+
+The Generate programming file command succeeded ( 00:00:13 )
+
+ Netlist Reading Time = 1.0 seconds
+Imported the files:
+   C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
+   C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
+
+The Import command succeeded ( 00:00:34 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
+              C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : Yes
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : Yes
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[0] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[1] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[2] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[3] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[4] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[5] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[6] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[7] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0_1 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTA8_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB0_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB1_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB2_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB3_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB4_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB5_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB6_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB7_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB8_0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        91
+
+    Total macros optimized  91
+Info: CMP702: Promoted the net 'FIELDRIVE_Receiver/s_sample_manch_bit_p' because of PDC
+      constraints (assign_quadrant_clock or assign_global_clock).
+
+There were 0 error(s) and 31 warning(s) in this design.
+=====================================================================
+
+Reading previous post-compile physical placement constraints.
+
+
+There were 0 error(s) and 0 warning(s).
+
+=====================================================================
+
+Reading user pdc (Physical Design Constraints) file(s) postcompile
+
+Error: PDC01: port name doesn't exist in the netlist or is not connected to an IoCell macro at
+PDC Line : set_io fd_rxcdn_i -pinname 121 -fixed yes -DIRECTION Input
+
+There were 1 error(s) and 0 warning(s) in reading the user pdc.
+
+Info: There were errors found due to conflicting constraints in the user PDC and previous
+      post-compile physical constraints.
+
+The Compile command failed ( 00:00:01 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\synthesis\nanofip.edn
+              C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\constraint\NanoFip.pdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : Yes
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : No
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[0] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[1] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[2] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[3] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[4] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[5] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[6] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_UDualClkR\
+         am[7] drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_JTAG_RAM/UDualClkRam/un1_A9D8DualC\
+         lkRAM_R0C0_1 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption/Consumption_Bytes_Processor/Consumption_RAM/UDualClkRam/A9D8DualClkRAM_R0C\
+         0_DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTA8_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB0_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB1_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB2_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB3_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB4_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB5_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB6_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB7_0 drives no load.
+Warning: CMP201: Net
+         Production/production_bytes_retriever/Produced_Bytes_From_RAM/UDualClkRam/A9D8DualClkR\
+         AM_R0C0_DOUTB8_0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        91
+
+    Total macros optimized  91
+Info: CMP702: Promoted the net 'FIELDRIVE_Receiver/s_sample_manch_bit_p' because of PDC
+      constraints (assign_quadrant_clock or assign_global_clock).
+
+There were 0 error(s) and 31 warning(s) in this design.
+=====================================================================
+
+Reading previous post-compile physical placement constraints.
+
+
+There were 0 error(s) and 0 warning(s).
+
+=====================================================================
+
+Reading user pdc (Physical Design Constraints) file(s) postcompile
+
+Warning: PDC01: port name doesn't exist in the netlist or is not connected to an IoCell macro at
+PDC Line : set_io fd_rxcdn_i -pinname 121 -fixed yes -DIRECTION Input
+
+There were 0 error(s) and 1 warning(s) in reading the user pdc.
+
+=====================================================================
+Compile report:
+===============
+
+    CORE                     Used:   4459  Total:   9216   (48.38%)
+    IO (W/ clocks)           Used:    102  Total:    151   (67.55%)
+    Differential IO          Used:      0  Total:     34   (0.00%)
+    GLOBAL (Chip+Quadrant)   Used:      7  Total:     18   (38.89%)
+    PLL                      Used:      0  Total:      1   (0.00%)
+    RAM/FIFO                 Used:      3  Total:     12   (25.00%)
+    Low Static ICC           Used:      0  Total:      1   (0.00%)
+    FlashROM                 Used:      0  Total:      1   (0.00%)
+    User JTAG                Used:      0  Total:      1   (0.00%)
+
+Global Information:
+
+    Type            | Used   | Total
+    ----------------|--------|-------------
+    Chip global     | 6      | 6  (100.00%)
+    Quadrant global | 1      | 12 (8.33%)
+
+Core Information:
+
+    Type    | Instances    | Core tiles
+    --------|--------------|-----------
+    COMB    | 2812         | 2812
+    SEQ     | 1647         | 1647
+
+I/O Function:
+
+    Type                          | w/o register  | w/ register  | w/ DDR register
+    ------------------------------|---------------|--------------|----------------
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 38            | 0            | 0
+    Bidirectional I/O             | 0             | 0            | 0
+    Differential Input I/O Pairs  | 0             | 0            | 0
+    Differential Output I/O Pairs | 0             | 0            | 0
+
+I/O Technology:
+
+                                    |   Voltages    |             I/Os
+    --------------------------------|-------|-------|-------|--------|--------------
+    I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
+    --------------------------------|-------|-------|-------|--------|--------------
+    LVTTL                           | 3.30v | N/A   | 64    | 38     | 0
+
+I/O Placement:
+
+    Locked  : 102 ( 100.00% )
+    Placed  :   0
+    UnPlaced:   0
+
+Net information report:
+=======================
+
+The following nets have been assigned to a chip global resource:
+    Fanout  Type          Name
+    --------------------------
+    1555    CLK_NET       Net   : uclk_i_c
+                          Driver: uclk_i_pad
                           Source: NETLIST
-    66      INT_NET       Net   : rst_i_c
-                          Driver: rst_i_pad_RNI5Q62
+    412     INT_NET       Net   : Production.nfip_rst_i_i_1
+                          Driver: reset_unit/var_rst_st_maj_RNI3U8C_0[1]
+                          Source: NETLIST
+    80      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.N_2
+                          Driver: I_272
+                          Source: NETLIST
+    80      INT_NET       Net   : JTAG_controller/jc_st_d[3]
+                          Driver: JTAG_controller/jc_st_maj_RNI7QVF_2[1]
+                          Source: NETLIST
+    55      CLK_NET       Net   : jc_tck_o_c
+                          Driver: JTAG_controller/s_tck_maj_RNIMFD3
+                          Source: NETLIST
+    44      CLK_NET       Net   : wclk_i_c
+                          Driver: wclk_i_pad
+                          Source: NETLIST
+
+The following nets have been assigned to a quadrant global resource:
+    Fanout  Type          Name
+    --------------------------
+    23      INT_NET       Net   : FIELDRIVE_Receiver/s_sample_manch_bit_p
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Oscillator/s_manch_clk_d1_maj_RNIQSK3_CLKINT
+                          Region: quadrant_LL
+
+High fanout nets in the post compile netlist:
+    Fanout  Type          Name
+    --------------------------
+    39      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.A_i[3]
+                          Driver: engine_control/s_time_c_top_0_0_a3[4]
+    37      INT_NET       Net   : engine_control/control_st_i[9]
+                          Driver: engine_control/control_st_i_maj[9]
+    37      INT_NET       Net   : FIELDRIVE_Transmitter/tx_serializer/s_prepare_to_produce
+                          Driver: FIELDRIVE_Transmitter/tx_serializer/tx_st_i_maj_RNILR5C[6]
+    30      INT_NET       Net   : engine_control/N_7
+                          Driver: engine_control/control_st_maj_RNIPFDP[7]
+    27      INT_NET       Net   : rate_i_c[1]
+                          Driver: rate_i_pad[1]
+    25      INT_NET       Net   : slone_i_c
+                          Driver: slone_i_pad
+    25      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/N_4
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj_RNI9CNA[0]
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Prod_Bytes_Counter/s_countere
+                          Driver: engine_control/Prod_Bytes_Counter/s_counterlde
+    22      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st[1]
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj[1]
+
+Nets that are candidates for clock assignment and the resulting fanout:
+    Fanout  Type          Name
+    --------------------------
+    39      INT_NET       Net   :
+FIELDRIVE_Receiver.FIELDRIVE_Receiver_Oscillator.un13_s_signif_edge_window.A_i[3]
+                          Driver: engine_control/s_time_c_top_0_0_a3[4]
+    37      INT_NET       Net   : engine_control/control_st_i[9]
+                          Driver: engine_control/control_st_i_maj[9]
+    37      INT_NET       Net   : FIELDRIVE_Transmitter/tx_serializer/s_prepare_to_produce
+                          Driver: FIELDRIVE_Transmitter/tx_serializer/tx_st_i_maj_RNILR5C[6]
+    30      INT_NET       Net   : engine_control/N_7
+                          Driver: engine_control/control_st_maj_RNIPFDP[7]
+    27      INT_NET       Net   : rate_i_c[1]
+                          Driver: rate_i_pad[1]
+    25      INT_NET       Net   : slone_i_c
+                          Driver: slone_i_pad
+    25      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/N_4
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj_RNI9CNA[0]
+    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
+                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
+    24      INT_NET       Net   : engine_control/Prod_Bytes_Counter/s_countere
+                          Driver: engine_control/Prod_Bytes_Counter/s_counterlde
+    22      INT_NET       Net   : FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st[1]
+                          Driver:
+FIELDRIVE_Receiver/FIELDRIVE_Receiver_Deserializer/rx_st_maj[1]
+
+The Compile command succeeded ( 00:00:18 )
+
+Running I/O Bank Assigner.
+
+I/O Bank Assigner completed successfully.
+ 
+
+Planning global net placement...
+
+
+
+Global net placement completed successfully.
+
+                        o - o - o - o - o - o
+
+Timing-driven Placer Started: Mon Sep 26 18:07:30 2011
+
+Placer Finished: Mon Sep 26 18:08:30 2011
+Total Placer CPU Time:     00:01:00
+
+                        o - o - o - o - o - o
+
+
+Timing-driven Router 
+Design: nanofip                         Started: Mon Sep 26 18:08:44 2011
+
+ 
+Iterative improvement...
+
+Timing-driven Router completed successfully.
+
+Design: nanofip                         
+Finished: Mon Sep 26 18:09:08 2011
+Total CPU Time:     00:00:23            Total Elapsed Time: 00:00:24
+                        o - o - o - o - o - o
+
+Loading the Timing data for the design.
+Finished loading the Timing data.
+TIMER: Max delay timing requirements have been met.
+TIMER: Min delay timing requirements have been met.
+
+The Layout command succeeded ( 00:02:02 )
+Warning: The following files already exist:
+         
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+         
+         Do you want to replace the files? [YES]
+
+The Export-map command succeeded ( 00:00:10 )
+Warning: Overwriting the existing file:
+         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb.
+Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+CHECKSUM: 3747
+
+The Generate programming file command succeeded ( 00:00:12 )
+Design closed.
+
+Created a new design.
+
+ Netlist Reading Time = 1.0 seconds
+Imported the files:
+   C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_2\nanofip.edf
+   C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\Designer_Prec_TimeConstraints.sdc
+
+The Import command succeeded ( 00:00:01 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_2\nanofip.edf
+
+C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\Designer_Prec_TimeConstraints.sdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : No
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : Yes
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        40
+
+    Total macros optimized  40
+
+There were 0 error(s) and 91 warning(s) in this design.
+=====================================================================
+Compile report:
+===============
+
+    CORE                     Used:   4718  Total:   9216   (51.19%)
+    IO (W/ clocks)           Used:     98  Total:    151   (64.90%)
+    Differential IO          Used:      0  Total:     34   (0.00%)
+    GLOBAL (Chip+Quadrant)   Used:      4  Total:     18   (22.22%)
+    PLL                      Used:      0  Total:      1   (0.00%)
+    RAM/FIFO                 Used:      9  Total:     12   (75.00%)
+    Low Static ICC           Used:      0  Total:      1   (0.00%)
+    FlashROM                 Used:      0  Total:      1   (0.00%)
+    User JTAG                Used:      0  Total:      1   (0.00%)
+
+Global Information:
+
+    Type            | Used   | Total
+    ----------------|--------|-------------
+    Chip global     | 4      | 6  (66.67%)
+    Quadrant global | 0      | 12 (0.00%)
+
+Core Information:
+
+    Type    | Instances    | Core tiles
+    --------|--------------|-----------
+    COMB    | 2948         | 2948
+    SEQ     | 1770         | 1770
+
+I/O Function:
+
+    Type                          | w/o register  | w/ register  | w/ DDR register
+    ------------------------------|---------------|--------------|----------------
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 34            | 0            | 0
+    Bidirectional I/O             | 0             | 0            | 0
+    Differential Input I/O Pairs  | 0             | 0            | 0
+    Differential Output I/O Pairs | 0             | 0            | 0
+
+I/O Technology:
+
+                                    |   Voltages    |             I/Os
+    --------------------------------|-------|-------|-------|--------|--------------
+    I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
+    --------------------------------|-------|-------|-------|--------|--------------
+    LVTTL                           | 3.30v | N/A   | 64    | 34     | 0
+
+I/O Placement:
+
+    Locked  :   0
+    Placed  :   0
+    UnPlaced:  98 ( 100.00% )
+
+Net information report:
+=======================
+
+The following nets have been assigned to a chip global resource:
+    Fanout  Type          Name
+    --------------------------
+    1686    CLK_NET       Net   : manual_uclk_i
+                          Driver: ix12214z51788
+                          Source: NETLIST
+    423     INT_NET       Net   : s_nfip_intern_rst_int
+                          Driver: buf_s_nfip_intern_rst
+                          Source: NETLIST
+    56      CLK_NET       Net   : jc_tck_o_dup_0
+                          Driver: JTAG_controller/ix52268z56071
+                          Source: NETLIST
+    48      CLK_NET       Net   : manual_wclk_i
+                          Driver: ix12214z51789
                           Source: NETLIST
 
 High fanout nets in the post compile netlist:
     Fanout  Type          Name
     --------------------------
-    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
-                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
-    24      INT_NET       Net   : engine_control/Tx_Bytes_Counter/s_countere
-                          Driver: engine_control/Tx_Bytes_Counter/s_counterlde
-    23      INT_NET       Net   : s_slone_synch
-                          Driver: synchronizer/s_slone_d3_maj[2]
-    21      INT_NET       Net   : rate_i_c[1]
-                          Driver: rate_i_pad[1]
-    21      INT_NET       Net   : tx_rx/rx/rx_st[2]
-                          Driver: tx_rx/rx/rx_st_maj[2]
-    20      INT_NET       Net   : s_byte_from_rx[2]
-                          Driver: tx_rx/rx/s_byte_maj[2]
-    20      INT_NET       Net   : tx_rx/tx/N_91
-                          Driver: tx_rx/tx/Outgoing_Bits_Index/s_counter_maj_RNI043A1[0]
-    19      INT_NET       Net   : s_byte_from_rx[0]
-                          Driver: tx_rx/rx/s_byte_maj[0]
-    19      INT_NET       Net   : engine_control/control_st_i[8]
-                          Driver: engine_control/control_st_i_0_maj[8]
-    18      INT_NET       Net   : engine_control.N_283_0
-                          Driver: engine_control/s_time_counter_top_i_o3_0[3]
+    10      INT_NET       Net   : nx49216z6
+                          Driver: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Oscillator/ix44562z47392
+    10      INT_NET       Net   : rst_i_int
+                          Driver: rst_i_ibuf
+    10      INT_NET       Net   : var_o(1)_buf_0
+                          Driver: engine_control/reg_s_var(1)_buf_0
+    10      INT_NET       Net   : var_o(6)_buf_0
+                          Driver: engine_control/reg_s_var(6)_buf_0
+    10      INT_NET       Net   : var_o(7)_buf_0
+                          Driver: engine_control/reg_s_var(7)_buf_0
+    10      INT_NET       Net   : var_o(5)_buf_0
+                          Driver: engine_control/reg_s_var(5)_buf_0
+    10      INT_NET       Net   : var_o(4)_buf_0
+                          Driver: engine_control/reg_s_var(4)_buf_0
+    10      INT_NET       Net   : var_o(3)_buf_0
+                          Driver: engine_control/reg_s_var(3)_buf_0
+    10      INT_NET       Net   : byte_o(7)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(7)_buf_1
+    10      INT_NET       Net   : byte_o(6)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(6)_buf_1
 
 Nets that are candidates for clock assignment and the resulting fanout:
     Fanout  Type          Name
     --------------------------
-    24      INT_NET       Net   : engine_control/Rx_Bytes_Counter/s_countere
-                          Driver: engine_control/Rx_Bytes_Counter/s_counterlde
-    24      INT_NET       Net   : engine_control/Tx_Bytes_Counter/s_countere
-                          Driver: engine_control/Tx_Bytes_Counter/s_counterlde
-    23      INT_NET       Net   : s_slone_synch
-                          Driver: synchronizer/s_slone_d3_maj[2]
-    21      INT_NET       Net   : rate_i_c[1]
-                          Driver: rate_i_pad[1]
-    21      INT_NET       Net   : tx_rx/rx/rx_st[2]
-                          Driver: tx_rx/rx/rx_st_maj[2]
-    20      INT_NET       Net   : s_byte_from_rx[2]
-                          Driver: tx_rx/rx/s_byte_maj[2]
-    20      INT_NET       Net   : tx_rx/tx/N_91
-                          Driver: tx_rx/tx/Outgoing_Bits_Index/s_counter_maj_RNI043A1[0]
-    19      INT_NET       Net   : s_byte_from_rx[0]
-                          Driver: tx_rx/rx/s_byte_maj[0]
-    19      INT_NET       Net   : engine_control/control_st_i[8]
-                          Driver: engine_control/control_st_i_0_maj[8]
-    18      INT_NET       Net   : engine_control.N_283_0
-                          Driver: engine_control/s_time_counter_top_i_o3_0[3]
+    80      INT_NET       Net   : rate_i_int(1)
+                          Driver: rate_i_ibuf(1)
+    39      INT_NET       Net   : rate_i_int(0)
+                          Driver: rate_i_ibuf(0)
+    36      INT_NET       Net   : slone_i_int
+                          Driver: slone_i_ibuf
+    35      INT_NET       Net   :
+FIELDRIVE_Transmitter_tx_serializer/s_bit_index(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Transmitter_tx_serializer/Outgoing_Bits_Index_modgen_counter_counter_o_reg_q(0)_Voter\
+_TMR0
+    31      INT_NET       Net   : byte_o(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(0)_Voter_TMR0
+    30      INT_NET       Net   : nx49216z2
+                          Driver: reset_unit/ix13044z1970
+    30      INT_NET       Net   : nx440__repl0_BUF_OUT
+                          Driver: ix753
+    30      INT_NET       Net   : FIELDRIVE_Transmitter_tx_serializer/nx467__repl0_BUF_OUT
+                          Driver: FIELDRIVE_Transmitter_tx_serializer/ix759
+    30      INT_NET       Net   : engine_control/nx48041z2_BUF_OUT
+                          Driver: engine_control/ix1365
+    30      INT_NET       Net   : engine_control/nx790__repl0_BUF_OUT
+                          Driver: engine_control/ix1369
 
-The Compile command succeeded ( 00:00:03 )
+
+SDC Import: Begin processing constraints...
+
+
+
+SDC Import: End processing constraints
+
+
+The Compile command succeeded ( 00:00:05 )
+Error: import: Cannot locate file from specified name:
+       C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\nanoFIP\NanoFip.pdc
+Error: The command  [import] failed with error code 0x80030002
+Error: Failure when executing Tcl script. [ Line 14 ]
+
+The Execute Script command failed ( 00:00:11 )
+Design closed.
+
+Created a new design.
+
+ Netlist Reading Time = 1.0 seconds
+Imported the files:
+   C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_2\nanofip.edf
+   C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\Designer_Prec_TimeConstraints.sdc
+
+The Import command succeeded ( 00:00:01 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_2\nanofip.edf
+
+C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\Designer_Prec_TimeConstraints.sdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : No
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : Yes
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        40
+
+    Total macros optimized  40
+
+There were 0 error(s) and 91 warning(s) in this design.
+=====================================================================
+Compile report:
+===============
+
+    CORE                     Used:   4718  Total:   9216   (51.19%)
+    IO (W/ clocks)           Used:     98  Total:    151   (64.90%)
+    Differential IO          Used:      0  Total:     34   (0.00%)
+    GLOBAL (Chip+Quadrant)   Used:      4  Total:     18   (22.22%)
+    PLL                      Used:      0  Total:      1   (0.00%)
+    RAM/FIFO                 Used:      9  Total:     12   (75.00%)
+    Low Static ICC           Used:      0  Total:      1   (0.00%)
+    FlashROM                 Used:      0  Total:      1   (0.00%)
+    User JTAG                Used:      0  Total:      1   (0.00%)
+
+Global Information:
+
+    Type            | Used   | Total
+    ----------------|--------|-------------
+    Chip global     | 4      | 6  (66.67%)
+    Quadrant global | 0      | 12 (0.00%)
+
+Core Information:
+
+    Type    | Instances    | Core tiles
+    --------|--------------|-----------
+    COMB    | 2948         | 2948
+    SEQ     | 1770         | 1770
+
+I/O Function:
+
+    Type                          | w/o register  | w/ register  | w/ DDR register
+    ------------------------------|---------------|--------------|----------------
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 34            | 0            | 0
+    Bidirectional I/O             | 0             | 0            | 0
+    Differential Input I/O Pairs  | 0             | 0            | 0
+    Differential Output I/O Pairs | 0             | 0            | 0
+
+I/O Technology:
+
+                                    |   Voltages    |             I/Os
+    --------------------------------|-------|-------|-------|--------|--------------
+    I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
+    --------------------------------|-------|-------|-------|--------|--------------
+    LVTTL                           | 3.30v | N/A   | 64    | 34     | 0
+
+I/O Placement:
+
+    Locked  :   0
+    Placed  :   0
+    UnPlaced:  98 ( 100.00% )
+
+Net information report:
+=======================
+
+The following nets have been assigned to a chip global resource:
+    Fanout  Type          Name
+    --------------------------
+    1686    CLK_NET       Net   : manual_uclk_i
+                          Driver: ix12214z51788
+                          Source: NETLIST
+    423     INT_NET       Net   : s_nfip_intern_rst_int
+                          Driver: buf_s_nfip_intern_rst
+                          Source: NETLIST
+    56      CLK_NET       Net   : jc_tck_o_dup_0
+                          Driver: JTAG_controller/ix52268z56071
+                          Source: NETLIST
+    48      CLK_NET       Net   : manual_wclk_i
+                          Driver: ix12214z51789
+                          Source: NETLIST
+
+High fanout nets in the post compile netlist:
+    Fanout  Type          Name
+    --------------------------
+    10      INT_NET       Net   : nx49216z6
+                          Driver: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Oscillator/ix44562z47392
+    10      INT_NET       Net   : rst_i_int
+                          Driver: rst_i_ibuf
+    10      INT_NET       Net   : var_o(1)_buf_0
+                          Driver: engine_control/reg_s_var(1)_buf_0
+    10      INT_NET       Net   : var_o(6)_buf_0
+                          Driver: engine_control/reg_s_var(6)_buf_0
+    10      INT_NET       Net   : var_o(7)_buf_0
+                          Driver: engine_control/reg_s_var(7)_buf_0
+    10      INT_NET       Net   : var_o(5)_buf_0
+                          Driver: engine_control/reg_s_var(5)_buf_0
+    10      INT_NET       Net   : var_o(4)_buf_0
+                          Driver: engine_control/reg_s_var(4)_buf_0
+    10      INT_NET       Net   : var_o(3)_buf_0
+                          Driver: engine_control/reg_s_var(3)_buf_0
+    10      INT_NET       Net   : byte_o(7)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(7)_buf_1
+    10      INT_NET       Net   : byte_o(6)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(6)_buf_1
+
+Nets that are candidates for clock assignment and the resulting fanout:
+    Fanout  Type          Name
+    --------------------------
+    80      INT_NET       Net   : rate_i_int(1)
+                          Driver: rate_i_ibuf(1)
+    39      INT_NET       Net   : rate_i_int(0)
+                          Driver: rate_i_ibuf(0)
+    36      INT_NET       Net   : slone_i_int
+                          Driver: slone_i_ibuf
+    35      INT_NET       Net   :
+FIELDRIVE_Transmitter_tx_serializer/s_bit_index(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Transmitter_tx_serializer/Outgoing_Bits_Index_modgen_counter_counter_o_reg_q(0)_Voter\
+_TMR0
+    31      INT_NET       Net   : byte_o(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(0)_Voter_TMR0
+    30      INT_NET       Net   : nx49216z2
+                          Driver: reset_unit/ix13044z1970
+    30      INT_NET       Net   : nx440__repl0_BUF_OUT
+                          Driver: ix753
+    30      INT_NET       Net   : FIELDRIVE_Transmitter_tx_serializer/nx467__repl0_BUF_OUT
+                          Driver: FIELDRIVE_Transmitter_tx_serializer/ix759
+    30      INT_NET       Net   : engine_control/nx48041z2_BUF_OUT
+                          Driver: engine_control/ix1365
+    30      INT_NET       Net   : engine_control/nx790__repl0_BUF_OUT
+                          Driver: engine_control/ix1369
+
+
+SDC Import: Begin processing constraints...
+
+
+
+SDC Import: End processing constraints
+
+
+The Compile command succeeded ( 00:00:05 )
+Imported the file:
+   C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFip.pdc
+
+The Import command succeeded ( 00:00:01 )
 
 Running I/O Bank Assigner.
 
@@ -657,25 +2379,25 @@ Global net placement completed successfully.
 
                         o - o - o - o - o - o
 
-Timing-driven Placer Started: Tue Nov 09 16:39:13 2010
+Timing-driven Placer Started: Mon Sep 26 18:38:06 2011
 
-Placer Finished: Tue Nov 09 16:40:01 2010
-Total Placer CPU Time:     00:00:48
+Placer Finished: Mon Sep 26 18:39:03 2011
+Total Placer CPU Time:     00:00:57
 
                         o - o - o - o - o - o
 
 
 Timing-driven Router 
-Design: nanofip                         Started: Tue Nov 09 16:40:06 2010
+Design: nanoFIP                         Started: Mon Sep 26 18:39:08 2011
 
  
 Iterative improvement...
 
 Timing-driven Router completed successfully.
 
-Design: nanofip                         
-Finished: Tue Nov 09 16:40:27 2010
-Total CPU Time:     00:00:21            Total Elapsed Time: 00:00:21
+Design: nanoFIP                         
+Finished: Mon Sep 26 18:39:36 2011
+Total CPU Time:     00:00:28            Total Elapsed Time: 00:00:28
                         o - o - o - o - o - o
 
 Loading the Timing data for the design.
@@ -683,20 +2405,1074 @@ Finished loading the Timing data.
 TIMER: Max delay timing requirements have been met.
 TIMER: Min delay timing requirements have been met.
 
-The Layout command succeeded ( 00:01:24 )
+The Layout command succeeded ( 00:01:41 )
+Constraints on clock uclk_i : Frequency = 40 MHz (Period = 25 ns), Dutycycle = 50, Offset = 0
+Constraints on clock wclk_i : Frequency = 40 MHz (Period = 25 ns), Dutycycle = 50, Offset = 0
+Constraints on clock JTAG_controller/reg_s_tck:Q : Frequency = 5 MHz (Period = 200 ns),
+Dutycycle = 50, Offset = 0
+
+The Execute Script command succeeded ( 00:01:54 )
 Warning: The following files already exist:
          
-         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
+         C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb
          
          Do you want to replace the files? [YES]
 
-The Export-map command succeeded ( 00:00:09 )
+The Export-map command succeeded ( 00:00:10 )
 Warning: Overwriting the existing file:
-         C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb.
-Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.pdb
-CHECKSUM: 9C38
+         C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb.
+Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb
+CHECKSUM: C9D4
+
+The Generate programming file command succeeded ( 00:00:12 )
+Design closed.
+
+Created a new design.
+
+ Netlist Reading Time = 1.0 seconds
+Imported the files:
+   C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_2\nanofip.edf
+   C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\Designer_Prec_TimeConstraints.sdc
+
+The Import command succeeded ( 00:00:01 )
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_2\nanofip.edf
+
+C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\Designer_Prec_TimeConstraints.sdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : No
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : Yes
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        40
+
+    Total macros optimized  40
+
+There were 0 error(s) and 91 warning(s) in this design.
+=====================================================================
+Compile report:
+===============
+
+    CORE                     Used:   4718  Total:   9216   (51.19%)
+    IO (W/ clocks)           Used:     98  Total:    151   (64.90%)
+    Differential IO          Used:      0  Total:     34   (0.00%)
+    GLOBAL (Chip+Quadrant)   Used:      4  Total:     18   (22.22%)
+    PLL                      Used:      0  Total:      1   (0.00%)
+    RAM/FIFO                 Used:      9  Total:     12   (75.00%)
+    Low Static ICC           Used:      0  Total:      1   (0.00%)
+    FlashROM                 Used:      0  Total:      1   (0.00%)
+    User JTAG                Used:      0  Total:      1   (0.00%)
+
+Global Information:
+
+    Type            | Used   | Total
+    ----------------|--------|-------------
+    Chip global     | 4      | 6  (66.67%)
+    Quadrant global | 0      | 12 (0.00%)
+
+Core Information:
+
+    Type    | Instances    | Core tiles
+    --------|--------------|-----------
+    COMB    | 2948         | 2948
+    SEQ     | 1770         | 1770
+
+I/O Function:
+
+    Type                          | w/o register  | w/ register  | w/ DDR register
+    ------------------------------|---------------|--------------|----------------
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 34            | 0            | 0
+    Bidirectional I/O             | 0             | 0            | 0
+    Differential Input I/O Pairs  | 0             | 0            | 0
+    Differential Output I/O Pairs | 0             | 0            | 0
+
+I/O Technology:
+
+                                    |   Voltages    |             I/Os
+    --------------------------------|-------|-------|-------|--------|--------------
+    I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
+    --------------------------------|-------|-------|-------|--------|--------------
+    LVTTL                           | 3.30v | N/A   | 64    | 34     | 0
+
+I/O Placement:
+
+    Locked  :   0
+    Placed  :   0
+    UnPlaced:  98 ( 100.00% )
+
+Net information report:
+=======================
+
+The following nets have been assigned to a chip global resource:
+    Fanout  Type          Name
+    --------------------------
+    1686    CLK_NET       Net   : manual_uclk_i
+                          Driver: ix12214z51788
+                          Source: NETLIST
+    423     INT_NET       Net   : s_nfip_intern_rst_int
+                          Driver: buf_s_nfip_intern_rst
+                          Source: NETLIST
+    56      CLK_NET       Net   : jc_tck_o_dup_0
+                          Driver: JTAG_controller/ix52268z56071
+                          Source: NETLIST
+    48      CLK_NET       Net   : manual_wclk_i
+                          Driver: ix12214z51789
+                          Source: NETLIST
+
+High fanout nets in the post compile netlist:
+    Fanout  Type          Name
+    --------------------------
+    10      INT_NET       Net   : nx49216z6
+                          Driver: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Oscillator/ix44562z47392
+    10      INT_NET       Net   : rst_i_int
+                          Driver: rst_i_ibuf
+    10      INT_NET       Net   : var_o(1)_buf_0
+                          Driver: engine_control/reg_s_var(1)_buf_0
+    10      INT_NET       Net   : var_o(6)_buf_0
+                          Driver: engine_control/reg_s_var(6)_buf_0
+    10      INT_NET       Net   : var_o(7)_buf_0
+                          Driver: engine_control/reg_s_var(7)_buf_0
+    10      INT_NET       Net   : var_o(5)_buf_0
+                          Driver: engine_control/reg_s_var(5)_buf_0
+    10      INT_NET       Net   : var_o(4)_buf_0
+                          Driver: engine_control/reg_s_var(4)_buf_0
+    10      INT_NET       Net   : var_o(3)_buf_0
+                          Driver: engine_control/reg_s_var(3)_buf_0
+    10      INT_NET       Net   : byte_o(7)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(7)_buf_1
+    10      INT_NET       Net   : byte_o(6)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(6)_buf_1
+
+Nets that are candidates for clock assignment and the resulting fanout:
+    Fanout  Type          Name
+    --------------------------
+    80      INT_NET       Net   : rate_i_int(1)
+                          Driver: rate_i_ibuf(1)
+    39      INT_NET       Net   : rate_i_int(0)
+                          Driver: rate_i_ibuf(0)
+    36      INT_NET       Net   : slone_i_int
+                          Driver: slone_i_ibuf
+    35      INT_NET       Net   :
+FIELDRIVE_Transmitter_tx_serializer/s_bit_index(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Transmitter_tx_serializer/Outgoing_Bits_Index_modgen_counter_counter_o_reg_q(0)_Voter\
+_TMR0
+    31      INT_NET       Net   : byte_o(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(0)_Voter_TMR0
+    30      INT_NET       Net   : nx49216z2
+                          Driver: reset_unit/ix13044z1970
+    30      INT_NET       Net   : nx440__repl0_BUF_OUT
+                          Driver: ix753
+    30      INT_NET       Net   : FIELDRIVE_Transmitter_tx_serializer/nx467__repl0_BUF_OUT
+                          Driver: FIELDRIVE_Transmitter_tx_serializer/ix759
+    30      INT_NET       Net   : engine_control/nx48041z2_BUF_OUT
+                          Driver: engine_control/ix1365
+    30      INT_NET       Net   : engine_control/nx790__repl0_BUF_OUT
+                          Driver: engine_control/ix1369
+
+
+SDC Import: Begin processing constraints...
+
+
+
+SDC Import: End processing constraints
+
+
+The Compile command succeeded ( 00:00:05 )
+Imported the file:
+   C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFip.pdc
+
+The Import command succeeded ( 00:00:01 )
+
+Running I/O Bank Assigner.
+
+I/O Bank Assigner completed successfully.
+ 
+
+Planning global net placement...
+
+
+Global net placement completed successfully.
+
+                        o - o - o - o - o - o
+
+Timing-driven Placer Started: Mon Sep 26 18:57:19 2011
+
+Placer Finished: Mon Sep 26 18:58:39 2011
+Total Placer CPU Time:     00:01:20
+
+                        o - o - o - o - o - o
+
+
+Timing-driven Router 
+Design: nanoFIP                         Started: Mon Sep 26 18:58:44 2011
+
+ 
+Iterative improvement...
+
+Timing-driven Router completed successfully.
+
+Design: nanoFIP                         
+Finished: Mon Sep 26 18:59:10 2011
+Total CPU Time:     00:00:26            Total Elapsed Time: 00:00:26
+                        o - o - o - o - o - o
+
+Loading the Timing data for the design.
+Finished loading the Timing data.
+TIMER: Max delay timing requirements have been met.
+TIMER: Min delay timing requirements have been met.
+
+The Layout command succeeded ( 00:02:02 )
+Constraints on clock uclk_i : Frequency = 40 MHz (Period = 25 ns), Dutycycle = 50, Offset = 0
+Constraints on clock wclk_i : Frequency = 40 MHz (Period = 25 ns), Dutycycle = 50, Offset = 0
+Constraints on clock JTAG_controller/reg_s_tck:Q : Frequency = 5 MHz (Period = 200 ns),
+Dutycycle = 50, Offset = 0
+
+The Execute Script command succeeded ( 00:02:15 )
+
+The Export-map command succeeded ( 00:00:10 )
+Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb
+CHECKSUM: F379
+
+The Generate programming file command succeeded ( 00:00:12 )
+Design saved to file C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.adb.
+Design closed.
+
+
+ Netlist Reading Time = 0.0 seconds
+Imported the files:
+   C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip.edf
+   C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFip.pdc
+
+The Import command succeeded ( 00:00:05 )
+Info: The design C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.adb was last
+      modified by software version 8.6.1.3.
+Opened an existing design
+C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.adb.
+=====================================================================
+Parameters used to run compile:
+===============================
+
+Family      : ProASIC3
+Device      : A3P400
+Package     : 208 PQFP
+Source      : C:\ohr\cern-fip\trunk\hdl\cad\precision_radtol\nanofip_impl_1\nanofip.edf
+              C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFip.pdc
+Format      : EDIF
+Topcell     : nanofip
+Speed grade : STD
+Temp        : 0:25:70
+Voltage     : 1.58:1.50:1.42
+
+Keep Existing Physical Constraints : Yes
+Keep Existing Timing Constraints   : Yes
+
+pdc_abort_on_error                 : Yes
+pdc_eco_display_unmatched_objects  : No
+pdc_eco_max_warnings               : 10000
+
+demote_globals                     : No
+promote_globals                    : No
+localclock_max_shared_instances    : 12
+localclock_buffer_tree_max_fanout  : 12
+
+combine_register                   : No
+delete_buffer_tree                 : No
+
+report_high_fanout_nets_limit      : 10
+
+=====================================================================
+Compile starts ...
+
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Production_production_bytes_retriever/Produced_Bytes_From_RAM_UDualClkRam_A9D8DualClkR\
+         AM_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0_TMR2/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR1/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_JTAG_RAM_UDualClkRam_A9D8DualClkRA\
+         M_R0C0/DOUTB0 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTA8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB8 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB7 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB6 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB5 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB4 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB3 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB2 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB1 drives no load.
+Warning: CMP201: Net
+         Consumption_Consumption_Bytes_Processor/Consumption_RAM_UDualClkRam_A9D8DualClkRAM_R0C\
+         0_TMR2/DOUTB0 drives no load.
+Warning: Top level port fd_rxcdn_i is not connected to any IO pad
+
+Netlist Optimization Report
+===========================
+
+Optimized macros:
+  - Dangling net drivers:   0
+  - Buffers:                0
+  - Inverters:              0
+  - Tieoff:                 0
+  - Logic combining:        40
+
+    Total macros optimized  40
+
+There were 0 error(s) and 91 warning(s) in this design.
+=====================================================================
+
+Reading previous post-compile physical placement constraints.
+
+
+There were 0 error(s) and 0 warning(s).
+
+=====================================================================
+
+Reading user pdc (Physical Design Constraints) file(s) postcompile
+
+
+There were 0 error(s) and 0 warning(s) in reading the user pdc.
+
+=====================================================================
+Compile report:
+===============
+
+    CORE                     Used:   4718  Total:   9216   (51.19%)
+    IO (W/ clocks)           Used:     98  Total:    151   (64.90%)
+    Differential IO          Used:      0  Total:     34   (0.00%)
+    GLOBAL (Chip+Quadrant)   Used:      4  Total:     18   (22.22%)
+    PLL                      Used:      0  Total:      1   (0.00%)
+    RAM/FIFO                 Used:      9  Total:     12   (75.00%)
+    Low Static ICC           Used:      0  Total:      1   (0.00%)
+    FlashROM                 Used:      0  Total:      1   (0.00%)
+    User JTAG                Used:      0  Total:      1   (0.00%)
+
+Global Information:
+
+    Type            | Used   | Total
+    ----------------|--------|-------------
+    Chip global     | 4      | 6  (66.67%)
+    Quadrant global | 0      | 12 (0.00%)
+
+Core Information:
+
+    Type    | Instances    | Core tiles
+    --------|--------------|-----------
+    COMB    | 2948         | 2948
+    SEQ     | 1770         | 1770
+
+I/O Function:
+
+    Type                          | w/o register  | w/ register  | w/ DDR register
+    ------------------------------|---------------|--------------|----------------
+    Input I/O                     | 64            | 0            | 0
+    Output I/O                    | 34            | 0            | 0
+    Bidirectional I/O             | 0             | 0            | 0
+    Differential Input I/O Pairs  | 0             | 0            | 0
+    Differential Output I/O Pairs | 0             | 0            | 0
+
+I/O Technology:
+
+                                    |   Voltages    |             I/Os
+    --------------------------------|-------|-------|-------|--------|--------------
+    I/O Standard(s)                 | Vcci  | Vref  | Input | Output | Bidirectional
+    --------------------------------|-------|-------|-------|--------|--------------
+    LVTTL                           | 3.30v | N/A   | 64    | 34     | 0
+
+I/O Placement:
+
+    Locked  :  98 ( 100.00% )
+    Placed  :   0
+    UnPlaced:   0
+
+Net information report:
+=======================
+
+The following nets have been assigned to a chip global resource:
+    Fanout  Type          Name
+    --------------------------
+    1686    CLK_NET       Net   : manual_uclk_i
+                          Driver: ix12214z51788
+                          Source: NETLIST
+    423     INT_NET       Net   : s_nfip_intern_rst_int
+                          Driver: buf_s_nfip_intern_rst
+                          Source: NETLIST
+    56      CLK_NET       Net   : jc_tck_o_dup_0
+                          Driver: JTAG_controller/ix52268z56071
+                          Source: NETLIST
+    48      CLK_NET       Net   : manual_wclk_i
+                          Driver: ix12214z51789
+                          Source: NETLIST
+
+High fanout nets in the post compile netlist:
+    Fanout  Type          Name
+    --------------------------
+    10      INT_NET       Net   : nx49216z6
+                          Driver: FIELDRIVE_Receiver_FIELDRIVE_Receiver_Oscillator/ix44562z47392
+    10      INT_NET       Net   : rst_i_int
+                          Driver: rst_i_ibuf
+    10      INT_NET       Net   : var_o(1)_buf_0
+                          Driver: engine_control/reg_s_var(1)_buf_0
+    10      INT_NET       Net   : var_o(6)_buf_0
+                          Driver: engine_control/reg_s_var(6)_buf_0
+    10      INT_NET       Net   : var_o(7)_buf_0
+                          Driver: engine_control/reg_s_var(7)_buf_0
+    10      INT_NET       Net   : var_o(5)_buf_0
+                          Driver: engine_control/reg_s_var(5)_buf_0
+    10      INT_NET       Net   : var_o(4)_buf_0
+                          Driver: engine_control/reg_s_var(4)_buf_0
+    10      INT_NET       Net   : var_o(3)_buf_0
+                          Driver: engine_control/reg_s_var(3)_buf_0
+    10      INT_NET       Net   : byte_o(7)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(7)_buf_1
+    10      INT_NET       Net   : byte_o(6)_buf_1
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(6)_buf_1
+
+Nets that are candidates for clock assignment and the resulting fanout:
+    Fanout  Type          Name
+    --------------------------
+    80      INT_NET       Net   : rate_i_int(1)
+                          Driver: rate_i_ibuf(1)
+    39      INT_NET       Net   : rate_i_int(0)
+                          Driver: rate_i_ibuf(0)
+    36      INT_NET       Net   : slone_i_int
+                          Driver: slone_i_ibuf
+    35      INT_NET       Net   :
+FIELDRIVE_Transmitter_tx_serializer/s_bit_index(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Transmitter_tx_serializer/Outgoing_Bits_Index_modgen_counter_counter_o_reg_q(0)_Voter\
+_TMR0
+    31      INT_NET       Net   : byte_o(0)_Voteout_TMR0
+                          Driver:
+FIELDRIVE_Receiver_FIELDRIVE_Receiver_Deserializer/reg_s_byte(0)_Voter_TMR0
+    30      INT_NET       Net   : nx49216z2
+                          Driver: reset_unit/ix13044z1970
+    30      INT_NET       Net   : nx440__repl0_BUF_OUT
+                          Driver: ix753
+    30      INT_NET       Net   : FIELDRIVE_Transmitter_tx_serializer/nx467__repl0_BUF_OUT
+                          Driver: FIELDRIVE_Transmitter_tx_serializer/ix759
+    30      INT_NET       Net   : engine_control/nx48041z2_BUF_OUT
+                          Driver: engine_control/ix1365
+    30      INT_NET       Net   : engine_control/nx790__repl0_BUF_OUT
+                          Driver: engine_control/ix1369
+
+The Compile command succeeded ( 00:00:05 )
+
+Running I/O Bank Assigner.
+
+I/O Bank Assigner completed successfully.
+ 
+
+Planning global net placement...
+
+
+Global net placement completed successfully.
+
+                        o - o - o - o - o - o
+
+Timing-driven Placer Started: Mon Sep 26 19:17:10 2011
+
+Placer Finished: Mon Sep 26 19:18:30 2011
+Total Placer CPU Time:     00:01:20
+
+                        o - o - o - o - o - o
+
+
+Timing-driven Router 
+Design: nanoFIP                         Started: Mon Sep 26 19:18:36 2011
+
+ 
+Iterative improvement...
+
+Timing-driven Router completed successfully.
+
+Design: nanoFIP                         
+Finished: Mon Sep 26 19:19:03 2011
+Total CPU Time:     00:00:26            Total Elapsed Time: 00:00:27
+                        o - o - o - o - o - o
+
+Loading the Timing data for the design.
+Finished loading the Timing data.
+TIMER: Max delay timing requirements have been met.
+TIMER: Min delay timing requirements have been met.
+
+The Layout command succeeded ( 00:02:04 )
+Warning: The following files already exist:
+         
+         C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb
+         
+         Do you want to replace the files? [YES]
+
+The Export-map command succeeded ( 00:00:10 )
+Warning: Overwriting the existing file:
+         C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb.
+Wrote to the file: C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.pdb
+CHECKSUM: F379
 
 The Generate programming file command succeeded ( 00:00:11 )
-Design saved to file C:\ohr\cern-fip\trunk\hdl\cad\libero\NanoFip\designer\impl2\nanofip.adb.
+Design saved to file C:\ohr\cern-fip\trunk\hdl\cad\Actel_designer\FromPrecision\nanoFIP.adb.
 Design closed.
 
