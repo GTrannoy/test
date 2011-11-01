@@ -1,0 +1,29 @@
+
+               Missing Constraints Report       
+ Clocks are not defined at the following pins 
+--------------------------------------------- 
+
+ Input delays are missing at the following pins
+-----------------------------------------------
+jc_tdo_i
+rate_i(0)
+subs_i(5)
+subs_i(6)
+subs_i(3)
+subs_i(4)
+subs_i(1)
+subs_i(2)
+subs_i(0)
+nostat_i
+slone_i
+p3_lgth_i(1)
+p3_lgth_i(2)
+rate_i(1)
+p3_lgth_i(0)
+subs_i(7)
+
+ Output delays are missing at the following pins
+------------------------------------------------
+jc_tdi_o
+jc_tms_o
+jc_tck_o
