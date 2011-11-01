@@ -1,0 +1,19 @@
+module rom_5_8_256_84(address, q );
+
+input [7 : 0] address;
+wire [7 : 0] address;
+output [4 : 0] q;
+wire [4 : 0] q;
+
+mux_256u_8u mux0 (.a({ 31'b0, 1'b1, 78'b0, 1'b1, 145'b0 }), .b({ address[7], address[6], address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[0]));
+
+mux_256u_8u mux1 (.a({ 31'b0, 1'b1, 53'b0, 1'b1, 24'b0, 1'b1, 139'b0, 1'b1, 5'b0 }), .b({ address[7], address[6], address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[1]));
+
+mux_256u_8u mux2 (.a({ 31'b0, 1'b1, 52'b0, 2'b11, 24'b0, 1'b1, 124'b0, 1'b1, 3'b0, 1'b1, 9'b0, 2'b11, 5'b0 }), .b({ address[7], address[6], address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[2]));
+
+mux_256u_8u mux3 (.a({ 84'b0, 1'b1, 150'b0, 1'b1, 3'b0, 1'b1, 9'b0, 1'b1, 6'b0 }), .b({ address[7], address[6], address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[3]));
+
+mux_256u_8u mux4 (.a({ 31'b1111111111111111111111111111111, 1'b0, 52'b1111111111111111111111111111111111111111111111111111, 2'b0, 24'b111111111111111111111111, 1'b0, 124'b1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111, 1'b0, 3'b111, 1'b0, 9'b111111111, 2'b0, 5'b11111 }), .b({ address[7], address[6], address[5], address[4], address[3], address[2], address[1], address[0] }), .d(q[4]));
+
+endmodule
+
