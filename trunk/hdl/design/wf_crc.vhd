@@ -7,21 +7,24 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                             WF_crc                                             |
+--                                             wf_crc                                             |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_crc.vhd                                                                        |
+-- File         wf_crc.vhd                                                                        |
 --                                                                                                |
 -- Description  The unit creates the modules for:                                                 |
 --                o the generation of the CRC of serial data,                                     |
 --                o the verification of an incoming CRC syndrome.                                 |
+--              The unit is instantiated in both the wf_fd_transmitter, for the generation of the |
+--              FCS field of produced RP_DAT frames, and the wf_fd_receiver for the validation of |
+--              of an incoming ID_DAT or consumed RP_DAT frame.                                   |
 --                                                                                                |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 -- Date         23/02/2011                                                                        |
 -- Version      v0.04                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_rx_deserializer                                                                |
---              WF_tx_serializer                                                                  |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_rx_deserializer                                                                |
+--              wf_tx_serializer                                                                  |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     07/08/2009  v0.02  PAS Entity Ports added, start of architecture content                   |
@@ -58,40 +61,40 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                                 Entity declaration for WF_crc
+--                                 Entity declaration for wf_crc
 --=================================================================================================
-entity WF_crc is port(
+entity wf_crc is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i             : in std_logic;              -- 40 MHz clock
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i         : in std_logic;              -- nanoFIP internal reset
 
-    -- Signals from the WF_rx_deserializer/ WF_tx_serializer units
+    -- Signals from the wf_rx_deserializer/ wf_tx_serializer units
     data_bit_i         : in std_logic;              -- incoming data bit stream
     data_bit_ready_p_i : in std_logic;              -- indicates the sampling moment of data_bit_i
     start_crc_p_i      : in std_logic;              -- beginning of the CRC calculation
 
 
   -- OUTPUTS
-    -- Signal to the WF_rx_deserializer unit
+    -- Signal to the wf_rx_deserializer unit
     crc_ok_p_o         : out std_logic;             -- signals a correct received CRC syndrome
 
-    -- Signal to the WF_tx_serializer unit
+    -- Signal to the wf_tx_serializer unit
     crc_o              : out  std_logic_vector (c_CRC_POLY_LGTH-1 downto 0)); -- calculated CRC
 
-end entity WF_crc;
+end entity wf_crc;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_crc is
+architecture rtl of wf_crc is
 
   signal s_q, s_q_nx : std_logic_vector (c_CRC_POLY_LGTH - 1 downto 0);
 
@@ -154,9 +157,9 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 -- During reception, the CRC is being calculated as data is arriving (same as in the transmission)
--- and it is being compared to the predefined c_CRC_VERIF_POLY. When the CRC calculated from the
--- received data matches the c_CRC_VERIF_POLY, it is implied that a correct CRC word has been
--- received for the preceded data and the signal crc_ok_p_o gives a 1 uclk-wide pulse.
+-- and at the same time it is being compared to the predefined c_CRC_VERIF_POLY. When the CRC
+-- calculated from the received data matches the c_CRC_VERIF_POLY, it is implied that a correct CRC
+-- word has been received for the preceded data and the signal crc_ok_p_o gives a 1 uclk-wide pulse.
 
   crc_ok_p_o <= data_bit_ready_p_i when s_q = not c_CRC_VERIF_POLY else '0';
 

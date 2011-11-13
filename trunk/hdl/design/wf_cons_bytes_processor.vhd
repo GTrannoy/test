@@ -7,32 +7,37 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                     WF_cons_bytes_processor                                    |
+--                                     wf_cons_bytes_processor                                    |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_cons_bytes_processor.vhd                                                       |
+-- File         wf_cons_bytes_processor.vhd                                                       |
 --                                                                                                |
 -- Description  The unit is consuming the RP_DAT data bytes that are arriving from the            |
---              WF_fd_receiver, according to the following:                                       |
+--              wf_fd_receiver, according to the following:                                       |
 --                                                                                                |
---              o If the variable identifier of the preceded ID_DAT was a var_1 or a var_2:       |
+--              o If the variable identifier of the preceded ID_DAT was:                          |
 --                                                                                                |
---                o If the operation is in memory mode    : the unit is registering the           |
+--               var_1 or var_2                                                                   |
+--                - If the operation is in memory mode    : the unit is registering the           |
 --                  application-data bytes along with the PDU_TYPE, LGTH and MPS bytes in the     |
---                  Consumed memories                                                             |
---                                                                                                |
---                o If the operation is in stand-alone mode: the unit is transferring the 2 appli-|
+--                  Consumed or Broadcast Consumed memories                                       |
+--                - If the operation is in stand-alone mode: the unit is transferring the 2 appli-|
 --                  cation-data bytes to the "nanoFIP User Interface, NON_WISHBONE" data bus DAT_O|
 --                                                                                                |
---              o If the consumed variable had been a var_rst, the 2 application-data bytes are   |
---                identified and sent to the WF_reset_unit.                                       |
+--              o var_rst                                                                         |
+--                 the two application-data bytes are identified and sent to the wf_reset_unit.   |
 --                                                                                                |
---              Note: The validity of the consumed bytes (stored in the memory or transfered to   |
---              DATO or transfered to the WF_reset_unit) is indicated by the "nanoFIP User        |
---              Interface, NON_WISHBONE" signals VAR1_RDY/ VAR2_RDY or the nanoFIP internal signals
---              rst_nFIP_and_FD_p/ assert_RSTON_p, which are treated in the WF_cons_outcome unit  |
---              and are assessed after the end of the reception of a complete frame.              |
+--              o var_5                                                                           |
+--                 regardless of the operational mode (memory or slone) the unit is registering   |
+--                 the application-data bytes along with the PDU_TYPE, LGTH and MPS bytes in the  |
+--                 JC_consumed memory.                                                            |
 --                                                                                                |
+--              Note: The validity of the consumed bytes (stored in the memories or transfered    |
+--              to DATO or transfered to the wf_reset_unit) is indicated by the "nanoFIP User     |
+--              Interface, NON_WISHBONE" signals VAR1_RDY/ VAR2_RDY or the nanoFIP internal       |
+--              signals rst_nFIP_and_FD_p/ assert_RSTON_p/ start_jc_i, which are treated in       |
+--              the wf_cons_outcome unit and are assessed after the end of the reception of a     |
+--              complete frame.                                                                   |
 --                                                                                                |
 --              Reminder:                                                                         |
 --                                                                                                |
@@ -41,7 +46,7 @@
 --      |____FSS____|_CTRL_||__PDU__|__LGTH__|__..ApplicData..__|__MPS__||____FCS____|__FES__|    |
 --                                                                                                |
 --                                           |--------&LGTH bytes-------|                         |
---                          |---------write to Consumed memory----------|                         |
+--                          |--------write to Consumed memories---------|                         |
 --                                           |-----to DAT_O-----|                                 |
 --                                           |---to Reset Unit--|                                 |
 --                                                                                                |
@@ -49,9 +54,9 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         15/12/2010                                                                        |
 -- Version      v0.03                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_fd_receiver                                                                    |
---              WF_engine_control                                                                 |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_fd_receiver                                                                    |
+--              wf_engine_control                                                                 |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     11/09/2009  v0.01  EB  First version                                                       |
@@ -59,7 +64,7 @@
 --                            creation for simplification; Signals renamed;                       |
 --                            CTRL, PDU_TYPE, LGTH bytes registered;                              |
 --                            Code cleaned-up & commented.                                        |
---     15/12/2010  v0.03  EG  Unit renamed from WF_cons_bytes_from_rx to WF_cons_bytes_processor  |
+--     15/12/2010  v0.03  EG  Unit renamed from wf_cons_bytes_from_rx to wf_cons_bytes_processor  |
 --                            byte_ready_p comes from the rx_deserializer (no need to pass from   |
 --                            the engine) Code cleaned-up & commented (more!)                     |
 ---------------------------------------------------------------------------------------------------
@@ -89,30 +94,30 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                            Entity declaration for WF_cons_bytes_processor
+--                            Entity declaration for wf_cons_bytes_processor
 --=================================================================================================
-entity WF_cons_bytes_processor is port(
+entity wf_cons_bytes_processor is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                : in std_logic;                       -- 40 MHz clock
     slone_i               : in  std_logic;                      -- stand-alone mode (active high)
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i            : in std_logic;                       -- nanoFIP internal reset
 
     -- nanoFIP User Interface, WISHBONE Slave
     wb_clk_i              : in std_logic;                       -- WISHBONE clock
     wb_adr_i              : in  std_logic_vector (8 downto 0);  -- WISHBONE address to memory
 
-    -- Signals from the WF_fd_receiver unit
+    -- Signals from the wf_fd_receiver unit
     byte_i                : in std_logic_vector (7 downto 0);   -- input byte
     byte_ready_p_i        : in std_logic;                       -- indication of a new input byte
 
-    -- Signals from the WF_engine_control unit
+    -- Signals from the wf_engine_control unit
     byte_index_i          : in std_logic_vector (7 downto 0);   -- index of a byte inside the frame;
                                                                 -- starting from 0, it counts all the
                                                                 -- bytes after the FSS&before the FES
@@ -120,31 +125,31 @@ entity WF_cons_bytes_processor is port(
     var_i                 : in t_var;                           -- variable type that is being treated
 
 
-    -- Signals from the WF_jtag_controller unit
-    jc_mem_adr_rd_i       : in std_logic_vector (8 downto 0);
-
+    -- Signals from the wf_jtag_controller unit
+    jc_mem_adr_rd_i       : in std_logic_vector (8 downto 0);   -- address of byte to be read and
+                                                                -- transferred to the wf_jtag _controller
 
   -- OUTPUTS
     -- nanoFIP User Interface, WISHBONE Slave output
     data_o                : out std_logic_vector (15 downto 0); -- data out bus
 
-    -- Signals to the WF_jtag_controller unit
-    jc_mem_data_o         : out std_logic_vector (7 downto 0);
+    -- Signals to the wf_jtag_controller unit
+    jc_mem_data_o         : out std_logic_vector (7 downto 0);  -- byte to be transferred to the wf_jtag _controller
 
-    -- Signals to the WF_cons_outcome unit
+    -- Signals to the wf_cons_outcome unit
     cons_ctrl_byte_o      : out std_logic_vector (7 downto 0);  -- received RP_DAT CTRL byte
     cons_lgth_byte_o      : out std_logic_vector (7 downto 0);  -- received RP_DAT LGTH byte
     cons_pdu_byte_o       : out std_logic_vector (7 downto 0);  -- received RP_DAT PDY_TYPE byte
     cons_var_rst_byte_1_o : out std_logic_vector (7 downto 0);  -- received var_rst RP_DAT, 1st data byte
     cons_var_rst_byte_2_o : out std_logic_vector (7 downto 0)); -- received var_rst RP_DAT, 2nd data byte
 
-end entity WF_cons_bytes_processor;
+end entity wf_cons_bytes_processor;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_cons_bytes_processor is
+architecture rtl of wf_cons_bytes_processor is
 
   -- addressing the memory
   signal s_base_adr       : unsigned (8 downto 0);
@@ -170,11 +175,11 @@ begin
 --                         Memory mode Consumed & Consumed Broadcast RAM                         --
 --               Storage (by the unit) & retreival (by the user) of consumed bytes               --
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a Dual Port Consumed RAM (for both the consumed and consumed broadcast vars).
--- Port A is connected to the WISHBONE interface for the readings from the user and
--- Port B is used by the nanoFIP for the writings into the memory.
+-- Instantiation of a 512 x 8  Dual Port RAM, for both the consumed and consumed broadcast vars
+-- Port A is connected to the WISHBONE interface for the readings from the user
+-- Port B is used by the nanoFIP for the writings into the memory
 
-  Consumption_RAM : WF_dualram_512x8_clka_rd_clkb_wr
+  Consumption_RAM : wf_dualram_512x8_clka_rd_clkb_wr
   port map(
     clk_porta_i      => wb_clk_i,	        -- WISHBONE clock
     addr_porta_i     => wb_adr_i,           -- address of byte to be read
@@ -192,11 +197,12 @@ begin
 --                                      JTAG Consumed  RAM                                       --
 --         Storage (by this unit) & retreival (by the JTAG_controller unit) of consumed bytes    --
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a Dual Port Consumed RAM for the storage of jc_var1 variables.
--- nanoFIP's user clock uclk is connected to both ports of the memory; the writing of the consumed
--- data and the reading of them (by the wf_jtag_controller) takes place internally inside nanoFIP.
+-- Instantiation of a 512 x 8 Dual Port RAM for the storage of var_4 variables.
+-- Only 127 bytes of memory are used.
+-- nanoFIP's user clock uclk is connected to both ports of the memory; the writing of the
+-- consumed data and the reading of them (by the wf_jtag_controller) take place internally.
 
-  Consumption_JTAG_RAM : WF_dualram_512x8_clka_rd_clkb_wr
+  Consumption_JTAG_RAM : wf_dualram_512x8_clka_rd_clkb_wr
   port map(
     clk_porta_i      => uclk_i,	            -- user clock
     addr_porta_i     => jc_mem_adr_rd_i,    -- address of byte to be read
@@ -253,16 +259,16 @@ begin
 --                                        Bytes Processing                                       --
 ---------------------------------------------------------------------------------------------------
 -- Combinatorial process Bytes_Processing: Data bytes are consumed according to the
--- variable type (var_1, var_2, var_rst) they belong to.
+-- variable type (var_1, var_2, var_rst, var_4) they belong to.
 
 -- In memory and in stand-alone mode, bytes are consumed even if any of the CTRL, PDU_TYPE,
 -- LGTH, CRC or FES bytes of the consumed RP_DAT frame are incorrect.
 -- It is the VAR_RDY signal that signals the user for the validity of the consumed data.
 
--- In memory mode the treatment of a var_1 is identical to the one of a var_2; it is only the base
--- address of the memory that differs. The incoming bytes (byte_i) after the CTRL byte and
--- before the CRC bytes, are written in the memory one by one as they arrive, on the moments
--- indicated by the byte_ready_p_i pulses.
+-- The treatment of a var_1 or a var_2 in memory mode is identical to the treatment of a var_5;
+-- it is only the addresses of the memories that differ. The incoming bytes (byte_i) after the CTRL
+-- byte and before the CRC bytes, are written in the memory one by one as they arrive, on the
+-- moments indicated by the byte_ready_p_i pulses.
 -- To distinguish the CTRL and the CRC bytes from the rest, the signals byte_index_i and LGTH
 -- (s_cons_lgth_byte) are used:
 --   o the CTRL byte arrives when byte_index_i = 0
@@ -303,7 +309,7 @@ begin
             cons_var_rst_byte_2_o  <= (others => '0');
             s_jc_mem_wr_en_p       <= '0';
             s_base_adr             <= c_VARS_ARRAY(c_VAR_1_INDEX).base_addr;-- base address
-                                                                            -- from WF_package
+                                                                            -- from wf_package
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then
@@ -418,14 +424,14 @@ begin
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
-      when var_jc1 =>
+      when var_4 =>
 
             cons_var_rst_byte_1_o   <= (others => '0');
             cons_var_rst_byte_2_o   <= (others => '0');
             s_slone_wr_en_p         <= (others => '0');
             s_mem_wr_en_p           <= '0';
-            s_base_adr              <= c_VARS_ARRAY(c_VAR_JC1_INDEX).base_addr;-- base address
-                                                                               -- from WF_package
+            s_base_adr              <= c_VARS_ARRAY(c_VAR_4_INDEX).base_addr;-- base address
+                                                                             -- from wf_package
             --  --  --  --  --  --  --  --  --  --  --  --
 
             if (unsigned(byte_index_i)> 0 and  unsigned(byte_index_i)< 127) then -- memory limits
@@ -470,9 +476,12 @@ end process;
 --                                    CTRL, PDU_TYPE, LGTH bytes                                 --
 ---------------------------------------------------------------------------------------------------
 -- Synchronous process Register_CTRL_PDU_LGTH_bytes: Storage of the CTRL, PDU_TYPE
--- and LGTH bytes of an incoming RP_DAT frame. The bytes are sent to the WF_cons_outcome
--- unit that validates them and accordingly activates the VAR1_RDY (for a var_1),
--- VAR2_RDY (for a var_2), assert_rston_p & rst_nfip_and_fd_p (for a var_rst).
+-- and LGTH bytes of an incoming RP_DAT frame. The bytes are sent to the wf_cons_outcome
+-- unit that validates them and accordingly activates the:
+-- VAR1_RDY, for a var_1,
+-- VAR2_RDY, for a var_2,
+-- assert_rston_p & rst_nfip_and_fd_p, for a var_rst,
+-- jc_start_p, for a var_4.
 
   Register_CTRL_PDU_LGTH_bytes: process (uclk_i)
   begin
@@ -485,7 +494,7 @@ end process;
 
       else
 
-        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1)then  -- only for consumed vars
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_4)then  -- only for consumed vars
 
           if (byte_index_i = c_CTRL_BYTE_INDEX) and (byte_ready_p_i='1') then
             cons_ctrl_byte_o <= byte_i;

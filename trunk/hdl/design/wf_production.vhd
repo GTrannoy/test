@@ -7,49 +7,51 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                         WF_production                                          |
+--                                         wf_production                                          |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_production.vhd                                                                 |
+-- File         wf_production.vhd                                                                 |
 --                                                                                                |
 -- Description  The unit groups the main actions that regard data production.                     |
 --              It instantiates the units:                                                        |
 --                                                                                                |
---              o WF_prod_bytes_retriever: that retrieves                                         |
---                                         o user-data bytes: from the Produced RAM or the        |
---                                           "nanoFIP User Interface, NON-WISHBONE" bus DAT_I,    |
---                                         o PDU,CTRL bytes : from the WF_package                 |
---                                         o MPS,nFIP status: from the WF_status_bytes_gen        |
---                                         o LGTH byte      : from the WF_prod_data_lgth_calc     |
+--              o wf_prod_bytes_retriever: that retrieves                                         |
+--                                         o user-data bytes from :                               |
+--                                           - the Produced RAM or                                |
+--                                           - or the"nanoFIP User Interface,NON-WISHBONE"bus DAT_I
+--                                           - or the wf_jtag_controller unit                     |
+--                                         o PDU,CTRL bytes : from the wf_package                 |
+--                                         o MPS,nFIP status: from the wf_status_bytes_gen        |
+--                                         o LGTH byte      : from the wf_prod_data_lgth_calc     |
 --                                        and following the signals from the external unit,       |
---                                        WF_engine_control,forwards them to the WF_fd_transmitter|
+--                                        wf_engine_control,forwards them to the wf_fd_transmitter|
 --                                                                                                |
---               o WF_status_bytes_gen   : that receives information from the WF_consumption unit,|
+--               o wf_status_bytes_gen   : that receives information from the wf_consumption unit,|
 --                                         the "FIELDRIVE" & "User Interface,NON-WISHBONE" inputs |
 --                                         and outputs, and generates the nanoFIP and the MPS     |
 --                                         status bytes                                           |
 --                                                                                                |
---               o WF_prod_permit        : that signals the user that user-data bytes can safely  |
+--               o wf_prod_permit        : that signals the user that user-data bytes can safely  |
 --                                         be written to the memory or the DAT_I bus              |
 --                                                                                                |
 --                      ___________________________________________________________               |
---                     |                       WF_production                       |              |
+--                     |                       wf_production                       |              |
 --                     |                                                           |              |
 --                     |   _________________________________                       |              |
 --                     |  |                                 |                      |              |
---                     |  |          WF_prod_permit         |                      |              |
+--                     |  |          wf_prod_permit         |                      |              |
 --                     |  |_________________________________|                      |              |
 --                     |                                                           |              |
 --                     |   _________________________________     ________________  |              |
 --                     |  |                                 |   |                | |              |
---                     |  |      WF_prod_bytes_retriever    | < | WF_status_bytes| |              |
+--                     |  |      wf_prod_bytes_retriever    | < | wf_status_bytes| |              |
 --                     |  |                                 |   |      _gen      | |              |
 --                     |  |_________________________________|   |________________| |              |
 --                     |___________________________________________________________|              |
 --                                                  \/                                            |
 --                      ___________________________________________________________               |
 --                     |                                                           |              |
---                     |                     WF_fd_transmitter                     |              |
+--                     |                     wf_fd_transmitter                     |              |
 --                     |___________________________________________________________|              |
 --                                                  \/                                            |
 --                   ___________________________________________________________________          |
@@ -61,18 +63,18 @@
 --                                                                                                |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
--- Date         6/2011                                                                        |
--- Version      v0.03                                                                              |
--- Depends on   WF_reset_unit                                                                     |
---              WF_consumption                                                                    |
---              WF_engine_control                                                                 |
---              WF_wb_controller                                                                  |
---              WF_model_constr_decoder                                                           |
---              WF_jtag_controller                                                                |
+-- Date         6/2011                                                                            |
+-- Version      v0.03                                                                             |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_consumption                                                                    |
+--              wf_engine_control                                                                 |
+--              wf_wb_controller                                                                  |
+--              wf_model_constr_decoder                                                           |
+--              wf_jtag_controller                                                                |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
---     2/2011  v0.02  EG  WF_serializer removed from this unit                                    |
---     6/2011  v0.03  EG  added WF_jtag_controller+handling                                       |
+--     2/2011  v0.02  EG  wf_serializer removed from this unit                                    |
+--     6/2011  v0.03  EG  added wf_jtag_controller+handling                                       |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -100,14 +102,14 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_production
+--                           Entity declaration for wf_production
 --=================================================================================================
 
-entity WF_production is port(
+entity wf_production is port(
   -- INPUTS
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, General signals
@@ -116,15 +118,15 @@ entity WF_production is port(
       -- used by: all the units
 
       slone_i                 : in std_logic;
-      -- used by: WF_prod_bytes_retriever for the selection of data bytes from the RAM or the DAT_I
-      -- used by: WF_status_bytes_gen because the MPS status is different in memory & stand-alone
+      -- used by: wf_prod_bytes_retriever for the selection of data bytes from the RAM or the DAT_I
+      -- used by: wf_status_bytes_gen because the MPS status is different in memory & stand-alone
 
       nostat_i                : in std_logic;
-      -- used by: WF_prod_bytes_retriever for the delivery or not of the nanoFIP status byte
+      -- used by: wf_prod_bytes_retriever for the delivery or not of the nanoFIP status byte
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signal from the WF_reset_unit unit
+    -- Signal from the wf_reset_unit unit
 
       nfip_rst_i              : in std_logic;
        -- used by: all the units
@@ -136,26 +138,26 @@ entity WF_production is port(
       wb_clk_i                : in std_logic;
       wb_adr_i                : in std_logic_vector (8 downto 0);
       wb_data_i               : in std_logic_vector (7 downto 0);
-       -- used by: WF_prod_bytes_retriever for the managment of the Production RAM
+       -- used by: wf_prod_bytes_retriever for the managment of the Production RAM
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signal from the WF_wb_controller
+    -- Signal from the wf_wb_controller
 
       wb_ack_prod_p_i         : in std_logic;
-       -- used by: WF_prod_bytes_retriever for the latching of the wb_data_i
+       -- used by: wf_prod_bytes_retriever for the latching of the wb_data_i
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, NON-WISHBONE
 
       slone_data_i            : in std_logic_vector (15 downto 0);
-      -- used by: WF_prod_bytes_retriever for the bytes retreival in stand-alone mode
+      -- used by: wf_prod_bytes_retriever for the bytes retreival in stand-alone mode
 
       var1_acc_a_i            : in std_logic;
       var2_acc_a_i            : in std_logic;
       var3_acc_a_i            : in std_logic;
-      -- used by: WF_status_bytes_gen for the nanoFIP status byte, bits 2, 3
+      -- used by: wf_status_bytes_gen for the nanoFIP status byte, bits 2, 3
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -163,47 +165,48 @@ entity WF_production is port(
 
       fd_txer_a_i             : in  std_logic;
       fd_wdgn_a_i             : in  std_logic;
-      -- used by: WF_status_bytes_gen for the nanoFIP status byte, bits 6, 7
+      -- used by: wf_status_bytes_gen for the nanoFIP status byte, bits 6, 7
+
+
+ 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+    -- Signals from the wf_jtag_controller unit
+      jc_tdo_byte_i           : in std_logic_vector (7 downto 0);
+      -- used by: wf_prod_bytes_retriever for the bytes retreival of a var_5
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_engine_control
+    -- Signals from the wf_engine_control
 
       byte_index_i            : in std_logic_vector (7 downto 0);
       data_lgth_i             : in std_logic_vector (7 downto 0);
       byte_request_accept_p_i : in std_logic;
-      var_i                   : in t_var; -- also used by: WF_prod_permit for the VAR3_RDY generation
-      -- used by: WF_prod_bytes_retriever for the definition of the bytes to be delivered
+      var_i                   : in t_var; -- also used by: wf_prod_permit for the VAR3_RDY generation
+      -- used by: wf_prod_bytes_retriever for the definition of the bytes to be delivered
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_consumption
+    -- Signals from the wf_consumption
 
       var1_rdy_i              : in std_logic;
       var2_rdy_i              : in std_logic;
       nfip_status_r_fcser_p_i : in std_logic;
       nfip_status_r_tler_p_i  : in std_logic;
-      -- used by: WF_status_bytes_gen for the generation of the nanoFIP status byte, bits 2, 4, 5
+      -- used by: wf_status_bytes_gen for the generation of the nanoFIP status byte, bits 2, 4, 5
 
 
  	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_model_constr_decoder unit
+    -- Signals from the wf_model_constr_decoder unit
 
       constr_id_dec_i         : in  std_logic_vector (7 downto 0);
       model_id_dec_i          : in  std_logic_vector (7 downto 0);
-      -- used by: WF_prod_bytes_retriever for the production of a var_identif
-
-
- 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_jtag_controller unit
-      jc_tdo_byte_i           : in std_logic_vector (7 downto 0);
+      -- used by: wf_prod_bytes_retriever for the production of a var_identif
 
 
 
   -------------------------------------------------------------------------------------------------
   -- OUTPUTS
 
-    -- Signal to the WF_FD_transmitter
+    -- Signal to the wf_FD_transmitter
       byte_o                  : out std_logic_vector (7 downto 0);
 
     -- nanoFIP User Interface, NON-WISHBONE outputs
@@ -213,13 +216,13 @@ entity WF_production is port(
       r_tler_o                : out std_logic;
       var3_rdy_o              : out std_logic);
 
-end entity WF_production;
+end entity wf_production;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture struc of WF_production is
+architecture struc of wf_production is
 
   signal s_var3_rdy           : std_logic;
   signal s_rst_status_bytes_p : std_logic;
@@ -236,15 +239,15 @@ begin
 --                                       Production Permit                                       --
 ---------------------------------------------------------------------------------------------------
 
--- Instantiation of the WF_prod_permit unit
+-- Instantiation of the wf_prod_permit unit
 
-  production_VAR3_RDY_generation: WF_prod_permit
+  production_VAR3_RDY_generation: wf_prod_permit
   port map(
-    uclk_i     => uclk_i,
-    nfip_rst_i => nfip_rst_i,
-    var_i      => var_i,
+    uclk_i                  => uclk_i,
+    nfip_rst_i              => nfip_rst_i,
+    var_i                   => var_i,
    -----------------------------------------------
-    var3_rdy_o => s_var3_rdy);
+    var3_rdy_o              => s_var3_rdy);
    -----------------------------------------------
 
 
@@ -253,32 +256,32 @@ begin
 --                                          Bytes Retreival                                      --
 ---------------------------------------------------------------------------------------------------
 
--- Instantiation of the WF_prod_bytes_retriever unit
+-- Instantiation of the wf_prod_bytes_retriever unit
 
-  production_bytes_retriever : WF_prod_bytes_retriever
+  production_bytes_retriever : wf_prod_bytes_retriever
   port map(
-    uclk_i               => uclk_i,
-    model_id_dec_i       => model_id_dec_i,
-    constr_id_dec_i      => constr_id_dec_i,
-    slone_i              => slone_i,
-    nostat_i             => nostat_i,
-    nfip_rst_i           => nfip_rst_i,
-    wb_clk_i             => wb_clk_i,
-    wb_adr_i             => wb_adr_i,
-    wb_ack_prod_p_i      => wb_ack_prod_p_i,
-    nFIP_status_byte_i   => s_nfip_stat,
-    mps_status_byte_i    => s_mps,
-    var_i                => var_i,
-    byte_index_i         => byte_index_i,
-    byte_being_sent_p_i  => byte_request_accept_p_i,
-    data_lgth_i          => data_lgth_i,
-    wb_data_i            => wb_data_i,
-    slone_data_i         => slone_data_i,
-    var3_rdy_i           => s_var3_rdy,
-    jc_tdo_byte_i        => jc_tdo_byte_i,
+    uclk_i                  => uclk_i,
+    model_id_dec_i          => model_id_dec_i,
+    constr_id_dec_i         => constr_id_dec_i,
+    slone_i                 => slone_i,
+    nostat_i                => nostat_i,
+    nfip_rst_i              => nfip_rst_i,
+    wb_clk_i                => wb_clk_i,
+    wb_adr_i                => wb_adr_i,
+    wb_ack_prod_p_i         => wb_ack_prod_p_i,
+    nFIP_status_byte_i      => s_nfip_stat,
+    mps_status_byte_i       => s_mps,
+    var_i                   => var_i,
+    byte_index_i            => byte_index_i,
+    byte_being_sent_p_i     => byte_request_accept_p_i,
+    data_lgth_i             => data_lgth_i,
+    wb_data_i               => wb_data_i,
+    slone_data_i            => slone_data_i,
+    var3_rdy_i              => s_var3_rdy,
+    jc_tdo_byte_i           => jc_tdo_byte_i,
    -----------------------------------------------
-    rst_status_bytes_p_o => s_rst_status_bytes_p,
-    byte_o               => byte_o);
+    rst_status_bytes_p_o    => s_rst_status_bytes_p,
+    byte_o                  => byte_o);
    -----------------------------------------------
 
 
@@ -287,9 +290,9 @@ begin
 --                                    Status Byte Generation                                     --
 ---------------------------------------------------------------------------------------------------
 
--- Instantiation of the WF_status_bytes_gen unit
+-- Instantiation of the wf_status_bytes_gen unit
 
-  production_status_bytes_generator : WF_status_bytes_gen
+  production_status_bytes_generator : wf_status_bytes_gen
   port map(
     uclk_i                  => uclk_i,
     nfip_rst_i              => nfip_rst_i,
@@ -315,7 +318,7 @@ begin
     mps_status_byte_o       => s_mps);
    -----------------------------------------------
 
-    var3_rdy_o  <= s_var3_rdy;
+    var3_rdy_o              <= s_var3_rdy;
 
 
 

@@ -7,20 +7,22 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                        WF_decr_counter                                         |
+--                                        wf_decr_counter                                         |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_decr_counter.vhd                                                               |
+-- File         wf_decr_counter.vhd                                                               |
 -- Description  Decreasing counter with synchronous reset, load enable and decrease enable        |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         10/2010                                                                           |
 -- Version      v0.01                                                                             |
--- Depends on   WF_reset_unit                                                                     |
+-- Depends on   -                                                                                 |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     10/2010  EG  v0.01  first version                                                          |
---     10/2010  EG  v0.01b initial value after reset is all '1' not all '0'                       |
+--     10/2011  EG  v0.01b nfip_rst_i renamed to counter_rst_i; counter_top renamed to            |
+--                         counter_top_i; initial value after reset is all '1';                   |
+--                         counter_decr_p_i renamed to counter_decr_i                             |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -48,27 +50,27 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_decr_counter
+--                           Entity declaration for wf_decr_counter
 --=================================================================================================
 
-entity WF_decr_counter is
+entity wf_decr_counter is
   generic(g_counter_lgth : natural := 4);                         -- default length
   port(
   -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i            : in std_logic;                             -- 40 MHz clock
 
-    -- Signal from the WF_reset_unit
-    nfip_rst_i        : in std_logic;                             -- nanoFIP internal reset
+    -- Signal from the wf_reset_unit
+    counter_rst_i     : in std_logic;                             -- resets counter to all '1'
 
     -- Signals from any unit
-    counter_decr_p_i  : in std_logic;                             -- decrement enable
-    counter_load_i    : in std_logic;                             -- load enable
-    counter_top       : in unsigned (g_counter_lgth-1 downto 0);  -- load value
+    counter_decr_i    : in std_logic;                             -- decrement enable
+    counter_load_i    : in std_logic;                             -- load enable; loads counter to counter_top_i
+    counter_top_i     : in unsigned (g_counter_lgth-1 downto 0);  -- load value
 
 
   -- OUTPUTS
@@ -76,13 +78,13 @@ entity WF_decr_counter is
     counter_o         : out unsigned (g_counter_lgth-1 downto 0); -- counter
     counter_is_zero_o : out std_logic);                           -- empty counter indication
 
-end entity WF_decr_counter;
+end entity wf_decr_counter;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_decr_counter is
+architecture rtl of wf_decr_counter is
 
   signal s_counter : unsigned (g_counter_lgth-1 downto 0);
 
@@ -100,14 +102,14 @@ begin
   begin
     if rising_edge (uclk_i) then
 
-      if nfip_rst_i = '1' then
+      if counter_rst_i = '1' then
         s_counter   <= (others => '1');
       else
 
         if counter_load_i = '1' then
-          s_counter <= counter_top;
+          s_counter <= counter_top_i;
 
-        elsif counter_decr_p_i = '1' then
+        elsif counter_decr_i = '1' then
           s_counter <= s_counter - 1;
 
         end if;

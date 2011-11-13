@@ -7,15 +7,15 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                       WF_rx_deserializer                                       |
+--                                       wf_rx_deserializer                                       |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_rx_deserializer.vhd                                                            |
+-- File         wf_rx_deserializer.vhd                                                            |
 --                                                                                                |
 -- Description  De-serialization of the deglitched "nanoFIP FIELDRIVE" input signal FD_RXD and    |
 --              construction of bytes of data to be provided to:                                  |
---                o the WF_engine_control unit, for the contents of ID_DAT frames                 |
---                o the WF_consumption unit,    for the contents of consumed RP_DAT frames.       |
+--                o the wf_engine_control unit, for the contents of ID_DAT frames                 |
+--                o the wf_consumption unit,    for the contents of consumed RP_DAT frames.       |
 --              The unit is also responsible for the identification of the FSS and FES fields of  |
 --              ID_DAT and RP_DAT frames and the verification of their CRC.                       |
 --              At the end of a frame (FES detection) either the fss_crc_fes_ok_p_o pulse         |
@@ -35,7 +35,7 @@
 --                                                                                                |
 --               o the sampling of a manch. bit: for the moments when a manch. encoded bit should |
 --                 be sampled, before and after a significant edge.                               |
---                                                                                                | 
+--                                                                                                |
 --               o the sampling of a bit       : for the sampling of only the 1st part,           |
 --                 before the transition.                                                         |
 --                                                                                                |
@@ -57,17 +57,17 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         15/02/2011                                                                        |
 -- Version      v0.05                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_rx_osc                                                                         |
---              WF_rx_deglitcher                                                                  |
---              WF_engine_control                                                                 |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_rx_osc                                                                         |
+--              wf_rx_deglitcher                                                                  |
+--              wf_engine_control                                                                 |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     09/2009 v0.01 PAS First version                                                            |
 --     10/2010 v0.02 EG  state switch_to_deglitched added;                                        |
 --                       output signal rx_osc_rst_o added; signals renamed;                       |
 --                       state machine rewritten (moore style);                                   |
---                       units WF_rx_manch_code_check and Incoming_Bits_Index created;            |
+--                       units wf_rx_manch_code_check and Incoming_Bits_Index created;            |
 --                       each manch bit of FES checked (bf was just each bit, so any D5 was FES)  |
 --                       code cleaned-up + commented.                                             |
 --     12/2010 v0.03 EG  CRC_ok pulse transfered 16 bits later to match the FES;                  |
@@ -85,6 +85,7 @@
 --                       and the crc_wrong_p_o is asserted (bc of s_sample_manch_bit_p_d1);       |
 --                       unit reset during production;                                            |
 --                       check for code vilations completely removed!                             |
+--    10/2011  v0.05b EG moved session_timedout in the synchronous FSM process                    |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -112,32 +113,33 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_rx_deserializer
+--                           Entity declaration for wf_rx_deserializer
 --=================================================================================================
 
-entity WF_rx_deserializer is port(
+entity wf_rx_deserializer is port(
   -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i               : in std_logic; -- 40 MHz clock
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i           : in std_logic; -- nanoFIP internal reset
 
-    -- Signal from the WF_engine_control unit
+    -- Signal from the wf_engine_control unit
     rx_rst_i             : in std_logic; -- reset during production or
-                                         -- reset pulse when consumption is lasting more than
-                                         -- expected (ID_DAT > 8 bytes, RP_DAT > 134 bytes)
+                                         -- reset pulse when during reception a frame is rejected
+                                         -- by the engine_control (example: ID_DAT > 8 bytes, 
+                                         -- RP_DAT > 133 bytes, wrong ID_DAT CTRL/ VAR/ SUBS bytes)
 
-    -- Signals from the WF_rx_deglitcher
+    -- Signals from the wf_rx_deglitcher
     fd_rxd_f_edge_p_i    : in std_logic; -- indicates a falling edge on the deglitched FD_RXD
     fd_rxd_r_edge_p_i    : in std_logic; -- indicates a rising  edge on the deglitched FD_RXD
     fd_rxd_i             : in std_logic; -- deglitched FD_RXD
 
-    -- Signals from the WF_rx_osc unit
+    -- Signals from the wf_rx_osc unit
     sample_manch_bit_p_i : in std_logic; -- pulse indicating the sampling of a manch. bit
     sample_bit_p_i       : in std_logic; -- pulse indicating the sampling of a bit
     signif_edge_window_i : in std_logic; -- time window where a significant edge is expected
@@ -146,43 +148,49 @@ entity WF_rx_deserializer is port(
 
 
   -- OUTPUTS
-    -- Signals to the WF_consumption and the WF_engine_control units
+    -- Signals to the wf_consumption and the wf_engine_control units
     byte_o               : out std_logic_vector (7 downto 0) ;   -- retrieved data byte
     byte_ready_p_o       : out std_logic; -- pulse indicating a new retrieved data byte
     fss_crc_fes_ok_p_o   : out std_logic; -- indication of a frame (ID_DAT or RP_DAT) with
                                           -- correct FSS, FES and CRC
 
-    -- Signal to the WF_production and the WF_engine_control units
-    crc_wrong_p_o        : out std_logic; -- indication of a wrong CRC on an ID_DAT or RP_DAT
-                                          -- pulse upon FES detection
+    -- Signal to the wf_production and the wf_engine_control units
+    crc_wrong_p_o        : out std_logic; -- indication of a frame (ID_DAT or RP_DAT) with a
+                                          -- wrong CRC; pulse upon FES detection
 
-    -- Signal to the WF_engine_control unit
+    -- Signal to the wf_engine_control unit
     fss_received_p_o     : out std_logic; -- pulse upon reception of a correct FSS (ID/RP)
 
-    -- Signal to the WF_rx_osc unit
+    -- Signal to the wf_rx_osc unit
     rx_osc_rst_o         : out std_logic);-- resets the clk recovery procedure
 
-end entity WF_rx_deserializer;
+end entity wf_rx_deserializer;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_rx_deserializer is
+architecture rtl of wf_rx_deserializer is
 
+  -- FSM
   type rx_st_t  is (idle, pre_field_first_f_edge, pre_field_r_edge, pre_field_f_edge, fsd_field,
                                                                          ctrl_data_fcs_fes_fields);
   signal rx_st, nx_rx_st                                                               : rx_st_t;
   signal s_idle, s_receiving_pre, s_receiving_fsd, s_receiving_bytes                   : std_logic;
-  signal s_fsd_bit, s_fsd_wrong_bit, s_fsd_last_bit, s_fes_detected                    : std_logic;
-  signal s_write_bit_to_byte_p,s_byte_ready_p,s_byte_ready_p_d1,s_sample_manch_bit_p_d1: std_logic;
+  -- PRE detection
   signal s_manch_r_edge_p, s_manch_f_edge_p, s_bit_r_edge_p, s_edge_out_manch_window_p : std_logic;
+  -- FSD, FES detection
+  signal s_fsd_bit, s_fsd_wrong_bit, s_fsd_last_bit, s_fes_detected                    : std_logic;
+  signal s_arriving_fes                                           : std_logic_vector (15 downto 0);
+  -- bytes construction
+  signal s_write_bit_to_byte_p,s_byte_ready_p,s_byte_ready_p_d1,s_sample_manch_bit_p_d1: std_logic;
   signal s_manch_bit_index_load_p, s_manch_bit_index_decr_p, s_manch_bit_index_is_zero : std_logic;
-  signal s_CRC_ok_p, s_CRC_ok_p_d, s_CRC_ok_p_found                                    : std_logic;
-  signal s_session_timedout                                                            : std_logic;
   signal s_manch_bit_index, s_manch_bit_index_top                          : unsigned (3 downto 0);
   signal s_byte                                                   : std_logic_vector  (7 downto 0);
-  signal s_arriving_fes                                           : std_logic_vector (15 downto 0);
+  -- CRC calculation
+  signal s_CRC_ok_p, s_CRC_ok_p_d, s_CRC_ok_p_found                                    : std_logic;
+  -- independant timeout counter
+  signal s_session_timedout                                                            : std_logic;
 
 
 --=================================================================================================
@@ -201,11 +209,16 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process Deserializer_FSM_Sync: storage of the current state of the FSM
+-- A robust protection, that depends only on the system clock, has been implemented:
+-- knowing that at any bit rate the reception of a frame should not last more than 35ms (this
+-- corresponds to the consumption of 133 bytes at 31.25 Kbps), a counter has been implemented,
+-- responsible for bringing the machine back to idle if more than 52ms (complete 21 bit counter)
+-- have passed since the machine left the idle state.
 
   Deserializer_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_rst_i = '1' then
+        if nfip_rst_i = '1' or rx_rst_i = '1' or s_session_timedout = '1' then
           rx_st <= idle;
         else
           rx_st <= nx_rx_st;
@@ -219,39 +232,23 @@ begin
 -- transitions of the FSM.
 
   Deserializer_FSM_Comb_State_Transitions: process (s_bit_r_edge_p, s_edge_out_manch_window_p,
-                                                    rx_rst_i, fd_rxd_f_edge_p_i, s_manch_r_edge_p,
-                                                    s_fsd_wrong_bit, s_manch_f_edge_p, rx_st,
-                                                    s_fsd_last_bit, s_fes_detected,
-                                                    s_session_timedout)
+                                                    fd_rxd_f_edge_p_i, s_manch_r_edge_p, rx_st,
+                                                    s_fsd_wrong_bit, s_manch_f_edge_p,
+                                                    s_fsd_last_bit, s_fes_detected)
   begin
-
-  -- During the PRE, the WF_rx_osc is trying to synchronize to the transmitter's clock and every
-  -- edge detected in the FD_RXD is taken into account. At this phase, the unit uses
-  -- the WF_rx_osc signals: adjac_bits_window_i and signif_edge_window_i and if edges are found
-  -- outside those windows the unit goes back to idle and the WF_rx_osc is reset.
-  -- For the rest of the frame, the unit is just sampling the deglitched FD_RXD on the moments
-  -- specified by the WF_rx_osc signals: sample_manch_bit_p_i and sample_bit_p_i.
-
-  -- nanoFIP can receive ID_DATs of a predefined length of 8 bytes and RP_DATs of any length
-  -- (not predefined) up to 133 bytes (FSS+CTRL+PDU_TYPE+LGTH+124 application_data+MPS+FCS+FES).
-  -- The WF_engine_control unit is following the amount of bytes being received and in case
-  -- their number exceeds the expected one, it activates the signal rx_rst_i.
-  -- Moreover, an extra more robust protection, that depends only on the system clock, has been
-  -- added so as to add an extra layer of assurance. Knowing that at any bit rate the reception
-  -- of a frame should not last more than 35ms (this corresponds to the consumption of 134 bytes at
-  -- 31.25 Kbps), a counter has been implemented, responsible for bringing the machine back to idle
-  -- if more than 52ms (complete 21 bit counter) have passed since the machine left the idle state.
 
   case rx_st is
 
+    -- During the PRE, the wf_rx_osc is trying to synchronize to the transmitter's clock and every
+    -- edge detected in the FD_RXD is taken into account. At this phase, the unit uses
+    -- the wf_rx_osc signals: adjac_bits_window_i and signif_edge_window_i and if edges are found
+    -- outside those windows the unit goes back to idle and the wf_rx_osc is reset.
+    -- For the rest of the frame, the unit is just sampling the deglitched FD_RXD on the moments
+    -- specified by the wf_rx_osc signals: sample_manch_bit_p_i and sample_bit_p_i.
 
     when idle =>
 
-                        if rx_rst_i = '1' then                 -- nanoFIP producing or 
-                          nx_rx_st <= idle;                    -- nanoFIP consuming and an excessive
-                                                               -- number of bytes has arrived
-
-                        elsif fd_rxd_f_edge_p_i = '1' then     -- falling edge detection
+                        if fd_rxd_f_edge_p_i = '1' then        -- falling edge detection
                           nx_rx_st <= pre_field_first_f_edge;
 
                         else
@@ -260,10 +257,8 @@ begin
 
 
     when pre_field_first_f_edge =>
-                        if (rx_rst_i = '1') or (s_session_timedout = '1') then
-                          nx_rx_st <= idle;
 
-                        elsif s_manch_r_edge_p = '1' then      -- arrival of a manch.
+                        if s_manch_r_edge_p = '1' then         -- arrival of a manch.
                           nx_rx_st <= pre_field_r_edge;        -- rising edge
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
@@ -275,10 +270,8 @@ begin
 
 
     when pre_field_r_edge =>
-                        if (rx_rst_i = '1') or (s_session_timedout = '1') then
-                          nx_rx_st <= idle;
 
-                        elsif s_manch_f_edge_p = '1' then      -- arrival of a manch. falling edge
+                        if s_manch_f_edge_p = '1' then         -- arrival of a manch. falling edge
                           nx_rx_st <= pre_field_f_edge;        -- note: several loops between
                                                                -- a rising and a falling edge are
                                                                -- expected for the PRE
@@ -292,10 +285,8 @@ begin
 
 
     when pre_field_f_edge =>
-                        if (rx_rst_i = '1') or (s_session_timedout = '1') then
-                          nx_rx_st <= idle;
 
-                        elsif s_manch_r_edge_p = '1' then      -- arrival of a manch. rising edge
+                        if s_manch_r_edge_p = '1' then         -- arrival of a manch. rising edge
                           nx_rx_st <= pre_field_r_edge;
 
                         elsif s_bit_r_edge_p = '1' then        -- arrival of a rising edge between
@@ -316,10 +307,8 @@ begin
     -- whereas if the complete byte is correctly received, it jumps to the ctrl_data_fcs_fes_fields.
 
     when fsd_field =>
-                        if (rx_rst_i = '1') or (s_session_timedout = '1') then
-                          nx_rx_st <= idle;
 
-                        elsif s_fsd_last_bit = '1' then        -- reception of the last (15th)
+                        if s_fsd_last_bit = '1' then           -- reception of the last (15th)
                           nx_rx_st <= ctrl_data_fcs_fes_fields;-- FSD bit
 
                         elsif s_fsd_wrong_bit = '1' then       -- wrong bit
@@ -329,15 +318,16 @@ begin
                           nx_rx_st <= fsd_field;
                         end if;
 
-    -- The state machine stays in the ctrl_data_fcs_fes_fields state until a FES detection, or
-    -- until the number of bytes received has exceeded the expected one, or
-    -- until the time passed in this state has exceeded the expected one.
+    -- The state machine stays in the ctrl_data_fcs_fes_fields state until a FES detection (or
+    -- a reset rx_rst_i signal or a s_session_timeout signal). In this state bytes are "blindly"
+    -- being constructed and it is the wf_engine_control unit that supervises what is being received;
+    -- if for example an ID_DAT is being received without a FES detected after 8 bytes or an
+    -- RP_DAT without a FES after 133 bytes, or if the CTRL byte of an ID_DAT is wrong, the
+    -- engine_control will discard the current reception and reset the FSM through the rx_rst_i.
 
     when ctrl_data_fcs_fes_fields =>
-                        if (rx_rst_i = '1') or (s_session_timedout = '1') then
-                          nx_rx_st <= idle;
 
-                        elsif s_fes_detected = '1' then
+                        if s_fes_detected = '1' then
                           nx_rx_st <= idle;
 
                         else
@@ -417,8 +407,8 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 -- Synchronous process Append_Bit_To_Byte: Creation of bytes of data.
--- A new bit of the FD_RXD is appended to the output byte that is being formed when the
--- Deserializer's FSM is in the "ctrl_data_fcs_fes_fields" state, on the "sample_bit_p_i" moments.
+-- A new bit of the FD_RXD is appended to the output byte that is being formed when the FSM is in
+-- the "ctrl_data_fcs_fes_fields" state, on the "sample_bit_p_i" moments.
 
   Append_Bit_To_Byte: process (uclk_i)
   begin
@@ -450,14 +440,14 @@ begin
 -- Instantiation of a counter that manages the position of an incoming FD_RXD bit inside a manch.
 -- encoded byte (16 bits).
 
-  Incoming_Bits_Index: WF_decr_counter
+  Incoming_Bits_Index: wf_decr_counter
   generic map(g_counter_lgth => 4)
   port map(
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
-    counter_top       => s_manch_bit_index_top,
+    counter_rst_i     => nfip_rst_i,
+    counter_top_i     => s_manch_bit_index_top,
     counter_load_i    => s_manch_bit_index_load_p,
-    counter_decr_p_i  => s_manch_bit_index_decr_p,
+    counter_decr_i    => s_manch_bit_index_decr_p,
     ---------------------------------------------------
     counter_o         => s_manch_bit_index,
     counter_is_zero_o => s_manch_bit_index_is_zero);
@@ -492,7 +482,7 @@ begin
 --                                         FES detection                                         --
 ---------------------------------------------------------------------------------------------------
 
---Synchronous process FES_Detector: The s_arriving_fes register is storing the last 16
+-- Synchronous process FES_Detector: The s_arriving_fes register is storing the last 16
 -- manch. encoded bits received and the s_fes_detected indicates whether they match the FES.
 
   FES_Detector: process (uclk_i)
@@ -521,7 +511,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of the CRC calculator unit that verifies the received FCS field.
 
-  CRC_Verification : WF_crc
+  CRC_Verification : wf_crc
   port map(
     uclk_i             => uclk_i,
     nfip_rst_i         => nfip_rst_i,
@@ -570,18 +560,18 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Instantiation of a WF_decr_counter relying only on the system clock, as an additional
+-- Instantiation of a wf_decr_counter relying only on the system clock, as an additional
 -- way to go back to Idle state, in case any other logic is being stuck. The length of the counter
 -- is defined using the slowest bit rate and considering reception of the upper limit of 134 bytes. 
 
-  Session_Timeout_Counter: WF_decr_counter
+  Session_Timeout_Counter: wf_decr_counter
   generic map(g_counter_lgth => 21)
   port map(
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
-    counter_top       => (others => '1'),
+    counter_rst_i     => nfip_rst_i,
+    counter_top_i     => (others => '1'),
     counter_load_i    => s_idle,
-    counter_decr_p_i  => '1', -- on each uclk tick
+    counter_decr_i    => '1', -- on each uclk tick
     counter_o         => open,
     ---------------------------------------------------
     counter_is_zero_o => s_session_timedout);

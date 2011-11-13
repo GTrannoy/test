@@ -7,10 +7,10 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                           WF_package                                           |
+--                                           wf_package                                           |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_package.vhd                                                                    |
+-- File         wf_package.vhd                                                                    |
 --                                                                                                |
 -- Description  Definitions of constants, types, entities, functions                              |
 -- Author       Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
@@ -27,7 +27,6 @@
 --      2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics          |
 --                         added CTRL bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG        |
 --      2/2011  v0.05  EG  JTAG variables added                                                   |
---                                                                                                |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -57,16 +56,21 @@ use IEEE.NUMERIC_STD.all;    -- conversion functions
 
 
 --=================================================================================================
---                              Package declaration for WF_package
+--                              Package declaration for wf_package
 --=================================================================================================
-package WF_package is
+package wf_package is
 
 
 ---------------------------------------------------------------------------------------------------
---                                Constant regarding the user clock                              --
+--                               Constant regarding the user clock                               --
 ---------------------------------------------------------------------------------------------------
 
   constant c_QUARTZ_PERIOD : real := 25.0;
+
+
+---------------------------------------------------------------------------------------------------
+--                             Constant regarding the deglitch filter                            --
+---------------------------------------------------------------------------------------------------
 
   constant c_DEGLITCH_THRESHOLD : natural := 4;
 
@@ -104,7 +108,7 @@ package WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
---       Constants regarding the CTRL and PDU_TYPE bytes of ID_DAT and RP_DAT frames          --
+--         Constants regarding the CTRL and PDU_TYPE bytes of ID_DAT and RP_DAT frames           --
 ---------------------------------------------------------------------------------------------------
 
   constant c_ID_DAT_CTRL_BYTE         : std_logic_vector (5 downto 0) := "000011";
@@ -119,7 +123,7 @@ package WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
---                          Constants regarding the nanoFIP status bits                         --
+--                          Constants regarding the nanoFIP status bits                          --
 ---------------------------------------------------------------------------------------------------
 
   constant c_U_CACER_INDEX : integer := 2;
@@ -135,17 +139,15 @@ package WF_package is
 --                            Constant regarding the JTAG controller                             --
 ---------------------------------------------------------------------------------------------------
 
-  constant c_MAX_FRAME_BITS : natural := 976; -- maximum number of TMS/ TDI bits that can be sent in
-                                              -- one frame : 122 bytes * 8 bits
+  constant c_MAX_FRAME_BITS : natural := 976;   -- maximum number of TMS/ TDI bits that can be sent
+                                                -- in one frame : 122 bytes * 8 bits
 
-                                                           -- JC_TCK is created by a frequency
-                                                           -- division of the 40 MHz uclk.
-                                                           -- c_JC_TCK_div = 8 gives a JC_TCK of 5 MHz
-
-  constant c_FOUR_JC_TCK_C_LGTH : integer       := 5;      -- length of a counter
-                                                           -- counting 4 JC_TCK periods
-
-
+  constant c_FOUR_JC_TCK_C_LGTH : integer := 5; -- length of a counter counting 4 JC_TCK periods;
+                                                -- the JC_TCK frequency is defined by this constant.
+                                                -- ex: 5 MHz JC_TCK period = 200 ns = 4 uclk periods,
+                                                -- 4 JC_TCK periods = 16 uclk, hence 5 bits counter.
+                                                -- Use c_FOUR_JC_TCK_C_LGTH = 6 for a 2.5 MHz JC_TCK,
+                                                --     c_FOUR_JC_TCK_C_LGTH = 7 for 1.25 MHz etc.
 
 ---------------------------------------------------------------------------------------------------
 --                        Constant regarding the Model & Constructor decoding                    --
@@ -279,7 +281,7 @@ package WF_package is
 
   -- Construction of a table that groups main information for all the variables
 
-  type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_jc1, var_jc3, var_whatever);
+  type t_var is (var_presence, var_identif, var_1, var_2, var_3, var_rst, var_4, var_5, var_whatever);
 
   type t_byte_array is array (natural range <>) of std_logic_vector (7 downto 0);
 
@@ -301,8 +303,8 @@ package WF_package is
   constant c_VAR_1_INDEX        : integer := 3;
   constant c_VAR_2_INDEX        : integer := 4;
   constant c_VAR_RST_INDEX      : integer := 5;
-  constant c_VAR_JC1_INDEX      : integer := 6;
-  constant c_VAR_JC3_INDEX      : integer := 7;
+  constant c_VAR_4_INDEX        : integer := 6;
+  constant c_VAR_5_INDEX        : integer := 7;
 
 
   constant c_VARS_ARRAY : t_var_array(0 to 7) :=
@@ -367,7 +369,7 @@ package WF_package is
                               array_lgth   => "00000000", -- array_lgth & byte_array fields not used
                               byte_array   => (others => x"ff")),
 
-     c_VAR_JC1_INDEX    =>   (var          => var_jc1,
+     c_VAR_4_INDEX    =>     (var          => var_4,
                               hexvalue     => x"aa",
                               prod_or_cons => "01",
                               broadcast    => '0',
@@ -375,15 +377,16 @@ package WF_package is
                               array_lgth   => "00000000", -- array_lgth & byte_array fields not used
                               byte_array   => (others => x"ff")),
 
-     c_VAR_JC3_INDEX    =>   (var          => var_jc3,
+     c_VAR_5_INDEX    =>     (var          => var_5,
                               hexvalue     => x"ab",
                               prod_or_cons => "10",
                               broadcast    => '0',
                               base_addr    => "---------",
-                              array_lgth   => "00000001", -- only the CTRL and PDU_TYPE bytes are
-                                                          -- predefined
+                              array_lgth   => "00000101", -- 6 bytes in total: CTRL, PDU_TYPE, LGTH,
+                                                          -- 1 byte of data, nFIP status and MPS bytes
                               byte_array   => (0 => "00" & c_RP_DAT_CTRL_BYTE, 1 => c_PDU_TYPE_BYTE,
-                                               others => x"ff")));
+                                               others => x"ff"))); -- only the CTRL and PDU_TYPE bytes
+                                                                   -- are predefined
 
 
 
@@ -393,7 +396,7 @@ package WF_package is
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_rx_deserializer
+  component wf_rx_deserializer
   port (
     uclk_i               : in std_logic;
     nfip_rst_i           : in std_logic;
@@ -413,13 +416,13 @@ package WF_package is
     fss_received_p_o     : out std_logic;
     rx_osc_rst_o         : out std_logic);
   -----------------------------------------------------------------
-  end component WF_rx_deserializer;
+  end component wf_rx_deserializer;
 
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_tx_serializer
+  component wf_tx_serializer
   port (
     uclk_i                  : in std_logic;
     nfip_rst_i              : in std_logic;
@@ -435,12 +438,12 @@ package WF_package is
     tx_data_o               : out std_logic;
     tx_enable_o             : out std_logic);
   -----------------------------------------------------------------
-  end component WF_tx_serializer;
+  end component wf_tx_serializer;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_cons_bytes_processor
+  component wf_cons_bytes_processor
   port (
     uclk_i                : in std_logic;
     slone_i               : in std_logic;
@@ -461,12 +464,12 @@ package WF_package is
     cons_var_rst_byte_1_o : out std_logic_vector (7 downto 0);
     cons_var_rst_byte_2_o : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_cons_bytes_processor;
+  end component wf_cons_bytes_processor;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_consumption is
+  component wf_consumption is
   port (
     uclk_i                 : in std_logic;
     slone_i                : in std_logic;
@@ -492,12 +495,12 @@ package WF_package is
     rst_nfip_and_fd_p_o    : out std_logic;
     jc_mem_data_o          : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_consumption;
+  end component wf_consumption;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_jtag_controller is
+  component wf_jtag_controller is
   port (
     uclk_i          : in std_logic;
     nfip_rst_i      : in std_logic;
@@ -512,12 +515,12 @@ package WF_package is
 --TP39 : out std_logic;
     jc_mem_adr_rd_o : out std_logic_vector (8 downto 0));
   -----------------------------------------------------------------
-  end component WF_jtag_controller;
+  end component wf_jtag_controller;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_fd_receiver is
+  component wf_fd_receiver is
   port (
     uclk_i                : in std_logic;
     rate_i                : in std_logic_vector (1 downto 0);
@@ -531,12 +534,12 @@ package WF_package is
     rx_fss_received_p_o   : out std_logic;
     rx_crc_wrong_p_o      : out std_logic );
   -----------------------------------------------------------------
-  end component WF_fd_receiver;
+  end component wf_fd_receiver;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_rx_osc is
+  component wf_rx_osc is
   port (
     uclk_i                  : in std_logic;
     rate_i                  : in  std_logic_vector (1 downto 0);
@@ -549,12 +552,12 @@ package WF_package is
     rx_signif_edge_window_o : out std_logic;
     rx_adjac_bits_window_o  : out std_logic );
   -----------------------------------------------------------------
-end component WF_rx_osc;
+end component wf_rx_osc;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_production is
+  component wf_production is
   port (
     uclk_i                  : in std_logic;
     slone_i                 : in std_logic;
@@ -589,12 +592,12 @@ end component WF_rx_osc;
     r_tler_o                : out std_logic;
     var3_rdy_o              : out std_logic);
   -----------------------------------------------------------------
-  end component WF_production;
+  end component wf_production;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_fd_transmitter is
+  component wf_fd_transmitter is
   port (
     uclk_i                     : in std_logic;
     rate_i                     : in std_logic_vector (1 downto 0);
@@ -610,12 +613,12 @@ end component WF_rx_osc;
     tx_enable_o                : out std_logic;
     tx_clk_o                   : out std_logic);
   -----------------------------------------------------------------
-  end component WF_fd_transmitter;
+  end component wf_fd_transmitter;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_tx_osc is
+  component wf_tx_osc is
   port (
     uclk_i            : in std_logic;
     rate_i            : in  std_logic_vector (1 downto 0);
@@ -625,12 +628,12 @@ end component WF_rx_osc;
     tx_clk_o          : out std_logic;
     tx_sched_p_buff_o : out std_logic_vector (c_TX_SCHED_BUFF_LGTH -1 downto 0));
   -----------------------------------------------------------------
-  end component WF_tx_osc;
+  end component wf_tx_osc;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_prod_bytes_retriever is
+  component wf_prod_bytes_retriever is
   port (
     uclk_i               : in std_logic;
     slone_i              : in std_logic;
@@ -655,12 +658,12 @@ end component WF_rx_osc;
     rst_status_bytes_p_o : out std_logic;
     byte_o               : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_prod_bytes_retriever;
+  end component wf_prod_bytes_retriever;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_engine_control
+  component wf_engine_control
   port (
     uclk_i                      : in std_logic;
     nfip_rst_i                  : in std_logic;
@@ -687,12 +690,12 @@ end component WF_rx_osc;
     rx_rst_o                    : out std_logic;
     var_o                       : out t_var);
   -----------------------------------------------------------------
-  end component WF_engine_control;
+  end component wf_engine_control;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_reset_unit
+  component wf_reset_unit
   port (
     uclk_i              : in std_logic;
     wb_clk_i            : in std_logic;
@@ -708,12 +711,12 @@ end component WF_rx_osc;
     rston_o             : out std_logic;
     fd_rstn_o           : out std_logic);
   -----------------------------------------------------------------
-  end component WF_reset_unit;
+  end component wf_reset_unit;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_dualram_512x8_clka_rd_clkb_wr
+  component wf_dualram_512x8_clka_rd_clkb_wr
   port (
     clk_porta_i      : in std_logic;
     addr_porta_i     : in std_logic_vector (8 downto 0);
@@ -724,7 +727,7 @@ end component WF_rx_osc;
   -----------------------------------------------------------------
     data_porta_o     : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_dualram_512x8_clka_rd_clkb_wr;
+  end component wf_dualram_512x8_clka_rd_clkb_wr;
 
 
 
@@ -749,7 +752,7 @@ end component WF_rx_osc;
 
 
 ---------------------------------------------------------------------------------------------------
-  component  WF_crc
+  component  wf_crc
   port (
     uclk_i             : in std_logic;
     nfip_rst_i         : in std_logic;
@@ -760,24 +763,24 @@ end component WF_rx_osc;
     crc_ok_p_o         : out std_logic;
     crc_o              : out std_logic_vector (c_CRC_POLY_LGTH - 1 downto 0));
   -----------------------------------------------------------------
-  end component WF_crc;
+  end component wf_crc;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_manch_encoder is
+  component wf_manch_encoder is
   generic (g_word_lgth :  natural);
   port (
     word_i       : in std_logic_vector (g_word_lgth-1 downto 0);
   -----------------------------------------------------------------
     word_manch_o : out std_logic_vector ((2*g_word_lgth)-1 downto 0));
   -----------------------------------------------------------------
-  end component WF_manch_encoder;
+  end component wf_manch_encoder;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_rx_deglitcher
+  component wf_rx_deglitcher
   port (
     uclk_i                 : in std_logic;
     nfip_rst_i             : in std_logic;
@@ -787,12 +790,12 @@ end component WF_rx_osc;
     fd_rxd_filt_edge_p_o   : out std_logic;
     fd_rxd_filt_f_edge_p_o : out std_logic);
   -----------------------------------------------------------------
-  end component WF_rx_deglitcher;
+  end component wf_rx_deglitcher;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_status_bytes_gen
+  component wf_status_bytes_gen
   port (
     uclk_i                  : in std_logic;
     slone_i                 : in std_logic;
@@ -817,12 +820,12 @@ end component WF_rx_osc;
     nFIP_status_byte_o      : out std_logic_vector (7 downto 0);
     mps_status_byte_o       : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_status_bytes_gen;
+  end component wf_status_bytes_gen;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_bits_to_txd
+  component wf_bits_to_txd
   port (
     uclk_i              : in std_logic;
     nfip_rst_i          : in std_logic;
@@ -839,7 +842,7 @@ end component WF_rx_osc;
     txd_o               : out std_logic;
     tx_enable_o         : out std_logic);
   -----------------------------------------------------------------
-  end component WF_bits_to_txd;
+  end component wf_bits_to_txd;
 
 
 
@@ -896,7 +899,7 @@ end component WF_rx_osc;
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_model_constr_decoder
+  component wf_model_constr_decoder
   port (
     uclk_i          : in std_logic;
     nfip_rst_i      : in std_logic;
@@ -907,44 +910,44 @@ end component WF_rx_osc;
     model_id_dec_o  : out std_logic_vector (7 downto 0);
     constr_id_dec_o : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_model_constr_decoder;
+  end component wf_model_constr_decoder;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_decr_counter is
+  component wf_decr_counter is
   generic (g_counter_lgth :  natural := 5);
   port (
     uclk_i            : in std_logic;
-    nfip_rst_i        : in std_logic;
-    counter_top       : in unsigned (g_counter_lgth-1 downto 0);
+    counter_rst_i     : in std_logic;
+    counter_top_i     : in unsigned (g_counter_lgth-1 downto 0);
     counter_load_i    : in std_logic;
-    counter_decr_p_i  : in std_logic;
+    counter_decr_i    : in std_logic;
   -----------------------------------------------------------------
     counter_o         : out unsigned (g_counter_lgth-1 downto 0);
     counter_is_zero_o : out std_logic);
   -----------------------------------------------------------------
-  end component WF_decr_counter;
+  end component wf_decr_counter;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_incr_counter is
+  component wf_incr_counter is
   generic (g_counter_lgth :  natural := 8);
   port (
     uclk_i            : in std_logic;
-    reinit_counter_i  : in std_logic;
-    incr_counter_i    : in std_logic;
+    counter_reinit_i  : in std_logic;
+    counter_incr_i    : in std_logic;
   -----------------------------------------------------------------
     counter_o         : out unsigned (g_counter_lgth-1 downto 0);
     counter_is_full_o : out std_logic);
   -----------------------------------------------------------------
-  end component WF_incr_counter;
+  end component wf_incr_counter;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_prod_data_lgth_calc is
+  component wf_prod_data_lgth_calc is
   port (
     uclk_i               : in std_logic;
     nfip_rst_i         : in std_logic;
@@ -955,12 +958,12 @@ end component WF_rx_osc;
   -----------------------------------------------------------------
     prod_data_lgth_o   : out std_logic_vector (7 downto 0));
   -----------------------------------------------------------------
-  end component WF_prod_data_lgth_calc;
+  end component wf_prod_data_lgth_calc;
 
 
 
 ---------------------------------------------------------------------------------------------------
-  component WF_cons_outcome is
+  component wf_cons_outcome is
   port (
     uclk_i                 : in std_logic;
     slone_i                : in std_logic;
@@ -984,12 +987,12 @@ end component WF_rx_osc;
     assert_rston_p_o       : out std_logic;
     rst_nfip_and_fd_p_o    : out std_logic);
   -----------------------------------------------------------------
-  end component WF_cons_outcome;
+  end component wf_cons_outcome;
 
 
 
 ---------------------------------------------------------------------------------------------------
-component WF_prod_permit is
+component wf_prod_permit is
   port (
     uclk_i     : in std_logic;
     nfip_rst_i : in std_logic;
@@ -997,12 +1000,12 @@ component WF_prod_permit is
   -----------------------------------------------------------------
     var3_rdy_o : out std_logic);
   -----------------------------------------------------------------
-end component WF_prod_permit;
+end component wf_prod_permit;
 
 
 
 ---------------------------------------------------------------------------------------------------
-component WF_wb_controller is
+component wf_wb_controller is
   port (
     wb_clk_i        : in std_logic;
     wb_rst_i        : in std_logic;
@@ -1014,7 +1017,7 @@ component WF_wb_controller is
     wb_ack_prod_p_o : out std_logic;
     wb_ack_p_o      : out std_logic);
   -----------------------------------------------------------------
-end component WF_wb_controller;
+end component wf_wb_controller;
 
 
 
@@ -1023,13 +1026,13 @@ end component WF_wb_controller;
 
 
 
-end WF_package;
+end wf_package;
 
 
 --=================================================================================================
 --                                        package body
 --=================================================================================================
-package body WF_package is
+package body wf_package is
 
 
 ---------------------------------------------------------------------------------------------------
@@ -1056,7 +1059,7 @@ package body WF_package is
 
 
 
-end WF_package;
+end wf_package;
 --=================================================================================================
 --                                         package end
 --=================================================================================================

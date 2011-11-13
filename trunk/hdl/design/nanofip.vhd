@@ -18,10 +18,10 @@
 -- machines and several reset possibilities. The nanoFIP design is to be implemented in an Actel  |
 -- ProASIC3 Flash family FPGA (130nm CMOS technology) that offers an inherent resistance to       |
 -- radiation: it is immune to Single Event Latchups for the LHC environment, it has high tolerance|
--- to Total Ionizing Dose effects and its configuration memory is not disturbed by SEUs.          |
+-- to Total Ionizing Dose effects (>300 Gy) and its configuration memory is not disturbed by SEUs.|
 -- Another feature that nanoFIP offers is the possibility to reprogram the user logic through     |
 -- JTAG interface; WorldFIP frames are translated to the equivalent JTAG signals that drive and   |
--- control the user logic TAP controller.                                                         |
+-- control the user logic Test Access Port (TAP) controller.                                      |
 -- nanoFIP is used in conjunction with a FIELDRIVE chip and FIELDTR insulating transformer,       |
 -- both available from the company ALSTOM.                                                        |
 --                                                                                                |
@@ -55,7 +55,7 @@
 --                   ___________ ______  _______ ______  ___________ _______                      |
 --                  |____FSS____|_CTRL_||__Var__|_SUBS_||____FCS____|__FES__|                     |
 --                                                                                                |
---                               Figure 2 : ID_DAT frame structure                                |
+--                               Figure 2: ID_DAT frame structure                                 |
 --                                                                                                |
 -- nanoFIP agents can handle the following set of variables:                                      |
 --   o ID_DAT Var_Subs = 14_xy: for the presence variable                                         |
@@ -67,24 +67,26 @@
 --   o ID_DAT Var_Subs = ab_xy: for the JTAG produced variable of a predefined length of 1 byte   |
 --   o ID_DAT Var_Subs = E0_..: for the broadcast consumed reset variable                         |
 --                                                                                                |
--- After a 14_xy, a 10_xy, a 06_xy or a ab_xy ID_DAT, if nanoFIP's address (SUBS) is xy, it will  |
--- respond with a "produced" RP_DAT frame, containing the variable requested. Figure 3 shows the  |
+-- After a 14_xy, a 10_xy, a 06_xy or a ab_xy ID_DAT, if nanoFIP's address (SUBS) is xy, nanoFIP  |
+-- will respond with an RP_DAT frame, containing the variable requested. Figure 3 shows the       |
 -- structure of a RP_DAT frame:                                                                   |
 --                ___________ ______  ____________________  ___________ _______                   |
 --               |____FSS____|_CTRL_||_____...Data..._____||____FCS____|__FES__|                  |
 --                                                                                                |
---                            Figure 3 : RP_DAT frame structure                                   |
+--                            Figure 3: RP_DAT frame structure                                    |
 --                                                                                                |
 -- After a 05_xy or an aa_xy ID_DAT, if nanoFIP's address (SUBS) is xy,                           |
--- or after a broadcast ID_DAT 91..h or E0..h, nanoFIP will "consume" the incoming RP_DAT frame.  |
+-- or after a broadcast ID_DAT 91..h or E0..h, nanoFIP will receive/ "consume" the next incoming  |
+-- RP_DAT frame.                                                                                  |
 --                                                                                                |
 -- Regarding the interface with the user logic, nanoFIP provides:                                 |
 --   o data transfer over an integrated memory accessible with an 8-bit WISHBONE System-On-Chip   |
 --     interconnection                                                                            |
 --   o possibility of stand-alone mode with a 16 bits input bus and 16 bits output bus, without   |
 --     the need to transfer data to or from the memory                                            |
---   o separate data valid outputs for each variable (consumed and produced)                      |
---   o JTAG master controller interfacing with the Test Access Port of the user FPGA.             |
+--   o separate data valid outputs for the consumed (05_xy), broadcast consumed (91_..) and       |
+--     produced (06_xy) variables                                                                 |
+--   o JTAG master controller interfacing with the Test Access Port of the user logic FPGA        |
 --                                                                                                |
 -- nanoFIP provides several reset possibilities:                                                  |
 --  o External reset input pin, RSTIN, activated by the user logic                                |
@@ -100,48 +102,47 @@
 --    validated by station address as data                                                        |
 --                                                                                                |
 -- nanoFIP's main building blocks are (Figure 4):                                                 |
+--  o wf_reset_unit      : for the treatment of the reset input signals & the generation          |
+--                         of the reset outputs                                                   |
 --                                                                                                |
---  o WF_reset_unit       : for the treatment of the reset input signals & the generation         |
---                          of the reset outputs                                                  |
+--  o wf_fd_receiver     : for the deserialization of the FIELDRIVE input and the formation       |
+--                         of ID_DAT or consumed RP_DAT bytes of data                             |
 --                                                                                                |
---  o WF_fd_receiver      : for the deserialization of the FIELDRIVE input and the formation      |
---                          of ID_DAT or consumed RP_DAT bytes of data                            |
+--  o wf_consumption     : for the processing, storage & validation of consumed RP_DAT frames     |
 --                                                                                                |
---  o WF_consumption      : for the processing, storage & validation of consumed RP_DAT frames    |
+--  o wf_fd_transmitter  : for the serialization of produced RP_DAT frames                        |
 --                                                                                                |
---  o WF_fd_transmitter   : for the serialization of produced RP_DAT frames                       |
+--  o wf_production      : for the retreival of bytes for produced RP_DAT frames                  |
 --                                                                                                |
---  o WF_production       : for the retreival of bytes for produced RP_DAT frames                 |
+--  o wf_engine_control  : for the processing of the ID_DAT frames and the coordination of the    |
+--                         wf_consumption, wf_fd_receiver, wf_production & wf_fd_transmitter units|
 --                                                                                                |
---  o WF_engine_control   : for the processing of the ID_DAT frames and the coordination of the   |
---                          WF_consumption, WF_fd_receiver, WF_production&WF_fd_transmitter units |
+--  o wf_model_constr_dec: for the decoding of the WorldFIP settings M_ID and C_ID and the        |
+--                         generation of the S_ID                                                 |
 --                                                                                                |
---  o WF_model_constr_dec : for the decoding of the WorldFIP settings M_ID and C_ID and the       |
---                          generation of the S_ID                                                |
+--  o wf_wb_controller   : for the handling of the "User Interface WISHBONE Slave" control        |
+--                         signals                                                                |
 --                                                                                                |
---  o WF_wb_controller    : for the handling of the "User Interface WISHBONE Slave" control       |
---                          signals                                                               |
---                                                                                                |
---  o WF_jtag_controller  : for driving the user-logic TAP controller upon reception of JTAG      |
---                          variables.                                                            |
+--  o wf_jtag_controller : for driving and controlling the user logic TAP controller upon         |
+--                         reception of JTAG variables (aa_xy and ab_xy).                         |
 --                                                                                                |
 --           _____________      ____________________________________________________              |
---          |             |    |                   WF_WB_controller                 |             |   
---          |   WF_reset  |    |____________________________________________________|             |
+--          |             |    |                   wf_WB_controller                 |             |
+--          |   wf_reset  |    |____________________________________________________|             |
 --          |    _unit    |     _____________                          _____________              |
 --          |             |    |             |     ______________     |             |             |
 --          |_____________|    |             |    |              |    |             |             |
---                             |     WF_     |    |              |    |     WF_     |             |
+--                             |     wf_     |    |              |    |     wf_     |             |
 --           _____________     | consumption |    |              |    |  production |             |
 --          |             |    |             |    |              |    |             |             |
---          |   WF_JTAG   |    |             |    |              |    |             |             |
---          | _controller |    |_____________|    |      WF_     |    |_____________|             |
+--          |   wf_JTAG   |    |             |    |              |    |             |             |
+--          | _controller |    |_____________|    |      wf_     |    |_____________|             |
 --          |             |     _____________     |engine_control|     _____________              |
 --          |_____________|    |             |    |              |    |             |             |
 --                             |             |    |              |    |             |             |
 --           _____________     |             |    |              |    |             |             |
---          |             |    |    WF_FD_   |    |              |    |   WF_FD_    |             |
---          |  WF_model_  |    |  receiver   |    |              |    | transmitter |             |
+--          |             |    |    wf_FD_   |    |              |    |   wf_FD_    |             |
+--          |  wf_model_  |    |  receiver   |    |              |    | transmitter |             |
 --          | constr_dec  |    |             |    |              |    |             |             |
 --          |             |    |             |    |              |    |             |             |
 --          |_____________|    |_____________|    |______________|    |_____________|             |
@@ -158,14 +159,15 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         10/2011                                                                           |
 -- Version      v0.06                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_model_constr_dec                                                               |
---              WF_tx_rx_osc                                                                      |
---              WF_consumption                                                                    |
---              WF_production                                                                     |
---              WF_engine_control                                                                 |
---              WF_wb_controller                                                                  |
---              WF_jtag_controller                                                                |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_model_constr_dec                                                               |
+--              wf_fd_receiver                                                                    |
+--              wf_fd_transmitter                                                                 |
+--              wf_consumption                                                                    |
+--              wf_production                                                                     |
+--              wf_engine_control                                                                 |
+--              wf_wb_controller                                                                  |
+--              wf_jtag_controller                                                                |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     30/06/2009  v0.010  EB  First version                                                      |
@@ -174,7 +176,7 @@
 --     15/09/2009  v0.v2   PA                                                                     |
 --     09/12/2010  v0.v3   EG  Logic removed (new unit inputs_synchronizer added)                 |
 --     7/01/2011   v0.04   EG  major restructuring; only 7 units on top level                     |
---     20/01/2011  v0.05   EG  new unit WF_wb_controller(removes the or gate from top level)      |
+--     20/01/2011  v0.05   EG  new unit wf_wb_controller(removes the or gate from top level)      |
 --        06/2011  v0.06   EG  jtag_controller unit added                                         |
 ---------------------------------------------------------------------------------------------------
 
@@ -203,11 +205,11 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for nanoFIP
+--                                  Entity declaration for nanoFIP
 --=================================================================================================
 
 entity nanofip is port(
@@ -257,8 +259,8 @@ entity nanofip is port(
   adr_i      : in std_logic_vector (9 downto 0); -- WISHBONE address
   cyc_i      : in std_logic;                     -- WISHBONE cycle
 
-  dat_i      : in std_logic_vector (15 downto 0);-- dat_i(7 downto 0) : WISHBONE data in, memory mode
-                                                 -- dat_i(15 downto 0): data in, stand-alone mode
+  dat_i      : in std_logic_vector (15 downto 0);-- DAT_I(7 downto 0) : WISHBONE data in, memory mode
+                                                 -- DAT_I(15 downto 0): data in, stand-alone mode
 
   rst_i      : in std_logic;                     -- WISHBONE reset
                                                  -- Does not reset other internal logic
@@ -269,7 +271,7 @@ entity nanofip is port(
 
   --  User Interface, JTAG Controller
 
-  jc_tdo_i   : in std_logic;                     -- JTAG target Test Data Out
+  jc_tdo_i   : in std_logic;                     -- JTAG Test Data Out; input from the target TAP
 
 
 
@@ -307,17 +309,17 @@ entity nanofip is port(
 
   --  User Interface, WISHBONE Slave
 
-  dat_o      : out std_logic_vector (15 downto 0);-- dat_o(7 downto 0) : WISHBONE data out, memory mode
-                                                  -- dat_o(15 downto 0): data out, stand-alone mode
+  dat_o      : out std_logic_vector (15 downto 0);-- DAT_O(7 downto 0) : WISHBONE data out, memory mode
+                                                  -- DAT_O(15 downto 0): data out, stand-alone mode
 
   ack_o      : out std_logic;                     -- WISHBONE acknowledge
 
 
   --  User Interface, JTAG Controller
 
-  jc_tms_o   : out std_logic;                     -- JTAG target Test Mode Select
-  jc_tdi_o   : out std_logic;                     -- JTAG target Test Data In
-  jc_tck_o   : out std_logic);                    -- JTAG target Test Clock
+  jc_tms_o   : out std_logic;                     -- Drives the JTAG Test Mode Select of the target TAP
+  jc_tdi_o   : out std_logic;                     -- Drives the JTAG Test Data In of the target TAP
+  jc_tck_o   : out std_logic);                    -- Drives the JTAG Test Clock of the target TAP
 
 end entity nanofip;
 
@@ -328,32 +330,32 @@ end entity nanofip;
 
 architecture struc of nanofip is
 
-  -- WF_reset_unit iutputs
+  -- wf_reset_unit outputs
   signal s_nfip_intern_rst, s_wb_rst                              : std_logic;
-  -- WF_consumption outputs
+  -- wf_consumption outputs
   signal s_var1_rdy, s_var2_rdy, s_var3_rdy                       : std_logic;
   signal s_assert_RSTON_p, s_reset_nFIP_and_FD_p                  : std_logic;
   signal s_nfip_status_r_tler                                     : std_logic;
   signal s_jc_start_p                                             : std_logic;
   signal s_jc_mem_data                                            : std_logic_vector (7 downto 0);
-  -- WF_fd_receiver outputs
+  -- wf_fd_receiver outputs
   signal s_rx_fss_received_p, s_rx_fss_crc_fes_ok_p               : std_logic;
   signal s_rx_crc_wrong_p, s_rx_byte_ready_p                      : std_logic;
   signal s_rx_byte                                                : std_logic_vector (7 downto 0);
-  -- WF_production outputs
+  -- wf_production outputs
   signal  s_byte_to_tx                                            : std_logic_vector (7 downto 0);
-  -- WF_fd_transmitter outputs
+  -- wf_fd_transmitter outputs
   signal s_tx_last_byte_p, s_tx_completed_p                       : std_logic;
-  -- WF_engine_control outputs
+  -- wf_engine_control outputs
   signal s_tx_start_p, s_tx_request_byte_p                        : std_logic;
   signal s_byte_request_accepted_p, s_cons_bytes_excess, s_rx_rst : std_logic;
   signal s_var                                                    : t_var;
   signal s_prod_data_lgth, s_prod_byte_index, s_cons_byte_index   : std_logic_vector (7 downto 0);
-  -- WF_model_constr_dec outputs
+  -- wf_model_constr_dec outputs
   signal s_model_id_dec, s_constr_id_dec                          : std_logic_vector (7 downto 0);
-  -- WF_wb_controller outputs
+  -- wf_wb_controller outputs
   signal s_wb_ack_prod                                            : std_logic;
-  -- WF_model_constr_dec outputs
+  -- wf_model_constr_dec outputs
   signal s_jc_mem_adr_rd                                          : std_logic_vector (8 downto 0);
   signal s_jc_tdo_byte                                            : std_logic_vector (7 downto 0);
 
@@ -365,10 +367,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                         WF_reset_unit                                         --
+--                                         wf_reset_unit                                         --
 ---------------------------------------------------------------------------------------------------
 
-  reset_unit : WF_reset_unit
+  reset_unit : wf_reset_unit
     port map(
       uclk_i              => uclk_i,
       wb_clk_i            => wclk_i,
@@ -388,10 +390,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                         WF_consumption                                        --
+--                                         wf_consumption                                        --
 ---------------------------------------------------------------------------------------------------
 
-  Consumption: WF_consumption
+  Consumption: wf_consumption
   port map(
     uclk_i                 => uclk_i,
     slone_i                => slone_i,
@@ -421,10 +423,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                         WF_fd_receiver                                        --
+--                                         wf_fd_receiver                                        --
 ---------------------------------------------------------------------------------------------------
 
-  FIELDRIVE_Receiver: WF_fd_receiver
+  FIELDRIVE_Receiver: wf_fd_receiver
   port map(
     uclk_i                => uclk_i,
     rate_i                => rate_i,
@@ -442,10 +444,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                         WF_production                                         --
+--                                         wf_production                                         --
 ---------------------------------------------------------------------------------------------------
 
-  Production: WF_production
+  Production: wf_production
   port map(
     uclk_i                  => uclk_i,
     slone_i                 => slone_i,
@@ -484,10 +486,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                       WF_fd_Transmitter                                       --
+--                                       wf_fd_transmitter                                       --
 ---------------------------------------------------------------------------------------------------
 
-  FIELDRIVE_Transmitter: WF_fd_transmitter
+  FIELDRIVE_Transmitter: wf_fd_transmitter
   port map(
     uclk_i                     => uclk_i,
     rate_i                     => rate_i,
@@ -507,10 +509,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                      WF_jtag_controller                                       --
+--                                      wf_jtag_controller                                       --
 ---------------------------------------------------------------------------------------------------
 
-  JTAG_controller: WF_jtag_controller
+  JTAG_controller: wf_jtag_controller
   port map(
     uclk_i          => uclk_i,
     nfip_rst_i      => s_nfip_intern_rst,
@@ -528,10 +530,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                       WF_engine_control                                       --
+--                                       wf_engine_control                                       --
 ---------------------------------------------------------------------------------------------------
 
-  engine_control : WF_engine_control
+  engine_control : wf_engine_control
   port map(
     uclk_i                      => uclk_i,
     nfip_rst_i                  => s_nfip_intern_rst,
@@ -566,10 +568,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                    WF_model_constr_decoder                                    --
+--                                    wf_model_constr_decoder                                    --
 ---------------------------------------------------------------------------------------------------
 
-  model_constr_decoder : WF_model_constr_decoder
+  model_constr_decoder : wf_model_constr_decoder
   port map(
     uclk_i          => uclk_i,
     nfip_rst_i      => s_nfip_intern_rst,
@@ -584,10 +586,10 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                      WF_wb_controller                                         --
+--                                      wf_wb_controller                                         --
 ---------------------------------------------------------------------------------------------------
 
-  WISHBONE_controller: WF_wb_controller
+  WISHBONE_controller: wf_wb_controller
   port map(
     wb_clk_i        => wclk_i,
     wb_rst_i        => s_wb_rst,

@@ -7,12 +7,12 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                       WF_jtag_controller                                       |
+--                                       wf_jtag_controller                                       |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_jtag_controller.vhd                                                            |
+-- File         wf_jtag_controller.vhd                                                            |
 --                                                                                                |
--- Description  After the reception and validation of a consumed var_jc1 RP_DAT frame, the unit   |
+-- Description  After the reception and validation of a consumed var_4 RP_DAT frame, the unit     |
 --              is responsible for driving the "nanoFIP, User Interface, JTAG Controller" signals |
 --              JC_TCK, JC_TMS, JC_TDI and for sampling the JC_TDO input.                         |
 --                                                                                                |
@@ -23,23 +23,26 @@
 --                  put to the corresponding outputs on each falling edge of the JC_TCK.          |
 --                                                                                                |
 --                o The first and second data bytes of the JC_consumed memory do not contain      |
---                  JC_TMS/ JC_TDI bits, but are used to indicate, in big indian order, the       |
---                  amount of and JC_TDI bits that have to be output.                             |
+--                  JC_TMS/ JC_TDI bits, but are used to indicate, in big endian order, the       |
+--                  amount of JC_TMS and JC_TDI bits that have to be output.                      |
 --                                                                                                |
 --                o the JC_TDO input is sampled on the rising edge of JC_TCK; only the last       |
 --                  sampled JC_TDO bit is significant. It is registered and sent to the           |
---                  WF_production unit for it to be delivered in the next var_jc3 produced frame. |
+--                  wf_production unit for it to be delivered in the next produced var_5 frame.   |
 --                                                                                                |
 --                                                                                                |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
--- Date         07/07/2011                                                                        |
--- Version      v0.01                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_consumption                                                                    |
+-- Date         09/2011                                                                           |
+-- Version      v0.02                                                                             |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_consumption                                                                    |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     07/07/2011  v0.01  EG  First version                                                       |
+--        09/2011  v0.02  EG  added counter for counting the outgoing TMS/TDI bits; combinatorial |
+--                            was too heavy; changed a bit state machine to include counter       |
+--                            put session_timedout in the synchronous FSM process                 |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -67,25 +70,25 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                            Entity declaration for WF_jtag_controller
+--                            Entity declaration for wf_jtag_controller
 --=================================================================================================
-entity WF_jtag_controller is port(
+entity wf_jtag_controller is port(
   -- INPUTS
-    -- nanoFIP User Interface, General signals
+    -- nanoFIP User Interface, General signal
     uclk_i          : in std_logic;                      -- 40 MHz clock
 
     -- nanoFIP User Interface, JTAG Controller signal
     jc_tdo_i        : in std_logic;                      -- JTAG TDO input 
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i      : in std_logic;                      -- nanoFIP internal reset
 
-    -- Signals from the WF_consumption unit
-    jc_start_p_i    : in std_logic;                      -- pulse upon validation of a jc_var1 RP_DAT frame
+    -- Signals from the wf_consumption unit
+    jc_start_p_i    : in std_logic;                      -- pulse upon validation of a var_4 RP_DAT frame
     jc_mem_data_i   : in std_logic_vector (7 downto 0);  -- byte retreived from the JC_consumed memory
 
 
@@ -95,19 +98,19 @@ entity WF_jtag_controller is port(
     jc_tdi_o        : out std_logic;                     -- JTAG TDI output
     jc_tck_o        : out std_logic;                     -- JTAG TCK output
 
-    -- Signal to the WF_production unit
-    jc_tdo_byte_o   : out std_logic_vector (7 downto 0); -- byte containing the TDO sample  
+    -- Signal to the wf_production unit
+    jc_tdo_byte_o   : out std_logic_vector (7 downto 0); -- byte containing the TDO sample for the next var_5 
 
-    -- Signal to the WF_consumption unit
+    -- Signal to the wf_consumption unit
     jc_mem_adr_rd_o : out std_logic_vector (8 downto 0));-- address of byte to be retreived from the JC_cons memory
 
-end entity WF_jtag_controller;
+end entity wf_jtag_controller;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_jtag_controller is
+architecture rtl of wf_jtag_controller is
   -- FSM
   type jc_st_t  is (idle, get_byte, play_byte, set_address);
   signal jc_st, nx_jc_st                           : jc_st_t;
@@ -137,29 +140,33 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                             FSM                                               --
 ---------------------------------------------------------------------------------------------------
+
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- JTAG Controller FSM: the state machine is divided in three parts (a clocked process
 -- to store the current state, a combinatorial process to manage state transitions and finally a
 -- combinatorial process to manage the output signals), which are the three processes that follow.
 
--- After the reception of a valid jc_var1 RP_DAT frame the FSM starts retrieving one by one bytes
--- from the JC_consumed memory. The first two bytes concatenated in big endian encoding indicate
--- the total amount of TMS/ TDI bits that have to be retrieved and output.
+-- After the reception of a var_4 RP_DAT frame the FSM starts retrieving one by one bytes from
+-- the JC_consumed memory. The first two bytes concatenated in big endian encoding indicate the
+-- total amount of TMS/ TDI bits that have to be retrieved and output.
 -- The rest of the bytes contain the TMS/ TDI bits.
 -- The FSM goes back to idle if the counter that counts the amount the bits that have been output
 -- reaches the total amount.
 
--- To add a rubust layer of protection to the FSM, we have added a counter, dependant only on the
--- system clock, that from any state can bring the FSM back to idle. At any bit rate the
--- reception of an ID_DAT frame followed by the reception/ transmission of an RP_DAT should not
--- last more than 37ms. Hence, we have generated a 21 bits counter that will bring the machine back
--- to idle if more than 52ms (complete 21 bit counter) have passed since it has left this idle state.
+-- To add a robust layer of protection to the FSM, we have implemented a counter, dependant only on
+-- the system clock, that from any state can bring the FSM back to idle. A frame with the maximum
+-- number of TMS/ TDI bits needs a bit more than (488 bits * JC_TCK period) seconds to be treated.
+-- For a 5 MHz JC_TCK clock this is around 100 us. In order to be coherent with the timeouts of the
+-- other FSMs of nanoFIP, we use a 21 bits counter; therefore, the FSM is reset if 52 ms have passed
+-- since it has left the idle state.
+
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process JC_FSM_Sync: storage of the current state of the FSM
 
   JC_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
-        if nfip_rst_i = '1' then
+        if nfip_rst_i = '1' or s_session_timedout = '1' then
           jc_st <= idle;
         else
           jc_st <= nx_jc_st;
@@ -172,15 +179,15 @@ begin
 -- Combinatorial process JC_FSM_Comb_State_Transitions: Definition of the state
 -- transitions of the FSM.
 
-  JC_FSM_Comb_State_Transitions: process (jc_st, s_bytes_c, s_frame_bits, s_bits_so_far,
-                               s_session_timedout, jc_start_p_i, s_tck_c_is_full, s_tck_r_edge_p, s_tck_f_edge_p)
+  JC_FSM_Comb_State_Transitions: process (jc_st, s_bytes_c, s_frame_bits,s_bits_so_far, jc_start_p_i,
+                                                    s_tck_c_is_full, s_tck_r_edge_p, s_tck_f_edge_p)
   begin
 
   case jc_st is
 
 
-    when idle =>
-                        if jc_start_p_i = '1' then     -- consumed jc_var1 frame validated
+    when idle        =>
+                        if jc_start_p_i = '1' then     -- consumed var_4 frame validated
                           nx_jc_st <= set_address;
 
                         else
@@ -188,48 +195,41 @@ begin
                         end if;
 
     when set_address =>
-                        if s_session_timedout = '1' then
-                          nx_jc_st <= idle;
-
-                        else
                           nx_jc_st <= get_byte;        -- 1 uclk cycle for the setting of the memory
                                                        -- address; byte available at the next cycle 
-                        end if;
 
 
-    when get_byte =>
-                        if s_session_timedout = '1' then
-                          nx_jc_st <= idle;
- 
-                        elsif s_bytes_c < 2 then       -- 2 first bytes: amount of JC_TMS & JC_TDI bits
+    when get_byte    =>
+
+                        if s_bytes_c < 2 then          -- 2 first bytes: amount of JC_TMS & JC_TDI bits
                           nx_jc_st <= set_address;
                         else                           -- the rest of the bytes have to be "played"
                           nx_jc_st <= play_byte;
                         end if;
 
-    when play_byte =>
-                        if s_session_timedout = '1' then
-                          nx_jc_st <= idle;
+    when play_byte   =>
 
-                        elsif s_frame_bits <= 0 or s_frame_bits > c_MAX_FRAME_BITS then -- outside expected limits
-                          nx_jc_st <= idle;
+                        if s_frame_bits <= 0 or s_frame_bits > c_MAX_FRAME_BITS then
+                          nx_jc_st <= idle;            -- outside expected limits
 
-                        elsif s_frame_bits > s_bits_so_far then
-                          if s_tck_c_is_full = '1' then -- byte completed; a new one has to be retrieved
-                            nx_jc_st <= set_address;
-                          else                          -- byte being output
+                        elsif s_frame_bits > s_bits_so_far then -- still available bits to go..
+
+                          if s_tck_c_is_full = '1' then-- byte completed; a new one has
+                            nx_jc_st <= set_address;   -- to be retrieved
+                          else                         -- byte being output
                             nx_jc_st <= play_byte;
                           end if;
 
-                        else                            -- last bit
+                        else                           -- last bit
+
                           if s_tck_r_edge_p = '1' or s_tck_f_edge_p = '1' then
-                            nx_jc_st <= idle;           -- wait until the completion of a JC_TCK cycle
+                            nx_jc_st <= idle;          -- wait until the completion of a JC_TCK cycle
                           else
                             nx_jc_st <= play_byte;
                           end if;
                         end if;
 
-    when others =>
+    when others      =>
                         nx_jc_st <= idle;
 
     end case;
@@ -258,6 +258,14 @@ begin
                         -----------------------------
                           s_play_byte <= '0';
 
+
+    when get_byte  =>
+
+                          s_idle      <= '0';
+                          s_set_adr   <= '0';
+                          s_play_byte <= '0';
+
+
     when play_byte  =>
 
                           s_idle      <= '0';
@@ -266,9 +274,11 @@ begin
                           s_play_byte <= '1';
                         -----------------------------
 
-    when others  =>
 
+    when others  =>
+                        -----------------------------
                           s_idle      <= '1';
+                        -----------------------------
                           s_set_adr   <= '0';
                           s_play_byte <= '0';
 
@@ -280,17 +290,17 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                       JC_TCK generation                                       --
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a WF_incr_counter used for the generation of the JC_TCK output clock.
+-- Instantiation of a wf_incr_counter used for the generation of the JC_TCK output clock.
 -- The counter is filled up after having counted 4 JC_TCK periods; this corresponds to the amount
 -- of periods needed for outputting a full JC_TMS/ JC_TDI byte.
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
-  JC_TCK_periods_counter: WF_incr_counter
+  JC_TCK_periods_counter: wf_incr_counter
   generic map(g_counter_lgth => c_FOUR_JC_TCK_C_LGTH)
   port map(
     uclk_i            => uclk_i,
-    reinit_counter_i  => s_not_play_byte,
-    incr_counter_i    => s_play_byte,
+    counter_reinit_i  => s_not_play_byte,
+    counter_incr_i    => s_play_byte,
     counter_is_full_o => s_tck_c_is_full,
     ------------------------------------------
     counter_o         => s_tck_c);
@@ -314,17 +324,23 @@ begin
   end process;
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  s_tck_four_periods   <= (others => '1');               -- # uclk ticks for 4   JC_TCK periods i.e delivery of 1 byte
-  s_tck_period         <= (s_tck_four_periods srl 2)+1;  -- # uclk ticks for 1   JC_TCK period
-  s_tck_half_period    <= (s_tck_four_periods srl 3)+1;  -- # uclk ticks for 1/2 JC_TCK period
-  s_tck_quarter_period <= (s_tck_four_periods srl 4)+1;  -- # uclk ticks for 1/4 JC_TCK period
+  s_tck_four_periods   <= (others => '1');              -- # uclk ticks for 4   JC_TCK periods i.e delivery of 1 byte
+  s_tck_period         <= (s_tck_four_periods srl 2)+1; -- # uclk ticks for 1   JC_TCK period
+  s_tck_half_period    <= (s_tck_four_periods srl 3)+1; -- # uclk ticks for 1/2 JC_TCK period
+  s_tck_quarter_period <= (s_tck_four_periods srl 4)+1; -- # uclk ticks for 1/4 JC_TCK period
 
-  s_tck_f_edge_p <= '1' when (s_tck_c = s_tck_quarter_period) or
+  -- s_tck_four_periods  : >------------------------<
+  -- s_tck_period        :   >-----<
+  -- s_tck_half_period   :   >--<
+  -- s_tck_quarter_period: >-<
+  -- s_tck               :  -|__|--|__|--|__|--|__|-
+
+  s_tck_f_edge_p       <= '1' when (s_tck_c = s_tck_quarter_period) or 
                                    (s_tck_c = (2*s_tck_half_period) +s_tck_quarter_period) or
                                    (s_tck_c = (4*s_tck_half_period) +s_tck_quarter_period) or
                                    (s_tck_c = (6*s_tck_half_period) +s_tck_quarter_period) else '0';
 
-  s_tck_r_edge_p <= '1' when (s_tck_c = s_tck_half_period+s_tck_quarter_period) or
+  s_tck_r_edge_p       <= '1' when (s_tck_c = s_tck_half_period+s_tck_quarter_period) or
                                    (s_tck_c = (3*s_tck_half_period) +s_tck_quarter_period) or
                                    (s_tck_c = (5*s_tck_half_period) +s_tck_quarter_period) or
                                    (s_tck_c = (7*s_tck_half_period) +s_tck_quarter_period) else '0';
@@ -336,22 +352,22 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                         Bytes counter                                         --
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a WF_incr_counter for the counting of the bytes that are being retreived from
+-- Instantiation of a wf_incr_counter for the counting of the bytes that are being retreived from
 -- the JC_cons memory.
 
-  JC_bytes_counter: WF_incr_counter
+  JC_bytes_counter: wf_incr_counter
   generic map(g_counter_lgth => 7)
   port map(
     uclk_i            => uclk_i,
-    reinit_counter_i  => s_idle,
-    incr_counter_i    => s_set_adr,
+    counter_reinit_i  => s_idle,
+    counter_incr_i    => s_set_adr,
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_bytes_c);
     ------------------------------------------
 
-    jc_mem_adr_rd_o <= std_logic_vector (resize((s_bytes_c + 2), jc_mem_adr_rd_o'length));
-                       -- "+2" is bc the first 2 bytes in the memory (PDU_TYPE and Lenght) are not read
+    jc_mem_adr_rd_o   <= std_logic_vector (resize((s_bytes_c + 2), jc_mem_adr_rd_o'length));
+                      -- "+2" is bc the first 2 bytes in the memory (PDU_TYPE and LGTH) are not read
 
 
 
@@ -371,7 +387,7 @@ begin
         s_bits_so_far <= (others => '0');
 
       elsif s_tck_f_edge_p = '1' then
-        s_bits_so_far <= s_bits_so_far + 2;
+        s_bits_so_far <= s_bits_so_far + 2; -- 1 TMS + 1 TDI bits
       end if;
 
     end if;        
@@ -383,7 +399,7 @@ begin
 --                                     Frame bits retreival                                      --
 ---------------------------------------------------------------------------------------------------
 -- Construction of the 16 bits word that indicates the amount of TMS/ TDI bits that have to be
--- played from this frame. The word is the result of the big indian concatenation of the 1st and
+-- played from this frame. The word is the result of the big endian concatenation of the 1st and
 -- 2nd data bytes from the memory.   
 
   Bits_Number_Retreival: process (uclk_i)
@@ -454,7 +470,7 @@ begin
 --                                          TDO sampler                                          --
 ---------------------------------------------------------------------------------------------------
 -- Sampling of the jc_tdo_i input on the rising edge of the jc_tck_o clock. Only the last sampled
--- bit is significant and needs to be delivered.
+-- bit is significant and is delivered.
 
   JC_TDO_sampling: process (uclk_i)
 
@@ -476,18 +492,17 @@ begin
 ---------------------------------------------------------------------------------------------------
 --                                  Independant Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a WF_decr_counter relying only on the system clock, as an additional
--- way to go back to Idle state, in case any other logic is being stuck. The length of the counter
--- is defined using the slowest bit rate and considering reception of the upper limit of 134 bytes. 
+-- Instantiation of a wf_decr_counter relying only on the system clock, as an additional
+-- way to go back to Idle state, in case any other logic is being stuck. The timeout is 52 ms.
 
-  Session_Timeout_Counter: WF_decr_counter
+  Session_Timeout_Counter: wf_decr_counter
   generic map(g_counter_lgth => 21)
   port map(
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
-    counter_top       => (others => '1'),
+    counter_rst_i     => nfip_rst_i,
+    counter_top_i     => (others => '1'),
     counter_load_i    => s_idle,
-    counter_decr_p_i  => '1', -- on each uclk tick
+    counter_decr_i    => '1', -- on each uclk tick
     counter_o         => open,
     ---------------------------------------------------
     counter_is_zero_o => s_session_timedout);
