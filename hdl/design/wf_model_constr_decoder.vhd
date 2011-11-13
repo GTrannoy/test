@@ -7,10 +7,10 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                     WF_model_constr_decoder                                    |
+--                                     wf_model_constr_decoder                                    |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_model_constr_decoder.vhd                                                       |
+-- File         wf_model_constr_decoder.vhd                                                       |
 --                                                                                                |
 -- Description  Generation of the nanoFIP output S_ID and decoding of the inputs C_ID and M_ID.   |
 --              The output S_ID0 is a clock with period the double of uclk's period and the S_ID1 |
@@ -26,7 +26,7 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         21/01/2011                                                                        |
 -- Version      v0.03                                                                             |
--- Depends on   WF_reset_unit                                                                     |
+-- Depends on   wf_reset_unit                                                                     |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     11/09/2009  v0.01  PAS First version                                                       |
@@ -63,18 +63,18 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                             Entity declaration for WF_model_constr_decoder
+--                             Entity declaration for wf_model_constr_decoder
 --=================================================================================================
-entity WF_model_constr_decoder is port(
+entity wf_model_constr_decoder is port(
   -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i          : in std_logic;                      -- 40 Mhz clock
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i      : in std_logic;                      -- nanoFIP internal reset
 
     -- nanoFIP WorldFIP Settings (synchronised with uclk_i)
@@ -86,17 +86,17 @@ entity WF_model_constr_decoder is port(
     -- nanoFIP WorldFIP Settings output
     s_id_o     : out std_logic_vector (1 downto 0);      -- Identification selection
 
-    -- Signal to the WF_prod_bytes_retriever unit
+    -- Signal to the wf_prod_bytes_retriever unit
     constr_id_dec_o : out std_logic_vector (7 downto 0); -- Constructor identification decoded
     model_id_dec_o  : out std_logic_vector (7 downto 0));-- Model identification decoded
 
-end entity WF_model_constr_decoder;
+end entity wf_model_constr_decoder;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_model_constr_decoder is
+architecture rtl of wf_model_constr_decoder is
 
   signal s_counter                        : unsigned (1 downto 0);
   signal s_model_stage2, s_model_stage1   : std_logic_vector (3 downto 0);
@@ -157,14 +157,14 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
--- Instantiation of a counter WF_incr_counter
+-- Instantiation of a counter wf_incr_counter
 
-  Free_Counter: WF_incr_counter
+  Free_Counter: wf_incr_counter
   generic map(g_counter_lgth => 2)
   port map(
     uclk_i            => uclk_i,
-    reinit_counter_i  => nfip_rst_i,
-    incr_counter_i    => '1',
+    counter_reinit_i  => nfip_rst_i,
+    counter_incr_i    => '1',
     counter_is_full_o => open,
    -----------------------------------------
     counter_o         => s_counter);

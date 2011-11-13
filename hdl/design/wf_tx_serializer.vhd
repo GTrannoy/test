@@ -7,35 +7,35 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                        WF_tx_serializer                                        |
+--                                        wf_tx_serializer                                        |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_tx_serializer.vhd                                                              |
+-- File         wf_tx_serializer.vhd                                                              |
 --                                                                                                |
 -- Description  The unit is generating the nanoFIP FIELDRIVE outputs FD_TXD and FD_TXENA.         |
 --              It is retreiving bytes of data from:                                              |
---                o the WF_production (from the CTRL byte until the MPS)                          |
---                o WF_package        (FSS and FES bytes)                                         |
---                o and the WF_CRC    (FCS bytes).                                                |
+--                o the wf_production (from the CTRL byte until the MPS)                          |
+--                o wf_package        (FSS and FES bytes)                                         |
+--                o and the wf_CRC    (FCS bytes).                                                |
 --                                                                                                |
---              It encodes the bytes to the Manchester 2 scheme and outputs one by one the        |
---              encoded bits on the moments indicated by the WF_tx_osc unit.                      |
+--              It encodes the bytes to the Manchester 2 (manch.)scheme and outputs one by one the|
+--              encoded bits on the moments indicated by the wf_tx_osc unit.                      |
 --                                                                                                |
 --              Reminder of the Produced RP_DAT frame structure :                                 |
 --   ___________ ______  _______ ______ _________________ _______ _______  ___________ _______    |
 --  |____FSS____|_CTRL_||__PDU__|_LGTH_|__..User-Data..__|_nstat_|__MPS__||____FCS____|__FES__|   |
 --                                                                                                |
---              |------------- Bytes from the WF_production -------------|                        |
+--              |------------- Bytes from the wf_production -------------|                        |
 --                                                                                                |
 --                                                                                                |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         07/2011                                                                           |
 -- Version      v0.05                                                                             |
--- Depends on   WF_engine_control                                                                 |
---              WF_production                                                                     |
---              WF_tx_osc                                                                         |
---              WF_reset_unit                                                                     |
+-- Depends on   wf_engine_control                                                                 |
+--              wf_production                                                                     |
+--              wf_tx_osc                                                                         |
+--              wf_reset_unit                                                                     |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     v0.02     2009  PAS Entity Ports added, start of architecture content                      |
@@ -74,55 +74,55 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                               Entity declaration for WF_tx_serializer
+--                               Entity declaration for wf_tx_serializer
 --=================================================================================================
-entity WF_tx_serializer is port(
+entity wf_tx_serializer is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;                     -- 40 MHz clock
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i              : in std_logic;                     -- nanoFIP internal reset
 
-    -- Signals from the WF_production
+    -- Signals from the wf_production
     byte_i                  : in std_logic_vector (7 downto 0); -- byte to be delivered
 
-    -- Signals from the WF_engine_control unit
+    -- Signals from the wf_engine_control unit
     tx_start_p_i            : in std_logic;  -- indication for the start of the production
     byte_request_accept_p_i : in std_logic;  -- indication that a byte is ready to be delivered
     last_byte_p_i           : in std_logic;  -- indication of the last data byte
                                              --  (CRC, FES not included)
 
-     -- Signal from the WF_tx_osc
+     -- Signal from the wf_tx_osc
     tx_sched_p_buff_i       : in std_logic_vector (c_TX_SCHED_BUFF_LGTH-1 downto 0);
                                              -- pulses for the transmission synchronization
 
 
   -- OUTPUTS
 
-    -- Signal to the WF_engine_control unit
+    -- Signal to the wf_engine_control unit
     tx_byte_request_p_o     : out std_logic; -- request for a new byte
     tx_completed_p_o        : out std_logic; -- pulse upon the end of transmission
 
-    -- Signal to the WF_tx_osc unit
+    -- Signal to the wf_tx_osc unit
     tx_osc_rst_p_o          : out std_logic; -- oscillator reset after a transmission error
 
     -- nanoFIP FIELDRIVE outputs
     tx_data_o               : out std_logic; -- transmitter serial data
     tx_enable_o             : out std_logic);-- transmitter enable
 
-end entity WF_tx_serializer;
+end entity wf_tx_serializer;
 
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_tx_serializer is
+architecture rtl of wf_tx_serializer is
 
   -- FSM
   type tx_st_t  is (idle, sync_to_txck, send_fss, send_data_byte,
@@ -175,24 +175,24 @@ begin
 -- the delivery of the bit, after the tx_sched_p_buff (3) assertion. The counter is ahead of the
 -- bit being sent.
 
--- In the sending_bytes state, where the unit is expecting data bytes from the WF_production,
+-- In the sending_bytes state, where the unit is expecting data bytes from the wf_production,
 -- the unit delivers a request for a new byte after the tx_sched_p_buff (0) assertion,
 -- and when the Outgoing_Bits_Index counter is empty (which means that the last bit of a previous
 -- byte is now being delivered).
--- The WF_engine_control responds to the request by sending a new address to the WF_production
+-- The wf_engine_control responds to the request by sending a new address to the wf_production
 -- for the retreival of a byte from the memory or the stand-alone bus.
 -- The byte becomes available at the byte_request_accept_p_i pulse, 2 cycles after the request,
 -- and starts being transmitted at the tx_sched_p_buff (1) of the next FD_TXCK cycle.
 
--- The WF_engine_control is the one keeping track of the amount of bytes delivered and asserts
+-- The wf_engine_control is the one keeping track of the amount of bytes delivered and asserts
 -- the last_byte_p_i signal accordingly; after the arrival of this signal the serializer's FSM
 -- proceeds with the transmission of the CRC and the FES bytes and then goes back to idle.
 
--- To add a rubust layer of protection to the FSM, we have added a counter, dependant only on the
--- system clock, that from any state can bring the FSM back to idle. At any bit rate the
+-- To add a rubust layer of protection to the FSM, we have implemented a counter, dependant only
+-- on the system clock, that from any state can bring the FSM back to idle. At any bit rate the
 -- transmission of the longest RP_DAT should not last more than 35ms. Hence, we have generated a
--- 21 bits counter that will bring the machine back to idle if more than 52ms (complete 21 bit
--- counter) have passed since it has left this idle state.
+-- 21 bits counter that will reset the machine if more than 52ms (complete 21 bit counter) have
+-- passed since it has left this idle state.
 
 ---------------------------------------------------------------------------------------------------
 --                                       Serializer's FSM                                        --
@@ -208,7 +208,7 @@ begin
   Serializer_FSM_Sync: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if nfip_rst_i = '1' then
+      if nfip_rst_i = '1' or s_session_timedout = '1' then
         tx_st <= idle;
       else
         tx_st <= nx_tx_st;
@@ -219,14 +219,14 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Combinatorial process Serializer_FSM_Comb_State_Transitions
 
-  Serializer_FSM_Comb_State_Transitions: process (tx_st, last_byte_p_i, s_bit_index_is_zero,
-                                                  s_session_timedout,tx_start_p_i, tx_sched_p_buff_i)
+  Serializer_FSM_Comb_State_Transitions: process (tx_st, tx_start_p_i, last_byte_p_i,
+                                                  s_bit_index_is_zero, tx_sched_p_buff_i)
   begin
-    nx_tx_st <= idle;
 
     case tx_st is
 
       when idle =>
+
                          if tx_start_p_i = '1' then       -- trigger from wf_engine_control
                            nx_tx_st <= sync_to_txck;
                          else
@@ -235,10 +235,8 @@ begin
 
 
       when sync_to_txck =>                                -- synch to the free running FD_TXTCK 
-                         if s_session_timedout = '1' then
-                           nx_tx_st <= idle;
 
-                         elsif tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-4) = '1' then
+                         if tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-4) = '1' then
                            nx_tx_st <= send_fss;
 
                          else
@@ -247,10 +245,8 @@ begin
 
 
       when send_fss =>                                    -- delivery of 2 FSS bytes
-                         if s_session_timedout = '1' then
-                           nx_tx_st <= idle;
  
-                         elsif (s_bit_index_is_zero = '1')  and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-1) = '1') then
+                         if (s_bit_index_is_zero = '1')  and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-1) = '1') then
                            nx_tx_st <= send_data_byte;
 
                          else
@@ -260,10 +256,7 @@ begin
 
       when send_data_byte =>                              -- delivery of several data bytes
                                                           -- until the last_byte_p_i notification
-                         if s_session_timedout = '1' then
-                           nx_tx_st <= idle;              
-
-                         elsif last_byte_p_i = '1' then
+                         if last_byte_p_i = '1' then
                            nx_tx_st <= send_crc_bytes;
 
                          else
@@ -272,10 +265,8 @@ begin
 
 
       when send_crc_bytes =>                              -- delivery of 2 CRC bytes
-                         if s_session_timedout = '1' then
-                           nx_tx_st <= idle;
 
-                         elsif (s_bit_index_is_zero = '1') and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1') then
+                         if (s_bit_index_is_zero = '1') and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1') then
                            nx_tx_st <= send_fes;           -- state change early enough (tx_sched_p_buff_i(2))
                                                            -- for the Outgoing_Bits_Index, that is loaded on
                                                            -- tx_sched_p_buff_i(3), to get the 31 as top value
@@ -285,10 +276,8 @@ begin
 
 
       when send_fes =>                                    -- delivery of 1 FES byte
-                         if s_session_timedout = '1' then
-                           nx_tx_st <= idle;
 
-                         elsif (s_bit_index_is_zero = '1') and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1') then
+                         if (s_bit_index_is_zero = '1') and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1') then
                            nx_tx_st <= stop_transmission; -- state change early enough (tx_sched_p_buff_i(2))
                                                           -- for the Outgoing_Bits_Index that is loaded on
                                                           -- tx_sched_p_buff_i(3) to get the 15 as top value
@@ -298,11 +287,8 @@ begin
 
 
       when stop_transmission =>
-                                                          -- 
-                         if s_session_timedout = '1' then
-                           nx_tx_st <= idle;
-
-                         elsif tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1' then
+                                                          -- end of transmission synchronous to the FD_TXCK
+                         if tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1' then
                            nx_tx_st <= idle;
 
                          else
@@ -448,7 +434,7 @@ Input_Byte_Retrieval: process (uclk_i)
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of the CRC unit
 
-  crc_generation: WF_crc
+  crc_generation: wf_crc
   port map(
     uclk_i                => uclk_i,
     nfip_rst_i            => nfip_rst_i,
@@ -479,17 +465,17 @@ Input_Byte_Retrieval: process (uclk_i)
 -- delivered. According to the state of the FSM, a byte may be a FSS one, or a data byte or a
 -- CRC or a FES byte.
 
-  Outgoing_Bits_Index: WF_decr_counter
+  Outgoing_Bits_Index: wf_decr_counter
   generic map(g_counter_lgth => 5)
   port map(
-    uclk_i              => uclk_i,
-    nfip_rst_i          => nfip_rst_i,
-    counter_top         => s_bit_index_top,
-    counter_load_i      => s_bit_index_load,
-    counter_decr_p_i    => s_bit_index_decr_p,
+    uclk_i            => uclk_i,
+    counter_rst_i     => nfip_rst_i,
+    counter_top_i     => s_bit_index_top,
+    counter_load_i    => s_bit_index_load,
+    counter_decr_i    => s_bit_index_decr_p,
    -----------------------------------------------
-    counter_o           => s_bit_index,
-    counter_is_zero_o   => s_bit_index_is_zero);
+    counter_o         => s_bit_index,
+    counter_is_zero_o => s_bit_index_is_zero);
    -----------------------------------------------
 
   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -513,7 +499,7 @@ Input_Byte_Retrieval: process (uclk_i)
 ---------------------------------------------------------------------------------------------------
 
 -- Synchronous process Bits_Delivery: handling of nanoFIP output signal FD_TXD by
--- placing bits of data according to the state of WF_tx_serializer's state machine and to the
+-- placing bits of data according to the state of wf_tx_serializer's state machine and to the
 -- counter s_bit_index. The delivery takes place upon a tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-3)
 -- pulse.
 
@@ -591,17 +577,17 @@ Input_Byte_Retrieval: process (uclk_i)
 ---------------------------------------------------------------------------------------------------
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Instantiation of a WF_decr_counter relying only on the system clock as an additional
+-- Instantiation of a wf_decr_counter relying only on the system clock as an additional
 -- way to go back to Idle state,  in case any other logic is being stuck.
 
-  Session_Timeout_Counter: WF_decr_counter
+  Session_Timeout_Counter: wf_decr_counter
   generic map(g_counter_lgth => 21)
   port map(
     uclk_i            => uclk_i,
-    nfip_rst_i        => nfip_rst_i,
-    counter_top       => (others => '1'),
+    counter_rst_i     => nfip_rst_i,
+    counter_top_i     => (others => '1'),
     counter_load_i    => s_prepare_to_produce,
-    counter_decr_p_i  => '1', -- on each uclk tick
+    counter_decr_i    => '1', -- on each uclk tick
     counter_o         => open,
     ---------------------------------------------------
     counter_is_zero_o => s_session_timedout);
@@ -620,7 +606,7 @@ Input_Byte_Retrieval: process (uclk_i)
   tx_completed_p_o    <= s_stop_transmission and tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2);
 
   tx_byte_request_p_o <= s_sending_data and s_bit_index_is_zero and  tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-4);
-  -- request for a new byte from the WF_prod_bytes_retriever unit (passing from WF_engine_control)
+  -- request for a new byte from the wf_prod_bytes_retriever unit (passing from wf_engine_control)
 
 
 

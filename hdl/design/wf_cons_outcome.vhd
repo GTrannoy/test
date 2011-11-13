@@ -7,25 +7,25 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                        WF_cons_outcome                                         |
+--                                        wf_cons_outcome                                         |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_cons_outcome.vhd                                                               |
+-- File         wf_cons_outcome.vhd                                                               |
 --                                                                                                |
 -- Description  The unit starts by validating a consumed RP_DAT frame with respect to the         |
 --              correctness of:                                                                   |
 --                o the CTRL, PDU_TYPE and LGTH bytes; these bytes are received from the          |
---                  WF_consumption unit.                                                          |
---                o the CRC, FSS & FES bytes; the rx_fss_crc_fes_ok_p_i pulse from the            |
---                  WF_fd_receiver unit groups these checks.                                      |
+--                  wf_consumption unit                                                           |
+--                o the CRC, FSS & FES bytes; the rx_fss_crc_fes_ok_p_i pulse, received from the  |
+--                  wf_fd_receiver unit, groups these checks                                      |
 --                                                                                                |
 --              Then, according to the consumed variable that has been received (var_1, var_2,    |
---              var_rst, var_jc1) it generates the signals:                                       |
---                o "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY and VAR2_RDY.  |
+--              var_rst, var_4) it generates the signals:                                         |
+--                o "nanoFIP User Interface, NON_WISHBONE" output signals VAR1_RDY and VAR2_RDY   |
 --                o "nanoFIP User Interface, NON_WISHBONE" output signal r_tler_o, also used by   |
---                  the WF_status_bytes_generator unit (nanoFIP status byte, bit 4).              |
---                o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the WF_reset_unit.   |
---                o jc_start_p that triggers the start-up of thr WF_jtag_controller unit.         |
+--                  the wf_status_bytes_generator unit (nanoFIP status byte, bit 4)               |
+--                o rst_nFIP_and_FD_p and assert_RSTON_p, that are inputs to the wf_reset_unit    |
+--                o jc_start_p that triggers the start-up of thr wf_jtag_controller unit          |
 --                                                                                                |
 --                                                                                                |
 --              Reminder:                                                                         |
@@ -36,7 +36,7 @@
 --                                                                                                |
 --                                     |-----------&LGTH bytes-----------|                        |
 --                                     |---------- >0 and <128 ----------|                        |
---              |--------------------------&byte_index_i bytes--------------------------------|   | 
+--              |--------------------------&byte_index_i bytes--------------------------------|   |
 --                                                                                                |
 --              The LGTH byte is considered correct if it is coherent with the actual number of   |
 --              bytes received in the frame and also respects the frame limits.                   |
@@ -44,26 +44,26 @@
 --                                                                                                |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
--- Date         06/2011                                                                        |
+-- Date         06/2011                                                                           |
 -- Version      v0.06                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_engine_control                                                                 |
---              WF_fd_receiver                                                                    |
---              WF_consumption                                                                    |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_engine_control                                                                 |
+--              wf_fd_receiver                                                                    |
+--              wf_consumption                                                                    |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     10/2010  v0.01  EG  First version                                                          |
 --     11/2010  v0.02  EG  Treatment of reset vars added to the unit                              |
 --                         Correction on var1_rdy, var2_rdy for slone                             |
 --     12/2010  v0.03  EG  Finally no broadcast in slone, cleanning-up+commenting                 |
---     01/2011  v0.04  EG  Unit WF_var_rdy_generator separated in WF_cons_outcome                 |
---                         (for var1_rdy,var2_rdy+var_rst outcome) & WF_prod_permit (for var3)    |
+--     01/2011  v0.04  EG  Unit wf_var_rdy_generator separated in wf_cons_outcome                 |
+--                         (for var1_rdy,var2_rdy+var_rst outcome) & wf_prod_permit (for var3)    |
 --     02/2011  v0.05  EG  Added here functionality of wf_cons_frame_validator                    |
 --                         Bug on var1_rdy, var2_rdy generation corrected (the s_varX_received    |
 --                         was always set to 1!)                                                  |
 --                         Added check of CTRL byte for rtler                                     |
 --                         Added cons_bytes_excess_i for tracking of too long RP_DATs             |
---     06/2011  v0.06  EG  added var_jc1 treatment                                                |
+--     06/2011  v0.06  EG  added var_4 treatment                                                  |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -91,14 +91,14 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_cons_outcome
+--                           Entity declaration for wf_cons_outcome
 --=================================================================================================
 
-entity WF_cons_outcome is port(
+entity wf_cons_outcome is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                 : in std_logic;                     -- 40 MHz clock
@@ -107,24 +107,24 @@ entity WF_cons_outcome is port(
     -- nanoFIP WorldFIP Settings
     subs_i                 : in std_logic_vector (7 downto 0); -- subscriber number coding
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i             : in std_logic;                     -- nanoFIP internal reset
 
-    -- Signal from the WF_fd_receiver unit
+    -- Signal from the wf_fd_receiver unit
     rx_fss_crc_fes_ok_p_i  : in std_logic; -- indication of a frame with correct FSS, FES & CRC;
                                            -- pulse upon FES detection
 
     rx_crc_wrong_p_i       : in std_logic; -- indication of a frame with a wrong CRC;
                                            -- pulse upon FES detection
 
-    -- Signals from the WF_consumption unit
+    -- Signals from the wf_consumption unit
     cons_ctrl_byte_i       : in std_logic_vector (7 downto 0); -- received RP_DAT CTRL byte
     cons_lgth_byte_i       : in std_logic_vector (7 downto 0); -- received RP_DAT LGTH byte
     cons_pdu_byte_i        : in std_logic_vector (7 downto 0); -- received RP_DAT PDU_TYPE byte
     cons_var_rst_byte_1_i  : in std_logic_vector (7 downto 0); -- received var_rst RP_DAT, 1st data-byte
     cons_var_rst_byte_2_i  : in std_logic_vector (7 downto 0); -- received var_rst RP_DAT, 2nd data-byte
 
-   -- Signals from the WF_engine_control unit
+   -- Signals from the wf_engine_control unit
     cons_bytes_excess_i    : in std_logic;                     -- RP_DAT frame with > 133 bytes
     byte_index_i           : in std_logic_vector (7 downto 0); -- index of byte being received
     var_i                  : in t_var;                  -- variable type that is being treated
@@ -135,14 +135,14 @@ entity WF_cons_outcome is port(
     var1_rdy_o             : out std_logic; -- signals new data is received and can safely be read
     var2_rdy_o             : out std_logic; -- signals new data is received and can safely be read
 
-    -- Signal to the WF_jtag_controller unit
-    jc_start_p_o           : out std_logic; -- pulse upon the end of a new correct jc_var1
+    -- Signal to the wf_jtag_controller unit
+    jc_start_p_o           : out std_logic; -- pulse upon the end of a new valid var_4
 
-    -- Signal to the WF_status_bytes_gen unit
+    -- Signal to the wf_status_bytes_gen unit
     nfip_status_r_tler_p_o : out std_logic; -- received PDU_TYPE or LGTH error
                                             -- nanoFIP status byte bit 4
 
-    -- Signals to the WF_reset_unit
+    -- Signals to the wf_reset_unit
     assert_rston_p_o       : out std_logic; -- indicates that a var_rst with its 2nd data-byte
                                             -- containing the station's address has been
                                             -- correctly received
@@ -150,13 +150,13 @@ entity WF_cons_outcome is port(
     rst_nfip_and_fd_p_o    : out std_logic);-- indicates that a var_rst with its 1st data-byte
                                             -- containing the station's address has been
                                             -- correctly received
-end entity WF_cons_outcome;
+end entity wf_cons_outcome;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_cons_outcome is
+architecture rtl of wf_cons_outcome is
 
   signal s_cons_frame_ok_p                 : std_logic;
   signal s_rst_nfip_and_fd, s_assert_rston : std_logic;
@@ -182,26 +182,19 @@ begin
 -- bytes counter byte_index_i, when the FES is detected (pulse rx_fss_crc_fes_ok_p_i).
 
 -- Note: Upon FES detection the counter byte_index_i should be equal to &cons_lgth_byte_i + 5.
--- The byte_index_i includes the counting of the the CTRL, PDU_TYPE, LGTH, the 2 CRC and
--- the  bytes (and counting starts from 0!).
-
--- The same process is also used for the generation of the of the nanoFIP status byte, bit 4, that
--- indicates a received CTRL or PDU_TYPE byte error or a LGTH byte incoherency.
-
--- Note: The end of a frame is marked by either the signal rx_fss_crc_fes_ok_p_i or by the
--- rx_crc_wrong_p_i.
+-- This is because the byte_index_i also counts the: CTRL, PDU_TYPE, LGTH, the 2 CRC and
+-- the FES bytes (and counting starts from 0!).
 
   Frame_Validation: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
         s_cons_frame_ok_p          <= '0';
-        nfip_status_r_tler_p_o     <= '0';
-      else                                                                        -- only consumed RP_DATs
 
-        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_jc1) then
+      else
+                                                                                  -- only consumed RP_DATs
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_4) then
 
-          --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
           if (rx_fss_crc_fes_ok_p_i = '1')                                  and   -- FSS CRC FES check
 
              ((cons_ctrl_byte_i(5 downto 0) = c_RP_DAT_CTRL_BYTE)         or      -- CTRL byte check
@@ -220,8 +213,33 @@ begin
             s_cons_frame_ok_p      <= '0';
           end if;
 
-          --  --  --  --  --  --  --  --  -- --  --  -- --  --  --  --  --  --  --  --  --  --  --
-          if (cons_bytes_excess_i = '1')                                      or  -- excess of bytes (without FES detection)
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+
+---------------------------------------------------------------------------------------------------
+--                                       r_tler generation                                       --
+---------------------------------------------------------------------------------------------------
+
+-- Gneration of the of the "nanoFIP User Interface, NON_WISHBONE" output signal r_tler_o which
+-- indicates a received CTRL or PDU_TYPE byte error or a LGTH byte incoherency.
+
+-- Note: The end of a frame is marked by either the signal rx_fss_crc_fes_ok_p_i or by the
+-- rx_crc_wrong_p_i.
+
+  nFIP_statusbyte_bit4: process (uclk_i)
+  begin
+    if rising_edge (uclk_i) then
+      if nfip_rst_i = '1' then
+        nfip_status_r_tler_p_o     <= '0';
+      else
+                                                                                  -- only consumed RP_DATs
+        if (var_i = var_1) or (var_i = var_2) or (var_i = var_rst) or (var_i = var_4) then
+
+           if (cons_bytes_excess_i = '1')                                      or -- excess of bytes (without FES detection)
 
              (((rx_fss_crc_fes_ok_p_i = '1') or (rx_crc_wrong_p_i = '1'))    and  -- upon FES detection checking of CTRL, PDU_TUPE, LGTH
 
@@ -282,9 +300,9 @@ begin
 -- Note: A correct consumed RP_DAT frame is signaled by the s_cons_frame_ok_p, which arrives upon
 -- FES detection. A correct ID_DAT frame along with the variable it contained is signaled by the
 -- var_i. The signal var_i gets its value (var_1, var_2, var_rst) after the reception of a correct
--- ID_DAT and of a correct RP_DAT FSS; var_i retains its value until the FES detectionon of the
--- RP_DAT frame. An example follows:
---
+-- ID_DAT and of a correct RP_DAT FSS; var_i retains its value until the FES detection (or the
+-- detection of an excess of bytes) of the RP_DAT frame. An example follows:
+
 -- frames          : ___[ID_DAT,var_1]__[......RP_DAT......]______________[ID_DAT,var_1]___[.....RP_DAT..
 -- cons_frame_ok_p : ______________________________________|-|___________________________________________
 -- var_i           :    var_whatever  > <       var_1      > <        var_whatever        > <   var_1
@@ -308,7 +326,7 @@ begin
 
         elsif (var_i = var_1) then
 
-          var1_rdy_o <= '0';                 -- while consuming a var_1, VAR1_RDY is 0
+          var1_rdy_o <= '0';                 -- while consuming a var_1, VAR1_RDY is '0'
 
         end if;      
 
@@ -323,7 +341,7 @@ begin
 
         elsif (var_i = var_2) then
 
-          var2_rdy_o <= '0';                 -- while consuming a var_2, VAR2_RDY is 0
+          var2_rdy_o <= '0';                 -- while consuming a var_2, VAR2_RDY is '0'
 
         end if;      
 
@@ -379,11 +397,12 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                             var_jc3: JTAG_contoller startup signal                            --
+--                              var_4: JTAG_contoller startup signal                             --
 ---------------------------------------------------------------------------------------------------
 
 -- Generation of the signal jc_start_p_o that is a 1 uclk-long pulse after the reception of a
--- valid var_jc1. The pulse triggers the startup of the WF_jtag_controller state machine. 
+-- valid JTAG consumed RP_DAT frame (var_4). The pulse triggers the startup of the wf_jtag_controller
+-- state machine. 
 
   jc_start_p_generation: process (uclk_i)
   begin
@@ -392,7 +411,7 @@ begin
           jc_start_p_o <= '0';
 
       else
-        if (var_i = var_jc1) and (s_cons_frame_ok_p = '1') then
+        if (var_i = var_4) and (s_cons_frame_ok_p = '1') then
  
           jc_start_p_o <= '1';
 

@@ -7,10 +7,10 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                        WF_rx_deglitcher                                        |
+--                                        wf_rx_deglitcher                                        |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_rx_deglitcher.vhd                                                              |
+-- File         wf_rx_deglitcher.vhd                                                              |
 --                                                                                                |
 -- Description  The unit applies a glitch filter to the nanoFIP FIELDRIVE input FD_RXD.           |
 --              It is capable of cleaning glitches up to c_DEGLITCH_THRESHOLD uclk ticks long.    |
@@ -19,7 +19,7 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         14/02/2011                                                                        |
 -- Version      v0.03                                                                             |
--- Depends on   WF_reset_unit                                                                     |
+-- Depends on   wf_reset_unit                                                                     |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     07/08/2009  v0.01  PAS Entity Ports added, start of architecture content                   |
@@ -53,19 +53,19 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                             Entity declaration for WF_rx_deglitcher
+--                             Entity declaration for wf_rx_deglitcher
 --=================================================================================================
 
-entity WF_rx_deglitcher is port(
+entity wf_rx_deglitcher is port(
   -- INPUTS
     -- nanoFIP User Interface general signal
     uclk_i                 : in std_logic;  -- 40 MHz clock
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i             : in std_logic;  -- nanoFIP internal reset
 
     -- nanoFIP FIELDRIVE (synchronized with uclk)
@@ -73,19 +73,19 @@ entity WF_rx_deglitcher is port(
 
 
   -- OUTPUTS
-    -- Signals to the WF_rx_deserializer unit
+    -- Signals to the wf_rx_deserializer unit
     fd_rxd_filt_o          : out std_logic; -- filtered output signal
     fd_rxd_filt_edge_p_o   : out std_logic; -- indicates an edge on the filtered signal
     fd_rxd_filt_f_edge_p_o : out std_logic);-- indicates a falling edge on the filtered signal
 
-end WF_rx_deglitcher;
+end wf_rx_deglitcher;
 
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_rx_deglitcher is
+architecture rtl of wf_rx_deglitcher is
 
   signal s_fd_rxd_synch                                 : std_logic_vector (1 downto 0);
   signal s_fd_rxd_filt, s_fd_rxd_filt_d1                : std_logic;

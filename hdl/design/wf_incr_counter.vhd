@@ -7,15 +7,16 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                        WF_incr_counter                                         |
+--                                        wf_incr_counter                                         |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_incr_counter.vhd                                                               |
--- Description  Increasing counter with synchronous reset, reinitialise and increase enable       |
+-- File         wf_incr_counter.vhd                                                               |
+-- Description  Increasing counter with synchronous reinitialise and increase enable              |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         01/2011                                                                           |
 -- Version      v0.011                                                                            |
+-- Depends on   -                                                                                 |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     10/2010  EG  v0.01   first version                                                         |
@@ -47,23 +48,23 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_incr_counter
+--                           Entity declaration for wf_incr_counter
 --=================================================================================================
 
-entity WF_incr_counter is
-  generic(g_counter_lgth : natural := 4);                        -- default length
+entity wf_incr_counter is
+  generic(g_counter_lgth : natural := 4);                       -- default length
   port(
   -- INPUTS
-    -- nanoFIP User Interface general signal
-    uclk_i           : in std_logic;                             -- 40 MHz clock
+   -- nanoFIP User Interface general signal
+   uclk_i           : in std_logic;                             -- 40 MHz clock
 
    -- Signals from any unit
-   incr_counter_i    : in std_logic;                             -- increment enable
-   reinit_counter_i  : in std_logic;                             -- reinitializes counter to 0
+   counter_incr_i    : in std_logic;                             -- increment enable
+   counter_reinit_i  : in std_logic;                             -- reinitializes counter to 0
 
 
   -- OUTPUT
@@ -71,13 +72,13 @@ entity WF_incr_counter is
    counter_o         : out unsigned (g_counter_lgth-1 downto 0); -- counter
    counter_is_full_o : out std_logic);                           -- counter full indication
                                                                  -- (all bits to '1')
-end entity WF_incr_counter;
+end entity wf_incr_counter;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_incr_counter is
+architecture rtl of wf_incr_counter is
 
 constant c_COUNTER_FULL : unsigned (g_counter_lgth-1 downto 0) := (others => '1');
 signal   s_counter      : unsigned (g_counter_lgth-1 downto 0);
@@ -95,10 +96,10 @@ begin
   Incr_Counter: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if reinit_counter_i = '1' then
+      if counter_reinit_i = '1' then
         s_counter   <= (others => '0');
 
-      elsif incr_counter_i = '1' then
+      elsif counter_incr_i = '1' then
         s_counter   <= s_counter + 1;
 
       end if;

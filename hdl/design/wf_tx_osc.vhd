@@ -7,10 +7,10 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                           WF_tx_osc                                            |
+--                                           wf_tx_osc                                            |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_tx_osc.vhd                                                                     |
+-- File         wf_tx_osc.vhd                                                                     |
 --                                                                                                |
 -- Description  Generation of the clock signals needed for the FIELDRIVE transmission.            |
 --                                                                                                |
@@ -28,14 +28,14 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         14/02/2011                                                                        |
 -- Version      v0.04                                                                             |
--- Depends on   WF_reset_unit                                                                     |
+-- Depends on   wf_reset_unit                                                                     |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     08/2009  v0.01  PS  Entity Ports added, start of architecture content                      |
 --     07/2010  v0.02  EG  tx counter changed from 20 bits signed, to 11 bits unsigned;           |
 --                         c_TX_SCHED_BUFF_LGTH got 1 bit more                                    |
 --     12/2010  v0.03  EG  code cleaned-up                                                        |
---     01/2011  v0.04  EG  WF_tx_osc as different unit; use of WF_incr_counter;added tx_osc_rst_p_i
+--     01/2011  v0.04  EG  wf_tx_osc as different unit; use of wf_incr_counter;added tx_osc_rst_p_i
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -63,24 +63,24 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                            Entity declaration for WF_tx_osc
+--                            Entity declaration for wf_tx_osc
 --=================================================================================================
 
-entity WF_tx_osc is
+entity wf_tx_osc is
   port (
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i            : in std_logic;                 -- 40 MHz clock
     rate_i            : in std_logic_vector (1 downto 0); -- WorldFIP bit rate
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i        : in std_logic;                 -- nanoFIP internal reset
 
-    -- Signals from the WF_engine_control
+    -- Signals from the wf_engine_control
     tx_osc_rst_p_i    : in std_logic;                 -- transmitter timeout
 
 
@@ -88,17 +88,17 @@ entity WF_tx_osc is
     -- nanoFIP FIELDRIVE output
     tx_clk_o          : out std_logic;                -- line driver half bit clock
 
-    -- Signal to the WF_tx_serializer unit
+    -- Signal to the wf_tx_serializer unit
     tx_sched_p_buff_o : out std_logic_vector (c_TX_SCHED_BUFF_LGTH -1 downto 0));
                                                       -- buffer of pulses used for the scheduling
-                                                      -- of the actions of the WF_tx_serializer
-end entity WF_tx_osc;
+                                                      -- of the actions of the wf_tx_serializer
+end entity wf_tx_osc;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_tx_osc is
+architecture rtl of wf_tx_osc is
 
   -- transmission periods counter
   signal s_period_c, s_period                   : unsigned  (c_PERIODS_COUNTER_LGTH -1 downto 0);
@@ -128,14 +128,14 @@ begin
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Instantiation of a WF_incr_counter counting transmission periods.
+-- Instantiation of a wf_incr_counter counting transmission periods.
 
-  tx_periods_count: WF_incr_counter
+  tx_periods_count: wf_incr_counter
   generic map(g_counter_lgth => c_PERIODS_COUNTER_LGTH)
   port map(
     uclk_i            => uclk_i,
-    reinit_counter_i  => s_period_c_reinit,
-    incr_counter_i    => '1',
+    counter_reinit_i  => s_period_c_reinit,
+    counter_incr_i    => '1',
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_period_c);

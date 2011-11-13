@@ -7,42 +7,43 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                          WF_consumption                                        |
+--                                          wf_consumption                                        |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_consumption.vhd                                                                |
+-- File         wf_consumption.vhd                                                                |
 --                                                                                                |
 -- Description  The unit groups the main actions that regard data consumption.                    |
 --              It instantiates the units:                                                        |
 --                                                                                                |
---              o WF_cons_bytes_processor: for the handling of consumed RP_DAT data bytes as they |
---                                         arrive from the WF_fd_receiver (registration to the    |
---                                         RAM or outputting to the DAT_O).                       |
+--              o wf_cons_bytes_processor: for the handling of consumed RP_DAT data bytes (var_1, |
+--                                         var_2, var_rst, var_4) as they arrive from the         |
+--                                         wf_fd_receiver (registration to the RAM or outputting  |
+--                                         to the DAT_O).                                         |
 --                                                                                                |
 --                                                                                                |
---              o WF_cons_outcome        : for the validation of the consumed frame at the end of |
+--              o wf_cons_outcome        : for the validation of the consumed frame at the end of |
 --                                         its arrival (in terms of FSS, CTRL, PDU_TYPE, Lgth &   |
 --                                         CRC bytes).                                            |
 --                                                                                                |
 --                     ___________________________________________________________                |
---                    |                       WF_consumption                      |               |
+--                    |                       wf_consumption                      |               |
 --                    |                                                           |               |
 --                    |       _____________________________________________       |               |
 --                    |      |                                             |      |               |
---                    |      |                WF_cons_outcome              |      |               |
+--                    |      |                wf_cons_outcome              |      |               |
 --                    |      |                                             |      |               |
 --                    |      |_____________________________________________|      |               |
 --                    |                                                           |               |
 --                    |       _____________________________________________       |               |
 --                    |      |                                             |      |               |
---                    |      |            WF_cons_bytes_processor          |      |               |
+--                    |      |            wf_cons_bytes_processor          |      |               |
 --                    |      |                                             |      |               |
 --                    |      |_____________________________________________|      |               |
 --                    |___________________________________________________________|               |
 --                                                 /\                                             |
 --                     ___________________________________________________________                |
 --                    |                                                           |               |
---                    |                       WF_fd_receiver                      |               |
+--                    |                       wf_fd_receiver                      |               |
 --                    |___________________________________________________________|               |
 --                                                 /\                                             |
 --                   ___________________________________________________________________          |
@@ -57,9 +58,9 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         11/01/2011                                                                        |
 -- Version      v0.01                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_fd_receiver                                                                    |
---              WF_engine_control                                                                 |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_fd_receiver                                                                    |
+--              wf_engine_control                                                                 |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     01/2011  EG  v0.01  first version                                                          |
@@ -90,13 +91,13 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_consumption
+--                           Entity declaration for wf_consumption
 --=================================================================================================
-entity WF_consumption is port(
+entity wf_consumption is port(
   -- INPUTS
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -106,56 +107,56 @@ entity WF_consumption is port(
       -- used by: all the units
 
       slone_i                : in std_logic;
-      -- used by: WF_cons_bytes_processor for selecting the data storage (RAM or DAT_O bus)
-      -- used by: WF_cons_outcome for the VAR2_RDY signal (stand-alone mode does not treat var_2)
+      -- used by: wf_cons_bytes_processor for selecting the data storage (RAM or DAT_O bus)
+      -- used by: wf_cons_outcome for the VAR2_RDY signal (stand-alone mode does not treat var_2)
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP WorldFIP Settings
 
        subs_i                : in std_logic_vector (7 downto 0);
-      -- used by: WF_cons_outcome for checking if the 2 bytes of a var_rst match the station's addr
+      -- used by: wf_cons_outcome for checking if the 2 bytes of a var_rst match the station's addr
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
 
       nfip_rst_i             : in std_logic;
       -- used by: all the units
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_fd_receiver
+    -- Signals from the wf_fd_receiver
 
       rx_byte_i              : in std_logic_vector (7 downto 0);
       rx_byte_ready_p_i      : in std_logic;
-      -- used by: WF_cons_bytes_processor
+      -- used by: wf_cons_bytes_processor
 
       rx_fss_crc_fes_ok_p_i  : in std_logic;
       rx_crc_wrong_p_i       : in std_logic;
-      -- used by: WF_cons_outcome
+      -- used by: wf_cons_outcome
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- nanoFIP User Interface, WISHBONE Slave
 
       wb_clk_i               : in std_logic;
       wb_adr_i               : in std_logic_vector (8 downto 0);
-      -- used by: WF_cons_bytes_processor for the managment of the Consumption RAM
+      -- used by: wf_cons_bytes_processor for the managment of the Consumption RAM
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signals from the WF_engine_control unit
+    -- Signals from the wf_engine_control unit
 
       cons_bytes_excess_i    : in std_logic;
-      -- used by: WF_cons_outcome
+      -- used by: wf_cons_outcome
 
       var_i                  : in t_var;
-      -- used by: WF_cons_bytes_processor and WF_cons_outcome
+      -- used by: wf_cons_bytes_processor and wf_cons_outcome
 
       byte_index_i           : in std_logic_vector (7 downto 0);
-      -- used by: WF_cons_bytes_processor for the reception coordination
-      -- used by: WF_cons_outcome for the validation of the LGTH byte
+      -- used by: wf_cons_bytes_processor for the reception coordination
+      -- used by: wf_cons_outcome for the validation of the LGTH byte
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-    -- Signal from the WF_jtag_controller unit
+    -- Signal from the wf_jtag_controller unit
     jc_mem_adr_rd_i          : in std_logic_vector (8 downto 0);
-
+      -- used by: wf_cons_bytes_processor for the readings from the JC_cons memory
 
 
   -------------------------------------------------------------------------------------------------
@@ -168,25 +169,25 @@ entity WF_consumption is port(
     -- nanoFIP User Interface, WISHBONE Slave outputs
       data_o                 : out std_logic_vector (15 downto 0);
 
-    -- Signals to the WF_production
+    -- Signals to the wf_production
       nfip_status_r_tler_p_o : out std_logic;
 
-    -- Signals to the WF_reset_unit
+    -- Signals to the wf_reset_unit
       assert_rston_p_o       : out std_logic;
       rst_nfip_and_fd_p_o    : out std_logic;
 
-    -- Signals to the WF_jtag_controller unit
-    jc_start_p_o             : out std_logic;
-    jc_mem_data_o            : out std_logic_vector (7 downto 0));
+    -- Signals to the wf_jtag_controller unit
+      jc_start_p_o             : out std_logic;
+      jc_mem_data_o            : out std_logic_vector (7 downto 0));
 
-end entity WF_consumption;
+end entity wf_consumption;
 
 
 
 --=================================================================================================
 --                                architecture declaration
 --=================================================================================================
-architecture struc of WF_consumption is
+architecture struc of wf_consumption is
 
   signal s_cons_ctrl_byte, s_cons_pdu_byte, s_cons_lgth_byte : std_logic_vector (7 downto 0);
   signal s_cons_var_rst_byte_1, s_cons_var_rst_byte_2        : std_logic_vector (7 downto 0);
@@ -202,7 +203,7 @@ begin
 --                                   Consumed Bytes Processing                                   --
 ---------------------------------------------------------------------------------------------------
 
-  Consumption_Bytes_Processor : WF_cons_bytes_processor
+  Consumption_Bytes_Processor : wf_cons_bytes_processor
   port map(
     uclk_i                 => uclk_i,
     nfip_rst_i             => nfip_rst_i,
@@ -230,7 +231,7 @@ begin
 --                                      Consumption Outcome                                      --
 ---------------------------------------------------------------------------------------------------
 
-  Consumption_Outcome : WF_cons_outcome
+  Consumption_Outcome : wf_cons_outcome
   port map(
     uclk_i                 => uclk_i,
     slone_i                => slone_i,

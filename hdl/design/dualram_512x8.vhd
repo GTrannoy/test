@@ -100,23 +100,23 @@ architecture RAM4K9 of dualram_512x8 is
 -- read with both ports simultaneously. Moreover, reading from one port while writing to the other
 -- is possible.
 
--- WIDTHA0, WIDTHA1 and WIDTHB0, WIDTHB1 :
+-- WIDTHA0, WIDTHA1 and WIDTHB0, WIDTHB1:
 -- Aspect ratio configuration.
 
--- WENA, WENB :
+-- WENA, WENB:
 -- Switching between Read and Write modes for the respective ports.
 -- A Low indicates Write operation and a High indicates a Read.
 
--- BLKA, BLKB :
+-- BLKA, BLKB:
 -- Active low enable for the respective ports.
 
--- PIPEA, PIPEB :
+-- PIPEA, PIPEB:
 -- Control of the optional pipeline stages.
 -- A Low on the PIPEA or PIPEB indicates a non-pipelined Read and the data appears on the output
 -- in the same clock cycle.
 -- A High indicates a pipelined Read and data appears on the output in the next clock cycle.
 
--- WMODEA, WMODEB :
+-- WMODEA, WMODEB:
 -- Configuration of the behavior of the output when the RAM is in the Write mode.
 -- A Low on this signal makes the output retain data from the previous Read. A High indicates a
 -- pass-through behavior where the data being written will appear on the output immediately.
@@ -175,12 +175,12 @@ begin
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of the component RAM4K9.
 -- The following configuration has been applied:
---  o aspect ratio   : 9 x 512  (WIDTHA0, WIDTHA1, WIDTHB0, WIDTHB1                 : VCC)
---  o word width     : 8 bits   (DINA8, DINB8: GND, DOUTA8, DOUTB8                  : open)
---  o memory depth   : 512 bytes(ADDRA11, ADDRA10, ADDRA9, ADDRB11, ADDRB10, ADDRB9 : GND)
---  o BLKA, BLKB     : GND      (ports enabled)
---  o PIPEA, PIPEB   : GND      (not pipelined read)
---  o WMODEA, WMODEB : GND      (in write mode the output retains the data from the previous read)
+--  o aspect ratio  : 9 x 512  (WIDTHA0, WIDTHA1, WIDTHB0, WIDTHB1                : VCC)
+--  o word width    : 8 bits   (DINA8, DINB8: GND; DOUTA8, DOUTB8                 : open)
+--  o memory depth  : 512 bytes(ADDRA11, ADDRA10, ADDRA9, ADDRB11, ADDRB10, ADDRB9: GND)
+--  o BLKA, BLKB    : GND      (ports enabled)
+--  o PIPEA, PIPEB  : GND      (not pipelined read)
+--  o WMODEA, WMODEB: GND      (in write mode the output retains the data from the previous read)
 
   A9D8DualClkRAM_R0C0 : RAM4K9
   port map(

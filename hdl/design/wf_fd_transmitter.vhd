@@ -7,55 +7,50 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                         WF_fd_transmitter                                      |
+--                                         wf_fd_transmitter                                      |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_fd_transmitter.vhd                                                             |
+-- File         wf_fd_transmitter.vhd                                                             |
 --                                                                                                |
 -- Description  The unit groups the main actions that regard FIELDRIVE data transmission.         |
 --              It instantiates the units:                                                        |
 --                                                                                                |
---              o WF_tx_serializer: that receives bytes from the WF_Production, encodes them      |
---                                   (Manchester 2), adds the FSS, FCS & FES fields and puts one  |
---                                   by one bits to the FIELDRIVE output FD_TXD, following the    |
---                                   synchronization signals from the WF_tx_osc unit.             |
---                                   Also generates the nanoFIP output FD_TXENA.                  |
+--              o wf_tx_serializer: that receives bytes from the wf_production, encodes them      |
+--                                  (Manchester 2), adds the FSS, FCS & FES fields and puts one   |
+--                                  by one bits to the FIELDRIVE output FD_TXD, following the     |
+--                                  synchronization signals from the wf_tx_osc unit.              |
+--                                  Also generates the nanoFIP output FD_TXENA.                   |
 --                                                                                                |
---              o WF_tx_osc       : that generates the nanoFIP FIELDRIVE output FD_TXCK           |
---                                   and the array of pulses tx_sched_p_buff (used for the        |
---                                   synchronization of the WF_tx_serializer's actions).          |
+--              o wf_tx_osc       : that generates the nanoFIP FIELDRIVE output FD_TXCK           |
+--                                  and the array of pulses tx_sched_p_buff, used for the         |
+--                                  synchronization of the wf_tx_serializer's actions.            |
 --                                                                                                |
+--                                            _____________________________________               |
+--                                           |                                     |              |
+--                                           |           wf_Production             |              |
+--                                           |_____________________________________|              |
+--                                                             \/                                 |
 --                      ___________________________________________________________               |
+--                     |                      wf_fd_transmitter                    |              |
 --                     |                                                           |              |
---                     |                       WF_Production                       |              |
---                     |___________________________________________________________|              |
---                                                  \/                                            |
---                      ___________________________________________________________               |
---                     |                     WF_fd_transmitter                     |              |
---                     |                                                           |              |
---                     |      ________________________________________________     |              |
---                     |     |                                                |    |              |
---                     |     |                  WF_tx_osc                     |    |              |
---                     |     |________________________________________________|    |              |
---                     |                                                           |              |
---                     |     _________________________________________________     |              |
---                     |    |                                                 |    |              |
---                     |    |                 WF_tx_serializer                |    |              |
---                     |    |                                                 |    |              |
---                     |    |_________________________________________________|    |              |
+--                     |   _____________      __________________________________   |              |
+--                     |  |             |    |                                  |  |              |
+--                     |  |  wf_tx_osc  |  > |          wf_tx_serializer        |  |              |
+--                     |  |             |    |                                  |  |              |
+--                     |  |_____________|    |__________________________________|  |              |
 --                     |___________________________________________________________|              |
 --                                                  \/                                            |
 --                  ___________________________________________________________________           |
 --                0_____________________________FIELDBUS______________________________O           |
 --                                                                                                |
 --                                                                                                |
--- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             | 
+-- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         11/01/2011                                                                        |
 -- Version      v0.01                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_production                                                                     |
---              WF_engine_control                                                                 |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_production                                                                     |
+--              wf_engine_control                                                                 |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     01/2011  EG  v0.01  first version                                                          |
@@ -86,14 +81,14 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                           Entity declaration for WF_fd_transmitter
+--                           Entity declaration for wf_fd_transmitter
 --=================================================================================================
 
-entity WF_fd_transmitter is port(
+entity wf_fd_transmitter is port(
   -- INPUTS
     -- nanoFIP User Interface, General signal
     uclk_i                     : in std_logic;  -- 40 MHz clock
@@ -101,13 +96,13 @@ entity WF_fd_transmitter is port(
     -- nanoFIP WorldFIP Settings
     rate_i                     : in std_logic_vector (1 downto 0); -- WorldFIP bit rate
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i                 : in std_logic;  -- nanoFIP internal reset
 
-    -- Signals from the WF_production unit
+    -- Signals from the wf_production unit
     tx_byte_i                  : in std_logic_vector (7 downto 0); -- byte to be delivered
 
-    -- Signals from the WF_engine_control
+    -- Signals from the wf_engine_control
     tx_start_p_i               : in std_logic;  -- indication for the start of the production
     tx_byte_request_accept_p_i : in std_logic;  -- indication that a byte is ready to be delivered
     tx_last_data_byte_p_i      : in std_logic;  -- indication of he last data byte
@@ -115,7 +110,7 @@ entity WF_fd_transmitter is port(
 
 
   -- OUTPUTS
-    -- Signal to the WF_engine_control
+    -- Signal to the wf_engine_control
     tx_byte_request_p_o        : out std_logic; -- request for a new byte to be transmitted; pulse
                                                 -- at the end of the transmission of a previous byte
     tx_completed_p_o           : out std_logic; -- pulse upon termination of a transmission
@@ -126,13 +121,13 @@ entity WF_fd_transmitter is port(
     tx_enable_o                : out std_logic; -- transmitter enable
     tx_clk_o                   : out std_logic);-- line driver half bit clock
 
-end entity WF_fd_transmitter;
+end entity wf_fd_transmitter;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture struc of WF_fd_transmitter is
+architecture struc of wf_fd_transmitter is
 
   signal s_tx_clk_p_buff : std_logic_vector (c_TX_SCHED_BUFF_LGTH-1 downto 0);
   signal s_tx_osc_rst_p  : std_logic;
@@ -148,7 +143,7 @@ begin
 --                                           Oscillator                                          --
 ---------------------------------------------------------------------------------------------------
 
-  tx_oscillator: WF_tx_osc
+  tx_oscillator: wf_tx_osc
   port map(
     uclk_i                  => uclk_i,
     rate_i                  => rate_i,
@@ -165,7 +160,7 @@ begin
 --                                           Serializer                                          --
 ---------------------------------------------------------------------------------------------------
 
-  tx_serializer: WF_tx_serializer
+  tx_serializer: wf_tx_serializer
   port map(
     uclk_i                  => uclk_i,
     nfip_rst_i              => nfip_rst_i,

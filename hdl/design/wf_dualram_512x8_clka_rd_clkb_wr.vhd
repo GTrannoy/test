@@ -8,19 +8,19 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                 WF_dualram_512x8_clka_rd_clkb_wr                               |
+--                                 wf_dualram_512x8_clka_rd_clkb_wr                               |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_dualram_512x8_clka_rd_clkb_wr.vhd                                              |
+-- File         wf_dualram_512x8_clka_rd_clkb_wr.vhd                                              |
 --                                                                                                |
--- Description  The unit takes the complete dual port 512x8 memory and disables writing from one  |
---              side and reading from the other. Finally from port A only reading is possible     |
+-- Description  The unit adds a layer over the dual port 512x8 memory, by disabling writing from  |
+--              one side and reading from the other. Finally from port A only reading is possible |
 --              and from port B only writing.                                                     |
 --              Commented in the unit is the memory triplication. Precision RadTol makes the      |
 --              triplication automatically; in Synplify the comments have to be removed. With the |
 --              triplication each incoming byte is written at the same position in the three      |
 --              memories, whereas each outgoing one is the outcome of a majority voter.           |
---                                                                                                |              
+--                                                                                                |
 --                                                                                                |
 -- Authors      Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             |
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
@@ -59,14 +59,14 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                   Entity declaration for WF_dualram_512x8_clka_rd_clkb_wr
+--                   Entity declaration for wf_dualram_512x8_clka_rd_clkb_wr
 --=================================================================================================
 
-entity WF_dualram_512x8_clka_rd_clkb_wr is port(
+entity wf_dualram_512x8_clka_rd_clkb_wr is port(
   -- INPUTS
     -- Inputs concerning port A
     clk_porta_i      : in std_logic;
@@ -83,13 +83,13 @@ entity WF_dualram_512x8_clka_rd_clkb_wr is port(
     -- Output concerning port A
     data_porta_o     : out std_logic_vector (7 downto 0));
 
-end WF_dualram_512x8_clka_rd_clkb_wr;
+end wf_dualram_512x8_clka_rd_clkb_wr;
 
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture syn of WF_dualram_512x8_clka_rd_clkb_wr is
+architecture syn of wf_dualram_512x8_clka_rd_clkb_wr is
 
   signal s_one, s_rwB : std_logic;
   signal s_zeros      : std_logic_vector (7 downto 0);

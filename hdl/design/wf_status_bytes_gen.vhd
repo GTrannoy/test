@@ -7,10 +7,10 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                      WF_status_bytes_gen                                       |
+--                                      wf_status_bytes_gen                                       |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
--- File         WF_status_bytes_gen.vhd                                                           |
+-- File         wf_status_bytes_gen.vhd                                                           |
 --                                                                                                |
 -- Description  Generation of the nanoFIP status and MPS status bytes.                            |
 --              The unit is also responsible for outputting the "nanoFIP User Interface,          |
@@ -18,7 +18,7 @@
 --              nanoFIP status bits 2 to 5.                                                       |
 --                                                                                                |
 --              The information contained in the nanoFIP status byte is coming from :             |
---                o the WF_consumption unit, for the bits 4 and 5                                 |
+--                o the wf_consumption unit, for the bits 4 and 5                                 |
 --                o the "nanoFIP FIELDRIVE" inputs FD_WDGN and FD_TXER, for the bits 6 and 7      |
 --                o the "nanoFIP User Interface, NON_WISHBONE" inputs (VAR_ACC) and outputs       |
 --                  (VAR_RDY), for the bits 2 and 3.                                              |
@@ -26,9 +26,9 @@
 --              For the MPS byte, in memory mode, the refreshment and significance bits are set to|
 --              1 if the user has updated the produced variable var3 since its last transmission; |
 --              the signal "nanoFIP User Interface, NON_WISHBONE" input VAR3_ACC,is used for this.|
---              In stand-alone mode the refreshment and the significance are set to 1.            |
---              Also, regardless of the mode, for the consumed variable jc_var3 the refreshment   |
---              and significance are set to 1.                                                    |
+--              In stand-alone mode the MPS status byte has the refreshment and significance set  |
+--              to 1. The same happens for the JTAG produced variable var_5, regardless of the    |
+--              mode.                                                                             |
 --                                                                                                |
 --              The MPS and the nanoFIP status byte are reset after having been sent or after a   |
 --              nanoFIP internal reset.                                                           |
@@ -74,10 +74,10 @@
 --              Evangelia Gousiou     (Evangelia.Gousiou@cern.ch)                                 |
 -- Date         06/2011                                                                           |
 -- Version      v0.04                                                                             |
--- Depends on   WF_reset_unit                                                                     |
---              WF_consumption                                                                    |
---              WF_prod_bytes_retriever                                                           |
---              WF_prod_permit                                                                    |
+-- Depends on   wf_reset_unit                                                                     |
+--              wf_consumption                                                                    |
+--              wf_prod_bytes_retriever                                                           |
+--              wf_prod_permit                                                                    |
 ----------------                                                                                  |
 -- Last changes                                                                                   |
 --     07/07/2009  v0.01  PA  First version                                                       |
@@ -117,19 +117,19 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
+use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
---                          Entity declaration for WF_status_bytes_gen
+--                          Entity declaration for wf_status_bytes_gen
 --=================================================================================================
-entity WF_status_bytes_gen is port(
+entity wf_status_bytes_gen is port(
   -- INPUTS
     -- nanoFIP User Interface, General signals
     uclk_i                  : in std_logic;  -- 40 MHz Clock
     slone_i                 : in std_logic;  -- stand-alone mode
 
-    -- Signal from the WF_reset_unit
+    -- Signal from the wf_reset_unit
     nfip_rst_i              : in std_logic;  -- nanaoFIP internal reset
 
     -- nanoFIP FIELDRIVE
@@ -141,21 +141,20 @@ entity WF_status_bytes_gen is port(
     var2_acc_a_i            : in std_logic;  -- variable 2 access
     var3_acc_a_i            : in std_logic;  -- variable 3 access
 
-   -- Signals from the WF_consumption unit
+   -- Signals from the wf_consumption unit
     nfip_status_r_fcser_p_i : in std_logic;  -- wrong CRC bytes received
     nfip_status_r_tler_p_i  : in std_logic;  -- wrong PDU_TYPE, CTRL or LGTH bytes received
     var1_rdy_i              : in std_logic;  -- variable 1 ready
     var2_rdy_i              : in std_logic;  -- variable 2 ready
 
-   -- Signals from the WF_prod_bytes_retriever unit
-    rst_status_bytes_p_i    : in std_logic;  -- reset for both status bytes (apart from bits 6 & 7
-                                             -- of nanoFIP status byte); the bytes are reset
-                                             -- right after having been delivered
+   -- Signals from the wf_prod_bytes_retriever unit
+    rst_status_bytes_p_i    : in std_logic;  -- reset for both status bytes;
+                                             -- they are reset right after having been delivered
 
-   -- Signals from the WF_prod_permit unit
+   -- Signals from the wf_prod_permit unit
     var3_rdy_i              : in std_logic;  -- variable 3 ready
 
-    -- Signal from the WF_engine_control unit
+    -- Signal from the wf_engine_control unit
     var_i                   : in t_var;      -- variable type that is being treated
 
   -- OUTPUTS
@@ -165,16 +164,16 @@ entity WF_status_bytes_gen is port(
     u_cacer_o               : out std_logic; -- nanoFIP status byte, bit 2
     u_pacer_o               : out std_logic; -- nanoFIP status byte, bit 3
 
-    -- Signal to the WF_prod_bytes_retriever
+    -- Signal to the wf_prod_bytes_retriever
     mps_status_byte_o       : out std_logic_vector (7 downto 0); -- MPS status byte
     nFIP_status_byte_o      : out std_logic_vector (7 downto 0));-- nanoFIP status byte
 
-end entity WF_status_bytes_gen;
+end entity wf_status_bytes_gen;
 
 --=================================================================================================
 --                                    architecture declaration
 --=================================================================================================
-architecture rtl of WF_status_bytes_gen is
+architecture rtl of wf_status_bytes_gen is
 
   -- synchronizers
   signal s_fd_txer_synch, s_fd_wdg_synch, s_var1_acc_synch         : std_logic_vector (2 downto 0);
@@ -268,8 +267,8 @@ begin
 
   MPS_byte_Generation: process (slone_i, s_refreshment, var_i)
 
-  begin                                       -- var_jc3, regardless of the mode, has signif. & refresh. set to 1
-    if slone_i = '1' or var_i = var_jc3 then  -- stand-alone mode has signif. & refresh. set to 1
+  begin                                     -- var_5, regardless of the mode, has signif. & refresh. set to 1
+    if slone_i = '1' or var_i = var_5 then  -- stand-alone mode has signif. & refresh. set to 1
       mps_status_byte_o (7 downto 3)           <= (others => '0');
       mps_status_byte_o (c_SIGNIFICANCE_INDEX) <= '1';
       mps_status_byte_o (1)                    <= '0';
@@ -303,10 +302,9 @@ begin
       else
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- reinitialization after the transmission of a produced variable
-        if rst_status_bytes_p_i = '1' then                          -- bits 0 to 5 reinitialised
-          s_nFIP_status_byte                    <= (others => '0'); -- after having been delivered
-                                                                    -- bits 6 and 7 are only reset
-                                                                    -- when nanoFIP is reset
+        if rst_status_bytes_p_i = '1' then 
+          s_nFIP_status_byte                    <= (others => '0');
+
         else
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -346,13 +344,13 @@ begin
 
           --  --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
           --r_tler                                               -- PDU_TYPE or LGTH error on a consumed var
-          if (nfip_status_r_tler_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
+          if (nfip_status_r_tler_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_4) or (var_i = var_rst))) then
             s_nFIP_status_byte(c_R_TLER_INDEX)  <= '1';
           end if;
 
            --  --  --  --  --  --  -- --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- --
           --r_fcser                                               -- CRC or bit number error on a consumed var
-          if (nfip_status_r_fcser_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_jc1) or (var_i = var_rst))) then
+          if (nfip_status_r_fcser_p_i = '1' and ((var_i = var_1) or (var_i = var_2) or (var_i = var_4) or (var_i = var_rst))) then
             s_nFIP_status_byte(c_R_FCSER_INDEX) <= '1';
           end if;
 
@@ -365,56 +363,56 @@ begin
 
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- Instantiation of 3 WF_incr_counters used for the internal extension of each one of the
+-- Instantiation of 3 wf_incr_counters used for the internal extension of each one of the
 -- signals VAR1_RDY, VAR2_RDY, VAR3_RDY for 15 uclk cycles.
 -- Enabled VAR_ACC during this period will not trigger a nanoFIP status byte error.
 
-  Extend_VAR1_RDY: WF_incr_counter        -- VAR1_RDY           : __|---...---|___________________
+  Extend_VAR1_RDY: wf_incr_counter        -- VAR1_RDY           : __|---...---|___________________
   generic map(g_counter_lgth => 4)        -- s_var1_rdy_extended: __|---...------------------|____
   port map(                               --                      -->   VAR_ACC here is OK!   <--             
-    uclk_i            => uclk_i,
-    reinit_counter_i  => s_var1_rdy_c_reinit,
-    incr_counter_i    => s_var1_rdy_c_incr,
-    counter_is_full_o => open,
+    uclk_i              => uclk_i,
+    counter_reinit_i    => s_var1_rdy_c_reinit,
+    counter_incr_i      => s_var1_rdy_c_incr,
+    counter_is_full_o   => open,
     ------------------------------------------
-    counter_o         => s_var1_rdy_c);
+    counter_o           => s_var1_rdy_c);
     ------------------------------------------
 
     s_var1_rdy_c_reinit <= var1_rdy_i or nfip_rst_i;
     s_var1_rdy_c_incr   <= '1' when s_var1_rdy_c < "1111" else '0';
-    s_var1_rdy_extended       <= '1' when var1_rdy_i= '1' or s_var1_rdy_c_incr = '1' else '0';
+    s_var1_rdy_extended <= '1' when var1_rdy_i= '1' or s_var1_rdy_c_incr = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  Extend_VAR2_RDY: WF_incr_counter
+  Extend_VAR2_RDY: wf_incr_counter
   generic map(g_counter_lgth => 4)
   port map(
-    uclk_i            => uclk_i,
-    reinit_counter_i  => s_var2_rdy_c_reinit,
-    incr_counter_i    => s_var2_rdy_c_incr,
-    counter_is_full_o => open,
+    uclk_i              => uclk_i,
+    counter_reinit_i    => s_var2_rdy_c_reinit,
+    counter_incr_i      => s_var2_rdy_c_incr,
+    counter_is_full_o   => open,
     ------------------------------------------
-    counter_o         => s_var2_rdy_c);
+    counter_o           => s_var2_rdy_c);
     ------------------------------------------
 
     s_var2_rdy_c_reinit <= var2_rdy_i or nfip_rst_i;
     s_var2_rdy_c_incr   <= '1' when s_var2_rdy_c < "1111" else '0';
-    s_var2_rdy_extended       <= '1' when var2_rdy_i= '1' or s_var2_rdy_c_incr = '1' else '0';
+    s_var2_rdy_extended <= '1' when var2_rdy_i= '1' or s_var2_rdy_c_incr = '1' else '0';
 
  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-  Extend_VAR3_RDY: WF_incr_counter
+  Extend_VAR3_RDY: wf_incr_counter
   generic map(g_counter_lgth => 4)
   port map(
-    uclk_i            => uclk_i,
-    reinit_counter_i  => s_var3_rdy_c_reinit,
-    incr_counter_i    => s_var3_rdy_c_incr,
-    counter_is_full_o => open,
+    uclk_i              => uclk_i,
+    counter_reinit_i    => s_var3_rdy_c_reinit,
+    counter_incr_i      => s_var3_rdy_c_incr,
+    counter_is_full_o   => open,
     ------------------------------------------
-    counter_o         => s_var3_rdy_c);
+    counter_o           => s_var3_rdy_c);
     ------------------------------------------
 
     s_var3_rdy_c_reinit <= var3_rdy_i or nfip_rst_i;
     s_var3_rdy_c_incr   <= '1' when s_var3_rdy_c < "1111" else '0';
-    s_var3_rdy_extended       <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_c_incr = '1' else '0';
+    s_var3_rdy_extended <= '1' when VAR3_RDY_i= '1' or s_var3_rdy_c_incr = '1' else '0';
 
 
 
@@ -422,11 +420,11 @@ begin
 --                                            Outputs                                            --
 ---------------------------------------------------------------------------------------------------
 
-  nFIP_status_byte_o          <= s_nFIP_status_byte;
-  u_cacer_o                   <= s_nFIP_status_byte(c_U_CACER_INDEX);
-  u_pacer_o                   <= s_nFIP_status_byte(c_U_PACER_INDEX);
-  r_tler_o                    <= s_nFIP_status_byte(c_R_TLER_INDEX);
-  r_fcser_o                   <= s_nFIP_status_byte(c_R_FCSER_INDEX);
+  nFIP_status_byte_o <= s_nFIP_status_byte;
+  u_cacer_o          <= s_nFIP_status_byte(c_U_CACER_INDEX);
+  u_pacer_o          <= s_nFIP_status_byte(c_U_PACER_INDEX);
+  r_tler_o           <= s_nFIP_status_byte(c_R_TLER_INDEX);
+  r_fcser_o          <= s_nFIP_status_byte(c_R_FCSER_INDEX);
 
 
 end architecture rtl;
