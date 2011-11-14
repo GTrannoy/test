@@ -466,7 +466,7 @@ begin
 
 
 
---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 --                                          TDO sampler                                          --
 ---------------------------------------------------------------------------------------------------
 -- Sampling of the jc_tdo_i input on the rising edge of the jc_tck_o clock. Only the last sampled
@@ -490,7 +490,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                  Independant Timeout Counter                                  --
+--                                  Independent Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a wf_decr_counter relying only on the system clock, as an additional
 -- way to go back to Idle state, in case any other logic is being stuck. The timeout is 52 ms.

@@ -60,7 +60,7 @@
 --     01/2011  v0.04  EG  signals named according to their origin; signals var_rdy (1,2,3),      |
 --                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and             |
 --                         rx_byte_ready_p_o removed cleaning-up+commenting                       |
---     02/2011  v0.05  EG  Independant timeout counter added; time counter 18 digits instead of 15|
+--     02/2011  v0.05  EG  Independent timeout counter added; time counter 18 digits instead of 15|
 --                         id_dat_frame_ok: corrected mistake if rx_fss_crc_fes_ok_p not          |
 --                         activated; rx reset during production (rx_rst_o);                      |
 --                         cons_bytes_excess_o added                                              |
@@ -678,7 +678,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                  Independant Timeout Counter                                  --
+--                                  Independent Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
 
 -- Instantiation of a wf_decr_counter relying only on the system clock as an additional
