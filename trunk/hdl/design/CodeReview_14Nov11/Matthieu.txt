@@ -1,0 +1,61 @@
+nano-fip HDL review
+Matthieu Cattin
+14.11.2011
+
+
+================================================================================
+General remarks:
+
+- The repo size is 11.6GB!
+  cern-fip/trunk/software/cadence_IUS/ is ~11GB
+  Is everything useful in there?
+
+
+================================================================================
+wf_jtag_controller.vhd:
+
+- FSM states in CAPITAL?
+
+- No status bits, if something goes wrong (timeout, frame nb bits outside limits)
+  Would it be useful?
+
+- s_idle is set in the "others" state. Is is done on purpose?
+
+- The JTAG clock generation is tricky to understand.
+
+
+================================================================================
+wf_engine_control.vhd:
+
+- Port should be of std_logic(_vector) type, var_o is t_var. (line 183)
+
+- rst_rx in "others" state of FSM? (line 426)
+
+
+================================================================================
+wf_rx_deserializer.vhd:
+
+- s_sample_manch_bit_p_d1 is not in the reset statement. (line 422)
+
+- CRC_OK_pulse_delay process has not reset. (line 532)
+
+
+================================================================================
+wf_tx_serializer.vhd:
+
+- if tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-4) = '1' then
+  What if c_TX_SCHED_BUFF_LGTH is not equal to 4.
+  Shouldn't it be:
+  if tx_sched_p_buff_i(0) = '1' then
+
+
+================================================================================
+wf_reset_unit.vhd
+
+- nanoFIP internal reset and FIELDDRIVE reset are active for 6 uclk cycles,
+  (s_rstin_c_is_ten - s_rstin_c_is_four = 6) comment says 2 uclk cycles. (line 347)
+
+- comment says "for 6 uclk cycles" and code "if s_var_rst_c_is_eight = '1' then" (line 544)
+
+- Does s_var_rst_c_is_eight and s_rstin_c_is_ten arrives before s_var_rst_c_is_4txck
+  for all the transmission rates?
