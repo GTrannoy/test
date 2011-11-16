@@ -1,0 +1,42 @@
+Disclaimer: not enough time to do this design justice. Focusing on VHDL
+constructs, not trying to make sense of overall operation.
+
+wf_engine_control.vhd 
+===================== 
+- General comment: this file is huge and difficult to assimilate in
+one go. I guess it's too late now, but it would have benefitted from a
+bit of partitioning.
+- Line 254. "independantly" -> "independently".
+- Line 257. "rubust" -> "robust".  
+- Line 257. "dependant" -> "dependent".
+- Line 395. Going to rst_rx seems safer than going back to idle
+directly. It's just one more tick of latency and we're then sure the
+rx block is always in good shape to receive a new frame.
+
+
+wf_jtag_controller.vhd
+======================
+- Line 115. State names could be in capitals.
+- Line 239. This whole process looks redundant. I guess the goal was
+to have signals that conveniently inform of the state the FSM is in,
+but there is already one such signal: the state signal itself.
+- Line 298. Ah! This is what these signals were for. Fine, but space
+could be saved with statements like "s_play_byte <= '1' when
+jc_st=play_byte else '0'".
+- Line 399. "retreival" -> "retrieval".
+- Line 484. The TDO signal is sampled when s_tck_r_edge_p='1', exactly
+at the same time TCK goes high. If I am not mistaken, the JTAG
+standard says chips should drive TDO on TCK falling edge, so for slow
+chips one could argue that sampling a bit later could be safer. OTOH,
+I guess the JTAG spec says we should sample TDO on the rising edge of
+TCK, done now...
+- Line 498. I don't quite understand why this counter should be 21
+bits wide. That gives a very long time (52 ms when all we need is some
+100 us), and gives more FFs than necessary. For rad-tol reasons it
+would make sense to use only as many FFs as needed.
+
+wf_rx_deserializer.vhd
+======================
+- OK, now I see there is a timeout here as well, so maybe my comment
+about resetting the rx block systematically from wf_engine_control is
+not so important.
