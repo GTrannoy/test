@@ -1,6 +1,17 @@
 Disclaimer: not enough time to do this design justice. Focusing on VHDL
 constructs, not trying to make sense of overall operation.
 
+General Comment
+===============
+There are lots of abnormal conditions detected and treated now, but
+they leave no trace for diagnostics. Maybe it would make sense to add
+status bits for them such that people could have a sense of how often
+these abnormal conditions are hit during real operation.
+Also I wanted to do a general check to make sure all inputs are
+correctly registered and protected against metastability and all
+outputs are registered unless there is a good reason not
+to. Unfortunately I did not have time to do it, could you?
+
 wf_engine_control.vhd 
 ===================== 
 - General comment: this file is huge and difficult to assimilate in
@@ -40,3 +51,11 @@ wf_rx_deserializer.vhd
 - OK, now I see there is a timeout here as well, so maybe my comment
 about resetting the rx block systematically from wf_engine_control is
 not so important.
+
+wf_tx_serializer
+================
+- Line 557. There is no 'else' in this 'if' statement. Is this OK?
+
+wf_reset_unit.vhd
+=================
+- Line 359. "unitl" -> "until"
