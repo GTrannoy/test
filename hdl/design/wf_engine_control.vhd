@@ -395,8 +395,7 @@ begin
 
         if (rx_fss_crc_fes_ok_p_i = '1') or    -- the cons frame arrived to the end, as expected
               (rx_crc_wrong_p_i = '1')    then -- FES detected but wrong CRC or wrong # bits
-          nx_control_st <= RST_RX; -- resetting the rx is not essential in this case,
-                                   -- but for robustness reasons we decided to add it 
+          nx_control_st <= IDLE;
 
         elsif (s_rx_bytes_c > c_MAX_FRAME_BYTES) then -- no FES detected after the max number of bytes
           nx_control_st <= RST_RX;
