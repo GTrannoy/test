@@ -138,13 +138,13 @@ begin
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_presence =>
-      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package)
+      -- data length information retrieval from the c_VARS_ARRAY matrix (wf_package)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_lgth;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_identif =>
-      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package)
+      -- data length information retrieval from the c_VARS_ARRAY matrix (wf_package)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_lgth;
 
 
@@ -188,7 +188,7 @@ begin
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_5 =>
-      -- data length information retreival from the c_VARS_ARRAY matrix (wf_package)
+      -- data length information retrieval from the c_VARS_ARRAY matrix (wf_package)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_5_INDEX).array_lgth;
 
 

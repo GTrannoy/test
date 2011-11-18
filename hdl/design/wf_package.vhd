@@ -27,6 +27,7 @@
 --      2/2011  v0.04  EG  function for manch_encoder; cleaning up of constants+generics          |
 --                         added CTRL bytes for RP_DAT_MSG and RP_DAT_RQ and RP_DAT_RQ_MSG        |
 --      2/2011  v0.05  EG  JTAG variables added                                                   |
+--     11/2011  v0.06  EG  c_SESSION_TIMEOUT_C_LGTH, c_JTAG_TIMEOUT_C_LGTH added                  |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -66,6 +67,68 @@ package wf_package is
 ---------------------------------------------------------------------------------------------------
 
   constant c_QUARTZ_PERIOD : real := 25.0;
+
+
+
+---------------------------------------------------------------------------------------------------
+--                            Constants regarding the JTAG controller                            --
+---------------------------------------------------------------------------------------------------
+
+  constant c_MAX_FRAME_BITS : natural := 976;   -- maximum number of TMS/ TDI bits that can be sent
+                                                -- in one frame : 122 bytes * 8 bits
+
+  constant c_FOUR_JC_TCK_C_LGTH : natural := 5; -- length of a counter counting 4 JC_TCK periods;
+                                                -- the JC_TCK frequency is defined by this constant.
+                                                -- ex: 5 MHz JC_TCK period = 200 ns = 4 uclk periods,
+                                                -- 4 JC_TCK periods = 16 uclk, hence 5 bits counter.
+                                                -- Use c_FOUR_JC_TCK_C_LGTH = 6 for a 2.5 MHz JC_TCK,
+                                                --     c_FOUR_JC_TCK_C_LGTH = 7 for 1.25 MHz etc.
+
+
+  -- check also the c_JC_TIMEOUT_C_LGTH in the following paragraph
+
+---------------------------------------------------------------------------------------------------
+--                        Constant regarding the session timeout counters                        --
+---------------------------------------------------------------------------------------------------
+
+-- To add a robust layer of protection to the FSMs of the desing, counters that depend only on
+-- the system clock have being implemented; when they are filled up, they can bring the FSMs back
+-- to the IDLE state.
+
+-- For the wf_rx_deserializer, at the slowest bit rate, 31.25 kbps, the reception of the longest
+-- frame should not last more than:
+-- 133 bytes RP_DAT = 34048 us
+-- This demands for a 21 bits counter.
+
+-- Similarly, for the wf_tx_serializer, at the slowest bit rate, 31.25 kbps, the transmission of
+-- the longest frame should not last more than:
+-- 133 bytes RP_DAT = 34048 us
+-- This demands for a 21 bits counter.
+
+-- For the wf_engine_control, at the slowest bit rate, 31.25 kbps, the reception of an ID_DAT frame
+-- followed by the reception/ transmission of an RP_DAT should not last more than:
+-- 8 bytes ID_DAT   = 2048  us
+-- silence time     = 4096  us
+-- 133 bytes RP_DAT = 34048 us
+--                  ------------
+--                    40192 us
+-- This also demands for a 21 bits counter.
+
+-- Therefore the same length of the timeout counters can be used for the FSMs of the wf_rx_deserializer,
+-- wf_tx_serializer and wf_engine_control. The FSMs will be reset if 52 ms (complete 21 bit counter)
+-- have passed since they have left the IDLE state.
+
+  constant c_SESSION_TIMEOUT_C_LGTH : natural := 21;
+
+-- For the wf_jtag_controller FSM this timeout depends on the frequency of the JC_TCK.
+-- The time the FSM needs to handle the biggest frame (122 bytes) is:
+-- 122 * ((4 * JC_TCK_period) + 2 uclk_period)
+-- For a 5 MHz JC_TCK this is 103.7 us and demands for a counter of 13 bits.
+-- Use c_JC_TIMEOUT_C_LGTH = 13 also for a 2.5 MHz JC_TCK,
+--     c_JC_TIMEOUT_C_LGTH = 14 for 1.25 MHz etc.
+
+  constant c_JC_TIMEOUT_C_LGTH : natural := 13;
+
 
 
 ---------------------------------------------------------------------------------------------------
@@ -134,20 +197,6 @@ package wf_package is
   constant c_T_WDER_INDEX  : integer := 7;
 
 
-
----------------------------------------------------------------------------------------------------
---                            Constant regarding the JTAG controller                             --
----------------------------------------------------------------------------------------------------
-
-  constant c_MAX_FRAME_BITS : natural := 976;   -- maximum number of TMS/ TDI bits that can be sent
-                                                -- in one frame : 122 bytes * 8 bits
-
-  constant c_FOUR_JC_TCK_C_LGTH : integer := 5; -- length of a counter counting 4 JC_TCK periods;
-                                                -- the JC_TCK frequency is defined by this constant.
-                                                -- ex: 5 MHz JC_TCK period = 200 ns = 4 uclk periods,
-                                                -- 4 JC_TCK periods = 16 uclk, hence 5 bits counter.
-                                                -- Use c_FOUR_JC_TCK_C_LGTH = 6 for a 2.5 MHz JC_TCK,
-                                                --     c_FOUR_JC_TCK_C_LGTH = 7 for 1.25 MHz etc.
 
 ---------------------------------------------------------------------------------------------------
 --                        Constant regarding the Model & Constructor decoding                    --

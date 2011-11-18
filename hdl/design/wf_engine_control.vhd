@@ -52,8 +52,8 @@
 --     07/2009  v0.01  EB  First version                                                          |
 --     08/2010  v0.02  EG  E0 added as broadcast                                                  |
 --                         PDU,LGTH,CTRL bytes of RP_DAT checked bf VAR1_RDY/var_2_rdy assertion; |
---                         if ID_DAT>8 bytes or RP_DAT>133 (bf reception of a FES) go to idle;    |
---                         state consume_wait_FSS, for the correct use of the silence time(time   |
+--                         if ID_DAT>8 bytes or RP_DAT>133 (bf reception of a FES) go to IDLE;    |
+--                         state CONSUME_WAIT_FSS, for the correct use of the silence time(time   |
 --                         stops counting when an RP_DAT frame has started)                       |
 --     12/2010  v0.03  EG  state machine rewritten moore style; removed check on slone mode       |
 --                         for #bytes>4; in slone no broadcast                                    |
@@ -61,12 +61,12 @@
 --                         assert_rston_p_o,rst_nfip_and_fd_p_o, nFIP status bits and             |
 --                         rx_byte_ready_p_o removed cleaning-up+commenting                       |
 --     02/2011  v0.05  EG  Independent timeout counter added; time counter 18 digits instead of 15|
---                         id_dat_frame_ok: corrected mistake if rx_fss_crc_fes_ok_p not          |
+--                         ID_DAT_FRAME_OK: corrected mistake if rx_fss_crc_fes_ok_p not          |
 --                         activated; rx reset during production (rx_rst_o);                      |
 --                         cons_bytes_excess_o added                                              |
 --                         tx_completed_p_i added (bf for the engine ctrl production was finished |
 --                         after the delivery of the last data byte (MPS))                        |
---     07/2011  v0.06  EG  rst_rx state added                                                     |
+--     07/2011  v0.06  EG  RST_RX state added                                                     |
 --     10/2011  v0.06b  EG  moved session_timedout in the synchronous FSM process                 |
 ---------------------------------------------------------------------------------------------------
 
@@ -192,10 +192,10 @@ end entity wf_engine_control;
 architecture rtl of wf_engine_control is
 
   -- FSM
-  type control_st_t  is (idle,
-                         id_dat_control_byte, id_dat_var_byte, id_dat_subs_byte, id_dat_frame_ok,
-                         consume_wait_FSS, consume, rst_rx,
-                         produce_wait_turnar_time, produce);
+  type control_st_t  is (IDLE,
+                         ID_DAT_CTRL_BYTE, ID_DAT_VAR_BYTE, ID_DAT_SUBS_BYTE, ID_DAT_FRAME_OK,
+                         CONSUME_WAIT_FSS, CONSUME, RST_RX,
+                         PRODUCE_WAIT_TURNAR_TIME, PRODUCE);
   signal control_st, nx_control_st                                                     : control_st_t;
   signal s_idle_state, s_id_dat_ctrl_byte, s_id_dat_var_byte, s_id_dat_frame_ok        : std_logic;
   signal s_cons_wait_FSS, s_consuming, s_rst_rx_p                                      : std_logic;
@@ -234,31 +234,32 @@ begin
 -- to store the current state, a combinatorial process to manage state transitions and finally a
 -- combinatorial process to manage the output signals), which are the three processes that follow.
 
--- The FSM stays in idle until the reception of a FSS from the wf_fd_receiver.
+-- The FSM stays in IDLE until the reception of a FSS from the wf_fd_receiver.
 -- It continues by checking one by one the bytes of the frame as they arrive:
 --   o if the CTRL byte corresponds to an ID_DAT,
 --   o if the variable byte corresponds to a defined variable,
 --   o if the subscriber byte matches the station's address, or if the variable is a broadcast
 --   o and if the frame finishes with a correct CRC and FES.
 -- If any of the bytes above has been different than the expected, the FSM resets the wf_fd_receiver
--- and goes back to idle.
+-- and goes back to IDLE.
 --   o if the ID_DAT frame has been correct and the received variable is a produced (var_presence,
---     var_identif, var_3, var_5) the FSM stays in the "produce_wait_turnar_time" state until the
---     expiration of the turnaround time and then jumps to the "produce" state, waiting for the
---     wf_fd_serializer to finish the transmission; then it goes back to idle.
+--     var_identif, var_3, var_5) the FSM stays in the "PRODUCE_WAIT_TURNAR_TIME" state until the
+--     expiration of the turnaround time and then jumps to the "PRODUCE" state, waiting for the
+--     wf_fd_serializer to finish the transmission; then it goes back to IDLE.
 --   o if the received variable is a consumed (var_1, var_2, var_rst, var_4) the FSM stays in the
---     "consume_wait_FSS" state until the arrival of a FSS or the expiration of the silence time.
---     After the arrival of the FSS the FSM jumps to the "consume" state, where it stays until the
+--     "CONSUME_WAIT_FSS" state until the arrival of a FSS or the expiration of the silence time.
+--     After the arrival of the FSS the FSM jumps to the "CONSUME" state, where it stays until the
 --     end of the reception of the consumed frame (marked by a FES).
 --     Note: In the case of a var_5, it is the wf_consumption unit that signals the start-up of
---           the wf_jtag_controller which will work in parallel and independantly from the
+--           the wf_jtag_controller which will work in parallel and independently from the
 --           wf_engine_control; i.e. new frames reception can take place while the
 --           wf_jtag_controller is working.
--- To add a rubust layer of protection to the FSM, a counter dependant only on the system clock
--- has been implemented, that from any state can bring the FSM back to idle. At any bit rate the
+-- To add a robust layer of protection to the FSM, a counter dependent only on the system clock
+-- has been implemented, that from any state can bring the FSM back to IDLE. At any bit rate the
 -- reception of an ID_DAT frame followed by the reception/ transmission of an RP_DAT should not
--- last more than 37ms. Hence, we have generated a 21 bits counter that will reset the machine
--- if more than 52ms (complete 21 bit counter) have passed since it has left this idle state.
+-- last more than 41ms. Hence, we have generated a 21 bits (c_SESSION_TIMEOUT_C_LGTH)counter that
+-- will reset the machine if more than 52ms (complete 21 bit counter) have passed since it has
+-- left this IDLE state.
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process Engine_Control_FSM_Sync: storage of the current state of the FSM
@@ -267,7 +268,7 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' or s_session_timedout = '1' then
-        control_st <= idle;
+        control_st <= IDLE;
       else
         control_st <= nx_control_st;
       end if;
@@ -290,49 +291,49 @@ begin
     case control_st is
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when idle                     =>
+      when IDLE =>
 
         if rx_fss_received_p_i = '1' then      -- new frame FSS detected
-          nx_control_st <= id_dat_control_byte;
+          nx_control_st <= ID_DAT_CTRL_BYTE;
 
         else
-          nx_control_st <= idle;
+          nx_control_st <= IDLE;
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when id_dat_control_byte      =>
+      when ID_DAT_CTRL_BYTE =>
 
         if (rx_byte_ready_p_i = '1') and (rx_byte_i(5 downto 0) = c_ID_DAT_CTRL_BYTE) then
-          nx_control_st <= id_dat_var_byte;    -- check of ID_DAT CTRL byte
+          nx_control_st <= ID_DAT_VAR_BYTE;    -- check of ID_DAT CTRL byte
 
         elsif rx_byte_ready_p_i = '1' then
-          nx_control_st <= rst_rx;             -- byte different than the expected ID_DAT CTRL
+          nx_control_st <= RST_RX;             -- byte different than the expected ID_DAT CTRL
 
         else
-          nx_control_st <= id_dat_control_byte;-- ID_DAT CTRL byte being arriving
+          nx_control_st <= ID_DAT_CTRL_BYTE;   -- ID_DAT CTRL byte being arriving
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when id_dat_var_byte          =>
+      when ID_DAT_VAR_BYTE =>
 
         if (rx_byte_ready_p_i = '1') and (s_var_identified = '1') then
-          nx_control_st <= id_dat_subs_byte;   -- check of the ID_DAT variable
+          nx_control_st <= ID_DAT_SUBS_BYTE;   -- check of the ID_DAT variable
 
         elsif rx_byte_ready_p_i = '1' then
-          nx_control_st <= rst_rx;             -- byte not corresponding to an expected variable
+          nx_control_st <= RST_RX;             -- byte not corresponding to an expected variable
 
         else
-          nx_control_st <= id_dat_var_byte;    -- ID_DAT variable byte being arriving
+          nx_control_st <= ID_DAT_VAR_BYTE;    -- ID_DAT variable byte being arriving
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when id_dat_subs_byte         =>
+      when ID_DAT_SUBS_BYTE =>
 
         if (rx_byte_ready_p_i = '1') and ((rx_byte_i = subs_i) or (s_broadcast_var = '1')) then
-          nx_control_st <= id_dat_frame_ok;  -- checking of the ID_DAT subscriber
+          nx_control_st <= ID_DAT_FRAME_OK;  -- checking of the ID_DAT subscriber
                                              -- or if it is a broadcast variable
                                              -- note: broadcast consumed vars are only treated in
                                              -- memory mode, but at this moment we do not do this
@@ -340,90 +341,91 @@ begin
                                              -- also in stand-alone mode.
 
         elsif rx_byte_ready_p_i = '1' then   -- not the station's address, neither a broadcast var
-          nx_control_st <= rst_rx;
+          nx_control_st <= RST_RX;
 
         else
-          nx_control_st <= id_dat_subs_byte; -- ID_DAT subscriber byte being arriving
+          nx_control_st <= ID_DAT_SUBS_BYTE; -- ID_DAT subscriber byte being arriving
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when id_dat_frame_ok          =>
+      when ID_DAT_FRAME_OK =>
 
         if (rx_fss_crc_fes_ok_p_i = '1') and (s_prod_or_cons = "10") then
-          nx_control_st <= produce_wait_turnar_time; -- ID_DAT frame ok! station has to produce
+          nx_control_st <= PRODUCE_WAIT_TURNAR_TIME; -- ID_DAT frame ok! station has to PRODUCE
 
         elsif (rx_fss_crc_fes_ok_p_i = '1') and (s_prod_or_cons = "01") then
-          nx_control_st <= consume_wait_FSS;         -- ID_DAT frame ok! station has to consume
+          nx_control_st <= CONSUME_WAIT_FSS;         -- ID_DAT frame ok! station has to CONSUME
 
         elsif (s_rx_bytes_c > 2)  then               -- 3 bytes after the arrival of the subscriber
-          nx_control_st <= rst_rx;                   -- byte, a FES has not been detected
+          nx_control_st <= RST_RX;                   -- byte, a FES has not been detected
 
         else
-          nx_control_st <= id_dat_frame_ok;          -- CRC & FES bytes being arriving
+          nx_control_st <= ID_DAT_FRAME_OK;          -- CRC & FES bytes being arriving
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when produce_wait_turnar_time =>
+      when PRODUCE_WAIT_TURNAR_TIME =>
 
         if s_time_c_is_zero = '1' then               -- turnaround time passed
-          nx_control_st <= produce;
+          nx_control_st <= PRODUCE;
 
         else
-          nx_control_st <= produce_wait_turnar_time; -- waiting for turnaround time to pass
+          nx_control_st <= PRODUCE_WAIT_TURNAR_TIME; -- waiting for turnaround time to pass
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when consume_wait_FSS         =>
+      when CONSUME_WAIT_FSS =>
 
         if rx_fss_received_p_i = '1' then      -- FSS of the consumed RP_DAT arrived
-          nx_control_st <= consume;
+          nx_control_st <= CONSUME;
 
         elsif s_time_c_is_zero = '1' then      -- if the FSS of the consumed RP_DAT frame doesn't
-          nx_control_st <= rst_rx;             -- arrive before the expiration of the silence time,
-                                               -- the engine goes back to idle
+          nx_control_st <= RST_RX;             -- arrive before the expiration of the silence time,
+                                               -- the engine goes back to IDLE
         else
-          nx_control_st <= consume_wait_FSS;   -- counting silence time
+          nx_control_st <= CONSUME_WAIT_FSS;   -- counting silence time
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when consume                  =>
+      when CONSUME =>
 
         if (rx_fss_crc_fes_ok_p_i = '1') or    -- the cons frame arrived to the end, as expected
               (rx_crc_wrong_p_i = '1')    then -- FES detected but wrong CRC or wrong # bits
-          nx_control_st <= idle;
+          nx_control_st <= RST_RX; -- resetting the rx is not essential in this case,
+                                   -- but for robustness reasons we decided to add it 
 
         elsif (s_rx_bytes_c > c_MAX_FRAME_BYTES) then -- no FES detected after the max number of bytes
-          nx_control_st <= rst_rx;
+          nx_control_st <= RST_RX;
 
         else
-          nx_control_st <= consume;            -- consuming bytes
+          nx_control_st <= CONSUME;            -- consuming bytes
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when produce                  =>
+      when PRODUCE =>
 
         if tx_completed_p_i = '1' then         -- end of production (including CRC and FES)
-          nx_control_st <= idle;
+          nx_control_st <= IDLE;
 
         else
-          nx_control_st <= produce;            -- producing bytes
+          nx_control_st <= PRODUCE;            -- producing bytes
         end if;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when rst_rx                  =>          -- the current reception has finished
+      when RST_RX =>                           -- the current reception has finished
                                                -- a reset pulse is sent to the wf_receiver
-          nx_control_st <= idle;               -- which will start looking for a new FSS
+          nx_control_st <= IDLE;               -- which will start looking for a new FSS
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-      when others                   =>
-          nx_control_st <= idle;
+      when others =>
+          nx_control_st <= IDLE;
     end case;
   end process;
 
@@ -436,7 +438,7 @@ begin
 
     case control_st is
 
-      when idle =>
+      when IDLE =>
 
                  ---------------------------------
                   s_idle_state            <= '1';
@@ -451,9 +453,9 @@ begin
                   s_producing             <= '0';
 
 
-      when id_dat_control_byte =>
+      when ID_DAT_CTRL_BYTE =>
 
-                 s_idle_state            <= '0';
+                  s_idle_state            <= '0';
                  ---------------------------------
                   s_id_dat_ctrl_byte      <= '1';
                  ---------------------------------
@@ -466,7 +468,7 @@ begin
                   s_producing             <= '0';
 
 
-      when id_dat_var_byte =>
+      when ID_DAT_VAR_BYTE =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -481,7 +483,7 @@ begin
                   s_producing             <= '0';
 
 
-      when id_dat_subs_byte =>
+      when ID_DAT_SUBS_BYTE =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -494,7 +496,7 @@ begin
                   s_producing             <= '0';
 
 
-      when id_dat_frame_ok =>
+      when ID_DAT_FRAME_OK =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -509,7 +511,7 @@ begin
                   s_producing             <= '0';
 
 
-      when produce_wait_turnar_time =>
+      when PRODUCE_WAIT_TURNAR_TIME =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -524,7 +526,7 @@ begin
                   s_producing             <= '0';
 
 
-      when consume_wait_FSS =>
+      when CONSUME_WAIT_FSS =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -539,7 +541,7 @@ begin
                   s_producing             <= '0';
 
 
-      when consume =>
+      when CONSUME =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -554,7 +556,7 @@ begin
                   s_producing             <= '0';
 
 
-      when rst_rx =>
+      when RST_RX =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -569,7 +571,7 @@ begin
                   s_producing             <= '0';
 
 
-      when produce =>
+      when PRODUCE =>
 
                   s_idle_state            <= '0';
                   s_id_dat_ctrl_byte      <= '0';
@@ -627,8 +629,8 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of a wf_incr_counter for the counting of the number of the bytes that are
--- being produced. The counter is reset at the "produce_wait_turnar_time" state of the FSM and
--- counts bytes following the "tx_byte_request_p_i" pulse in the "produce" state.
+-- being produced. The counter is reset at the "PRODUCE_WAIT_TURNAR_TIME" state of the FSM and
+-- counts bytes following the "tx_byte_request_p_i" pulse in the "PRODUCE" state.
 
   Prod_Bytes_Counter: wf_incr_counter
   generic map(g_counter_lgth => 8)
@@ -655,10 +657,10 @@ begin
 -- frame (hence the name of the counter is s_rx_bytes_c and not s_cons_bytes_c).
 -- Regarding an ID_DAT frame: the FSS, CTRL, var and SUBS bytes are being followed by the
 -- Engine_Control_FSM; the counter is used for the counting of the bytes from then on and until
--- the arrival of a FES. Therefore, the counter is reset at the "id_dat_subs_byte" state and counts
--- bytes following the "rx_byte_ready_p_i" pulse in the "id_dat_frame_ok" state.
--- Regarding a RP_DAT frame : the counter is reset at the "consume_wait_FSS" state and counts
--- bytes following the "rx_byte_ready_p_i" pulse in the "consume" state.
+-- the arrival of a FES. Therefore, the counter is reset at the "ID_DAT_SUBS_BYTE" state and counts
+-- bytes following the "rx_byte_ready_p_i" pulse in the "ID_DAT_FRAME_OK" state.
+-- Regarding a RP_DAT frame : the counter is reset at the "CONSUME_WAIT_FSS" state and counts
+-- bytes following the "rx_byte_ready_p_i" pulse in the "CONSUME" state.
 
   Rx_Bytes_Counter: wf_incr_counter
   generic map(g_counter_lgth => 8)
@@ -682,10 +684,10 @@ begin
 ---------------------------------------------------------------------------------------------------
 
 -- Instantiation of a wf_decr_counter relying only on the system clock as an additional
--- way to go back to Idle state, in case any other logic is being stuck.
+-- way to go back to IDLE state, in case any other logic is being stuck.
 
   Session_Timeout_Counter: wf_decr_counter
-  generic map(g_counter_lgth => 21)
+  generic map(g_counter_lgth => c_SESSION_TIMEOUT_C_LGTH)
   port map(
     uclk_i            => uclk_i,
     counter_rst_i     => nfip_rst_i,
@@ -718,7 +720,7 @@ begin
 -- to either the turnaround or the silence time. If after the correct arrival of an ID_DAT frame
 -- the identified variable is a produced one the counter loads to the turnaround time, whereas if
 -- it had been a consumed variable it loads to the silence. The counting takes place during the
--- states "produce_wait_turnar_time" and "consume_wait_FSS" respectively.
+-- states "PRODUCE_WAIT_TURNAR_TIME" and "CONSUME_WAIT_FSS" respectively.
 
   Turnaround_and_Silence_Time_Counter: wf_decr_counter
   generic map(g_counter_lgth => 18)
@@ -750,8 +752,8 @@ begin
 --   o output signal var_o (or s_var, used also internally by the wf_prod_data_lgth_calc) that
 --     locks to the value of the ID_DAT.Identifier.Variable byte at the end of the reception of a
 --     valid ID_DAT frame, if the received SUBS byte matches the station's address.
---     For a produced var this takes place at the "produce_wait_turnar_time" state, and
---     for a consumed at the "consume" state (not in the "consume_wait_silence_time", as at this
+--     For a produced var this takes place at the "PRODUCE_WAIT_TURNAR_TIME" state, and
+--     for a consumed at the "CONSUME" state (not in the "consume_wait_silence_time", as at this
 --     state there is no knowledge that a consumed RP_DAT frame will indeed arrive!).
 -- (the process is very simple but very big as we decided not to use a for loop:s)
 
@@ -906,7 +908,7 @@ begin
   cons_byte_index_o          <= std_logic_vector (s_rx_bytes_c);
 
 -- The wf_fd_receiver receives a 1 uclk long reset pulse if during the reception of an ID or an
--- RP_DAT the engine control FSM has to go back to idle.
+-- RP_DAT the engine control FSM has to go back to IDLE.
 -- This may happen if : any of the CTRL, variable, subs bytes of an ID_DAT frame are wrong or
 --                      an ID_DAT is lasting more than 8 bytes or
 --                      an RP_DAT is lasting more than 133 bytes or

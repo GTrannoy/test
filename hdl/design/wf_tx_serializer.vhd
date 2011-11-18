@@ -42,8 +42,8 @@
 --     v0.03  07/2010  EG  timing changes; tx_sched_p_buff_i got 1 more bit                       |
 --                         briefly byte_index_i needed to arrive 1 clock tick earlier             |
 --                         renamed from tx to tx_serializer;                                      |
---                         stop_transmission state added for the synch of txena                   |
---     v0.04  01/2011  EG  sync_to_txck state added to start always with the bits 1,2,3 of the    |
+--                         STOP_TRANSMISSION state added for the synch of txena                   |
+--     v0.04  01/2011  EG  SYNC_TO_TXCK state added to start always with the bits 1,2,3 of the    |
 --                         clock buffer available(tx_start_p_i may arrive at any time)            |
 --                         tx_completed_p_o signal added                                          |
 --     v0.05  07/2011  EG  bits_to_txd unit removed                                               |
@@ -125,8 +125,8 @@ end entity wf_tx_serializer;
 architecture rtl of wf_tx_serializer is
 
   -- FSM
-  type tx_st_t  is (idle, sync_to_txck, send_fss, send_data_byte,
-                              send_crc_bytes, send_fes, stop_transmission);
+  type tx_st_t  is (IDLE, SYNC_TO_TXCK, SEND_FSS, SEND_DATA_BYTE,
+                              SEND_CRC_BYTES, SEND_FES, STOP_TRANSMISSION);
   signal tx_st, nx_tx_st                                          : tx_st_t;
   signal s_prepare_to_produce, s_sending_fss, s_sending_data      : std_logic;
   signal s_sending_crc, s_sending_fes, s_stop_transmission        : std_logic;
@@ -142,7 +142,7 @@ architecture rtl of wf_tx_serializer is
   signal s_start_crc_p, s_data_bit_to_crc_p                       : std_logic;
   signal s_crc_bytes                                              : std_logic_vector (15 downto 0);
   signal s_crc_bytes_manch                                        : std_logic_vector (31 downto 0);
-  -- independant timeout counter
+  -- independent timeout counter
   signal s_session_timedout                                       : std_logic;
 
 
@@ -180,19 +180,19 @@ begin
 -- and when the Outgoing_Bits_Index counter is empty (which means that the last bit of a previous
 -- byte is now being delivered).
 -- The wf_engine_control responds to the request by sending a new address to the wf_production
--- for the retreival of a byte from the memory or the stand-alone bus.
+-- for the retrieval of a byte from the memory or the stand-alone bus.
 -- The byte becomes available at the byte_request_accept_p_i pulse, 2 cycles after the request,
 -- and starts being transmitted at the tx_sched_p_buff (1) of the next FD_TXCK cycle.
 
 -- The wf_engine_control is the one keeping track of the amount of bytes delivered and asserts
 -- the last_byte_p_i signal accordingly; after the arrival of this signal the serializer's FSM
--- proceeds with the transmission of the CRC and the FES bytes and then goes back to idle.
+-- proceeds with the transmission of the CRC and the FES bytes and then goes back to IDLE.
 
--- To add a rubust layer of protection to the FSM, we have implemented a counter, dependant only
--- on the system clock, that from any state can bring the FSM back to idle. At any bit rate the
+-- To add a robust layer of protection to the FSM, we have implemented a counter, dependent only
+-- on the system clock, that from any state can bring the FSM back to IDLE. At any bit rate the
 -- transmission of the longest RP_DAT should not last more than 35ms. Hence, we have generated a
--- 21 bits counter that will reset the machine if more than 52ms (complete 21 bit counter) have
--- passed since it has left this idle state.
+-- 21 bits (c_SESSION_TIMEOUT_C_LGTH) counter that will reset the machine if more than 52ms
+-- (complete 21 bit counter) have passed since it has left this IDLE state.
 
 ---------------------------------------------------------------------------------------------------
 --                                       Serializer's FSM                                        --
@@ -209,7 +209,7 @@ begin
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' or s_session_timedout = '1' then
-        tx_st <= idle;
+        tx_st <= IDLE;
       else
         tx_st <= nx_tx_st;
       end if;
@@ -225,79 +225,79 @@ begin
 
     case tx_st is
 
-      when idle =>
+      when IDLE =>
 
                          if tx_start_p_i = '1' then       -- trigger from wf_engine_control
-                           nx_tx_st <= sync_to_txck;
+                           nx_tx_st <= SYNC_TO_TXCK;
                          else
-                           nx_tx_st <= idle;
+                           nx_tx_st <= IDLE;
                          end if;
 
 
-      when sync_to_txck =>                                -- synch to the free running FD_TXTCK 
+      when SYNC_TO_TXCK =>                                -- synch to the free running FD_TXTCK 
 
                          if tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-4) = '1' then
-                           nx_tx_st <= send_fss;
+                           nx_tx_st <= SEND_FSS;
 
                          else
-                           nx_tx_st <= sync_to_txck;
+                           nx_tx_st <= SYNC_TO_TXCK;
                          end if;
 
 
-      when send_fss =>                                    -- delivery of 2 FSS bytes
+      when SEND_FSS =>                                    -- delivery of 2 FSS bytes
  
                          if (s_bit_index_is_zero = '1')  and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-1) = '1') then
-                           nx_tx_st <= send_data_byte;
+                           nx_tx_st <= SEND_DATA_BYTE;
 
                          else
-                           nx_tx_st <= send_fss;
+                           nx_tx_st <= SEND_FSS;
                          end if;
 
 
-      when send_data_byte =>                              -- delivery of several data bytes
+      when SEND_DATA_BYTE =>                              -- delivery of several data bytes
                                                           -- until the last_byte_p_i notification
                          if last_byte_p_i = '1' then
-                           nx_tx_st <= send_crc_bytes;
+                           nx_tx_st <= SEND_CRC_BYTES;
 
                          else
-                           nx_tx_st <= send_data_byte;
+                           nx_tx_st <= SEND_DATA_BYTE;
                          end if;
 
 
-      when send_crc_bytes =>                              -- delivery of 2 CRC bytes
+      when SEND_CRC_BYTES =>                              -- delivery of 2 CRC bytes
 
                          if (s_bit_index_is_zero = '1') and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1') then
-                           nx_tx_st <= send_fes;           -- state change early enough (tx_sched_p_buff_i(2))
-                                                           -- for the Outgoing_Bits_Index, that is loaded on
-                                                           -- tx_sched_p_buff_i(3), to get the 31 as top value
+                           nx_tx_st <= SEND_FES;          -- state change early enough (tx_sched_p_buff_i(2))
+                                                          -- for the Outgoing_Bits_Index, that is loaded on
+                                                          -- tx_sched_p_buff_i(3), to get the 31 as top value
                          else
-                           nx_tx_st <= send_crc_bytes;
+                           nx_tx_st <= SEND_CRC_BYTES;
                          end if;
 
 
-      when send_fes =>                                    -- delivery of 1 FES byte
+      when SEND_FES =>                                    -- delivery of 1 FES byte
 
                          if (s_bit_index_is_zero = '1') and  (tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1') then
-                           nx_tx_st <= stop_transmission; -- state change early enough (tx_sched_p_buff_i(2))
+                           nx_tx_st <= STOP_TRANSMISSION; -- state change early enough (tx_sched_p_buff_i(2))
                                                           -- for the Outgoing_Bits_Index that is loaded on
                                                           -- tx_sched_p_buff_i(3) to get the 15 as top value
                          else
-                           nx_tx_st <= send_fes;
+                           nx_tx_st <= SEND_FES;
                          end if;
 
 
-      when stop_transmission =>
+      when STOP_TRANSMISSION =>
                                                           -- end of transmission synchronous to the FD_TXCK
                          if tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-2) = '1' then
-                           nx_tx_st <= idle;
+                           nx_tx_st <= IDLE;
 
                          else
-                           nx_tx_st <= stop_transmission;
+                           nx_tx_st <= STOP_TRANSMISSION;
                          end if;
 
 
-      when others =>
-                           nx_tx_st <= idle;
+      when OTHERS =>
+                           nx_tx_st <= IDLE;
     end case;
   end process;
 
@@ -310,7 +310,7 @@ begin
 
     case tx_st is
 
-      when idle | sync_to_txck =>
+      when IDLE | SYNC_TO_TXCK =>
 
                   ---------------------------------
                     s_prepare_to_produce <= '1';
@@ -322,7 +322,7 @@ begin
                     s_stop_transmission  <= '0';
 
 
-      when send_fss =>
+      when SEND_FSS =>
 
                     s_prepare_to_produce <= '0';
                   ---------------------------------
@@ -334,7 +334,7 @@ begin
                     s_stop_transmission  <= '0';
 
 
-      when send_data_byte  =>
+      when SEND_DATA_BYTE =>
 
                     s_prepare_to_produce <= '0';
                     s_sending_fss        <= '0';
@@ -346,7 +346,7 @@ begin
                     s_stop_transmission  <= '0';
 
 
-       when send_crc_bytes =>
+       when SEND_CRC_BYTES =>
 
                     s_prepare_to_produce <= '0';
                     s_sending_fss        <= '0';
@@ -358,7 +358,7 @@ begin
                     s_stop_transmission  <= '0';
 
 
-      when send_fes =>
+      when SEND_FES =>
 
                     s_prepare_to_produce <= '0';
                     s_sending_fss        <= '0';
@@ -370,7 +370,7 @@ begin
                     s_stop_transmission  <= '0';
 
 
-      when stop_transmission =>
+      when STOP_TRANSMISSION =>
 
                     s_prepare_to_produce <= '0';
                     s_sending_fss        <= '0';
@@ -382,14 +382,16 @@ begin
                   ---------------------------------
 
 
-      when others =>
+      when OTHERS =>
 
-                     s_prepare_to_produce <= '0';
-                     s_sending_fss        <= '0';
-                     s_sending_data       <= '0';
-                     s_sending_crc        <= '0';
-                     s_sending_fes        <= '0';
-                     s_stop_transmission  <= '0';
+                  ---------------------------------
+                    s_prepare_to_produce <= '1';
+                  ---------------------------------
+                    s_sending_fss        <= '0';
+                    s_sending_data       <= '0';
+                    s_sending_crc        <= '0';
+                    s_sending_fes        <= '0';
+                    s_stop_transmission  <= '0';
 
 
     end case;
@@ -540,7 +542,7 @@ Input_Byte_Retrieval: process (uclk_i)
 ---------------------------------------------------------------------------------------------------
 
 -- Synchronous process FD_TXENA_Generator: The nanoFIP output FD_TXENA is activated at the
--- same moment as the first bit of the PRE starts being delivered and stays asserted until the
+-- same moment as the first bit of the FSS starts being delivered and stays asserted until the
 -- end of the delivery of the last FES bit.
 
   FD_TXENA_Generator: process (uclk_i)
@@ -551,8 +553,8 @@ Input_Byte_Retrieval: process (uclk_i)
 
       else
 
-        if ((s_sending_fss = '1') or (s_sending_data = '1') or -- tx sending bits
-           (s_sending_crc = '1') or (s_sending_fes = '1') or (s_stop_transmission = '1')) then
+        if ((s_sending_fss = '1') or (s_sending_data = '1') or (s_sending_crc = '1') or
+            (s_sending_fes = '1') or (s_stop_transmission = '1')) then -- tx sending bits
 
           if  tx_sched_p_buff_i(c_TX_SCHED_BUFF_LGTH-3) = '1' then
                                             -- in order to synchronise the
@@ -578,10 +580,10 @@ Input_Byte_Retrieval: process (uclk_i)
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of a wf_decr_counter relying only on the system clock as an additional
--- way to go back to Idle state,  in case any other logic is being stuck.
+-- way to go back to IDLE state,  in case any other logic is being stuck.
 
   Session_Timeout_Counter: wf_decr_counter
-  generic map(g_counter_lgth => 21)
+  generic map(g_counter_lgth => c_SESSION_TIMEOUT_C_LGTH)
   port map(
     uclk_i            => uclk_i,
     counter_rst_i     => nfip_rst_i,

@@ -15,7 +15,7 @@
 -- Description  After an ID_DAT frame requesting for a variable to be produced, the unit provides |
 --              to the wf_tx_serializer unit one by one, all the bytes of data needed for the     |
 --              RP_DAT frame (apart from the  FSS, FCS and FES bytes). The coordination of the    |
---              retreival is done through the wf_engine_control and the signal byte_index_i.      |
+--              retrieval is done through the wf_engine_control and the signal byte_index_i.      |
 --                                                                                                |
 --              General structure of a produced RP_DAT frame:                                     |
 --    ___________ ______  _______ ______ _________________ _______ _______  ___________ _______   |
@@ -214,12 +214,12 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                    Memory mode Produced RAM                                   --
---               Storage (by the user) & retreival (by the unit) of produced bytes               --
+--               Storage (by the user) & retrieval (by the unit) of produced bytes               --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a 512 x 8 Produced Dual Port RAM.
--- Only 124 bytes of memory are used.
 -- Port A is used by the nanoFIP for the readings from the Produced RAM;
 -- Port B is connected to the WISHBONE interface for the writings from the user.
+-- Note: only 124 bytes are used.
 
   Produced_Bytes_From_RAM:  wf_dualram_512x8_clka_rd_clkb_wr
   port map(
@@ -236,7 +236,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                 Slone mode DAT_I bus Sampling                                 --
---                           Retreival of the two bytes to be produced                           --
+--                           retrieval of the two bytes to be produced                           --
 ---------------------------------------------------------------------------------------------------
 -- Sampling of the input data bus DAT_I(15:0) for the operation in stand-alone mode.
 -- The sampling takes place on the 1st clock cycle after the VAR3_RDY has been de-asserted.
@@ -329,7 +329,7 @@ begin
       -- In memory mode:
       if slone_i = '0' then
 
-        -- retreival of base address info for the memory from the wf_package
+        -- retrieval of base address info for the memory from the wf_package
         s_base_addr            <= c_VARS_ARRAY(c_VAR_3_INDEX).base_addr;
 
 

@@ -90,6 +90,8 @@
 --                            var_i added for the jtag_var1 treatment;                            |
 --                            r_fcser, r_tler_o considered only for a cons variable (bf a wrong   |
 --                            crc on an id-dat could give r_fcser)                                |
+--        11/2011  v0.042 EG  the var3_acc_a_i and not the s_var3_acc_synch(3) was used for       |
+--                            the refreshment:s                                                    |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -253,7 +255,7 @@ begin
         if rst_status_bytes_p_i = '1' then          -- bit reinitialized after a production
           s_refreshment <= '0';
 
-        elsif var3_acc_a_i = '1' then               -- indication that the memory has been accessed
+        elsif s_var3_acc_synch(2) = '1' then        -- indication that the memory has been accessed
           s_refreshment <= '1';
         end if;
 
