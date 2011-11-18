@@ -43,6 +43,7 @@
 --        09/2011  v0.02  EG  added counter for counting the outgoing TMS/TDI bits; combinatorial |
 --                            was too heavy; changed a bit state machine to include counter       |
 --                            put session_timedout in the synchronous FSM process                 |
+--        11/2011  v0.021 EG  timeout counter has different size (constant added)                 |
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -112,9 +113,9 @@ end entity wf_jtag_controller;
 --=================================================================================================
 architecture rtl of wf_jtag_controller is
   -- FSM
-  type jc_st_t  is (idle, get_byte, play_byte, set_address);
+  type jc_st_t  is (IDLE, GET_BYTE, PLAY_BYTE, SET_ADDR);
   signal jc_st, nx_jc_st                           : jc_st_t;
-  signal s_idle, s_play_byte, s_set_adr            : std_logic;
+  signal s_idle, s_play_byte, s_set_addr           : std_logic;
   signal s_not_play_byte                           : std_logic;
   signal s_session_timedout                        : std_logic;
   -- bytes counter
@@ -150,15 +151,14 @@ begin
 -- the JC_consumed memory. The first two bytes concatenated in big endian encoding indicate the
 -- total amount of TMS/ TDI bits that have to be retrieved and output.
 -- The rest of the bytes contain the TMS/ TDI bits.
--- The FSM goes back to idle if the counter that counts the amount the bits that have been output
+-- The FSM goes back to IDLE if the counter that counts the amount the bits that have been output
 -- reaches the total amount.
 
--- To add a robust layer of protection to the FSM, we have implemented a counter, dependant only on
--- the system clock, that from any state can bring the FSM back to idle. A frame with the maximum
--- number of TMS/ TDI bits needs a bit more than (488 bits * JC_TCK period) seconds to be treated.
--- For a 5 MHz JC_TCK clock this is around 100 us. In order to be coherent with the timeouts of the
--- other FSMs of nanoFIP, we use a 21 bits counter; therefore, the FSM is reset if 52 ms have passed
--- since it has left the idle state.
+-- To add a robust layer of protection to the FSM, we have implemented a counter, dependent only on
+-- the system clock, that from any state can bring the FSM back to IDLE. A frame with the maximum
+-- number of TMS/ TDI bits needs: 122 bytes * ((4 * JC_TCK) + 2 uclk) seconds to be treated.
+-- For a 5 MHz JC_TCK clock this is 103.7 us. We use a counter of 13 bits which means that the FSM
+-- is reset if 204.8 us have passed since it has left the IDLE state.
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process JC_FSM_Sync: storage of the current state of the FSM
@@ -167,7 +167,7 @@ begin
     begin
       if rising_edge (uclk_i) then
         if nfip_rst_i = '1' or s_session_timedout = '1' then
-          jc_st <= idle;
+          jc_st <= IDLE;
         else
           jc_st <= nx_jc_st;
         end if;
@@ -186,51 +186,51 @@ begin
   case jc_st is
 
 
-    when idle        =>
+    when IDLE      =>
                         if jc_start_p_i = '1' then     -- consumed var_4 frame validated
-                          nx_jc_st <= set_address;
+                          nx_jc_st <= SET_ADDR;
 
                         else
-                          nx_jc_st <= idle;
+                          nx_jc_st <= IDLE;
                         end if;
 
-    when set_address =>
-                          nx_jc_st <= get_byte;        -- 1 uclk cycle for the setting of the memory
+    when SET_ADDR  =>
+                          nx_jc_st <= GET_BYTE;        -- 1 uclk cycle for the setting of the memory
                                                        -- address; byte available at the next cycle 
 
 
-    when get_byte    =>
+    when GET_BYTE  =>
 
                         if s_bytes_c < 2 then          -- 2 first bytes: amount of JC_TMS & JC_TDI bits
-                          nx_jc_st <= set_address;
+                          nx_jc_st <= SET_ADDR;
                         else                           -- the rest of the bytes have to be "played"
-                          nx_jc_st <= play_byte;
+                          nx_jc_st <= PLAY_BYTE;
                         end if;
 
-    when play_byte   =>
+    when PLAY_BYTE =>
 
                         if s_frame_bits <= 0 or s_frame_bits > c_MAX_FRAME_BITS then
-                          nx_jc_st <= idle;            -- outside expected limits
+                          nx_jc_st <= IDLE;            -- outside expected limits
 
                         elsif s_frame_bits > s_bits_so_far then -- still available bits to go..
 
                           if s_tck_c_is_full = '1' then-- byte completed; a new one has
-                            nx_jc_st <= set_address;   -- to be retrieved
+                            nx_jc_st <= SET_ADDR;      -- to be retrieved
                           else                         -- byte being output
-                            nx_jc_st <= play_byte;
+                            nx_jc_st <= PLAY_BYTE;
                           end if;
 
                         else                           -- last bit
 
                           if s_tck_r_edge_p = '1' or s_tck_f_edge_p = '1' then
-                            nx_jc_st <= idle;          -- wait until the completion of a JC_TCK cycle
+                            nx_jc_st <= IDLE;          -- wait until the completion of a JC_TCK cycle
                           else
-                            nx_jc_st <= play_byte;
+                            nx_jc_st <= PLAY_BYTE;
                           end if;
                         end if;
 
-    when others      =>
-                        nx_jc_st <= idle;
+    when OTHERS    =>
+                        nx_jc_st <= IDLE;
 
     end case;
   end process;
@@ -242,44 +242,44 @@ begin
 
     case jc_st is
 
-    when idle =>
+    when IDLE      =>
                         -----------------------------
                           s_idle      <= '1';
                         -----------------------------
-                          s_set_adr   <= '0';
+                          s_set_addr  <= '0';
                           s_play_byte <= '0';
 
 
-    when set_address =>
+    when SET_ADDR  =>
 
                           s_idle      <= '0';
                         -----------------------------
-                          s_set_adr   <= '1';
+                          s_set_addr  <= '1';
                         -----------------------------
                           s_play_byte <= '0';
 
 
-    when get_byte  =>
+    when GET_BYTE  =>
 
                           s_idle      <= '0';
-                          s_set_adr   <= '0';
+                          s_set_addr  <= '0';
                           s_play_byte <= '0';
 
 
-    when play_byte  =>
+    when PLAY_BYTE =>
 
                           s_idle      <= '0';
-                          s_set_adr   <= '0';
+                          s_set_addr  <= '0';
                         -----------------------------
                           s_play_byte <= '1';
                         -----------------------------
 
 
-    when others  =>
+    when OTHERS    =>
                         -----------------------------
                           s_idle      <= '1';
                         -----------------------------
-                          s_set_adr   <= '0';
+                          s_set_addr  <= '0';
                           s_play_byte <= '0';
 
     end case;
@@ -360,7 +360,7 @@ begin
   port map(
     uclk_i            => uclk_i,
     counter_reinit_i  => s_idle,
-    counter_incr_i    => s_set_adr,
+    counter_incr_i    => s_set_addr,
     counter_is_full_o => open,
     ------------------------------------------
     counter_o         => s_bytes_c);
@@ -396,13 +396,13 @@ begin
 
  
 ---------------------------------------------------------------------------------------------------
---                                     Frame bits retreival                                      --
+--                                     Frame bits retrieval                                      --
 ---------------------------------------------------------------------------------------------------
 -- Construction of the 16 bits word that indicates the amount of TMS/ TDI bits that have to be
 -- played from this frame. The word is the result of the big endian concatenation of the 1st and
 -- 2nd data bytes from the memory.   
 
-  Bits_Number_Retreival: process (uclk_i)
+  Bits_Number_retrieval: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
@@ -412,10 +412,10 @@ begin
       else
           s_bytes_c_d1     <= s_bytes_c;
 
-        if s_set_adr = '1' and s_bytes_c_d1 = 0 then
+        if s_set_addr = '1' and s_bytes_c_d1 = 0 then
           s_frame_bits_msb <= jc_mem_data_i;
         end if;
-        if s_set_adr = '1' and s_bytes_c_d1 = 1 then
+        if s_set_addr = '1' and s_bytes_c_d1 = 1 then
           s_frame_bits_lsb <= jc_mem_data_i;
         end if;
       end if;
@@ -431,7 +431,7 @@ begin
 --                                      TMS and TDI player                                       --
 ---------------------------------------------------------------------------------------------------
 -- Delivery of the jc_tms_o and jc_tdi_o bits on the falling edge of the jc_tck_o clock.
--- At the "play_byte" state of the FSM the incoming jc_mem_data_i byte is decomposed to 4 TMS and
+-- At the "PLAY_BYTE" state of the FSM the incoming jc_mem_data_i byte is decomposed to 4 TMS and
 -- 4 TDI bits; a pair of TMS/ TDI bits is output on every TCK falling edge.
 
   JC_TMS_TDI_player: process (uclk_i)
@@ -472,6 +472,11 @@ begin
 -- Sampling of the jc_tdo_i input on the rising edge of the jc_tck_o clock. Only the last sampled
 -- bit is significant and is delivered.
 
+-- Note: on the side of the target TAP, the jc_tdo should be provided on the falling edge of jc_tck;
+-- a falling jc_tck edge comes many uclk cycles before a rising one, which is nanoFIP's sampling
+-- moment for jc_tdo; therefore on the rising edges, jc_tdo is not expected to be metastable.
+-- That is why we have decided not to synchronize the jc_tdo input. 
+
   JC_TDO_sampling: process (uclk_i)
 
   begin
@@ -493,10 +498,10 @@ begin
 --                                  Independent Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a wf_decr_counter relying only on the system clock, as an additional
--- way to go back to Idle state, in case any other logic is being stuck. The timeout is 52 ms.
+-- way to go back to Idle state, in case any other logic is being stuck. The timeout is 204.8 us.
 
   Session_Timeout_Counter: wf_decr_counter
-  generic map(g_counter_lgth => 21)
+  generic map(g_counter_lgth => c_JC_TIMEOUT_C_LGTH)
   port map(
     uclk_i            => uclk_i,
     counter_rst_i     => nfip_rst_i,

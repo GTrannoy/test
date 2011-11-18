@@ -152,7 +152,7 @@ entity wf_production is port(
     -- nanoFIP User Interface, NON-WISHBONE
 
       slone_data_i            : in std_logic_vector (15 downto 0);
-      -- used by: wf_prod_bytes_retriever for the bytes retreival in stand-alone mode
+      -- used by: wf_prod_bytes_retriever for the bytes retrieval in stand-alone mode
 
       var1_acc_a_i            : in std_logic;
       var2_acc_a_i            : in std_logic;
@@ -171,7 +171,7 @@ entity wf_production is port(
  	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
     -- Signals from the wf_jtag_controller unit
       jc_tdo_byte_i           : in std_logic_vector (7 downto 0);
-      -- used by: wf_prod_bytes_retriever for the bytes retreival of a var_5
+      -- used by: wf_prod_bytes_retriever for the bytes retrieval of a var_5
 
 
 	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -253,7 +253,7 @@ begin
 
 
 ---------------------------------------------------------------------------------------------------
---                                          Bytes Retreival                                      --
+--                                          Bytes retrieval                                      --
 ---------------------------------------------------------------------------------------------------
 
 -- Instantiation of the wf_prod_bytes_retriever unit

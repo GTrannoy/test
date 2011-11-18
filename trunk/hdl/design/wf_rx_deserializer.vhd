@@ -74,7 +74,7 @@
 --                       like this we confirm that the CRC_ok_p arrived just before the FES,      |
 --                       and any 2 bytes that could by chanche be seen as CRC, are neglected.     |
 --                       FSM data_field_byte state: redundant code removed:                       |
---                       "s_fes_wrong_bit = '1' and s_manch_code_viol_p = '1' then idle"          |
+--                       "s_fes_wrong_bit = '1' and s_manch_code_viol_p = '1' then IDLE"          |
 --                       code(more!)cleaned-up                                                    |
 --     01/2011 v0.04 EG  changed way of detecting the FES to be able to detect a FES even if      |
 --                       bytes with size different than 8 have preceeded.                         |
@@ -173,8 +173,8 @@ end entity wf_rx_deserializer;
 architecture rtl of wf_rx_deserializer is
 
   -- FSM
-  type rx_st_t  is (idle, pre_field_first_f_edge, pre_field_r_edge, pre_field_f_edge, fsd_field,
-                                                                         ctrl_data_fcs_fes_fields);
+  type rx_st_t  is (IDLE, PRE_FIELD_FIRST_F_EDGE, PRE_FIELD_R_EDGE, PRE_FIELD_F_EDGE, FSD_FIELD,
+                                                                         CTRL_DATA_FCS_FES_FIELDS);
   signal rx_st, nx_rx_st                                                               : rx_st_t;
   signal s_idle, s_receiving_pre, s_receiving_fsd, s_receiving_bytes                   : std_logic;
   -- PRE detection
@@ -189,7 +189,7 @@ architecture rtl of wf_rx_deserializer is
   signal s_byte                                                   : std_logic_vector  (7 downto 0);
   -- CRC calculation
   signal s_CRC_ok_p, s_CRC_ok_p_d, s_CRC_ok_p_found                                    : std_logic;
-  -- independant timeout counter
+  -- independent timeout counter
   signal s_session_timedout                                                            : std_logic;
 
 
@@ -212,14 +212,14 @@ begin
 -- A robust protection, that depends only on the system clock, has been implemented:
 -- knowing that at any bit rate the reception of a frame should not last more than 35ms (this
 -- corresponds to the consumption of 133 bytes at 31.25 Kbps), a counter has been implemented,
--- responsible for bringing the machine back to idle if more than 52ms (complete 21 bit counter)
--- have passed since the machine left the idle state.
+-- responsible for bringing the machine back to IDLE if more than 52ms (complete 21 bit counter)
+-- have passed since the machine left the IDLE state.
 
   Deserializer_FSM_Sync: process (uclk_i)
     begin
       if rising_edge (uclk_i) then
         if nfip_rst_i = '1' or rx_rst_i = '1' or s_session_timedout = '1' then
-          rx_st <= idle;
+          rx_st <= IDLE;
         else
           rx_st <= nx_rx_st;
         end if;
@@ -242,101 +242,101 @@ begin
     -- During the PRE, the wf_rx_osc is trying to synchronize to the transmitter's clock and every
     -- edge detected in the FD_RXD is taken into account. At this phase, the unit uses
     -- the wf_rx_osc signals: adjac_bits_window_i and signif_edge_window_i and if edges are found
-    -- outside those windows the unit goes back to idle and the wf_rx_osc is reset.
+    -- outside those windows the unit goes back to IDLE and the wf_rx_osc is reset.
     -- For the rest of the frame, the unit is just sampling the deglitched FD_RXD on the moments
     -- specified by the wf_rx_osc signals: sample_manch_bit_p_i and sample_bit_p_i.
 
-    when idle =>
+    when IDLE =>
 
                         if fd_rxd_f_edge_p_i = '1' then        -- falling edge detection
-                          nx_rx_st <= pre_field_first_f_edge;
+                          nx_rx_st <= PRE_FIELD_FIRST_F_EDGE;
 
                         else
-                          nx_rx_st <= idle;
+                          nx_rx_st <= IDLE;
                         end if;
 
 
-    when pre_field_first_f_edge =>
+    when PRE_FIELD_FIRST_F_EDGE =>
 
                         if s_manch_r_edge_p = '1' then         -- arrival of a manch.
-                          nx_rx_st <= pre_field_r_edge;        -- rising edge
+                          nx_rx_st <= PRE_FIELD_R_EDGE;        -- rising edge
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
-                          nx_rx_st <= idle;
+                          nx_rx_st <= IDLE;
 
                         else
-                          nx_rx_st <= pre_field_first_f_edge;
+                          nx_rx_st <= PRE_FIELD_FIRST_F_EDGE;
                         end if;
 
 
-    when pre_field_r_edge =>
+    when PRE_FIELD_R_EDGE =>
 
                         if s_manch_f_edge_p = '1' then         -- arrival of a manch. falling edge
-                          nx_rx_st <= pre_field_f_edge;        -- note: several loops between
+                          nx_rx_st <= PRE_FIELD_F_EDGE;        -- note: several loops between
                                                                -- a rising and a falling edge are
                                                                -- expected for the PRE
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
-                           nx_rx_st <= idle;
+                           nx_rx_st <= IDLE;
 
                         else
-                           nx_rx_st <= pre_field_r_edge;
+                           nx_rx_st <= PRE_FIELD_R_EDGE;
                         end if;
 
 
-    when pre_field_f_edge =>
+    when PRE_FIELD_F_EDGE =>
 
                         if s_manch_r_edge_p = '1' then         -- arrival of a manch. rising edge
-                          nx_rx_st <= pre_field_r_edge;
+                          nx_rx_st <= PRE_FIELD_R_EDGE;
 
                         elsif s_bit_r_edge_p = '1' then        -- arrival of a rising edge between
-                          nx_rx_st <=  fsd_field;              -- adjacent bits, signaling the
+                          nx_rx_st <=  FSD_FIELD;              -- adjacent bits, signaling the
                                                                -- beginning of the 1st V+ violation
                                                                -- of the FSD
 
                         elsif s_edge_out_manch_window_p = '1' then -- arrival of any other edge
-                          nx_rx_st <= idle;
+                          nx_rx_st <= IDLE;
 
                         else
-                          nx_rx_st <= pre_field_f_edge;
+                          nx_rx_st <= PRE_FIELD_F_EDGE;
                          end if;
 
     -- For the monitoring of the FSD, the unit is sampling each manch. bit of the incoming
     -- FD_RXD and it is comparing it to the nominal bit of the FSD; the signal s_fsd_wrong_bit
-    -- is doing this comparison. If a wrong bit is received, the state machine jumps back to idle,
-    -- whereas if the complete byte is correctly received, it jumps to the ctrl_data_fcs_fes_fields.
+    -- is doing this comparison. If a wrong bit is received, the state machine jumps back to IDLE,
+    -- whereas if the complete byte is correctly received, it jumps to the CTRL_DATA_FCS_FES_FIELDS.
 
-    when fsd_field =>
+    when FSD_FIELD =>
 
                         if s_fsd_last_bit = '1' then           -- reception of the last (15th)
-                          nx_rx_st <= ctrl_data_fcs_fes_fields;-- FSD bit
+                          nx_rx_st <= CTRL_DATA_FCS_FES_FIELDS;-- FSD bit
 
                         elsif s_fsd_wrong_bit = '1' then       -- wrong bit
-                          nx_rx_st <= idle;
+                          nx_rx_st <= IDLE;
 
                         else
-                          nx_rx_st <= fsd_field;
+                          nx_rx_st <= FSD_FIELD;
                         end if;
 
-    -- The state machine stays in the ctrl_data_fcs_fes_fields state until a FES detection (or
+    -- The state machine stays in the CTRL_DATA_FCS_FES_FIELDS state until a FES detection (or
     -- a reset rx_rst_i signal or a s_session_timeout signal). In this state bytes are "blindly"
     -- being constructed and it is the wf_engine_control unit that supervises what is being received;
     -- if for example an ID_DAT is being received without a FES detected after 8 bytes or an
     -- RP_DAT without a FES after 133 bytes, or if the CTRL byte of an ID_DAT is wrong, the
     -- engine_control will discard the current reception and reset the FSM through the rx_rst_i.
 
-    when ctrl_data_fcs_fes_fields =>
+    when CTRL_DATA_FCS_FES_FIELDS =>
 
                         if s_fes_detected = '1' then
-                          nx_rx_st <= idle;
+                          nx_rx_st <= IDLE;
 
                         else
-                          nx_rx_st <= ctrl_data_fcs_fes_fields;
+                          nx_rx_st <= CTRL_DATA_FCS_FES_FIELDS;
                         end if;
 
 
-    when others =>
-                        nx_rx_st <= idle;
+    when OTHERS =>
+                        nx_rx_st <= IDLE;
 
   end case;
   end process;
@@ -351,7 +351,7 @@ begin
 
     case rx_st is
 
-    when idle =>
+    when IDLE =>
                   ------------------------------------
                    s_idle                    <= '1';
                   ------------------------------------
@@ -360,7 +360,7 @@ begin
                    s_receiving_bytes         <= '0';
 
 
-    when pre_field_first_f_edge | pre_field_r_edge | pre_field_f_edge =>
+    when PRE_FIELD_FIRST_F_EDGE | PRE_FIELD_R_EDGE | PRE_FIELD_F_EDGE =>
 
                    s_idle                    <= '0';
                   ------------------------------------
@@ -370,7 +370,7 @@ begin
                    s_receiving_bytes         <= '0';
 
 
-    when fsd_field =>
+    when FSD_FIELD =>
 
                    s_idle                    <= '0';
                    s_receiving_pre           <= '0';
@@ -380,7 +380,7 @@ begin
                    s_receiving_bytes         <= '0';
 
 
-    when ctrl_data_fcs_fes_fields =>
+    when CTRL_DATA_FCS_FES_FIELDS =>
 
                    s_idle                    <= '0';
                    s_receiving_pre           <= '0';
@@ -390,9 +390,11 @@ begin
                   ------------------------------------
 
 
-    when others =>
+    when OTHERS =>
 
-                   s_idle                    <= '0';
+                  ------------------------------------
+                   s_idle                    <= '1';
+                  ------------------------------------
                    s_receiving_pre           <= '0';
                    s_receiving_fsd           <= '0';
                    s_receiving_bytes         <= '0';
@@ -408,13 +410,14 @@ begin
 
 -- Synchronous process Append_Bit_To_Byte: Creation of bytes of data.
 -- A new bit of the FD_RXD is appended to the output byte that is being formed when the FSM is in
--- the "ctrl_data_fcs_fes_fields" state, on the "sample_bit_p_i" moments.
+-- the "CTRL_DATA_FCS_FES_FIELDS" state, on the "sample_bit_p_i" moments.
 
   Append_Bit_To_Byte: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
       if nfip_rst_i = '1' then
-        s_byte_ready_p_d1       <='0';
+        s_byte_ready_p_d1       <= '0';
+        s_sample_manch_bit_p_d1 <= '0';
         s_byte                  <= (others => '0');
       else
 
@@ -532,7 +535,7 @@ begin
   CRC_OK_pulse_delay: process (uclk_i)
   begin
     if rising_edge (uclk_i) then
-      if s_receiving_bytes = '0' then
+      if nfip_rst_i = '1' or s_receiving_bytes = '0' then
         s_CRC_ok_p_d       <= '0';
         s_CRC_ok_p_found   <= '0';
       else
@@ -561,11 +564,11 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Instantiation of a wf_decr_counter relying only on the system clock, as an additional
--- way to go back to Idle state, in case any other logic is being stuck. The length of the counter
--- is defined using the slowest bit rate and considering reception of the upper limit of 134 bytes. 
+-- way to go back to IDLE state, in case any other logic is being stuck. The length of the counter
+-- is defined using the slowest bit rate and considering reception of the upper limit of 133 bytes. 
 
   Session_Timeout_Counter: wf_decr_counter
-  generic map(g_counter_lgth => 21)
+  generic map(g_counter_lgth => c_SESSION_TIMEOUT_C_LGTH)
   port map(
     uclk_i            => uclk_i,
     counter_rst_i     => nfip_rst_i,

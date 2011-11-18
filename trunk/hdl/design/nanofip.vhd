@@ -19,9 +19,9 @@
 -- ProASIC3 Flash family FPGA (130nm CMOS technology) that offers an inherent resistance to       |
 -- radiation: it is immune to Single Event Latchups for the LHC environment, it has high tolerance|
 -- to Total Ionizing Dose effects (>300 Gy) and its configuration memory is not disturbed by SEUs.|
--- Another feature that nanoFIP offers is the possibility to reprogram the user logic through     |
+-- Another feature that nanoFIP offers is the possibility to reprogram the user logic FPGA through|
 -- JTAG interface; WorldFIP frames are translated to the equivalent JTAG signals that drive and   |
--- control the user logic Test Access Port (TAP) controller.                                      |
+-- monitor the user logic Test Access Port controller (TAP).                                      |
 -- nanoFIP is used in conjunction with a FIELDRIVE chip and FIELDTR insulating transformer,       |
 -- both available from the company ALSTOM.                                                        |
 --                                                                                                |
@@ -112,7 +112,7 @@
 --                                                                                                |
 --  o wf_fd_transmitter  : for the serialization of produced RP_DAT frames                        |
 --                                                                                                |
---  o wf_production      : for the retreival of bytes for produced RP_DAT frames                  |
+--  o wf_production      : for the retrieval of bytes for produced RP_DAT frames                  |
 --                                                                                                |
 --  o wf_engine_control  : for the processing of the ID_DAT frames and the coordination of the    |
 --                         wf_consumption, wf_fd_receiver, wf_production & wf_fd_transmitter units|
@@ -123,8 +123,8 @@
 --  o wf_wb_controller   : for the handling of the "User Interface WISHBONE Slave" control        |
 --                         signals                                                                |
 --                                                                                                |
---  o wf_jtag_controller : for driving and controlling the user logic TAP controller upon         |
---                         reception of JTAG variables (aa_xy and ab_xy).                         |
+--  o wf_jtag_controller : for driving and monitoring the user logic TAP upon reception of JTAG   |
+--                         variables (aa_xy and ab_xy).                                           |
 --                                                                                                |
 --           _____________      ____________________________________________________              |
 --          |             |    |                   wf_WB_controller                 |             |

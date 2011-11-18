@@ -173,7 +173,7 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                         Memory mode Consumed & Consumed Broadcast RAM                         --
---               Storage (by the unit) & retreival (by the user) of consumed bytes               --
+--               Storage (by the unit) & retrieval (by the user) of consumed bytes               --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a 512 x 8  Dual Port RAM, for both the consumed and consumed broadcast vars
 -- Port A is connected to the WISHBONE interface for the readings from the user
@@ -195,12 +195,12 @@ begin
 
 ---------------------------------------------------------------------------------------------------
 --                                      JTAG Consumed  RAM                                       --
---         Storage (by this unit) & retreival (by the JTAG_controller unit) of consumed bytes    --
+--         Storage (by this unit) & retrieval (by the JTAG_controller unit) of consumed bytes    --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a 512 x 8 Dual Port RAM for the storage of var_4 variables.
--- Only 127 bytes of memory are used.
 -- nanoFIP's user clock uclk is connected to both ports of the memory; the writing of the
 -- consumed data and the reading of them (by the wf_jtag_controller) take place internally.
+-- Note: only 127 bytes are used.
 
   Consumption_JTAG_RAM : wf_dualram_512x8_clka_rd_clkb_wr
   port map(
