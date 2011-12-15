@@ -20,7 +20,7 @@
 --                                           - the Produced RAM or                                |
 --                                           - or the"nanoFIP User Interface,NON-WISHBONE"bus DAT_I
 --                                           - or the wf_jtag_controller unit                     |
---                                         o PDU,CTRL bytes : from the wf_package                 |
+--                                         o PDU,CTRL bytes : from the WF_PACKAGE                 |
 --                                         o MPS,nFIP status: from the wf_status_bytes_gen        |
 --                                         o LGTH byte      : from the wf_prod_data_lgth_calc     |
 --                                        and following the signals from the external unit,       |
@@ -102,7 +102,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

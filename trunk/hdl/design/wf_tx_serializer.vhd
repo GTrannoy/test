@@ -15,8 +15,8 @@
 -- Description  The unit is generating the nanoFIP FIELDRIVE outputs FD_TXD and FD_TXENA.         |
 --              It is retreiving bytes of data from:                                              |
 --                o the wf_production (from the CTRL byte until the MPS)                          |
---                o wf_package        (FSS and FES bytes)                                         |
---                o and the wf_CRC    (FCS bytes).                                                |
+--                o WF_PACKAGE        (FSS and FES bytes)                                         |
+--                o and the wf_crc    (FCS bytes).                                                |
 --                                                                                                |
 --              It encodes the bytes to the Manchester 2 (manch.)scheme and outputs one by one the|
 --              encoded bits on the moments indicated by the wf_tx_osc unit.                      |
@@ -74,7 +74,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

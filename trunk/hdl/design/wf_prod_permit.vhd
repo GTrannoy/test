@@ -51,7 +51,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================

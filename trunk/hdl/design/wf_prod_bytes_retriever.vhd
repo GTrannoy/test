@@ -26,14 +26,14 @@
 --               |_CTRL_||__PDU__|_LGTH_|_...User-Data..._|_nstat_|__MPS__||                      |
 --                                                                                                |
 --              If the variable to be produced is the                                             |
---                o presence      : The unit retreives the bytes from the wf_package.             |
+--                o presence      : The unit retreives the bytes from the WF_PACKAGE.             |
 --                                  No MPS & no nanoFIP status are associated with this variable. |
 --                ______  _______ ______ ______ ______ ______ ______ ______                       |
 --               |_CTRL_||__PDU__|__05__|__80__|__03__|__00__|__F0__|__00__||                     |
 --                                                                                                |
 --                                                                                                |
 --                o identification: The unit retreives the Constructor & Model bytes from the     |
---                                  wf_model_constr_decoder, & all the rest from the wf_package.  |
+--                                  wf_model_constr_decoder, & all the rest from the WF_PACKAGE.  |
 --                                  No MPS & no nanoFIP status are associated with this variable. |
 --        ______  _______ ______ ______ ______ ______ ______ _______ ______ ______ ______         |
 --       |_CTRL_||__PDU__|__08__|__01__|__00__|__00__|_cons_|__mod__|__00__|__00__|__00__||       |
@@ -46,7 +46,7 @@
 --                                  The MPS and the nanoFIP status bytes are retrieved from the   |
 --                                  wf_status_bytes_gen.                                          |
 --                                  The LGTH byte is retrieved from the wf_prod_data_lgth_calc.   |
---                                  The rest of the bytes (CTRL & PDU) come from the wf_package.  |
+--                                  The rest of the bytes (CTRL & PDU) come from the WF_PACKAGE.  |
 --        ______  _______ ______ ________________________________________ _______ _______         |
 --       |_CTRL_||__PDU__|_LGTH_|_____________..User-Data..______________|_nstat_|__MPS__||       |
 --                                                                                                |
@@ -113,7 +113,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -269,7 +269,7 @@ begin
 -- RP_DAT frame: If the variable requested in the ID_DAT is of "produced" type (identification/
 -- presence/ var3/ var5) the process prepares accordingly, one by one, bytes of data to be sent.
 -- The pointer "s_byte_index_d1" (or "s_byte_index_d_aux") indicates which byte of the frame is to be sent.
--- Some of the bytes are defined in the wf_package,
+-- Some of the bytes are defined in the WF_PACKAGE,
 -- the rest come either from the memory (if slone = 0) or from the the input bus DAT_I (if slone = 1),
 -- or from the  wf_status_bytes_gen or the wf_model_constr_decoder units.
 -- The output byte "byte_o" is sent to the wf_tx_serializer unit for manchester encoding and serialization.
@@ -329,13 +329,13 @@ begin
       -- In memory mode:
       if slone_i = '0' then
 
-        -- retrieval of base address info for the memory from the wf_package
+        -- retrieval of base address info for the memory from the WF_PACKAGE
         s_base_addr            <= c_VARS_ARRAY(c_VAR_3_INDEX).base_addr;
 
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- The first (CTRL) and second (PDU_TYPE) bytes to be sent
-        -- are predefined in the c_VARS_ARRAY matrix of the wf_package
+        -- are predefined in the c_VARS_ARRAY matrix of the WF_PACKAGE
 
         if unsigned(s_byte_index_d1) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_lgth  then  -- less or eq
           byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_d_aux);
@@ -379,7 +379,7 @@ begin
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- The first (CTRL) and second (PDU_TYPE) bytes to be sent
-        -- are predefined in the c_VARS_ARRAY matrix of the wf_package
+        -- are predefined in the c_VARS_ARRAY matrix of the WF_PACKAGE
 
         if unsigned(s_byte_index_d1) <= c_VARS_ARRAY(c_VAR_3_INDEX).array_lgth then -- less or eq
           byte_o               <= c_VARS_ARRAY(c_VAR_3_INDEX).byte_array(s_byte_index_d_aux);
@@ -423,7 +423,7 @@ begin
     -- For a var_5 the 1 user-data byte comes from the wf_jtag_controller unit.
     -- The nanoFIP status byte comes from the wf_status_bytes_gen and it is always sent, regardless
     -- of the NOSTAT input. The MPS byte is also coming from the wf_status_bytes_gen.
-    -- The rest of the bytes come from the wf_package.
+    -- The rest of the bytes come from the WF_PACKAGE.
     when var_5 =>
 
         s_base_addr            <= (others => '0');            -- no memory access needed
@@ -456,7 +456,7 @@ begin
 
         --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
         -- The rest of the bytes (the very first one, CTRL, and the second one, PDU_TYPE) are 
-        -- predefined in the c_VARS_ARRAY matrix of the wf_package
+        -- predefined in the c_VARS_ARRAY matrix of the WF_PACKAGE
         else 
           byte_o               <= c_VARS_ARRAY(c_VAR_5_INDEX).byte_array(s_byte_index_d_aux);
           rst_status_bytes_p_o <= '0';
@@ -476,7 +476,7 @@ begin
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process Delay_byte_index_i: in the combinatorial process Bytes_Generation,
 -- according to the value of the signal s_byte_index_d1, a byte is retrieved either from the memory,
--- or from the wf_package or from the wf_status_bytes_gen or wf_model_constr_decoder units.
+-- or from the WF_PACKAGE or from the wf_status_bytes_gen or wf_model_constr_decoder units.
 -- Since the memory needs one clock cycle to output its data (as opposed to the other units that
 -- have them ready) the signal s_byte_index_d1 has to be a delayed version of the byte_index_i
 -- (byte_index_i is the signal used as address for the mem; s_byte_index_d1 is the delayed one
@@ -501,7 +501,7 @@ begin
 ---------------------------------------------------------------------------------------------------
 
   s_mem_addr_A       <= std_logic_vector (s_base_addr + s_mem_addr_offset - 1);
-  -- address of the byte to be read from memory: base_address(from wf_package) + byte_index_i - 1
+  -- address of the byte to be read from memory: base_address(from WF_PACKAGE) + byte_index_i - 1
   -- (the -1 is because the byte_index_i counts also the CTRL byte, that is not part of the
   -- memory; for example when byte_index_i is 3 which means that the CTRL, PDU_TYPE and LGTH
   -- bytes have preceded and a byte from the memory is now requested, the byte from the memory cell

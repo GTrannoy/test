@@ -94,7 +94,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -309,7 +309,7 @@ begin
             cons_var_rst_byte_2_o  <= (others => '0');
             s_jc_mem_wr_en_p       <= '0';
             s_base_adr             <= c_VARS_ARRAY(c_VAR_1_INDEX).base_addr;-- base address
-                                                                            -- from wf_package
+                                                                            -- from WF_PACKAGE
             --  --  --  --  --  --  --  --  --  --  --  --
             -- in memory mode
             if slone_i = '0' then
@@ -431,7 +431,7 @@ begin
             s_slone_wr_en_p         <= (others => '0');
             s_mem_wr_en_p           <= '0';
             s_base_adr              <= c_VARS_ARRAY(c_VAR_4_INDEX).base_addr;-- base address
-                                                                             -- from wf_package
+                                                                             -- from WF_PACKAGE
             --  --  --  --  --  --  --  --  --  --  --  --
 
             if (unsigned(byte_index_i)> 0 and  unsigned(byte_index_i)< 127) then -- memory limits

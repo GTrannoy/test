@@ -119,7 +119,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -368,6 +368,10 @@ begin
 -- Instantiation of 3 wf_incr_counters used for the internal extension of each one of the
 -- signals VAR1_RDY, VAR2_RDY, VAR3_RDY for 15 uclk cycles.
 -- Enabled VAR_ACC during this period will not trigger a nanoFIP status byte error.
+
+-- Note: actually it is the var_acc_synch(2) rather than the VAR_ACC used to check for access errors;
+-- var_acc_synch(2) is 3 cycles later than VAR_ACC and therefore enabled VAR_ACC is ignored up to 12
+-- uclk cycles (not 15 uclk cycles!) after the deassertion of the VAR_RDY. 
 
   Extend_VAR1_RDY: wf_incr_counter        -- VAR1_RDY           : __|---...---|___________________
   generic map(g_counter_lgth => 4)        -- s_var1_rdy_extended: __|---...------------------|____
