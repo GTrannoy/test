@@ -71,7 +71,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -157,8 +157,8 @@ begin
 -- To add a robust layer of protection to the FSM, we have implemented a counter, dependent only on
 -- the system clock, that from any state can bring the FSM back to IDLE. A frame with the maximum
 -- number of TMS/ TDI bits needs: 122 bytes * ((4 * JC_TCK) + 2 uclk) seconds to be treated.
--- For a 5 MHz JC_TCK clock this is 103.7 us. We use a counter of 13 bits which means that the FSM
--- is reset if 204.8 us have passed since it has left the IDLE state.
+-- For a 5 MHz JC_TCK clock this is 103.7 us. We use a counter of c_JC_TIMEOUT_C_LGTH = 13 bits
+-- which means that the FSM is reset if 204.8 us have passed since it has left the IDLE state.
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- Synchronous process JC_FSM_Sync: storage of the current state of the FSM
@@ -236,7 +236,10 @@ begin
   end process;
 
 
-  JCTRLer_FSM_Comb_Output_Signals: process (jc_st)
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+-- Combinatorial process JC_FSM_Comb_Output_Signals: Definition of the output signals of the FSM.
+
+  JC_FSM_Comb_Output_Signals: process (jc_st)
 
   begin
 
@@ -498,7 +501,7 @@ begin
 --                                  Independent Timeout Counter                                  --
 ---------------------------------------------------------------------------------------------------
 -- Instantiation of a wf_decr_counter relying only on the system clock, as an additional
--- way to go back to Idle state, in case any other logic is being stuck. The timeout is 204.8 us.
+-- way to go back to IDLE state, in case any other logic is being stuck. The timeout is 204.8 us.
 
   Session_Timeout_Counter: wf_decr_counter
   generic map(g_counter_lgth => c_JC_TIMEOUT_C_LGTH)

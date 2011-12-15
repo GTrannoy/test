@@ -75,7 +75,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -125,7 +125,7 @@ begin
 -- Combinatorial process data_length_calcul: calculation of the amount of bytes, after the
 -- FSS and before the FCS, that have to be transferred when a variable is produced. In the case
 -- of the presence, the identification and the var5 variables, the data length is predefined in the
--- wf_package. In the case of a var3 the inputs SLONE, NOSTAT and P3_LGTH[] are accounted for the
+-- WF_PACKAGE. In the case of a var3 the inputs SLONE, NOSTAT and P3_LGTH[] are accounted for the
 -- calculation.
 
   data_length_calcul: process (var_i, s_p3_lgth_decoded, slone_i, nostat_i, p3_lgth_i)
@@ -138,13 +138,13 @@ begin
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_presence =>
-      -- data length information retrieval from the c_VARS_ARRAY matrix (wf_package)
+      -- data length information retrieval from the c_VARS_ARRAY matrix (WF_PACKAGE)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_PRESENCE_INDEX).array_lgth;
 
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_identif =>
-      -- data length information retrieval from the c_VARS_ARRAY matrix (wf_package)
+      -- data length information retrieval from the c_VARS_ARRAY matrix (WF_PACKAGE)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_IDENTIF_INDEX).array_lgth;
 
 
@@ -188,7 +188,7 @@ begin
 
       --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -
       when var_5 =>
-      -- data length information retrieval from the c_VARS_ARRAY matrix (wf_package)
+      -- data length information retrieval from the c_VARS_ARRAY matrix (WF_PACKAGE)
         s_prod_data_lgth     <= c_VARS_ARRAY(c_VAR_5_INDEX).array_lgth;
 
 

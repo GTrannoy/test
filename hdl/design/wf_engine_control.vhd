@@ -95,7 +95,7 @@ use IEEE.STD_LOGIC_1164.all; -- std_logic definitions
 use IEEE.NUMERIC_STD.all;    -- conversion functions
 -- Specific library
 library work;
-use work.wf_PACKAGE.all;     -- definitions of types, constants, entities
+use work.WF_PACKAGE.all;     -- definitions of types, constants, entities
 
 
 --=================================================================================================
@@ -706,7 +706,7 @@ begin
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- retrieval of the turnaround and silence times (in equivalent number of uclk ticks) from the
--- c_TIMEOUTS_TABLE declared in the wf_package unit.
+-- c_TIMEOUTS_TABLE declared in the WF_PACKAGE unit.
 
   s_turnaround_time <= to_unsigned((c_TIMEOUTS_TABLE(to_integer(unsigned(rate_i))).turnaround),
                                                                          s_turnaround_time'length);

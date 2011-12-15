@@ -7,7 +7,7 @@
 
 ---------------------------------------------------------------------------------------------------
 --                                                                                                |
---                                           wf_package                                           |
+--                                           WF_PACKAGE                                           |
 --                                                                                                |
 ---------------------------------------------------------------------------------------------------
 -- File         wf_package.vhd                                                                    |
@@ -75,7 +75,7 @@ package wf_package is
 ---------------------------------------------------------------------------------------------------
 
   constant c_MAX_FRAME_BITS : natural := 976;   -- maximum number of TMS/ TDI bits that can be sent
-                                                -- in one frame : 122 bytes * 8 bits
+                                                -- in one frame: 122 bytes * 8 bits
 
   constant c_FOUR_JC_TCK_C_LGTH : natural := 5; -- length of a counter counting 4 JC_TCK periods;
                                                 -- the JC_TCK frequency is defined by this constant.
@@ -84,14 +84,16 @@ package wf_package is
                                                 -- Use c_FOUR_JC_TCK_C_LGTH = 6 for a 2.5 MHz JC_TCK,
                                                 --     c_FOUR_JC_TCK_C_LGTH = 7 for 1.25 MHz etc.
 
-
   -- check also the c_JC_TIMEOUT_C_LGTH in the following paragraph
 
+
+
 ---------------------------------------------------------------------------------------------------
---                        Constant regarding the session timeout counters                        --
+--                       Constants regarding the session timeout counters                        --
 ---------------------------------------------------------------------------------------------------
 
--- To add a robust layer of protection to the FSMs of the desing, counters that depend only on
+---------------------------------------------------------------------------------------------------
+-- To add a robust layer of protection to the FSMs of the design, counters that depend only on
 -- the system clock have being implemented; when they are filled up, they can bring the FSMs back
 -- to the IDLE state.
 
@@ -120,6 +122,8 @@ package wf_package is
 
   constant c_SESSION_TIMEOUT_C_LGTH : natural := 21;
 
+
+---------------------------------------------------------------------------------------------------
 -- For the wf_jtag_controller FSM this timeout depends on the frequency of the JC_TCK.
 -- The time the FSM needs to handle the biggest frame (122 bytes) is:
 -- 122 * ((4 * JC_TCK_period) + 2 uclk_period)
@@ -316,7 +320,7 @@ package wf_package is
                                c_1M_INDEX      => (turnaround => integer (14000.0   / c_QUARTZ_PERIOD),
                                                    silence    => integer (150000.0  / c_QUARTZ_PERIOD)),
 
-                               c_2M5_INDEX     => (turnaround => integer (6000.0   / c_QUARTZ_PERIOD),
+                               c_2M5_INDEX     => (turnaround => integer (13500.0   / c_QUARTZ_PERIOD),
                                                    silence    => integer (96000.0 / c_QUARTZ_PERIOD)),
 
                                c_RESERVE_INDEX => (turnaround => integer (480000.0  /C_QUARTZ_PERIOD),
