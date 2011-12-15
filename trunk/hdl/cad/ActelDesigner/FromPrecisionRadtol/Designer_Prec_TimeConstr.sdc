@@ -5,9 +5,6 @@
 create_clock { uclk_i } -name uclk_i -period 25.000000
 create_clock { wclk_i } -name wclk_i -period 25.000000
 
-#create_clock { jc_tck_o } -name JTAG_controller/reg_s_tck:Q -period 200
-
-
 ##################
 # Input delays
 ##################
