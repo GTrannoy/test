@@ -19,9 +19,6 @@
 -- ProASIC3 Flash family FPGA (130nm CMOS technology) that offers an inherent resistance to       |
 -- radiation: it is immune to Single Event Latchups for the LHC environment, it has high tolerance|
 -- to Total Ionizing Dose effects (>300 Gy) and its configuration memory is not disturbed by SEUs.|
--- Another feature that nanoFIP offers is the possibility to reprogram the user logic FPGA through|
--- JTAG interface; WorldFIP frames are translated to the equivalent JTAG signals that drive and   |
--- monitor the user logic Test Access Port controller (TAP).                                      |
 -- nanoFIP is used in conjunction with a FIELDRIVE chip and FIELDTR insulating transformer,       |
 -- both available from the company ALSTOM.                                                        |
 --                                                                                                |
