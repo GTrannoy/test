@@ -39,7 +39,9 @@ define_attribute {FIELDRIVE_Transmitter.tx_serializer.tx_st[0:6]} syn_encoding {
 define_attribute {JTAG_controller.jc_st[0:3]} syn_encoding {safe, onehot}
 define_attribute {engine_control.control_st[0:9]} syn_encoding {safe, onehot}
 
-#define_attribute {syn_radhardlevel} {tmr} {}
+define_attribute {v:work.nanofip} {syn_radhardlevel} {tmr}
+
+### For TMR of the block RAMs check comments on the wf_dualram_512x8_clka_rd_clkb_wr.vhd file ### 
 
 #
 # I/O Standards
