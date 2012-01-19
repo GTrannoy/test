@@ -2,6 +2,7 @@ Synopsys Actel Technology Mapper, Version map500rc, Build 035R, Built Nov 17 200
 Copyright (C) 1994-2009, Synopsys Inc.  All Rights Reserved
 Product Version D-2009.12
 Reading constraint file: C:\ohr\cern-fip\trunk\hdl\cad\Synplify\synplify_constraints.sdc
+Adding property syn_radhardlevel, value "tmr" to view:work.nanofip(struc)
 @N: MF249 |Running in 32-bit mode.
 @N: MF258 |Gated clock conversion disabled 
 Adding property syn_encoding, value "safe, onehot", to instance engine_control.control_st[0:9]
@@ -12,19 +13,17 @@ Adding property syn_encoding, value "safe, onehot", to instance reset_unit.rstin
 Adding property syn_encoding, value "safe, onehot", to instance reset_unit.var_rst_st[0:5]
 @W|Ignoring synthesis effort setting for the design. This is not supported by the current technology.
 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "counter_is_full_o_1" in work.WF_incr_counter_2(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un7_counter_is_full_o" in work.WF_incr_counter_8_Rx_Bytes_Counter(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un7_counter_is_full_o" in work.WF_incr_counter_8_Prod_Bytes_Counter(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un14_counter_is_full_o" in work.WF_incr_counter_7(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un28_counter_is_full_o" in work.WF_incr_counter_11_tx_periods_count(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un35_counter_is_full_o" in work.WF_incr_counter_4_Extend_VAR3_RDY(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un35_counter_is_full_o" in work.WF_incr_counter_4_Extend_VAR2_RDY(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un35_counter_is_full_o" in work.WF_incr_counter_4_Extend_VAR1_RDY(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un28_counter_is_full_o" in work.WF_incr_counter_11_rx_periods_count(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un42_counter_is_full_o" in work.WF_incr_counter_12_free_counter(rtl) is missing a driver 
-@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":57:7:57:21|*Net "un42_counter_is_full_o" in work.WF_incr_counter_12_RSTIN_free_counter(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "counter_is_full_o_1" in work.wf_incr_counter_2(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un7_counter_is_full_o" in work.wf_incr_counter_8_Rx_Bytes_Counter(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un7_counter_is_full_o" in work.wf_incr_counter_8_Prod_Bytes_Counter(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un14_counter_is_full_o" in work.wf_incr_counter_7(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un28_counter_is_full_o" in work.wf_incr_counter_11_tx_periods_count(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un35_counter_is_full_o" in work.wf_incr_counter_4_Extend_VAR3_RDY(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un35_counter_is_full_o" in work.wf_incr_counter_4_Extend_VAR2_RDY(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un35_counter_is_full_o" in work.wf_incr_counter_4_Extend_VAR1_RDY(rtl) is missing a driver 
+@W: BN126 :"c:\ohr\cern-fip\trunk\hdl\design\wf_incr_counter.vhd":58:7:58:21|*Net "un28_counter_is_full_o" in work.wf_incr_counter_11_rx_periods_count(rtl) is missing a driver 
 @N: BN225 |Writing default property annotation file C:\ohr\cern-fip\trunk\hdl\cad\Synplify\nanofip.sap.
 Process took 0h:00m:01s realtime, 0h:00m:01s cputime
-# Tue Nov 01 17:23:20 2011
+# Thu Jan 19 14:35:20 2012
 
 ###########################################################]

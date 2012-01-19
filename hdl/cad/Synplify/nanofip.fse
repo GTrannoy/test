@@ -1,33 +1,33 @@
 
-fsm_encoding {2547664761} onehot
+fsm_encoding {2548864881} onehot
 
-fsm_state_encoding {2547664761} var_rst_idle {000001}
+fsm_state_encoding {2548864881} var_rst_idle {000001}
 
-fsm_state_encoding {2547664761} var_rst_rston_on {000010}
+fsm_state_encoding {2548864881} var_rst_rston_on {000010}
 
-fsm_state_encoding {2547664761} var_rst_nfip_on_fd_on_rston_on {000100}
+fsm_state_encoding {2548864881} var_rst_nfip_on_fd_on_rston_on {000100}
 
-fsm_state_encoding {2547664761} var_rst_nfip_off_fd_on_rston_on {001000}
+fsm_state_encoding {2548864881} var_rst_nfip_off_fd_on_rston_on {001000}
 
-fsm_state_encoding {2547664761} var_rst_nfip_on_fd_on {010000}
+fsm_state_encoding {2548864881} var_rst_nfip_on_fd_on {010000}
 
-fsm_state_encoding {2547664761} var_rst_nfip_off_fd_on_rston_off {100000}
+fsm_state_encoding {2548864881} var_rst_nfip_off_fd_on_rston_off {100000}
 
-fsm_registers {2547664761} {var_rst_st[0]}  {var_rst_st[1]}  {var_rst_st[2]}  {var_rst_st[3]}  {var_rst_st[4]}  {var_rst_st[5]} 
+fsm_registers {2548864881} {var_rst_st[0]}  {var_rst_st[1]}  {var_rst_st[2]}  {var_rst_st[3]}  {var_rst_st[4]}  {var_rst_st[5]} 
 
-fsm_encoding {2529462942} onehot
+fsm_encoding {2530363032} onehot
 
-fsm_state_encoding {2529462942} idle {00001}
+fsm_state_encoding {2530363032} idle {00001}
 
-fsm_state_encoding {2529462942} rstin_eval {00010}
+fsm_state_encoding {2530363032} rstin_eval {00010}
 
-fsm_state_encoding {2529462942} nfip_on_fd_on {00100}
+fsm_state_encoding {2530363032} nfip_on_fd_on {00100}
 
-fsm_state_encoding {2529462942} nfip_off_fd_on {01000}
+fsm_state_encoding {2530363032} nfip_off_fd_on {01000}
 
-fsm_state_encoding {2529462942} nfip_off_fd_off {10000}
+fsm_state_encoding {2530363032} nfip_off_fd_off {10000}
 
-fsm_registers {2529462942} {rstin_st[0]}  {rstin_st[1]}  {rstin_st[2]}  {rstin_st[3]}  {rstin_st[4]} 
+fsm_registers {2530363032} {rstin_st[0]}  {rstin_st[1]}  {rstin_st[2]}  {rstin_st[3]}  {rstin_st[4]} 
 
 fsm_encoding {1322062203} onehot
 
@@ -71,30 +71,30 @@ fsm_state_encoding {2916861685} get_byte {0010}
 
 fsm_state_encoding {2916861685} play_byte {0100}
 
-fsm_state_encoding {2916861685} set_address {1000}
+fsm_state_encoding {2916861685} set_addr {1000}
 
 fsm_registers {2916861685} {jc_st[0]}  {jc_st[1]}  {jc_st[2]}  {jc_st[3]} 
 
-fsm_encoding {2826842686} onehot
+fsm_encoding {2826942696} onehot
 
-fsm_state_encoding {2826842686} idle {0000000001}
+fsm_state_encoding {2826942696} idle {0000000001}
 
-fsm_state_encoding {2826842686} id_dat_control_byte {0000000010}
+fsm_state_encoding {2826942696} id_dat_ctrl_byte {0000000010}
 
-fsm_state_encoding {2826842686} id_dat_var_byte {0000000100}
+fsm_state_encoding {2826942696} id_dat_var_byte {0000000100}
 
-fsm_state_encoding {2826842686} id_dat_subs_byte {0000001000}
+fsm_state_encoding {2826942696} id_dat_subs_byte {0000001000}
 
-fsm_state_encoding {2826842686} id_dat_frame_ok {0000010000}
+fsm_state_encoding {2826942696} id_dat_frame_ok {0000010000}
 
-fsm_state_encoding {2826842686} consume_wait_fss {0000100000}
+fsm_state_encoding {2826942696} consume_wait_fss {0000100000}
 
-fsm_state_encoding {2826842686} consume {0001000000}
+fsm_state_encoding {2826942696} consume {0001000000}
 
-fsm_state_encoding {2826842686} rst_rx {0010000000}
+fsm_state_encoding {2826942696} rst_rx {0010000000}
 
-fsm_state_encoding {2826842686} produce_wait_turnar_time {0100000000}
+fsm_state_encoding {2826942696} produce_wait_turnar_time {0100000000}
 
-fsm_state_encoding {2826842686} produce {1000000000}
+fsm_state_encoding {2826942696} produce {1000000000}
 
-fsm_registers {2826842686} {control_st[0]}  {control_st[1]}  {control_st[2]}  {control_st[3]}  {control_st[4]}  {control_st[5]}  {control_st[6]}  {control_st[7]}  {control_st[8]}  {control_st[9]} 
+fsm_registers {2826942696} {control_st[0]}  {control_st[1]}  {control_st[2]}  {control_st[3]}  {control_st[4]}  {control_st[5]}  {control_st[6]}  {control_st[7]}  {control_st[8]}  {control_st[9]} 
