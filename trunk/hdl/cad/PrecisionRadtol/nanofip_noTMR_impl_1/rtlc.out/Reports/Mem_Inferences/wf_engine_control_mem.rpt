@@ -1,0 +1,12 @@
+Inferred ROM
+------------
+  1. Instance: rtlc_s_var_aux_14n1ss1[8]_I56
+    File: C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/../../design/wf_engine_control.vhd , Net: rtlc_s_var_aux_14n1ss1[8]
+    port 1  address width: 8
+    port 1  data width: 5
+
+  2. Instance: rtlc_s_idle_state_I57
+    File: C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/../../design/wf_engine_control.vhd , Net: rtlc_s_idle_state
+    port 1  address width: 10
+    port 1  data width: 1
+

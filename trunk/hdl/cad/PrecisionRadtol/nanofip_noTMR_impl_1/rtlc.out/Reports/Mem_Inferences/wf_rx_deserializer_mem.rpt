@@ -1,0 +1,7 @@
+Inferred ROM
+------------
+  1. Instance: rtlc_s_receiving_pre_I2
+    File: C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/../../design/wf_rx_deserializer.vhd , Net: rtlc_s_receiving_pre
+    port 1  address width: 6
+    port 1  data width: 2
+

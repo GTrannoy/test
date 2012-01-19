@@ -1,0 +1,585 @@
+-- Device: Actel - ProASIC3 : A3P400 : STD
+-- CTE report summary..
+-- POST-SYNTHESIS TIMING REPORTS ARE ESTIMATES AND SHOULD NOT BE RELIED ON TO MAKE QoR DECISIONS. For accurate timing information, please run place-and-route (P&R) and review P&R generated timing reports.
+
+================================================================================================
+                   Clock Frequency Report
+
+	Domain                  Clock Name                            Min Period (Freq)             Required Period (Freq)
+	------                  ----------                            -----------------             ----------------------
+	main                    uclk_i                                22.435 (44.573 MHz)           25.000 (40.000 MHz)
+	main                    wclk_i                                17.468 (57.248 MHz)           25.000 (40.000 MHz)
+
+
+================================================================================================
+Setup Timing Analysis of uclk_i
+
+Setup Slack Path Summary
+
+               Data                                                                                                                                                                                       Data
+       Setup   Path   Source  Dest.                                                                                                                                                                       End 
+Index  Slack  Delay   Clock   Clock                                        Data Start Pin                                                                     Data End Pin                                Edge
+-----  -----  ------  ------  ------  ----------------------------------------------------------------------------------------  ------------------------------------------------------------------------  ----
+  1    2.565   2.867  uclk_i  uclk_i  model_constr_decoder_modgen_counter_s_counter_reg_q(0)/CLK                                s_id_o(1)                                                                 Rise
+  2    7.528  17.162  uclk_i  uclk_i  engine_control/reg_control_st(3)/CLK                                                      engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D    Rise
+  3    7.532   3.950  wclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/CLKA  dat_o(7)                                                                  Rise
+  4    7.637  17.053  uclk_i  uclk_i  engine_control/reg_control_st(5)/CLK                                                      engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D    Rise
+  5    8.211  16.479  uclk_i  uclk_i  engine_control/reg_control_st(7)/CLK                                                      engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D    Rise
+  6    8.318   2.114  uclk_i  uclk_i  Production_production_VAR3_RDY_generation_reg_var3_rdy_o/CLK                              var3_rdy_o                                                                Fall
+  7    8.320  16.370  uclk_i  uclk_i  engine_control/reg_control_st(8)/CLK                                                      engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D    Rise
+  8    8.498   1.934  uclk_i  uclk_i  Consumption_Consumption_Outcome/reg_var1_rdy_o/CLK                                        var1_rdy_o                                                                Fall
+  9    8.560  16.110  uclk_i  uclk_i  engine_control/Produced_Data_Length_Calculator/reg_prod_data_lgth_o(1)/CLK                Production_production_status_bytes_generator/reg_s_nFIP_status_byte(2)/E  Rise
+ 10    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(15)/CLK                      dat_o(15)                                                                 Fall
+ 11    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(12)/CLK                      dat_o(12)                                                                 Fall
+ 12    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(11)/CLK                      dat_o(11)                                                                 Fall
+ 13    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(14)/CLK                      dat_o(14)                                                                 Fall
+ 14    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(8)/CLK                       dat_o(8)                                                                  Fall
+ 15    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(13)/CLK                      dat_o(13)                                                                 Fall
+ 16    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(10)/CLK                      dat_o(10)                                                                 Fall
+ 17    8.576   1.856  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(9)/CLK                       dat_o(9)                                                                  Fall
+ 18    8.613   1.819  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(7)/CLK                       dat_o(7)                                                                  Fall
+ 19    8.613   1.819  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(0)/CLK                       dat_o(0)                                                                  Fall
+ 20    8.613   1.819  uclk_i  uclk_i  Consumption_Consumption_Bytes_Processor/reg_s_slone_data_out(3)/CLK                       dat_o(3)                                                                  Fall
+
+                  CTE Path Report
+
+
+Critical path #1, (path slack = 2.565):
+
+SOURCE CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                                          GATE       DELAY    ARRIVAL DIR  FANOUT
+model_constr_decoder_modgen_counter_s_counter_reg_q(0)/CLK DFN1                   0.000   up
+model_constr_decoder_modgen_counter_s_counter_reg_q(0)/Q   DFN1         0.528     0.528   dn
+s_id_o_dup_0(0)                                            (net)        1.441                   6
+s_id_o(1)/A                                                INV                    1.969   dn
+s_id_o(1)/Y                                                INV          0.416     2.385   up
+s_id_o_dup_0(1)                                            (net)        0.337                   1
+s_id_o_obuf(1)/D                                           OUTBUF                 2.722   up
+s_id_o_obuf(1)/PAD                                         OUTBUF       0.145     2.867   up
+s_id_o(1)                                                  (net)        0.000                   0
+s_id_o(1)                                                  (port)                 2.867   up
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    4.568
+		Dest clock delay:        +    0.000
+		                        -----------
+		Edge separation:             20.432
+		Setup constraint:        -   15.000
+		                        -----------
+		Data required time:           5.432
+		Data arrival time:       -    2.867   ( 37.98% cell delay, 62.02% net delay )
+		                        -----------
+		Slack:                        2.565
+
+
+
+Critical path #2, (path slack = 7.528):
+
+SOURCE CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                                                      GATE       DELAY    ARRIVAL DIR  FANOUT
+engine_control/reg_control_st(3)/CLK                                   DFN1                   0.000   up
+engine_control/reg_control_st(3)/Q                                     DFN1         0.528     0.528   dn
+engine_control/control_st(3)                                           (net)        1.622                   7
+engine_control/NOT_ix1927z49941/B                                      NAND2B                 2.150   dn
+engine_control/NOT_ix1927z49941/Y                                      NAND2B       0.525     2.675   dn
+engine_control/nx1927z7                                                (net)        0.801                   3
+engine_control/NOT_ix62478z50937/C                                     NAND3C                 3.476   dn
+engine_control/NOT_ix62478z50937/Y                                     NAND3C       0.604     4.080   dn
+engine_control/nx62478z6                                               (net)        0.575                   2
+engine_control/NOT_ix62478z50936/C                                     NAND3C                 4.655   dn
+engine_control/NOT_ix62478z50936/Y                                     NAND3C       0.604     5.259   dn
+engine_control/nx62478z5                                               (net)        0.575                   2
+engine_control/NOT_ix15553z50934/C                                     NAND3C                 5.834   dn
+engine_control/NOT_ix15553z50934/Y                                     NAND3C       0.604     6.438   dn
+engine_control/nx15553z3                                               (net)        0.575                   2
+engine_control/NOT_ix15553z50932/B                                     NAND3B                 7.013   dn
+engine_control/NOT_ix15553z50932/Y                                     NAND3B       0.585     7.598   dn
+engine_control/nx15553z2                                               (net)        1.982                   9
+engine_control/ix31161z48514/B                                         AND2                   9.580   dn
+engine_control/ix31161z48514/Y                                         AND2         0.509    10.089   dn
+engine_control/nx31161z1                                               (net)        1.802                   8
+engine_control/ix864_buf_0/A                                           BUFF                  11.891   dn
+engine_control/ix864_buf_0/Y                                           BUFF         0.416    12.307   dn
+engine_control/nx718_buf_0                                             (net)        2.163                  10
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50934/C     NAND3C                14.470   dn
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50934/Y     NAND3C       0.604    15.074   dn
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z3           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z40560/B     AO1E                  15.411   dn
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z40560/Y     AO1E         0.492    15.903   up
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z2           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50931/B     NAND3B                16.240   up
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50931/Y     NAND3B       0.585    16.825   up
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z1           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D DFN1                  17.162   up
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    4.568
+		Dest clock delay:        +    4.568
+		                        -----------
+		Edge separation:             25.000
+		Setup constraint:        -    0.310
+		                        -----------
+		Data required time:          24.690
+		Data arrival time:       -   17.162   ( 35.29% cell delay, 64.71% net delay )
+		                        -----------
+		Slack:                        7.528
+
+
+
+Critical path #3, (path slack = 7.532):
+
+SOURCE CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                                                                          GATE       DELAY    ARRIVAL DIR  FANOUT
+Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/CLKA   RAM4K9                 0.000   up
+Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/DOUTA7 RAM4K9       2.655     2.655   up
+Consumption_Consumption_Bytes_Processor/s_mem_data_out(7)                                  (net)        0.337                   1
+Consumption_Consumption_Bytes_Processor/data_o(7)/A                                        MX2                    2.992   up
+Consumption_Consumption_Bytes_Processor/data_o(7)/Y                                        MX2          0.476     3.468   up
+Consumption_Consumption_Bytes_Processor/data_o(7)                                          (net)        0.337                   1
+dat_o_obuf(7)/D                                                                            OUTBUF                 3.805   up
+dat_o_obuf(7)/PAD                                                                          OUTBUF       0.145     3.950   up
+dat_o(7)                                                                                   (net)        0.000                   0
+dat_o(7)                                                                                   (port)                 3.950   up
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    3.518
+		Dest clock delay:        +    0.000
+		                        -----------
+		Edge separation:             21.482
+		Setup constraint:        -   10.000
+		                        -----------
+		Data required time:          11.482
+		Data arrival time:       -    3.950   ( 82.94% cell delay, 17.06% net delay )
+		                        -----------
+		Slack:                        7.532
+
+
+
+Critical path #4, (path slack = 7.637):
+
+SOURCE CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                                                      GATE       DELAY    ARRIVAL DIR  FANOUT
+engine_control/reg_control_st(5)/CLK                                   DFN1                   0.000   up
+engine_control/reg_control_st(5)/Q                                     DFN1         0.528     0.528   dn
+engine_control/control_st(5)                                           (net)        1.622                   7
+engine_control/NOT_ix1927z49941/A                                      NAND2B                 2.150   dn
+engine_control/NOT_ix1927z49941/Y                                      NAND2B       0.416     2.566   dn
+engine_control/nx1927z7                                                (net)        0.801                   3
+engine_control/NOT_ix62478z50937/C                                     NAND3C                 3.367   dn
+engine_control/NOT_ix62478z50937/Y                                     NAND3C       0.604     3.971   dn
+engine_control/nx62478z6                                               (net)        0.575                   2
+engine_control/NOT_ix62478z50936/C                                     NAND3C                 4.546   dn
+engine_control/NOT_ix62478z50936/Y                                     NAND3C       0.604     5.150   dn
+engine_control/nx62478z5                                               (net)        0.575                   2
+engine_control/NOT_ix15553z50934/C                                     NAND3C                 5.725   dn
+engine_control/NOT_ix15553z50934/Y                                     NAND3C       0.604     6.329   dn
+engine_control/nx15553z3                                               (net)        0.575                   2
+engine_control/NOT_ix15553z50932/B                                     NAND3B                 6.904   dn
+engine_control/NOT_ix15553z50932/Y                                     NAND3B       0.585     7.489   dn
+engine_control/nx15553z2                                               (net)        1.982                   9
+engine_control/ix31161z48514/B                                         AND2                   9.471   dn
+engine_control/ix31161z48514/Y                                         AND2         0.509     9.980   dn
+engine_control/nx31161z1                                               (net)        1.802                   8
+engine_control/ix864_buf_0/A                                           BUFF                  11.782   dn
+engine_control/ix864_buf_0/Y                                           BUFF         0.416    12.198   dn
+engine_control/nx718_buf_0                                             (net)        2.163                  10
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50934/C     NAND3C                14.361   dn
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50934/Y     NAND3C       0.604    14.965   dn
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z3           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z40560/B     AO1E                  15.302   dn
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z40560/Y     AO1E         0.492    15.794   up
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z2           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50931/B     NAND3B                16.131   up
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50931/Y     NAND3B       0.585    16.716   up
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z1           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D DFN1                  17.053   up
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    4.568
+		Dest clock delay:        +    4.568
+		                        -----------
+		Edge separation:             25.000
+		Setup constraint:        -    0.310
+		                        -----------
+		Data required time:          24.690
+		Data arrival time:       -   17.053   ( 34.87% cell delay, 65.13% net delay )
+		                        -----------
+		Slack:                        7.637
+
+
+
+Critical path #5, (path slack = 8.211):
+
+SOURCE CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: uclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                                                      GATE       DELAY    ARRIVAL DIR  FANOUT
+engine_control/reg_control_st(7)/CLK                                   DFN1                   0.000   up
+engine_control/reg_control_st(7)/Q                                     DFN1         0.528     0.528   dn
+engine_control/control_st(7)                                           (net)        1.441                   6
+engine_control/NOT_ix930z49945/B                                       NAND2B                 1.969   dn
+engine_control/NOT_ix930z49945/Y                                       NAND2B       0.525     2.494   dn
+engine_control/nx930z10                                                (net)        0.337                   1
+engine_control/NOT_ix930z50942/C                                       NAND3C                 2.831   dn
+engine_control/NOT_ix930z50942/Y                                       NAND3C       0.604     3.435   dn
+engine_control/nx930z9                                                 (net)        0.575                   2
+engine_control/NOT_ix64472z50955/C                                     NAND3C                 4.010   dn
+engine_control/NOT_ix64472z50955/Y                                     NAND3C       0.604     4.614   dn
+engine_control/nx64472z23                                              (net)        0.801                   3
+engine_control/ix63475z50934/C                                         NAND3C                 5.415   dn
+engine_control/ix63475z50934/Y                                         NAND3C       0.604     6.019   dn
+engine_control/nx63475z3                                               (net)        0.575                   2
+engine_control/NOT_ix31161z50932/B                                     NAND3B                 6.594   dn
+engine_control/NOT_ix31161z50932/Y                                     NAND3B       0.585     7.179   dn
+engine_control/nx31161z2                                               (net)        1.802                   8
+engine_control/ix31161z48514/A                                         AND2                   8.981   dn
+engine_control/ix31161z48514/Y                                         AND2         0.425     9.406   dn
+engine_control/nx31161z1                                               (net)        1.802                   8
+engine_control/ix864_buf_0/A                                           BUFF                  11.208   dn
+engine_control/ix864_buf_0/Y                                           BUFF         0.416    11.624   dn
+engine_control/nx718_buf_0                                             (net)        2.163                  10
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50934/C     NAND3C                13.787   dn
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50934/Y     NAND3C       0.604    14.391   dn
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z3           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z40560/B     AO1E                  14.728   dn
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z40560/Y     AO1E         0.492    15.220   up
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z2           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50931/B     NAND3B                15.557   up
+engine_control/Turnaround_and_Silence_Time_Counter/ix49615z50931/Y     NAND3B       0.585    16.142   up
+engine_control/Turnaround_and_Silence_Time_Counter/nx49615z1           (net)        0.337                   1
+engine_control/Turnaround_and_Silence_Time_Counter/reg_s_counter(14)/D DFN1                  16.479   up
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    4.568
+		Dest clock delay:        +    4.568
+		                        -----------
+		Edge separation:             25.000
+		Setup constraint:        -    0.310
+		                        -----------
+		Data required time:          24.690
+		Data arrival time:       -   16.479   ( 36.24% cell delay, 63.76% net delay )
+		                        -----------
+		Slack:                        8.211
+
+
+
+================================================================================================
+Setup Timing Analysis of wclk_i
+
+Setup Slack Path Summary
+
+               Data                                                                                                                                                            Data
+       Setup   Path   Source  Dest.                                                                                                                                            End 
+Index  Slack   Delay  Clock   Clock               Data Start Pin                                                       Data End Pin                                            Edge
+-----  ------  -----  ------  ------  --------------------------------------  -----------------------------------------------------------------------------------------------  ----
+  1    10.472  1.010  wclk_i  wclk_i  WISHBONE_controller_reg_wb_ack_p_o/CLK  ack_o                                                                                            Fall
+  2    12.275  5.833  wclk_i  wclk_i  rst_i                                   WISHBONE_controller_reg_wb_ack_p_o/D                                                             Fall
+  3    14.353  3.755  wclk_i  wclk_i  adr_i(7)                                WISHBONE_controller_reg_wb_ack_p_o/D                                                             Fall
+  4    14.740  3.368  wclk_i  wclk_i  adr_i(8)                                WISHBONE_controller_reg_wb_ack_p_o/D                                                             Fall
+  5    15.075  3.033  wclk_i  wclk_i  adr_i(9)                                WISHBONE_controller_reg_wb_ack_prod_p_o/D                                                        Fall
+  6    16.094  1.354  wclk_i  wclk_i  adr_i(3)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA3       Rise
+  7    16.094  1.354  uclk_i  wclk_i  dat_i(7)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB7  Rise
+  8    16.094  1.354  wclk_i  wclk_i  adr_i(1)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA1       Rise
+  9    16.094  1.354  uclk_i  wclk_i  dat_i(3)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB3  Rise
+ 10    16.094  1.354  uclk_i  wclk_i  dat_i(2)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB2  Rise
+ 11    16.094  1.354  wclk_i  wclk_i  adr_i(0)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA0       Rise
+ 12    16.094  1.354  uclk_i  wclk_i  dat_i(6)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB6  Rise
+ 13    16.094  1.354  wclk_i  wclk_i  adr_i(6)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA6       Rise
+ 14    16.094  1.354  uclk_i  wclk_i  dat_i(1)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB1  Rise
+ 15    16.094  1.354  wclk_i  wclk_i  adr_i(4)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA4       Rise
+ 16    16.094  1.354  wclk_i  wclk_i  adr_i(5)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA5       Rise
+ 17    16.094  1.354  uclk_i  wclk_i  dat_i(5)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB5  Rise
+ 18    16.094  1.354  uclk_i  wclk_i  dat_i(4)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB4  Rise
+ 19    16.094  1.354  wclk_i  wclk_i  adr_i(2)                                Consumption_Consumption_Bytes_Processor/Consumption_RAM_DualRam_A9D8DualClkRAM_R0C0/ADDRA2       Rise
+ 20    16.094  1.354  uclk_i  wclk_i  dat_i(0)                                Production_production_bytes_retriever/Produced_Bytes_From_RAM_DualRam_A9D8DualClkRAM_R0C0/DINB0  Rise
+
+                  CTE Path Report
+
+
+Critical path #1, (path slack = 10.472):
+
+SOURCE CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                      GATE       DELAY    ARRIVAL DIR  FANOUT
+WISHBONE_controller_reg_wb_ack_p_o/CLK DFN1                   0.000   up
+WISHBONE_controller_reg_wb_ack_p_o/Q   DFN1         0.528     0.528   dn
+ack_o_dup_0                            (net)        0.337                   1
+ack_o_obuf/D                           OUTBUF                 0.865   dn
+ack_o_obuf/PAD                         OUTBUF       0.145     1.010   dn
+ack_o                                  (net)        0.000                   0
+ack_o                                  (port)                 1.010   dn
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    3.518
+		Dest clock delay:        +    0.000
+		                        -----------
+		Edge separation:             21.482
+		Setup constraint:        -   10.000
+		                        -----------
+		Data required time:          11.482
+		Data arrival time:       -    1.010   ( 66.63% cell delay, 33.37% net delay )
+		                        -----------
+		Slack:                       10.472
+
+
+
+Critical path #2, (path slack = 12.275):
+
+SOURCE CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                    GATE       DELAY    ARRIVAL DIR  FANOUT
+rst_i                                (port)                10.000   up
+rst_i                                (net)        0.000                   1
+rst_i_ibuf/PAD                       INBUF                 10.000   up
+rst_i_ibuf/Y                         INBUF        0.779    10.779   up
+rst_i_int                            (net)        2.163                  10
+ix7354z2959/A                        AND3B                 12.942   up
+ix7354z2959/Y                        AND3B        0.400    13.342   dn
+nx7354z3                             (net)        0.801                   3
+ix51542z50931/B                      NAND3A                14.143   dn
+ix51542z50931/Y                      NAND3A       0.431    14.574   up
+nx51542z2                            (net)        0.337                   1
+ix51542z2957/B                       AND3B                 14.911   up
+ix51542z2957/Y                       AND3B        0.585    15.496   dn
+nx51542z1                            (net)        0.337                   1
+WISHBONE_controller_reg_wb_ack_p_o/D DFN1                  15.833   dn
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    0.000
+		Dest clock delay:        +    3.518
+		                        -----------
+		Edge separation:             28.518
+		Setup constraint:        -    0.410
+		                        -----------
+		Data required time:          28.108
+		Data arrival time:       -   15.833   ( 77.02% cell delay, 22.98% net delay )
+		                        -----------
+		Slack:                       12.275
+
+
+
+Critical path #3, (path slack = 14.353):
+
+SOURCE CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                    GATE       DELAY    ARRIVAL DIR  FANOUT
+adr_i(7)                             (port)                10.000   up
+adr_i(7)                             (net)        0.000                   1
+adr_i_ibuf(7)/PAD                    INBUF                 10.000   up
+adr_i_ibuf(7)/Y                      INBUF        0.779    10.779   up
+adr_i_int(7)                         (net)        1.033                   4
+ix51542z4197/A                       AXOI1                 11.812   up
+ix51542z4197/Y                       AXOI1        0.734    12.546   dn
+nx51542z3                            (net)        0.337                   1
+ix51542z2957/C                       AND3B                 12.883   dn
+ix51542z2957/Y                       AND3B        0.535    13.418   dn
+nx51542z1                            (net)        0.337                   1
+WISHBONE_controller_reg_wb_ack_p_o/D DFN1                  13.755   dn
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    0.000
+		Dest clock delay:        +    3.518
+		                        -----------
+		Edge separation:             28.518
+		Setup constraint:        -    0.410
+		                        -----------
+		Data required time:          28.108
+		Data arrival time:       -   13.755   ( 87.59% cell delay, 12.41% net delay )
+		                        -----------
+		Slack:                       14.353
+
+
+
+Critical path #4, (path slack = 14.740):
+
+SOURCE CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                    GATE       DELAY    ARRIVAL DIR  FANOUT
+adr_i(8)                             (port)                10.000   up
+adr_i(8)                             (net)        0.000                   1
+adr_i_ibuf(8)/PAD                    INBUF                 10.000   up
+adr_i_ibuf(8)/Y                      INBUF        0.779    10.779   up
+adr_i_int(8)                         (net)        1.033                   4
+ix51542z4197/C                       AXOI1                 11.812   up
+ix51542z4197/Y                       AXOI1        0.347    12.159   dn
+nx51542z3                            (net)        0.337                   1
+ix51542z2957/C                       AND3B                 12.496   dn
+ix51542z2957/Y                       AND3B        0.535    13.031   dn
+nx51542z1                            (net)        0.337                   1
+WISHBONE_controller_reg_wb_ack_p_o/D DFN1                  13.368   dn
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    0.000
+		Dest clock delay:        +    3.518
+		                        -----------
+		Edge separation:             28.518
+		Setup constraint:        -    0.410
+		                        -----------
+		Data required time:          28.108
+		Data arrival time:       -   13.368   ( 87.23% cell delay, 12.77% net delay )
+		                        -----------
+		Slack:                       14.740
+
+
+
+Critical path #5, (path slack = 15.075):
+
+SOURCE CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 1st rising edge
+  DEST CLOCK: name: wclk_i period: 25.000000
+     Times are relative to the 2nd rising edge
+
+NAME                                         GATE       DELAY    ARRIVAL DIR  FANOUT
+adr_i(9)                                  (port)                10.000   up
+adr_i(9)                                  (net)        0.000                   1
+adr_i_ibuf(9)/PAD                         INBUF                 10.000   up
+adr_i_ibuf(9)/Y                           INBUF        0.779    10.779   up
+adr_i_int(9)                              (net)        0.575                   2
+ix7354z50931/A                            NAND3A                11.354   up
+ix7354z50931/Y                            NAND3A       0.605    11.959   up
+nx7354z2                                  (net)        0.337                   1
+ix7354z2958/A                             AND3C                 12.296   up
+ix7354z2958/Y                             AND3C        0.400    12.696   dn
+nx7354z1                                  (net)        0.337                   1
+WISHBONE_controller_reg_wb_ack_prod_p_o/D DFN1                  13.033   dn
+
+		Initial edge separation:     25.000
+		Source clock delay:      -    0.000
+		Dest clock delay:        +    3.518
+		                        -----------
+		Edge separation:             28.518
+		Setup constraint:        -    0.410
+		                        -----------
+		Data required time:          28.108
+		Data arrival time:       -   13.033   ( 90.42% cell delay, 9.58% net delay )
+		                        -----------
+		Slack:                       15.075
+
+
+
+================================================================================================
+                   Input Delay Report
+
+	Input                  Clock Name                            Slack (ns)
+	-----                  ----------                            ----------
+	rst_i                  wclk_i                                12.275
+	c_id_i(3)              uclk_i                                12.296
+	c_id_i(2)              uclk_i                                12.296
+	c_id_i(1)              uclk_i                                12.296
+	c_id_i(0)              uclk_i                                12.296
+	m_id_i(3)              uclk_i                                12.296
+	m_id_i(2)              uclk_i                                12.296
+	m_id_i(1)              uclk_i                                12.296
+	m_id_i(0)              uclk_i                                12.296
+	adr_i(7)               wclk_i                                14.353
+	adr_i(8)               wclk_i                                14.740
+	adr_i(9)               wclk_i                                15.075
+	adr_i(6)               wclk_i                                16.094
+	adr_i(5)               wclk_i                                16.094
+	adr_i(4)               wclk_i                                16.094
+	adr_i(3)               wclk_i                                16.094
+	adr_i(2)               wclk_i                                16.094
+	adr_i(1)               wclk_i                                16.094
+	adr_i(0)               wclk_i                                16.094
+	dat_i(7)               uclk_i                                ------
+	dat_i(6)               uclk_i                                ------
+	dat_i(5)               uclk_i                                ------
+	dat_i(4)               uclk_i                                ------
+	dat_i(3)               uclk_i                                ------
+	dat_i(2)               uclk_i                                ------
+	dat_i(1)               uclk_i                                ------
+	dat_i(0)               uclk_i                                ------
+	cyc_i                  wclk_i                                16.220
+	stb_i                  wclk_i                                16.220
+	we_i                   wclk_i                                16.220
+	fd_wdgn_i              uclk_i                                17.180
+	rstin_i                uclk_i                                17.289
+	fd_rxd_i               uclk_i                                17.296
+	fd_txer_i              uclk_i                                17.296
+	var1_acc_i             uclk_i                                17.296
+	var2_acc_i             uclk_i                                17.296
+	var3_acc_i             uclk_i                                17.296
+	dat_i(15)              uclk_i                                17.296
+	dat_i(14)              uclk_i                                17.296
+	dat_i(13)              uclk_i                                17.296
+	dat_i(12)              uclk_i                                17.296
+	dat_i(11)              uclk_i                                17.296
+	dat_i(10)              uclk_i                                17.296
+	dat_i(9)               uclk_i                                17.296
+	dat_i(8)               uclk_i                                17.296
+
+
+================================================================================================
+                   Output Delay Report
+
+	Output                 Clock Name                            Slack (ns)
+	------                 ----------                            ----------
+	s_id_o(1)              uclk_i                                2.565 
+	s_id_o(0)              uclk_i                                3.318 
+	dat_o(7)               uclk_i                                7.532 
+	dat_o(6)               uclk_i                                7.532 
+	dat_o(5)               uclk_i                                7.532 
+	dat_o(4)               uclk_i                                7.532 
+	dat_o(3)               uclk_i                                7.532 
+	dat_o(2)               uclk_i                                7.532 
+	dat_o(1)               uclk_i                                7.532 
+	dat_o(0)               uclk_i                                7.532 
+	var3_rdy_o             uclk_i                                8.318 
+	var1_rdy_o             uclk_i                                8.498 
+	dat_o(15)              uclk_i                                8.576 
+	dat_o(14)              uclk_i                                8.576 
+	dat_o(13)              uclk_i                                8.576 
+	dat_o(12)              uclk_i                                8.576 
+	dat_o(11)              uclk_i                                8.576 
+	dat_o(10)              uclk_i                                8.576 
+	dat_o(9)               uclk_i                                8.576 
+	dat_o(8)               uclk_i                                8.576 
+	var2_rdy_o             uclk_i                                8.726 
+	fd_txck_o              uclk_i                                9.184 
+	r_fcser_o              uclk_i                                9.184 
+	r_tler_o               uclk_i                                9.184 
+	u_cacer_o              uclk_i                                9.184 
+	u_pacer_o              uclk_i                                9.184 
+	fd_rstn_o              uclk_i                                9.422 
+	fd_txd_o               uclk_i                                9.422 
+	fd_txena_o             uclk_i                                9.422 
+	rston_o                uclk_i                                9.422 
+	ack_o                  wclk_i                                10.472
+
+Clock Domain Crossing Path Summary
+
+       Data                  Data   Data
+       Path   Source  Dest.  Start  End 
+Index  Delay  Clock   Clock   Pin   Pin 
+-----  -----  ------  -----  -----  ----
+
