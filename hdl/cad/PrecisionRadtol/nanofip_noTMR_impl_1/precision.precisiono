@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PrecisionOutput>
+<result>Success</result>
+<design>nanofip</design>
+<library>proasic3</library>
+<target_edif>C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/nanofip_noTMR_impl_1/nanofip.edf</target_edif>
+</PrecisionOutput>

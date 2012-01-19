@@ -1,0 +1,11 @@
+10:-pipe_flow
+6:-quiet
+8:-out_dir
+75:C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/nanofip_noTMR_impl_1/rtlc.out
+4:-vhf
+94:C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/nanofip_noTMR_impl_1/hdlAnalyze_techcellvhdlfile
+25:-comment_transoff_regions
+13:-lib_map_file
+75:C:/ohr/cern-fip/trunk/hdl/cad/PrecisionRadtol/nanofip_noTMR_impl_1/.jaguarc
+83:+incdir+C:/ohr/cern-fip/trunk/hdl/design+C:/MentorGraphics/Mgc_home/shared/examples
+17:+define+synthesis
