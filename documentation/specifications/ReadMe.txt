@@ -1,0 +1,1 @@
+For all specification documentation, please check: http://www.ohwr.org/projects/cern-fip/wiki/nanoFIP_specs
